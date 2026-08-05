@@ -84,7 +84,7 @@ export async function GET(req: Request) {
 
         // 3. Trigger Omnidimension Outbound Call
         const omniPayload = {
-          agent_id: "200134",
+          agent_id: "233224",
           phone_number: patient.phone,
           call_context: `You are the AarogyaAI automated follow-up assistant. You are calling our patient, ${patient.name}. 
                    Two days ago, they had a consultation and their doctor's summary was: "${summary}".
