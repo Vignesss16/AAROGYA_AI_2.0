@@ -84,8 +84,9 @@ export async function GET(req: Request) {
 
         // 3. Trigger Omnidimension Outbound Call
         const omniPayload = {
+          agent_id: "200134",
           phone_number: patient.phone,
-          prompt: `You are the AarogyaAI automated follow-up assistant. You are calling our patient, ${patient.name}. 
+          call_context: `You are the AarogyaAI automated follow-up assistant. You are calling our patient, ${patient.name}. 
                    Two days ago, they had a consultation and their doctor's summary was: "${summary}".
                    
                    Your Goal: Politely ask if they have been taking their prescribed medication and if their condition has improved. 
@@ -98,7 +99,7 @@ export async function GET(req: Request) {
         if (omniApiKey) {
           try {
              // Example POST request to Omnidimension Outbound API
-             await fetch("https://api.omnidimension.com/v1/calls/outbound", {
+             await fetch("https://omnidim.io/api/v1/calls/dispatch", {
                method: "POST",
                headers: { 
                  "Content-Type": "application/json",
