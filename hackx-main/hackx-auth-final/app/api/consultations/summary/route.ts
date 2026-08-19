@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
         Authorization: `Bearer ${groqApiKey}`,
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "llama3-70b-8192",
         messages: [
           {
             role: "system",
