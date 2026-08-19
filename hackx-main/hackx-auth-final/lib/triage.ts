@@ -990,7 +990,7 @@ Ensure there are exactly 3 doNow, exactly 2 doNot, and 2-3 warnings. The homeRem
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "llama3-70b-8192",
+      model: "openai/gpt-oss-120b",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.1,
     }),
