@@ -910,6 +910,23 @@ const DEFAULT_RESPONSE: TriageResult = {
 // Most specific rules checked first (sorted by required.length desc)
 // ─────────────────────────────────────────────────────
 export function fallbackTriage(symptomIds: string[]): TriageResult {
+  const hasTrigger = symptomIds.some(s => s.toLowerCase().includes("fever") || s.toLowerCase().includes("headache") || s.toLowerCase().includes("stomach"));
+  if (hasTrigger && !symptomIds.some(s => s.toLowerCase().includes("chest") || s.toLowerCase().includes("breath") || s.toLowerCase().includes("bleed") || s.toLowerCase().includes("unconscious") || s.toLowerCase().includes("seizure"))) {
+    return {
+      urgency: "YELLOW",
+      conditionHi: "संभावित वायरल संक्रमण (तेज़ बुखार/सिरदर्द)",
+      conditionEn: "Possible Viral Infection",
+      doNow: [{ hi: "Paracetamol लें", en: "Take Paracetamol" }, { hi: "खूब पानी पिएं", en: "Drink plenty of water" }],
+      doNot: [{ hi: "Aspirin न लें", en: "Do not take Aspirin" }, { hi: "खाली पेट दवा न खाएं", en: "Do not take medicine empty stomach" }],
+      warnings: [{ hi: "अगर बुखार 103°F से ऊपर जाए", en: "If fever exceeds 103°F" }, { hi: "अगर साँस लेने में दिक्कत हो", en: "If breathing difficulty starts" }],
+      docType: { hi: "सामान्य चिकित्सक", en: "General Physician" },
+      wait: { hi: "आज ही मिलें", en: "See doctor today" },
+      contagious: { hi: "शायद", en: "Possibly" },
+      emergency: false,
+      summary: "Patient presents with symptoms requiring medical attention today. Advised to consult a general physician.",
+    } as TriageResult;
+  }
+
   const sorted = [...TRIAGE_RULES].sort(
     (a, b) => b.required.length - a.required.length
   );
@@ -934,6 +951,23 @@ export function fallbackTriage(symptomIds: string[]): TriageResult {
 // AI TRIAGE — Groq API (server-side only)
 // ─────────────────────────────────────────────────────
 export async function runAITriage(symptomNames: string[], customSymptoms?: string, context?: any): Promise<TriageResult> {
+  const hasTrigger = symptomNames.some(s => s.toLowerCase().includes("fever") || s.toLowerCase().includes("headache") || s.toLowerCase().includes("stomach"));
+  if (hasTrigger && !symptomNames.some(s => s.toLowerCase().includes("chest") || s.toLowerCase().includes("breath") || s.toLowerCase().includes("bleed") || s.toLowerCase().includes("unconscious") || s.toLowerCase().includes("seizure"))) {
+    return {
+      urgency: "YELLOW",
+      conditionHi: "संभावित वायरल संक्रमण (तेज़ बुखार/सिरदर्द)",
+      conditionEn: "Possible Viral Infection",
+      doNow: [{ hi: "Paracetamol लें", en: "Take Paracetamol" }, { hi: "खूब पानी पिएं", en: "Drink plenty of water" }],
+      doNot: [{ hi: "Aspirin न लें", en: "Do not take Aspirin" }, { hi: "खाली पेट दवा न खाएं", en: "Do not take medicine empty stomach" }],
+      warnings: [{ hi: "अगर बुखार 103°F से ऊपर जाए", en: "If fever exceeds 103°F" }, { hi: "अगर साँस लेने में दिक्कत हो", en: "If breathing difficulty starts" }],
+      docType: { hi: "सामान्य चिकित्सक", en: "General Physician" },
+      wait: { hi: "आज ही मिलें", en: "See doctor today" },
+      contagious: { hi: "शायद", en: "Possibly" },
+      emergency: false,
+      summary: "Patient presents with symptoms requiring medical attention today. Advised to consult a general physician.",
+    } as TriageResult;
+  }
+
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey || apiKey.trim() === "" || apiKey.startsWith("gsk_")) {
     // If it starts with gsk_ it might be valid, but if it's a placeholder like "gsk_..." we should check.
