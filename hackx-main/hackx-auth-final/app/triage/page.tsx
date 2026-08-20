@@ -184,12 +184,15 @@ export default function TriagePage() {
     }
 
     const autoDispatchRed = (res: any, syms: any, detailStr: string | null) => {
-      if (res.urgency === "RED" && !localStorage.getItem("redAutoDispatched_" + Date.now().toString().slice(0, 6))) {
+      // Use the exact symptom combination as the lock so the same emergency doesn't submit twice, 
+      // but a new emergency session will submit successfully.
+      const lockKey = "redAutoDispatched_" + syms.join("-");
+      if (res.urgency === "RED" && !localStorage.getItem(lockKey)) {
         fetch("/api/consultations", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            patientName: "Jeeva", // Defaulting for demo
+            patientName: "Tanishq", // Hardcoded for this demo
             patientPhone: "8591292159", 
             doctorId: "D1",
             doctorName: "Dr. Ravi Patel",
@@ -202,7 +205,7 @@ export default function TriagePage() {
             patientContext: detailStr ? JSON.parse(detailStr) : null,
             status: "pending",
           })
-        }).then(() => localStorage.setItem("redAutoDispatched_" + Date.now().toString().slice(0, 6), "true")).catch(console.error);
+        }).then(() => localStorage.setItem(lockKey, "true")).catch(console.error);
       }
     };
 
