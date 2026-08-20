@@ -183,9 +183,33 @@ export default function TriagePage() {
       localStorage.removeItem("triageMode");
     }
 
+    const autoDispatchRed = (res: any, syms: any, detailStr: string | null) => {
+      if (res.urgency === "RED" && !localStorage.getItem("redAutoDispatched_" + Date.now().toString().slice(0, 6))) {
+        fetch("/api/consultations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            patientName: "Jeeva", // Defaulting for demo
+            patientPhone: "8591292159", 
+            doctorId: "D1",
+            doctorName: "Dr. Ravi Patel",
+            hospital: "Nabha Civil Hospital",
+            slot: "Immediate",
+            urgency: "RED",
+            queueNo: 0,
+            triageResult: res,
+            symptoms: syms,
+            patientContext: detailStr ? JSON.parse(detailStr) : null,
+            status: "pending",
+          })
+        }).then(() => localStorage.setItem("redAutoDispatched_" + Date.now().toString().slice(0, 6), "true")).catch(console.error);
+      }
+    };
+
     if (saved) {
       const parsedResult = JSON.parse(saved);
       setResult(parsedResult);
+      autoDispatchRed(parsedResult, syms, detail);
       if (parsedResult.urgency === "GREEN") {
         if (parsedResult.homeRemedies && parsedResult.homeRemedies.length > 0) {
           setHomeRemedies(parsedResult.homeRemedies);
@@ -197,6 +221,7 @@ export default function TriagePage() {
       const fallback = fallbackTriage(syms);
       setResult(fallback);
       setIsOfflineMode(true);
+      autoDispatchRed(fallback, syms, detail);
       if (fallback.urgency === "GREEN") {
         setHomeRemedies(HOME_REMEDIES_FOR_SYMPTOMS(syms));
       }
