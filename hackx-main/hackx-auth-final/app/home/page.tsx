@@ -24,6 +24,7 @@ export default function HomePage() {
   const [hasReport, setHasReport] = useState(false);
   const [consultationCount, setConsultationCount] = useState(0);
   const [doctorsCount, setDoctorsCount] = useState(2);
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
 
   useEffect(() => {
     const storedLang = localStorage.getItem("lang") || "hi";
