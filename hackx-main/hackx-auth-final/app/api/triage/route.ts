@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from "next/server";
-import { runAITriage, fallbackTriage } from "@/lib/triage";
+import { runAITriage } from "@/lib/ai-triage";
+import { fallbackTriage } from "@/lib/triage";
 
 export async function POST(req: NextRequest) {
   const { symptoms, customSymptoms, duration, diseases, otherDisease } = await req.json();

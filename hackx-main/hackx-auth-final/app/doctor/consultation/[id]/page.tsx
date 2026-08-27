@@ -22,7 +22,7 @@ type Consultation = {
   patientName: string;
   symptoms: string[];
   urgency: "RED" | "YELLOW" | "GREEN";
-  triageResult: { summary?: string; aiSummary?: string };
+  triageResult: { summary?: string; aiSummary?: string; ragReasoning?: string };
   slot?: string;
   queueNo?: string;
   status: string;
@@ -87,6 +87,18 @@ export default function ConsultationDetailPage() {
   const addRow = () => setRxRows(rows => [...rows, emptyRow()]);
   const removeRow = (i: number) => setRxRows(rows => rows.filter((_, idx) => idx !== i));
 
+  const overrideUrgency = async (newUrgency: "RED" | "YELLOW" | "GREEN") => {
+    if (!consultation || newUrgency === consultation.urgency) return;
+    setConsultation(prev => prev ? { ...prev, urgency: newUrgency } : prev);
+    try {
+      await fetch("/api/consultations", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, urgency: newUrgency }),
+      });
+    } catch { /* ignore */ }
+  };
+
   const saveAndComplete = async () => {
     setSaving(true);
     const prescriptionJson = JSON.stringify(rxRows.filter(r => r.medicine.trim()));
@@ -100,6 +112,7 @@ export default function ConsultationDetailPage() {
           doctorNotes: notes,
           prescription: prescriptionJson,
           doctorName,
+          urgency: consultation?.urgency, // Save the overridden urgency just in case
         }),
       });
       router.push("/doctor/dashboard");
@@ -204,12 +217,47 @@ export default function ConsultationDetailPage() {
           )}
 
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 8 }}>🤖 AI TRIAGE RESULT</div>
+            <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 8 }}>🤖 AI TRIAGE RESULT & REASONING</div>
             <div style={{ background: C.card, borderRadius: 16, padding: 14, border: `1px solid ${C.border}`, borderLeft: `4px solid ${urgencyColor}` }}>
-              <div style={{ fontSize: 15, fontWeight: 800, color: urgencyColor }}>
-                {urgencyEmoji} {consultation.urgency === "RED" ? "Needs Immediate Attention" : consultation.urgency === "YELLOW" ? "Needs Attention" : "Stable"}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ fontSize: 15, fontWeight: 800, color: urgencyColor }}>
+                  {urgencyEmoji} {consultation.urgency === "RED" ? "Needs Immediate Attention" : consultation.urgency === "YELLOW" ? "Needs Attention" : "Stable"}
+                </div>
+                
+                {/* Triage Override Controls */}
+                <div style={{ display: "flex", gap: 4, background: C.bg, padding: 4, borderRadius: 8 }}>
+                  {["RED", "YELLOW", "GREEN"].map((u) => (
+                    <button
+                      key={u}
+                      onClick={() => overrideUrgency(u as any)}
+                      style={{
+                        padding: "4px 8px",
+                        fontSize: 10,
+                        fontWeight: 800,
+                        borderRadius: 6,
+                        border: "none",
+                        cursor: "pointer",
+                        background: consultation.urgency === u ? URGENCY_COLOR[u] : "transparent",
+                        color: consultation.urgency === u ? "white" : C.muted
+                      }}
+                    >
+                      {u}
+                    </button>
+                  ))}
+                </div>
               </div>
-              {aiNote && (
+
+              {consultation.triageResult?.ragReasoning && (
+                <>
+                  <div style={{ height: 1, background: C.border, margin: "10px 0" }} />
+                  <div style={{ fontSize: 13, color: C.text, lineHeight: 1.6, fontWeight: 500 }}>
+                    <span style={{ fontWeight: 800 }}>Reasoning: </span> 
+                    {consultation.triageResult.ragReasoning}
+                  </div>
+                </>
+              )}
+              
+              {!consultation.triageResult?.ragReasoning && aiNote && (
                 <>
                   <div style={{ height: 1, background: C.border, margin: "10px 0" }} />
                   <div style={{ fontSize: 13, color: C.text, lineHeight: 1.6 }}>{aiNote}</div>

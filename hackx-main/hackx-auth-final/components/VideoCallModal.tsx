@@ -40,9 +40,9 @@ function NetworkBadge({ quality }: { quality: NetworkQuality }) {
   );
 }
 
-function VideoView({ stream, label, isMirrored, isMuted, isSmall }: {
+function VideoView({ stream, label, isMirrored, isMuted, isSmall, isFullscreen }: {
   stream: MediaStream | null; label: string;
-  isMirrored?: boolean; isMuted?: boolean; isSmall?: boolean;
+  isMirrored?: boolean; isMuted?: boolean; isSmall?: boolean; isFullscreen?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
@@ -51,8 +51,8 @@ function VideoView({ stream, label, isMirrored, isMuted, isSmall }: {
 
   return (
     <div style={{
-      position: "relative", borderRadius: isSmall ? 12 : 16, overflow: "hidden",
-      background: "#1A2332", width: isSmall ? 100 : "100%", height: isSmall ? 140 : 220,
+      position: "relative", borderRadius: isSmall ? 12 : (isFullscreen ? 16 : 16), overflow: "hidden",
+      background: "#1A2332", width: isSmall ? 100 : "100%", height: isSmall ? 140 : (isFullscreen ? "100%" : 220),
       border: isSmall ? "2px solid rgba(255,255,255,.3)" : "none",
     }}>
       {stream ? (
@@ -118,15 +118,17 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 1000,
-      background: "rgba(0,0,0,.75)", display: "flex", alignItems: "flex-end", justifyContent: "center",
+      background: isActive ? "#0d1520" : "rgba(0,0,0,.75)", display: "flex", alignItems: isActive ? "stretch" : "flex-end", justifyContent: "center",
     }}>
       <div style={{
-        width: 390, background: C.bg, borderRadius: "24px 24px 0 0",
-        maxHeight: "92vh", overflowY: "auto", paddingBottom: 20,
+        width: "100%", maxWidth: 390, background: isActive ? "#0d1520" : C.bg, borderRadius: isActive ? 0 : "24px 24px 0 0",
+        height: isActive ? "100vh" : undefined,
+        maxHeight: isActive ? "100vh" : "92vh", overflowY: "auto", paddingBottom: isActive ? 0 : 20,
+        display: "flex", flexDirection: "column",
         animation: "slideUp .3s ease-out",
       }}>
         {/* Header */}
-        <div style={{ background: "#1A2332", padding: "16px 16px 12px", borderRadius: "24px 24px 0 0" }}>
+        <div style={{ background: "#1A2332", padding: "16px 16px 12px", borderRadius: isActive ? 0 : "24px 24px 0 0", flexShrink: 0 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <div style={{ fontSize: 15, fontWeight: 800, color: "white" }}>
@@ -168,7 +170,7 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
           </div>
         )}
 
-        <div style={{ padding: "16px 16px 0" }}>
+        <div style={{ padding: "16px 16px 16px", flex: 1, display: "flex", flexDirection: "column" }}>
 
           {/* ── Idle: choose call type (doctor side) ── */}
           {effectiveCallMode === "idle" && (
@@ -253,7 +255,7 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
 
           {/* ── Active call ── */}
           {isActive && (
-            <div>
+            <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                 <NetworkBadge quality={state.networkQuality} />
                 <span style={{ fontSize: 12, color: C.muted }}>
@@ -262,9 +264,9 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
               </div>
 
               {effectiveCallMode === "video" ? (
-                <div style={{ position: "relative", marginBottom: 14 }}>
-                  <VideoView stream={state.remoteStream} label={patientName} />
-                  <div style={{ position: "absolute", top: 10, right: 10 }}>
+                <div style={{ position: "relative", marginBottom: 14, flex: 1, display: "flex", borderRadius: 16, overflow: "hidden", minHeight: 300 }}>
+                  <VideoView stream={state.remoteStream} label={patientName} isFullscreen />
+                  <div style={{ position: "absolute", top: 10, right: 10, zIndex: 10 }}>
                     <VideoView stream={state.localStream} label="You" isMirrored isMuted isSmall />
                   </div>
                 </div>

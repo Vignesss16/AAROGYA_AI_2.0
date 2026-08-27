@@ -239,6 +239,14 @@ export function useWebRTC(
 
     channel.bind("pusher:subscription_succeeded", () => {
       console.log(`[${role}] Successfully subscribed to ${channelName}`);
+      if (!isInitiator) {
+        sendSignal(roomId, cid, "patient-ready");
+      } else {
+        const currentPc = pcRef.current;
+        if (currentPc?.localDescription && currentPc.signalingState === "have-local-offer") {
+          sendSignal(roomId, cid, "offer", currentPc.localDescription);
+        }
+      }
     });
 
     channel.bind("signal", async (msg: { type: string; data?: unknown; fromClientId?: string }) => {
@@ -307,13 +315,7 @@ export function useWebRTC(
       }
     });
 
-    // Patient signals readiness so doctor knows to (re-)send the offer.
-    if (!isInitiator) {
-      // Small delay to ensure subscription is ready
-      setTimeout(() => {
-        sendSignal(roomId, cid, "patient-ready");
-      }, 500);
-    }
+    // Removed the setTimeout patient-ready signal; it is now strictly sent in pusher:subscription_succeeded
 
     return () => {
       pusher.unsubscribe(channelName);
@@ -343,13 +345,10 @@ export function useWebRTC(
       if (isInitiator) {
         // Create the offer immediately and store it as localDescription.
         // Wait a bit for patient to subscribe, then send the offer.
-        // The patient will also send "patient-ready" when they connect,
-        // which triggers a re-send if they missed the first offer.
+        // The patient will send "patient-ready" when they successfully connect to Pusher,
+        // which triggers a re-send if they missed this initial offer.
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
-        
-        // Delay to give patient time to subscribe to the channel
-        await new Promise((resolve) => setTimeout(resolve, 1000));
         await sendSignal(roomId, cid, "offer", offer);
       }
       setState((s) => ({ ...s, callMode: mode, statusMessage: "Ringing..." }));

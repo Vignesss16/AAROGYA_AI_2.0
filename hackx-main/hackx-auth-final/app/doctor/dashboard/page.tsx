@@ -575,8 +575,25 @@ export default function DoctorDashboardPage() {
                             cursor: "pointer",
                           }}
                         >
-                          📞 {T("कॉल", "Call")}
+                          💻 {T("ऐप कॉल", "App Call")}
                         </button>
+                        <a
+                          href={`tel:${p.patientPhone}`}
+                          style={{
+                            padding: "7px 10px",
+                            borderRadius: 8,
+                            border: "none",
+                            background: "#FDEDED",
+                            color: C.red,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            textDecoration: "none",
+                            cursor: "pointer",
+                            display: "inline-block",
+                          }}
+                        >
+                          📱 {T("फ़ोन", "Phone")}
+                        </a>
                         <button
                           onClick={() => router.push(`/doctor/consultation/${p._id}`)}
                           style={{

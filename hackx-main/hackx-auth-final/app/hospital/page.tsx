@@ -2,6 +2,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { useLang } from "@/lib/useLang";
+import dynamic from "next/dynamic";
+const VideoCallModal = dynamic(() => import("@/components/VideoCallModal"), { ssr: false });
 
 const C = {
   primary: "#0F766E", // Deep Teal
@@ -55,6 +57,8 @@ export default function HospitalDesktopDashboard() {
   const T = (hi: string, en: string) => lang === "hi" ? hi : en;
 
   const [sosAlerts, setSosAlerts] = useState<any[]>([]);
+  const [callPatient, setCallPatient] = useState<{ id: string; name: string } | null>(null);
+
 
   const fetchData = useCallback(async () => {
     try {
@@ -454,9 +458,14 @@ export default function HospitalDesktopDashboard() {
                               {p.createdAt ? new Date(p.createdAt).toLocaleTimeString(lang === 'hi' ? 'hi-IN' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : "Just now"}
                             </td>
                             <td style={{ padding: "24px 32px" }}>
-                              <button onClick={() => window.open(`tel:${p.patientPhone}`)} style={{ padding: "10px 20px", background: C.red, color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 10px rgba(239, 68, 68, 0.3)" }}>
-                                Dispatch Alert
-                              </button>
+                              <div style={{ display: "flex", gap: 10 }}>
+                                <button onClick={() => setCallPatient({ id: p.patientPhone, name: p.patientName })} style={{ padding: "10px 16px", background: "#EBF4FD", color: C.accent, border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 10px rgba(0, 0, 0, 0.05)" }}>
+                                  💻 {T("ऐप कॉल", "App Call")}
+                                </button>
+                                <button onClick={() => window.open(`tel:${p.patientPhone}`)} style={{ padding: "10px 16px", background: C.red, color: "white", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 10px rgba(239, 68, 68, 0.3)" }}>
+                                  📱 {T("फ़ोन", "Phone")}
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -695,6 +704,15 @@ export default function HospitalDesktopDashboard() {
         @keyframes alertGlow { 0%, 100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); } 50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.8); } }
         .info-btn:hover .tooltip { visibility: visible !important; opacity: 1 !important; transform: translateX(-50%) translateY(-5px) !important; }
       `}</style>
+      {callPatient && (
+        <VideoCallModal
+          isOpen={true}
+          onClose={() => setCallPatient(null)}
+          patientName={callPatient.name}
+          patientId={callPatient.id}
+          isDoctor={true}
+        />
+      )}
     </div>
   );
 }
