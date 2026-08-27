@@ -66,8 +66,11 @@ Web Search Results: ${webContext}
 Local RAG Match: ${ragText}
 
 Task:
-1. Verify if the 'urgency' level is correct based on the web/RAG evidence. Adjust if necessary.
-2. Provide a concise 'ragReasoning' (max 2-3 sentences) for the doctor explaining WHY this urgency was chosen. You MUST explicitly mention BOTH the "Local Dataset Match" AND the "Web Search Results" in your reasoning to show a comprehensive comparison. DO NOT mention confidence scores. Just state the clinical reasoning derived from both sources.
+1. Evaluate the 'Local RAG Match' first. Decide if it is a clinically accurate match for the Patient Symptoms. 
+2. If it is a correct match, use it as your foundational diagnosis. If it is incorrect or irrelevant, rely more heavily on your own medical knowledge.
+3. Next, cross-reference this baseline against the 'Web Search Results' to confirm the urgency level (RED/YELLOW/GREEN). Adjust the urgency if necessary.
+4. Finally, synthesize this combined data into your triage result.
+5. Provide a concise 'ragReasoning' (max 2-3 sentences) for the doctor explaining WHY this urgency was chosen. You MUST explicitly mention BOTH the "Local Dataset Match" AND the "Web Search Results" in your reasoning to show a comprehensive comparison. DO NOT mention confidence scores. Just state the clinical reasoning derived from both sources.
 
 Respond ONLY with raw JSON matching the TriageResult interface, adding 'ragReasoning':
 {
