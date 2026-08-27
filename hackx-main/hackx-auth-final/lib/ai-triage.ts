@@ -67,7 +67,7 @@ Local RAG Match: ${ragText}
 
 Task:
 1. Verify if the 'urgency' level is correct based on the web/RAG evidence. Adjust if necessary.
-2. Provide a concise 'ragReasoning' (max 2-3 sentences) for the doctor explaining WHY this urgency was chosen, citing the Local Dataset Match or Web Search Results. DO NOT mention confidence scores. Just state the clinical reasoning.
+2. Provide a concise 'ragReasoning' (max 2-3 sentences) for the doctor explaining WHY this urgency was chosen. You MUST explicitly mention BOTH the "Local Dataset Match" AND the "Web Search Results" in your reasoning to show a comprehensive comparison. DO NOT mention confidence scores. Just state the clinical reasoning derived from both sources.
 
 Respond ONLY with raw JSON matching the TriageResult interface, adding 'ragReasoning':
 {
@@ -75,7 +75,7 @@ Respond ONLY with raw JSON matching the TriageResult interface, adding 'ragReaso
   "conditionHi": "...", "conditionEn": "...",
   "doNow": [...], "doNot": [...], "warnings": [...],
   "docType": {...}, "wait": {...}, "contagious": {...}, "emergency": true/false, "summary": "...",
-  "ragReasoning": "Based on the local dataset match of X and web evidence regarding Y, the triage is set to Z because..."
+  "ragReasoning": "Comparing the local dataset (which suggests X) and web evidence (which confirms Y), the urgency is Z because..."
 }`;
 
   const res2 = await fetch("https://api.groq.com/openai/v1/chat/completions", {
