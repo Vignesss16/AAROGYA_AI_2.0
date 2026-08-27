@@ -53,7 +53,8 @@ Respond ONLY with raw JSON:
   const initialTriage = JSON.parse(data1.choices[0].message.content.replace(/```json|```/g, "").trim());
 
   // === STEP 2: Web Search Verification ===
-  const searchStr = `${initialTriage.conditionEn} ${symptomNames[0] || ""} treatment emergency`;
+  // Simplify search string so Wikipedia search actually returns results
+  const searchStr = `${initialTriage.conditionEn}`;
   const webContext = await verifyWithWebSearch(searchStr);
 
   const prompt2 = `You are a Senior Medical Verifier. 
