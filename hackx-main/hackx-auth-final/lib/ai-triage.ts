@@ -30,8 +30,8 @@ RAG Dataset Match: ${ragText}
 
 Classify urgency strictly into RED, YELLOW, or GREEN based on these rules:
 - RED (Emergency): Life-threatening, severe pain, breathing difficulty, or critical condition.
-- YELLOW (Needs Attention): Moderate symptoms requiring a doctor's visit within 24-48 hours.
-- GREEN (Routine/Self-care): Mild, common, self-limiting symptoms (e.g., isolated mild fever and cough).
+- YELLOW (Needs Attention): Moderate symptoms requiring a doctor's visit within 24-48 hours, OR mild symptoms that have persisted for 3 or more days.
+- GREEN (Routine/Self-care): Mild, common, self-limiting symptoms (e.g., isolated mild fever and cough) lasting less than 3 days.
 Respond ONLY with raw JSON:
 {
   "urgency": "RED" or "YELLOW" or "GREEN",
@@ -75,8 +75,8 @@ Task:
 2. If one of the RAG matches is a highly accurate clinical fit, use it. However, if the matches are too severe, unlikely, or overkill for the basic symptoms provided, REJECT them entirely. Instead, diagnose a more common, realistic condition (like Viral Fever or Common Cold) using your own medical knowledge.
 3. Next, cross-reference this baseline against the 'Web Search Results' to confirm the urgency level (RED/YELLOW/GREEN). Adjust the urgency if necessary, strictly using these rules:
    - RED: Life-threatening or critical.
-   - YELLOW: Moderate, requires doctor in 24-48 hrs.
-   - GREEN: Mild, common, self-limiting (e.g., isolated fever/cough without breathing issues).
+   - YELLOW: Moderate, requires doctor in 24-48 hrs, OR mild symptoms lasting >= 3 days.
+   - GREEN: Mild, common, self-limiting (e.g., isolated fever/cough) lasting < 3 days.
 4. Finally, synthesize this combined data into your triage result.
 5. Provide a concise 'ragReasoning' (max 2-3 sentences) for the doctor explaining WHY this urgency was chosen. You MUST explicitly mention BOTH the "Local Dataset Match" AND the "Web Search Results" in your reasoning to show a comprehensive comparison. DO NOT mention confidence scores. Just state the clinical reasoning derived from both sources.
 
