@@ -89,15 +89,15 @@ export default function SymptomsPage() {
         recognition.continuous = true;
         recognition.interimResults = true;
         
+        const startText = customSymptoms;
+        
         recognition.onresult = (e: any) => {
-          let finalTranscript = "";
-          for (let i = e.resultIndex; i < e.results.length; ++i) {
-            if (e.results[i].isFinal) {
-              finalTranscript += e.results[i][0].transcript;
-            }
+          let transcript = "";
+          for (let i = 0; i < e.results.length; ++i) {
+            transcript += e.results[i][0].transcript;
           }
-          if (finalTranscript) {
-            setCustomSymptoms(prev => prev + (prev ? " " : "") + finalTranscript);
+          if (transcript) {
+            setCustomSymptoms(startText + (startText ? " " : "") + transcript);
           }
         };
         recognition.start();
