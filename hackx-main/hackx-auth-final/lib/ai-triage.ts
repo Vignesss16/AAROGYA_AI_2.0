@@ -16,8 +16,10 @@ export async function runAITriage(symptomNames: string[], customSymptoms?: strin
   // === STEP 1: RAG (CSV Dataset) Comparison ===
   const ragContext = await retrieveRAGContext([...symptomNames, customSymptoms || ""]);
   let ragText = "No direct matching disease found in the local medical CSV dataset.";
-  if (ragContext) {
-    ragText = `LOCAL DATASET MATCH:\nDisease: ${ragContext.Name}\nTreatments: ${ragContext.Treatments}\nContagious: ${ragContext.Contagious}, Chronic: ${ragContext.Chronic}`;
+  if (ragContext && ragContext.length > 0) {
+    ragText = "LOCAL DATASET TOP MATCHES:\n" + ragContext.map((r, i) => 
+      `${i + 1}. Disease: ${r.Name}\n   Treatments: ${r.Treatments}\n   Contagious: ${r.Contagious}, Chronic: ${r.Chronic}`
+    ).join("\n\n");
   }
 
   // Base LLM Prompt
@@ -66,8 +68,8 @@ Web Search Results: ${webContext}
 Local RAG Match: ${ragText}
 
 Task:
-1. Evaluate the 'Local RAG Match' first. Decide if it is a clinically accurate match for the Patient Symptoms. 
-2. If it is a correct match, use it as your foundational diagnosis. If it is incorrect or irrelevant, rely more heavily on your own medical knowledge.
+1. Evaluate the 'Local RAG Match' first. It contains the top matching diseases from the database. Decide which of these diseases is the most clinically accurate and likely match for the Patient Symptoms.
+2. If one of them is a correct match, use it as your foundational diagnosis. If they are all incorrect or irrelevant, rely more heavily on your own medical knowledge.
 3. Next, cross-reference this baseline against the 'Web Search Results' to confirm the urgency level (RED/YELLOW/GREEN). Adjust the urgency if necessary.
 4. Finally, synthesize this combined data into your triage result.
 5. Provide a concise 'ragReasoning' (max 2-3 sentences) for the doctor explaining WHY this urgency was chosen. You MUST explicitly mention BOTH the "Local Dataset Match" AND the "Web Search Results" in your reasoning to show a comprehensive comparison. DO NOT mention confidence scores. Just state the clinical reasoning derived from both sources.

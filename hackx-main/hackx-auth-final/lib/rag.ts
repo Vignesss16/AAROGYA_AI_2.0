@@ -14,8 +14,9 @@ export interface DiseaseRow {
 
 /**
  * STEP 1: Search the dataset for matching symptoms.
+ * Returns the top 3 best matching diseases.
  */
-export async function retrieveRAGContext(patientSymptoms: string[]): Promise<DiseaseRow | null> {
+export async function retrieveRAGContext(patientSymptoms: string[]): Promise<DiseaseRow[]> {
   try {
     const csvPath = path.join(process.cwd(), 'data', 'Diseases_Symptoms.csv');
     const fileContent = fs.readFileSync(csvPath, 'utf8');
@@ -27,11 +28,6 @@ export async function retrieveRAGContext(patientSymptoms: string[]): Promise<Dis
 
     const rows = parsed.data;
     
-    // Find the best matching row by checking how many patient symptoms match the row's symptoms
-    let bestMatch: DiseaseRow | null = null;
-    let maxMatches = 0;
-
-    // Filter empty strings and extract just the English name before '(' if present
     const normalizedSymptoms = patientSymptoms
       .filter(s => s && s.trim().length > 0)
       .map(s => {
@@ -39,28 +35,28 @@ export async function retrieveRAGContext(patientSymptoms: string[]): Promise<Dis
         return enPart.toLowerCase();
       });
 
-    for (const row of rows) {
+    const scoredRows = rows.map(row => {
       const rowSymptomsStr = (row.Symptoms || "").toLowerCase();
       let matches = 0;
-
       for (const sym of normalizedSymptoms) {
         if (rowSymptomsStr.includes(sym)) {
           matches++;
         }
       }
+      // Calculate a slight penalty for diseases with lots of symptoms to favor simpler common diseases
+      // if symptoms matched are equal.
+      const penalty = rowSymptomsStr.length * 0.0001; 
+      return { row, score: matches > 0 ? matches - penalty : 0 };
+    });
 
-      if (matches > maxMatches) {
-        maxMatches = matches;
-        bestMatch = row;
-      }
-    }
+    scoredRows.sort((a, b) => b.score - a.score);
 
-    // Return the best match if we found at least 1 matching symptom, else null
-    return maxMatches > 0 ? bestMatch : null;
+    // Return up to top 3 matches that have a score > 0
+    return scoredRows.filter(sr => sr.score > 0).slice(0, 3).map(sr => sr.row);
 
   } catch (error) {
     console.error("Error retrieving RAG Context:", error);
-    return null;
+    return [];
   }
 }
 
