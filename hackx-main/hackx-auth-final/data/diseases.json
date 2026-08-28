@@ -1,0 +1,3242 @@
+[
+  {
+    "Name": "Gestational Cholestasis",
+    "Symptoms": "Itchy skin, particularly on the hands and feet",
+    "Treatments": "",
+    "Disease_Code": "D001",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Injury to Internal Organ",
+    "Symptoms": "Abdominal pain, bleeding, organ dysfunction",
+    "Treatments": "Immediate medical attention, diagnostic tests, surgery (in some cases)",
+    "Disease_Code": "D002",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Scabies",
+    "Symptoms": "Intense itching, especially at night, small blisters or bumps",
+    "Treatments": "Prescription medications (topical or oral scabicides), washing clothes and bedding in hot water, vacuuming and cleaning home",
+    "Disease_Code": "D003",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Congenital Glaucoma",
+    "Symptoms": "Cloudy or hazy eyes, excessive tearing, sensitivity to light",
+    "Treatments": "Surgery (e.g., trabeculotomy, goniotomy) to create a new drainage pathway, medications to reduce intraocular pressure",
+    "Disease_Code": "D004",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Avoidant/Restrictive Food Intake Disorder (ARFID)",
+    "Symptoms": "Avoidance or restriction of certain foods or entire food groups, significant weight loss or failure to gain weight",
+    "Treatments": "Nutritional counseling, psychotherapy (such as cognitive-behavioral therapy or family-based therapy), medical monitoring, exposure therapy, occupational therapy",
+    "Disease_Code": "D005",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Subdural hemorrhage",
+    "Symptoms": "Headache, confusion, dizziness, nausea or vomiting, seizures, weakness or numbness",
+    "Treatments": "Immediate medical attention, close monitoring of vital signs and neurological status, diagnostic imaging (such as CT or MRI scan), potential surgical intervention (such as craniotomy or burr hole evacuation), medication to manage symptoms",
+    "Disease_Code": "D006",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Poisoning due to Antidepressants",
+    "Symptoms": "Nausea, vomiting, drowsiness, dizziness, confusion, seizures, changes in heart rate, low blood pressure, respiratory distress",
+    "Treatments": "Seek immediate medical assistance or contact a poison control center, activated charcoal (if indicated), supportive care (maintaining vital signs, airway management), gastric lavage (in certain cases), administration of antidotes (if available and appropriate), monitoring and management of complications",
+    "Disease_Code": "D007",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Mittelschmerz",
+    "Symptoms": "Lower abdominal pain and discomfort occurring around the time of ovulation",
+    "Treatments": "Pain management (over-the-counter pain relievers, heat therapy), hormonal birth control (if severe or recurrent)",
+    "Disease_Code": "D008",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Cornea Infection",
+    "Symptoms": "Eye redness, pain or discomfort, blurred or decreased vision, increased sensitivity to light",
+    "Treatments": "Antibiotic or antifungal eye drops, oral medications, supportive care, possible corneal transplant (in severe cases)",
+    "Disease_Code": "D009",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Myopia",
+    "Symptoms": "Blurred distance vision, eyestrain, squinting",
+    "Treatments": "Eyeglasses, contact lenses, refractive surgery (LASIK), orthokeratology (for some cases)",
+    "Disease_Code": "D010",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Abscess of the Lung",
+    "Symptoms": "Cough with phlegm or pus, chest pain, fever, shortness of breath, fatigue",
+    "Treatments": "Antibiotics, drainage or surgical removal of the abscess, supportive care, management of underlying lung conditions",
+    "Disease_Code": "D011",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Congenital rubella",
+    "Symptoms": "Developmental delays, intellectual disability, hearing loss, vision problems, heart defects, liver or spleen enlargement, rash at birth",
+    "Treatments": "Supportive care to manage symptoms and complications, early intervention services for developmental delays, educational support, vision and hearing interventions, specialized medical care as needed",
+    "Disease_Code": "D012",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Intertrigo",
+    "Symptoms": "Red, raw, or inflamed skin in skin folds (such as armpits or groin), itching or burning sensation",
+    "Treatments": "Keeping the affected area clean and dry, applying topical antifungal or antibacterial creams, using barrier creams",
+    "Disease_Code": "D013",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Insect Bites",
+    "Symptoms": "Red, swollen, itchy bumps",
+    "Treatments": "Topical corticosteroids, oral antihistamines, cold compresses",
+    "Disease_Code": "D014",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Complex Regional Pain Syndrome",
+    "Symptoms": "Severe and chronic pain, often in the limbs, with associated swelling, changes in skin color or temperature, abnormal sweating, limited range of motion",
+    "Treatments": "Physical therapy (including exercises, stretching, and mirror therapy), pain management techniques (such as medications, nerve blocks, or spinal cord stimulation), sympathetic nerve blocks, psychological support (such as cognitive-behavioral therapy or counseling), occupational therapy, graded motor imagery, transcutaneous electrical nerve stimulation (TENS), patient education and self-management techniques",
+    "Disease_Code": "D015",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Anxiety",
+    "Symptoms": "Excessive worrying, restlessness, increased heart rate, panic attacks",
+    "Treatments": "Therapy (cognitive-behavioral therapy, psychotherapy), medications (antidepressants, anti-anxiety drugs)",
+    "Disease_Code": "D016",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Gastroesophageal Reflux Disease (GERD)",
+    "Symptoms": "Heartburn, acid reflux, chest pain",
+    "Treatments": "Lifestyle changes, medications (antacids, proton pump inhibitors)",
+    "Disease_Code": "D017",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Crushing Injury",
+    "Symptoms": "Severe pain, swelling, deformity, bruising, difficulty moving or using the affected area",
+    "Treatments": "Emergency medical attention, immobilization, pain management, surgery (to repair or reconstruct affected tissues), rehabilitation (physical therapy, occupational therapy)",
+    "Disease_Code": "D018",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Cellulitis",
+    "Symptoms": "Redness, Pain, tenderness, Swelling, Skin changes, Lymph node enlargement",
+    "Treatments": "Antibiotics, Warm compresses, immobilization, rest, Pain management",
+    "Disease_Code": "D019",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Anal Fissure",
+    "Symptoms": "Pain during bowel movements, rectal bleeding",
+    "Treatments": "Stool softeners, fiber supplements, topical ointments, surgical procedures (in severe cases)",
+    "Disease_Code": "D020",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Neuropathic Pain",
+    "Symptoms": "Shooting or burning pain, tingling or numbness",
+    "Treatments": "Medications (such as antidepressants, anticonvulsants, topical treatments), nerve blocks, spinal cord stimulation, physical therapy, occupational therapy, transcutaneous electrical nerve stimulation (TENS), acupuncture, cognitive-behavioral therapy, relaxation techniques",
+    "Disease_Code": "D021",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Common Cold",
+    "Symptoms": "cough, sore throat, runny nose, sneezing",
+    "Treatments": "rest, fluids, over-the-counter medication",
+    "Disease_Code": "D022",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Food Allergy",
+    "Symptoms": "Rash, itching, swelling, difficulty breathing, gastrointestinal symptoms",
+    "Treatments": "Avoidance of allergenic food, antihistamines, epinephrine (in severe cases)",
+    "Disease_Code": "D023",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Pulmonary Fibrosis",
+    "Symptoms": "Shortness of breath, dry cough, fatigue",
+    "Treatments": "Medications (immunosuppressants, antifibrotic drugs), oxygen therapy, lung transplantation",
+    "Disease_Code": "D024",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hyperosmotic Hyperketotic State",
+    "Symptoms": "Increased blood sugar levels, increased ketone production, excessive thirst, frequent urination, fatigue, confusion, fruity breath odor",
+    "Treatments": "Insulin therapy to regulate blood sugar levels, intravenous fluids to correct dehydration, electrolyte replacement, correction of underlying causes (e.g., diabetes management)",
+    "Disease_Code": "D025",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Overflow Incontinence",
+    "Symptoms": "Frequent or constant dribbling of urine, inability to completely empty the bladder, weak urine stream",
+    "Treatments": "Bladder training exercises, double voiding, catheterization, medications (alpha-blockers, anticholinergics), surgery (in severe cases), lifestyle modifications",
+    "Disease_Code": "D026",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Abdominal Injury",
+    "Symptoms": "Abdominal pain, tenderness, bruising, swelling, difficulty breathing, nausea, vomiting, changes in bowel movements, blood in urine or stool",
+    "Treatments": "Immediate medical attention, X-ray, CT scan, ultrasound, stabilization of vital signs, pain management, observation for signs of internal bleeding, potential surgical intervention, wound care",
+    "Disease_Code": "D027",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Hirsutism",
+    "Symptoms": "Excessive hair growth in women",
+    "Treatments": "Medications (anti-androgens, oral contraceptives), hair removal methods, lifestyle changes",
+    "Disease_Code": "D028",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Neuralgia",
+    "Symptoms": "Sharp, shooting pain along the affected nerve",
+    "Treatments": "Medications (pain relievers, anticonvulsants), nerve blocks",
+    "Disease_Code": "D029",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Warthin tumor",
+    "Symptoms": "Painless lump or swelling, Facial changes",
+    "Treatments": "Surgical excision",
+    "Disease_Code": "D030",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Presbycusis",
+    "Symptoms": "Gradual hearing loss, difficulty hearing high-pitched sounds, speech sounds muffled or unclear",
+    "Treatments": "Hearing aids, assistive listening devices, cochlear implants (in severe cases), communication strategies, counseling, regular hearing evaluations",
+    "Disease_Code": "D031",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Opioid Use Disorder",
+    "Symptoms": "Compulsive use of opioids, strong desire or cravings for opioids, inability to control or reduce opioid use, withdrawal symptoms (such as nausea, muscle aches, anxiety) when attempting to stop or reduce use, tolerance to opioids, continued use despite negative consequences (such as legal issues, health problems)",
+    "Treatments": "Medication-assisted treatment (such as methadone, buprenorphine, naltrexone), counseling or therapy (such as cognitive-behavioral therapy, contingency management), support groups (such as Narcotics Anonymous), harm reduction strategies, addressing underlying psychological or social factors, lifestyle changes, ongoing monitoring and support",
+    "Disease_Code": "D032",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Panic disorder",
+    "Symptoms": "Palpitations, Sweating, Trembling, Shortness of breath, Fear of losing control, Dizziness",
+    "Treatments": "Antidepressant medications, Cognitive Behavioral Therapy, Relaxation Techniques",
+    "Disease_Code": "D033",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Esophageal Cancer",
+    "Symptoms": "Difficulty swallowing, unintentional weight loss, chest pain, hoarseness",
+    "Treatments": "Surgery, chemotherapy, radiation therapy, targeted therapy, immunotherapy, palliative care, clinical trials",
+    "Disease_Code": "D034",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Alcohol Intoxication",
+    "Symptoms": "Slurred speech, impaired coordination, confusion",
+    "Treatments": "Supportive care, ensuring hydration, monitoring vital signs, prevention of complications",
+    "Disease_Code": "D035",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Pilonidal Cyst",
+    "Symptoms": "Pain or discomfort in the tailbone area, swelling, redness, drainage of pus or blood, abscess formation",
+    "Treatments": "Warm compresses, pain management, antibiotics (for infection), incision and drainage, surgical removal or excision, wound care, lifestyle modifications to prevent recurrence",
+    "Disease_Code": "D036",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Gestational Diabetes",
+    "Symptoms": "High blood sugar levels during pregnancy",
+    "Treatments": "Blood sugar monitoring, healthy diet modifications, regular exercise, insulin injections (if needed), close monitoring by healthcare provider",
+    "Disease_Code": "D037",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Drug Withdrawal",
+    "Symptoms": "Anxiety, restlessness, irritability, tremors, sweating, nausea, vomiting, insomnia, drug cravings",
+    "Treatments": "Gradual tapering of the drug under medical supervision, medications to manage withdrawal symptoms (such as benzodiazepines, clonidine, or buprenorphine), behavioral therapy, support groups, counseling, rehabilitation programs",
+    "Disease_Code": "D038",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Fetal Alcohol Syndrome",
+    "Symptoms": "Growth deficiencies, facial abnormalities, developmental delays, intellectual disability",
+    "Treatments": "Early intervention services for developmental delays, educational support, speech and occupational therapy, behavioral interventions, medical management of associated health issues",
+    "Disease_Code": "D039",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Polycythemia Vera",
+    "Symptoms": "Increased red blood cell count, fatigue, headache, dizziness, itching, enlarged spleen",
+    "Treatments": "Phlebotomy (removal of blood), medication (hydroxyurea, interferon), low-dose aspirin, managing complications (blood thinners, medication for itching)",
+    "Disease_Code": "D040",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Osteoarthritis",
+    "Symptoms": "Joint pain, stiffness, swelling",
+    "Treatments": "Pain relievers, physical therapy, weight management, assistive devices, surgery (in severe cases)",
+    "Disease_Code": "D041",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Fracture of the Neck",
+    "Symptoms": "Severe neck pain, swelling, tenderness, difficulty moving or turning the head, numbness or weakness in the arms or legs",
+    "Treatments": "Immobilization (cervical collar, brace), pain management, potential surgical intervention (in severe cases)",
+    "Disease_Code": "D042",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Myoclonus",
+    "Symptoms": "Sudden, brief muscle contractions or jerks, often affecting the arms, legs, or face",
+    "Treatments": "Identifying and treating underlying causes (e.g., medication adjustments, metabolic imbalances), medications (anti-seizure drugs, tranquilizers), physical therapy, supportive care",
+    "Disease_Code": "D043",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Foreign Body in the Gastrointestinal Tract",
+    "Symptoms": "Abdominal pain or discomfort, difficulty swallowing, choking or gagging, drooling, nausea or vomiting, loss of appetite, chest pain or pressure, respiratory distress, coughing or wheezing, gastrointestinal bleeding, bowel obstruction, perforation of the digestive tract",
+    "Treatments": "Observation and monitoring (for small, smooth, and non-sharp objects that are likely to pass through the digestive tract without complications), endoscopic removal (using a flexible tube with a camera to locate and remove the foreign body), surgical intervention (in cases of severe complications, large or sharp objects, or failed endoscopic removal attempts), supportive care (such as intravenous fluids, pain management, and antibiotics if infection is present), imaging studies (such as X-rays or CT scans) to evaluate the location and extent of the foreign body, consultation with a gastroenterologist or surgeon for appropriate management",
+    "Disease_Code": "D044",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Coronary Atherosclerosis",
+    "Symptoms": "Chest pain or discomfort (angina), shortness of breath, fatigue, irregular heartbeat, dizziness, nausea, sweating, jaw or arm pain (in some cases), heart attack (when a coronary artery becomes completely blocked)",
+    "Treatments": "Lifestyle changes (such as a heart-healthy diet, regular exercise, weight management, smoking cessation), medication (such as aspirin, cholesterol-lowering medications, beta-blockers, calcium channel blockers, nitroglycerin), procedures (such as angioplasty and stenting, coronary artery bypass grafting), cardiac rehabilitation, management of other risk factors (such as high blood pressure, diabetes)",
+    "Disease_Code": "D045",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hypertensive Heart Disease",
+    "Symptoms": "High blood pressure, chest pain or discomfort, shortness of breath, fatigue",
+    "Treatments": "Medications (antihypertensives), lifestyle changes (healthy diet, exercise, stress management), treatment of underlying conditions",
+    "Disease_Code": "D046",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Mumps",
+    "Symptoms": "Swollen salivary glands (usually parotid), fever, headache, fatigue",
+    "Treatments": "Supportive care, pain relievers, isolation, vaccination (MMR)",
+    "Disease_Code": "D047",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Cholesteatoma",
+    "Symptoms": "Ear pain, hearing loss, ear drainage, dizziness or vertigo, tinnitus",
+    "Treatments": "Surgical removal, antibiotics (for associated infections)",
+    "Disease_Code": "D048",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Polycystic Kidney Disease",
+    "Symptoms": "Abdominal pain, high blood pressure, kidney cysts",
+    "Treatments": "Symptom management, blood pressure control, dialysis",
+    "Disease_Code": "D049",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Juvenile Rheumatoid Arthritis",
+    "Symptoms": "Joint pain, swelling, stiffness, limited range of motion, fever, rash",
+    "Treatments": "Medications (NSAIDs, DMARDs), physical therapy, occupational therapy, exercise, assistive devices",
+    "Disease_Code": "D050",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hypospadias",
+    "Symptoms": "Abnormal positioning of the urethral opening on the underside of the penis, penile curvature, spraying of urine, difficulty in urination",
+    "Treatments": "Surgical repair (hypospadias repair surgery), hormone therapy (in some cases), counseling and support for the child and family",
+    "Disease_Code": "D051",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Parotid stones",
+    "Symptoms": "Swelling, pain, dry mouth, bad taste",
+    "Treatments": "Hydration,Saliva stimulation, Stone removal",
+    "Disease_Code": "D052",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Achalasia",
+    "Symptoms": "Difficulty swallowing",
+    "Treatments": "Balloon dilation, surgery, medication",
+    "Disease_Code": "D053",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Rumination Disorder",
+    "Symptoms": "Repeated regurgitation and re-chewing of food",
+    "Treatments": "Behavioral therapy (such as diaphragmatic breathing techniques), biofeedback, addressing any underlying psychological or medical conditions, dietary modifications",
+    "Disease_Code": "D054",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Bronchitis",
+    "Symptoms": "Persistent cough with yellow or green mucus, chest congestion, fatigue",
+    "Treatments": "Rest, fluids, over-the-counter cough suppressants, inhalers (if prescribed), treating underlying cause",
+    "Disease_Code": "D055",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Balanitis",
+    "Symptoms": "Inflammation of the glans penis (tip of the penis), redness, swelling, pain",
+    "Treatments": "Good hygiene, topical antifungal or antibacterial creams, corticosteroid creams (if severe), treating underlying causes",
+    "Disease_Code": "D056",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Ectopic Pregnancy",
+    "Symptoms": "Vaginal bleeding, abdominal pain or cramping, shoulder pain (if the fallopian tube ruptures)",
+    "Treatments": "Immediate medical attention, potential medical procedures (such as medication or surgery to remove the ectopic pregnancy), close monitoring, emotional support",
+    "Disease_Code": "D057",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Atelectasis",
+    "Symptoms": "Difficulty breathing, rapid breathing, chest pain",
+    "Treatments": "Treatment of the underlying cause (such as removal of airway obstruction, treatment of lung infection), deep breathing exercises, coughing techniques, incentive spirometry, chest physiotherapy, bronchodilator medications, supplemental oxygen therapy",
+    "Disease_Code": "D058",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Anorexia Nervosa",
+    "Symptoms": "Extreme weight loss, fear of gaining weight, distorted body image",
+    "Treatments": "Medical monitoring, nutritional counseling, psychotherapy (such as cognitive-behavioral therapy or family-based therapy), medications (in some cases), hospitalization (for severe cases), support groups",
+    "Disease_Code": "D059",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hypergammaglobulinemia",
+    "Symptoms": "Elevated levels of gamma globulins in the blood, may be asymptomatic or associated with other underlying conditions",
+    "Treatments": "Treatment of underlying cause or associated condition, immunosuppressive therapy (in some cases)",
+    "Disease_Code": "D060",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Pregnancy-Induced Hypertension",
+    "Symptoms": "High blood pressure during pregnancy",
+    "Treatments": "Monitoring blood pressure, lifestyle modifications (such as salt restriction, regular exercise), medication (such as antihypertensive drugs) if necessary, close monitoring by healthcare provider",
+    "Disease_Code": "D061",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Chorioretinitis",
+    "Symptoms": "Eye pain, blurred vision, sensitivity to light",
+    "Treatments": "Antiviral medications, corticosteroids, eye drops",
+    "Disease_Code": "D062",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Open-Angle Glaucoma",
+    "Symptoms": "Gradual loss of peripheral vision, tunnel vision",
+    "Treatments": "Eye drops to lower intraocular pressure (e.g., prostaglandin analogs, beta blockers, alpha agonists, carbonic anhydrase inhibitors), oral medications (e.g., carbonic anhydrase inhibitors), laser trabeculoplasty, surgical procedures (e.g., trabeculectomy, glaucoma drainage implants)",
+    "Disease_Code": "D063",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Cranial Nerve Palsy",
+    "Symptoms": "Depends on the specific cranial nerve involved; symptoms can include vision changes, eye movement abnormalities, facial weakness or paralysis, difficulty swallowing or speaking, loss of sensation in the face or other areas",
+    "Treatments": "Treatment depends on the underlying cause and specific cranial nerve affected. It may include medications (such as corticosteroids or antiviral drugs), physical therapy, speech therapy, occupational therapy, eye exercises, surgery (in some cases), and management of any underlying conditions.",
+    "Disease_Code": "D064",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Corneal Abrasion",
+    "Symptoms": "Eye pain, redness, foreign body sensation, sensitivity to light",
+    "Treatments": "Eye patching, lubricating eye drops, antibiotic ointments (if infected), avoiding further eye irritation",
+    "Disease_Code": "D065",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Hiatal Hernia",
+    "Symptoms": "Heartburn, chest pain, difficulty swallowing",
+    "Treatments": "Lifestyle changes, medications (antacids, proton pump inhibitors)",
+    "Disease_Code": "D066",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Type 2 Diabetes",
+    "Symptoms": "increased thirst, frequent urination, fatigue",
+    "Treatments": "insulin, medication, lifestyle change",
+    "Disease_Code": "D067",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Uterine Fibroids",
+    "Symptoms": "Heavy or prolonged menstrual periods, pelvic pain or pressure, frequent urination, difficulty emptying the bladder, constipation, backache, leg pain, enlarged abdomen or uterus, infertility or recurrent miscarriages (in some cases)",
+    "Treatments": "Watchful waiting (for small or asymptomatic fibroids), medication (such as hormonal birth control, GnRH agonists, progestin-releasing intrauterine devices), minimally invasive procedures (such as uterine artery embolization, myomectomy), hysteroscopic procedures (such as hysteroscopic myomectomy or endometrial ablation), surgical removal of fibroids (such as laparoscopic or robotic-assisted myomectomy, hysterectomy), focused ultrasound ablation, hormonal therapy, alternative approaches (such as acupuncture or herbal remedies)",
+    "Disease_Code": "D068",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Angle-Closure Glaucoma",
+    "Symptoms": "Severe eye pain, headache, blurred vision, halos around lights, nausea and vomiting",
+    "Treatments": "Medications (e.g., oral or intravenous acetazolamide, topical beta blockers, alpha agonists, prostaglandin analogs), laser peripheral iridotomy, surgical procedures (e.g., trabeculectomy, glaucoma drainage implants)",
+    "Disease_Code": "D069",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Chronic Headache",
+    "Symptoms": "Persistent head pain, tension in neck and shoulders",
+    "Treatments": "Pain-relieving medications, relaxation techniques, stress management",
+    "Disease_Code": "D070",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Acute Kidney Injury",
+    "Symptoms": "Decreased urine output, fluid retention, fatigue",
+    "Treatments": "Treating underlying cause, supportive care, medications to manage complications, dialysis (in severe cases)",
+    "Disease_Code": "D071",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Scarlet Fever",
+    "Symptoms": "Sore throat, fever, rash (red, sandpaper-like), swollen glands",
+    "Treatments": "Antibiotics (such as penicillin or erythromycin), rest, fluids, symptomatic relief",
+    "Disease_Code": "D072",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Thoracic Aortic Aneurysm",
+    "Symptoms": "Chest or back pain, shortness of breath, hoarseness, difficulty swallowing",
+    "Treatments": "Regular monitoring and imaging tests to assess aneurysm size and growth, lifestyle modifications (e.g., blood pressure control, avoiding smoking, managing cholesterol levels), medication (e.g., beta-blockers, ACE inhibitors) to manage blood pressure and reduce the risk of rupture, surgical intervention",
+    "Disease_Code": "D073",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Scleroderma",
+    "Symptoms": "Thickening of the skin, Raynaud's phenomenon",
+    "Treatments": "Medications (immunosuppressants), therapy, symptom management",
+    "Disease_Code": "D074",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Bone Spur of the Calcaneus",
+    "Symptoms": "Heel pain, especially when walking or standing, tenderness, swelling, inflammation of the surrounding tissue",
+    "Treatments": "Nonsteroidal anti-inflammatory drugs (NSAIDs), orthotic devices, physical therapy, stretching exercises, shoe modifications, corticosteroid injections, surgical removal (in severe cases)",
+    "Disease_Code": "D075",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Ethylene glycol poisoning-2",
+    "Symptoms": "Metabolic acidosis, apid breathing, rapid heart rate, confusion, headache, dizziness, seizures",
+    "Treatments": "Blood tests, Supportive Measures, Gastric Decontamination, Antidote Administration, Hemodialysis",
+    "Disease_Code": "D076",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Pica",
+    "Symptoms": "Persistent consumption of non-food substances",
+    "Treatments": "Behavioral therapy, addressing underlying nutritional deficiencies, addressing any medical complications, family support",
+    "Disease_Code": "D077",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Induced Abortion",
+    "Symptoms": "Vaginal bleeding, cramping, abdominal pain, nausea, fatigue, emotional distress",
+    "Treatments": "Medical Abortion: Medication (such as mifepristone and misoprostol) is used to induce abortion, which can be done in the early stages of pregnancy. Surgical Abortion: A healthcare professional performs a procedure to remove the pregnancy, which can involve suction aspiration or dilation and curettage (D&C). It's important to consult with a healthcare professional to discuss the options and determine the most suitable method.",
+    "Disease_Code": "D078",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Tension Headache",
+    "Symptoms": "Mild to moderate head pain, tightness or pressure sensation on both sides of head",
+    "Treatments": "Over-the-counter pain relievers, relaxation techniques, stress management",
+    "Disease_Code": "D079",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Tuberculosis",
+    "Symptoms": "cough, weight loss, fever, night sweats",
+    "Treatments": "antibiotics, long-term medication",
+    "Disease_Code": "D080",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Urethral Valves",
+    "Symptoms": "Difficulty or poor urinary stream, urinary tract infections, urinary frequency or urgency, abdominal distension, poor weight gain",
+    "Treatments": "Surgical intervention (valve ablation or resection), catheterization, medications for symptoms and complications",
+    "Disease_Code": "D081",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hashimoto Thyroiditis",
+    "Symptoms": "Fatigue, weight gain, constipation, dry skin, depression, muscle aches and stiffness, sensitivity to cold",
+    "Treatments": "Thyroid hormone replacement (levothyroxine), monitoring and management of symptoms",
+    "Disease_Code": "D082",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Parkinson Disease",
+    "Symptoms": "Tremors, stiffness, slowness of movement",
+    "Treatments": "Medications (levodopa, dopamine agonists), physical therapy, deep brain stimulation",
+    "Disease_Code": "D083",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Cryptorchidism",
+    "Symptoms": "Absence or undescended testicle(s), empty scrotum, smaller or underdeveloped testicle(s), inguinal hernia, abnormal positioning of the testicle(s) (higher in the groin area)",
+    "Treatments": "Observation and monitoring (in cases of mild or transient cryptorchidism), hormone therapy (to stimulate testicular descent), surgical intervention (orchiopexy) to reposition the testicle(s) into the scrotum, if necessary, performed around the age of 6 to 12 months, open or laparoscopic surgery (in cases of high or persistent cryptorchidism), testicular prostheses (in cases of absent or non-functional testicles), regular follow-up visits with a urologist or pediatric surgeon",
+    "Disease_Code": "D084",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Mucocele",
+    "Symptoms": "Painless fluid-filled swelling in the oral cavity",
+    "Treatments": "Observation, Surgical removal if necessary",
+    "Disease_Code": "D085",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Empyema",
+    "Symptoms": "Fever, chest pain, productive cough with foul-smelling or bloody sputum",
+    "Treatments": "Antibiotics, drainage (chest tube insertion, thoracentesis), surgical intervention (decortication), supportive care, treatment of underlying cause",
+    "Disease_Code": "D086",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Abdominal Hernia",
+    "Symptoms": "Visible bulge or swelling, discomfort or pain",
+    "Treatments": "Watchful waiting, hernia truss, surgical repair, lifestyle changes",
+    "Disease_Code": "D087",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hemarthrosis",
+    "Symptoms": "Joint swelling, pain, warmth, limited range of motion",
+    "Treatments": "RICE method (Rest, Ice, Compression, Elevation), pain management, joint aspiration or drainage (in severe cases)",
+    "Disease_Code": "D088",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Pregnancy-Related Back Pain",
+    "Symptoms": "Lower back pain, discomfort in the pelvic area",
+    "Treatments": "Prenatal exercises (such as stretching and strengthening exercises), good posture, heat or cold therapy, prenatal massages, supportive devices (such as pregnancy belts), physical therapy",
+    "Disease_Code": "D089",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Muscle Spasm",
+    "Symptoms": "Sudden, involuntary muscle contractions, muscle pain, stiffness, limited range of motion",
+    "Treatments": "Stretching and relaxation exercises, heat or cold therapy, over-the-counter pain relievers, muscle relaxants, physical therapy, lifestyle modifications",
+    "Disease_Code": "D090",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Diverticulosis",
+    "Symptoms": "Abdominal pain, bloating, changes in bowel movements",
+    "Treatments": "High-fiber diet, medications (pain relievers, antibiotics)",
+    "Disease_Code": "D091",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Dry Skin",
+    "Symptoms": "Dry, flaky skin with itching",
+    "Treatments": "Moisturizing creams or lotions, avoiding hot showers or baths, using mild soaps",
+    "Disease_Code": "D092",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Alcohol Use Disorder",
+    "Symptoms": "Cravings for alcohol, inability to control or limit alcohol consumption, withdrawal symptoms (such as tremors, anxiety, sweating) when attempting to stop or reduce alcohol use, continued use despite negative consequences (such as relationship problems, health issues), neglecting responsibilities, tolerance to alcohol",
+    "Treatments": "Detoxification (if necessary), counseling or therapy (such as cognitive-behavioral therapy, motivational interviewing), support groups (such as Alcoholics Anonymous), medication (such as disulfiram, naltrexone, acamprosate), addressing underlying psychological or social factors, lifestyle changes, ongoing monitoring and support",
+    "Disease_Code": "D093",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Muscular Dystrophy",
+    "Symptoms": "Progressive muscle weakness and degeneration, difficulty walking or moving, muscle wasting",
+    "Treatments": "Supportive care, physical therapy, assistive devices, medications for symptom management, gene therapies (in some cases)",
+    "Disease_Code": "D094",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Vaginal Yeast Infection",
+    "Symptoms": "Itching and irritation in the vagina and vulva, redness and swelling of the vulva, white, thick, clumpy vaginal discharge (resembling cottage cheese), burning sensation during urination, pain during sexual intercourse, rash or soreness in the affected area",
+    "Treatments": "Over-the-counter antifungal creams, ointments, or suppositories (such as miconazole, clotrimazole, or terconazole), prescription-strength antifungal medications (in severe or recurrent cases), oral antifungal medications (if recommended by a healthcare professional), topical corticosteroids (for relief of itching and inflammation), maintaining good hygiene practices, avoiding irritants (such as scented products), wearing breathable cotton underwear, avoiding tight-fitting clothing, probiotics (to restore healthy vaginal flora)",
+    "Disease_Code": "D095",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Osteoporosis",
+    "Symptoms": "Fragile bones, loss of height over time, back pain, fractures",
+    "Treatments": "Calcium and vitamin D supplements, regular exercise, medications to slow bone loss",
+    "Disease_Code": "D096",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Syndrome of Inappropriate Secretion of ADH (SIADH)",
+    "Symptoms": "Excessively concentrated urine, low blood sodium levels",
+    "Treatments": "Treating underlying cause, fluid restriction, medications to suppress ADH (vasopressin) secretion, addressing electrolyte imbalance",
+    "Disease_Code": "D097",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Myasthenia Gravis",
+    "Symptoms": "Muscle weakness, fatigue, difficulty speaking",
+    "Treatments": "Medications (acetylcholinesterase inhibitors, immunosuppressants), thymectomy (in some cases)",
+    "Disease_Code": "D098",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Torticollis",
+    "Symptoms": "Neck pain, stiffness, and abnormal head positioning",
+    "Treatments": "Physical therapy exercises, pain relievers, botulinum toxin injections (in severe cases)",
+    "Disease_Code": "D099",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Complex Regional Pain Syndrome (CRPS)",
+    "Symptoms": "Intense burning pain, swelling, changes in skin temperature",
+    "Treatments": "Physical therapy, medications, nerve blocks",
+    "Disease_Code": "D100",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Gastroenteritis (Stomach Flu)",
+    "Symptoms": "Nausea, vomiting, diarrhea, abdominal pain or cramps, fever",
+    "Treatments": "Rest, fluids (electrolyte solutions), bland diet, avoiding irritating foods, over-the-counter medications for symptom relief",
+    "Disease_Code": "D101",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Scleritis",
+    "Symptoms": "Eye redness, severe eye pain, blurred vision",
+    "Treatments": "Steroid eye drops, nonsteroidal anti-inflammatory drugs (NSAIDs), immunosuppressants",
+    "Disease_Code": "D102",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Cirrhosis",
+    "Symptoms": "Fatigue, jaundice, abdominal swelling (ascites), easy bruising and bleeding, confusion, loss of appetite, weight loss",
+    "Treatments": "Treatment aims to manage symptoms, slow down disease progression, and address underlying causes. It may include: lifestyle modifications (e.g., avoiding alcohol, maintaining a healthy diet), medication (e.g., diuretics, lactulose, antiviral drugs), procedures (e.g., paracentesis, transjugular intrahepatic portosystemic shunt), liver transplantation (in severe cases)",
+    "Disease_Code": "D103",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Lung Contusion",
+    "Symptoms": "Chest pain (sharp or dull), difficulty breathing or shortness of breath, rapid or shallow breathing, coughing up blood or pink-tinged sputum, decreased oxygen levels, wheezing, cyanosis (bluish discoloration of the skin), chest wall bruising, rib fractures (associated injuries)",
+    "Treatments": "Supportive care (including supplemental oxygen, pain management, and respiratory support), monitoring in a hospital setting (to assess lung function and overall stability), treatment of associated injuries (such as rib fractures), management of complications (such as pneumonia or respiratory failure), prevention of further complications (such as deep vein thrombosis or pressure ulcers), respiratory therapy (including breathing exercises and airway clearance techniques), possible use of mechanical ventilation in severe cases",
+    "Disease_Code": "D104",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Corneal Disorder",
+    "Symptoms": "Blurred or hazy vision, eye pain or discomfort, redness or irritation of the eye, excessive tearing, sensitivity to light (photophobia), foreign body sensation, dryness or excessive tearing, corneal abrasions or ulcers, distorted or irregular corneal shape, vision loss",
+    "Treatments": "Treatment depends on the specific corneal disorder and may include: artificial tears or lubricating eye drops, antibiotic or antifungal eye drops (if infection is present), corticosteroid eye drops or ointments (to reduce inflammation), bandage contact lenses, therapeutic contact lenses, corneal transplantation (in severe cases), refractive surgeries (such as LASIK or PRK) to correct vision, protective eyewear or sunglasses, avoiding irritants or triggers, regular eye examinations and monitoring, lifestyle modifications (such as proper eye hygiene and avoiding eye strain)",
+    "Disease_Code": "D105",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Mucoepidermoid carcinoma",
+    "Symptoms": "Lump, swelling, Difficulty, pain when swallowing and speaking, Facial weakness, Facial paralysis ",
+    "Treatments": "Surgery, Radiation therapy",
+    "Disease_Code": "D106",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Carpal Tunnel Syndrome",
+    "Symptoms": "Tingling, numbness, and pain in the hand and fingers",
+    "Treatments": "Wrist splints, avoiding repetitive hand movements, applying cold or hot compresses, gentle exercises, ergonomic adjustments",
+    "Disease_Code": "D107",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Macular Degeneration",
+    "Symptoms": "Blurred or distorted central vision, blind spots",
+    "Treatments": "Vision aids, medications (injections into the eye), laser therapy, photodynamic therapy, surgical intervention",
+    "Disease_Code": "D108",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Atrophic vaginitis",
+    "Symptoms": "Vaginal dryness, Vaginal burning, frequent urination, urinary tract infections, Painful intercourse",
+    "Treatments": "Vaginal moisturizers, Vaginal estrogen therapy, Lifestyle modifications",
+    "Disease_Code": "D109",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Osteochondrosis",
+    "Symptoms": "Joint pain, stiffness, swelling, reduced range of motion",
+    "Treatments": "Physical therapy, pain medications, rest, surgery",
+    "Disease_Code": "D110",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Chronic Inflammatory Demyelinating Polyneuropathy (CIDP)",
+    "Symptoms": "Weakness, numbness, tingling in limbs",
+    "Treatments": "Immunoglobulin therapy, corticosteroids, physical therapy",
+    "Disease_Code": "D111",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Parasitic Infections",
+    "Symptoms": "Intense itching, visible lice or nits in the affected area",
+    "Treatments": "Prescription medications (topical or oral antiparasitic agents), washing clothes and bedding in hot water",
+    "Disease_Code": "D112",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Normal Pressure Hydrocephalus",
+    "Symptoms": "Gait disturbances, urinary incontinence, cognitive decline or dementia-like symptoms",
+    "Treatments": "Ventriculoperitoneal shunt placement, medication management for symptoms",
+    "Disease_Code": "D113",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Kidney Stone",
+    "Symptoms": "Severe pain in the side or back, blood in the urine, frequent urination",
+    "Treatments": "Pain management, increased fluid intake, medication to facilitate stone passage, minimally invasive procedures or surgery",
+    "Disease_Code": "D114",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Pituitary Disorder",
+    "Symptoms": "Various symptoms depending on the specific disorder, including hormonal imbalances",
+    "Treatments": "Treatment depends on the specific pituitary disorder and may involve medications, surgery, hormone replacement therapy",
+    "Disease_Code": "D115",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Pinguecula",
+    "Symptoms": "Yellowish or white growth on the conjunctiva (eye's surface), usually near the cornea",
+    "Treatments": "Artificial tears, lubricating eye drops, sunglasses for UV protection, surgical removal (in severe cases)",
+    "Disease_Code": "D116",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Influenza (Flu)",
+    "Symptoms": "High fever, body aches, fatigue, cough, sore throat, congestion",
+    "Treatments": "Rest, fluids, over-the-counter medications for symptom relief, antiviral medications (in some cases)",
+    "Disease_Code": "D117",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Cat Scratch Disease",
+    "Symptoms": "Swollen lymph nodes, fever, fatigue, headache, rash",
+    "Treatments": "Antibiotics (azithromycin, doxycycline), pain management, supportive care",
+    "Disease_Code": "D118",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Hyperemesis Gravidarum",
+    "Symptoms": "Severe nausea and vomiting during pregnancy",
+    "Treatments": "Intravenous fluids to prevent dehydration, anti-nausea medications, nutritional support, rest, monitoring for weight loss and electrolyte imbalance",
+    "Disease_Code": "D119",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Diabetic retinopathy",
+    "Symptoms": "Blurred or distorted vision, floaters, impaired color vision, dark or empty areas in the visual field, vision loss",
+    "Treatments": "Management of blood sugar levels, blood pressure control, cholesterol management, regular eye examinations, laser treatment , intravitreal injections of anti-VEGF medications, vitrectomy",
+    "Disease_Code": "D120",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Aplastic Anemia",
+    "Symptoms": "Fatigue, pale skin, frequent infections, shortness of breath, rapid or irregular heartbeats, prolonged bleeding or bruising",
+    "Treatments": "Blood transfusions, bone marrow-stimulating medications, immunosuppressive therapy, stem cell transplant (in severe cases), supportive care",
+    "Disease_Code": "D121",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Wilson Disease",
+    "Symptoms": "Fatigue, abdominal pain or swelling, jaundice, neurological symptoms (tremors, difficulty speaking or walking)",
+    "Treatments": "Medications to remove copper from the body (chelators), dietary changes, liver transplant (in severe cases)",
+    "Disease_Code": "D122",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Drug Abuse (Barbiturates)",
+    "Symptoms": "Sedation, drowsiness, slurred speech, confusion, respiratory depression",
+    "Treatments": "Medical detoxification, supportive care, counseling, rehabilitation programs",
+    "Disease_Code": "D123",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Primary Insomnia",
+    "Symptoms": "Difficulty falling asleep or staying asleep, daytime sleepiness, irritability, difficulty concentrating",
+    "Treatments": "Cognitive-behavioral therapy for insomnia (CBT-I), sleep hygiene practices (such as maintaining a regular sleep schedule, creating a comfortable sleep environment), relaxation techniques, stimulus control techniques (such as limiting bed activities to sleep only), sleep restriction therapy, medications for insomnia (such as sedative-hypnotics, melatonin agonists)",
+    "Disease_Code": "D124",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Mastoiditis",
+    "Symptoms": "Ear pain (particularly behind the ear), swelling and redness of the ear or the area behind the ear, fever, headache, hearing loss or impaired hearing, drainage of fluid or pus from the ear, earache, irritability (in infants and young children), tenderness or pain when touching the area, mastoid bone protrusion or swelling",
+    "Treatments": "Antibiotics (oral or intravenous) to treat the underlying bacterial infection, pain relievers (such as acetaminophen or ibuprofen) for pain and fever, ear drops (if there is drainage from the ear), surgical intervention (in severe or chronic cases), such as mastoidectomy (removal of infected mastoid bone cells) or tympanostomy tube placement (to relieve pressure and drain fluid from the middle ear), supportive care (rest, hydration, warm compresses)",
+    "Disease_Code": "D125",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Acinic cell carcinoma",
+    "Symptoms": "Lump, swelling, Facial changes",
+    "Treatments": "Surgery, Radiation therapy",
+    "Disease_Code": "D126",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Arthritis",
+    "Symptoms": "Joint pain, stiffness, swelling",
+    "Treatments": "Medications, physical therapy, surgery (in severe cases)",
+    "Disease_Code": "D127",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Wharton's duct stones",
+    "Symptoms": "Swelling, pain, dry mouth, bad taste",
+    "Treatments": "Hydration,Saliva stimulation, Stone removal",
+    "Disease_Code": "D128",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Pharyngitis",
+    "Symptoms": "Sore throat, difficulty swallowing, swollen lymph nodes",
+    "Treatments": "Rest, pain relievers, throat lozenges, antibiotics (if bacterial infection), symptomatic relief",
+    "Disease_Code": "D129",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Pericarditis",
+    "Symptoms": "Chest pain (sharp and stabbing), worsens with deep breaths or lying down, fever",
+    "Treatments": "Nonsteroidal anti-inflammatory drugs (NSAIDs) to reduce inflammation and pain, colchicine (for recurrent or persistent pericarditis), corticosteroids (in severe cases or when NSAIDs are ineffective), antibiotics (if bacterial infection is present), lifestyle modifications (rest, avoiding strenuous activity), treating underlying causes (if identified), potential pericardiocentesis (fluid drainage)",
+    "Disease_Code": "D130",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Antihypertensives Poisoning",
+    "Symptoms": "Dizziness, low blood pressure, slow heart rate, nausea, vomiting",
+    "Treatments": "Immediate medical attention, activated charcoal administration, supportive care, specific antidotes",
+    "Disease_Code": "D131",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Hypothyroidism",
+    "Symptoms": "Fatigue, weight gain, sensitivity to cold, dry skin, constipation, depression, muscle weakness, elevated cholesterol levels",
+    "Treatments": "Hormone replacement therapy with synthetic thyroid hormone (levothyroxine), regular monitoring of thyroid hormone levels and adjustment of medication dosage, lifestyle modifications (such as healthy diet and regular exercise), management of associated symptoms (such as cholesterol-lowering medications or antidepressants), education and support for long-term management",
+    "Disease_Code": "D132",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Oral Leukoplakia",
+    "Symptoms": "White patches or plaques in the mouth, often on the tongue or inside of the cheeks, that cannot be scraped off",
+    "Treatments": "Regular monitoring and follow-up, identification and elimination of potential irritants (such as tobacco or alcohol), improving oral hygiene practices, medication (such as topical retinoids or antifungal agents), surgical removal (in some cases), cryotherapy (freezing the patches), laser therapy, lifestyle modifications (such as healthy diet), regular dental check-ups, education and support",
+    "Disease_Code": "D133",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Seborrheic Dermatitis",
+    "Symptoms": "Red, itchy, and oily patches of skin, dandruff, flaky scalp",
+    "Treatments": "Topical antifungal creams or ointments, medicated shampoos, corticosteroid creams",
+    "Disease_Code": "D134",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Hydrocephalus",
+    "Symptoms": "Headache, nausea, vomiting, cognitive or developmental problems, enlarged head in infants",
+    "Treatments": "Shunt placement (to divert excess cerebrospinal fluid), endoscopic third ventriculostomy, medication (in some cases)",
+    "Disease_Code": "D135",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Marijuana Abuse",
+    "Symptoms": "Impaired memory and cognition, altered judgment, anxiety",
+    "Treatments": "Behavioral therapy, counseling, support groups, medication, detoxification",
+    "Disease_Code": "D136",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Chronic Otitis Media",
+    "Symptoms": "Ear pain, hearing loss, recurrent ear infections",
+    "Treatments": "Antibiotics, ear drops, surgical intervention (in some cases)",
+    "Disease_Code": "D137",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Pterygium",
+    "Symptoms": "Growth on the conjunctiva (white part of the eye)",
+    "Treatments": "Artificial tears, eye lubricants, surgical removal (in severe cases)",
+    "Disease_Code": "D138",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Hepatic Encephalopathy",
+    "Symptoms": "Confusion, forgetfulness, personality changes, tremors",
+    "Treatments": "Treating underlying liver disease, medications to manage symptoms, dietary modifications",
+    "Disease_Code": "D139",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Tietze Syndrome",
+    "Symptoms": "Chest pain, swelling and tenderness of the cartilage connecting the ribs to the breastbone",
+    "Treatments": "Nonsteroidal anti-inflammatory drugs (NSAIDs), pain relievers, local heat or ice application, avoiding activities that worsen symptoms, supportive measures (such as wearing loose clothing or using supportive pillows), physical therapy (to improve posture and strengthen muscles), corticosteroid injections (in some cases), stress reduction techniques",
+    "Disease_Code": "D140",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Nose Disorder",
+    "Symptoms": "Nasal congestion, runny nose, sneezing, facial pain or pressure, loss of smell",
+    "Treatments": "Treatment depends on the underlying cause (such as allergies, sinusitis, or nasal polyps), and may include medications (such as decongestants, antihistamines, nasal sprays), saline nasal irrigation, steam inhalation, allergy management, antibiotics (if bacterial infection is present), surgical intervention (in some cases)",
+    "Disease_Code": "D141",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Exfoliation Glaucoma",
+    "Symptoms": "Elevated intraocular pressure, visual field loss",
+    "Treatments": "Eye drops to lower intraocular pressure (e.g., prostaglandin analogs, beta blockers, alpha agonists, carbonic anhydrase inhibitors), laser trabeculoplasty, surgical procedures (e.g., trabeculectomy, glaucoma drainage implants)",
+    "Disease_Code": "D142",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Protein Deficiency",
+    "Symptoms": "Muscle wasting, fatigue, weakness, delayed wound healing, swelling of the limbs, hair loss, impaired immunity",
+    "Treatments": "Increasing protein intake through diet (lean meats, fish, dairy, legumes, nuts), protein supplements, nutritional counseling, addressing underlying causes (e.g., malabsorption)",
+    "Disease_Code": "D143",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Thrombocytopenia",
+    "Symptoms": "Easy bruising, prolonged bleeding from cuts, petechiae (red or purple spots on the skin), nosebleeds, excessive menstrual bleeding",
+    "Treatments": "Treatment of underlying cause, platelet transfusion (if severe), medication (corticosteroids, immunosuppressants), avoiding medications that can worsen platelet counts",
+    "Disease_Code": "D144",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Alopecia",
+    "Symptoms": "Hair loss or balding, patchy or generalized hair loss",
+    "Treatments": "Topical medications (minoxidil), oral medications (finasteride), steroid injections, hair transplant surgery, wigs or hairpieces",
+    "Disease_Code": "D145",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Polymyalgia Rheumatica",
+    "Symptoms": "Muscle pain and stiffness, joint pain, fatigue",
+    "Treatments": "Low-dose corticosteroids, nonsteroidal anti-inflammatory drugs (NSAIDs)",
+    "Disease_Code": "D146",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Bone Cancer",
+    "Symptoms": "Bone pain, fractures, fatigue, unexplained weight loss",
+    "Treatments": "Surgery, chemotherapy, radiation therapy, targeted therapy",
+    "Disease_Code": "D147",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Preeclampsia",
+    "Symptoms": "High blood pressure, proteinuria, swelling, headaches, visual disturbances",
+    "Treatments": "Bed rest, blood pressure monitoring, frequent prenatal visits, medication (such as antihypertensive drugs), magnesium sulfate (for severe cases), delivery of the baby (in severe cases)",
+    "Disease_Code": "D148",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hypertrophic Obstructive Cardiomyopathy (HOCM)",
+    "Symptoms": "Shortness of breath, especially during physical activity or exertion, chest pain or discomfort, dizziness or lightheadedness, fainting or near-fainting episodes, heart palpitations (rapid or irregular heartbeat), fatigue, swelling in the ankles, feet, or legs",
+    "Treatments": "Medications to relieve symptoms and improve heart function (such as beta-blockers, calcium channel blockers, and disopyramide), medications to prevent abnormal heart rhythms (such as anti-arrhythmic drugs), medications to reduce blood clotting (such as aspirin or anticoagulants), implantable cardioverter-defibrillator (ICD) placement (to monitor and correct abnormal heart rhythms), septal myectomy (surgical removal of a portion of the thickened heart muscle), alcohol septal ablation (destruction of excess heart muscle with alcohol injection), lifestyle modifications (such as avoiding strenuous activities, managing stress, and maintaining a healthy weight), regular follow-up visits with a cardiologist",
+    "Disease_Code": "D149",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Nonalcoholic Liver Disease (NASH)",
+    "Symptoms": "Fatigue, abdominal swelling or pain, enlarged liver, elevated liver enzymes, insulin resistance",
+    "Treatments": "Lifestyle changes (weight loss, healthy diet, regular exercise), management of underlying conditions, medication as needed",
+    "Disease_Code": "D150",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Amyloidosis",
+    "Symptoms": "Fatigue, weight loss, organ dysfunction",
+    "Treatments": "Treatment depends on the type and extent of organ damage",
+    "Disease_Code": "D151",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Ethylene glycol poisoning-3",
+    "Symptoms": "Decreased urine output, swelling in the legs and ankles, and signs of fluid overload, Severe kidney damage",
+    "Treatments": "Supportive Measures, Gastric Decontamination, Antidote Administration, Hemodialysis",
+    "Disease_Code": "D152",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Fracture of the Rib",
+    "Symptoms": "Chest pain, difficulty breathing, tenderness or swelling over the ribcage",
+    "Treatments": "Pain management, rest, immobilization (splinting or bracing), physical therapy",
+    "Disease_Code": "D153",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Breast Cancer",
+    "Symptoms": "Breast lump, changes in breast size or shape, nipple changes, breast pain",
+    "Treatments": "Surgery (lumpectomy or mastectomy), radiation therapy, chemotherapy, hormone therapy, targeted therapy",
+    "Disease_Code": "D154",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Neuromyelitis Optica",
+    "Symptoms": "Optic neuritis (vision loss, pain with eye movement), transverse myelitis (weakness, numbness, or paralysis of the limbs, loss of bladder or bowel control)",
+    "Treatments": "High-dose corticosteroids, plasma exchange (to remove antibodies from the blood), immunosuppressive therapy (such as azathioprine or rituximab), supportive care to manage symptoms, physical therapy or rehabilitation for functional recovery",
+    "Disease_Code": "D155",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Eye alignment disorder",
+    "Symptoms": "Double vision, Eye fatigue, Poor depth perception, Head tilting",
+    "Treatments": "Glasses, Patching therapy, Vision therapy, Botox injections, Surgical intervention",
+    "Disease_Code": "D156",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Meniere Disease",
+    "Symptoms": "Vertigo, hearing loss, tinnitus, ear fullness",
+    "Treatments": "Medications (diuretics, anti-vertigo drugs), lifestyle changes",
+    "Disease_Code": "D157",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Pituitary Adenoma",
+    "Symptoms": "Headaches, vision problems (such as blurred vision or loss of peripheral vision), hormonal imbalances (such as excessive production or deficiency of specific hormones), fatigue, weight gain or loss, menstrual irregularities, infertility, erectile dysfunction, growth abnormalities in children, mood changes, cognitive impairments",
+    "Treatments": "Observation and monitoring (for small, non-secreting tumors that are not causing significant symptoms), medication (to manage hormonal imbalances or reduce tumor size), surgery (transsphenoidal surgery to remove the tumor), radiation therapy (in cases where surgery is not possible or to treat residual or recurrent tumors), targeted therapy (in cases of aggressive or resistant tumors), hormone replacement therapy (if necessary), regular follow-up and monitoring to assess tumor growth and hormone levels, management of associated complications or hormone deficiencies",
+    "Disease_Code": "D158",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Ischemia of the Bowel",
+    "Symptoms": "Severe abdominal pain, bloody stools, diarrhea, nausea, vomiting, fever, rapid heart rate, low blood pressure",
+    "Treatments": "diagnostic tests, intravenous fluids and medications to stabilize the patient, bowel rest, resection, bypass procedure, potential angioplasty",
+    "Disease_Code": "D159",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hydrocele of the Testicle",
+    "Symptoms": "Swelling of the scrotum",
+    "Treatments": "Observation, surgical drainage (in some cases)",
+    "Disease_Code": "D160",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Endometrial Cancer",
+    "Symptoms": "Abnormal vaginal bleeding, pelvic pain or discomfort, changes in bowel or bladder habits",
+    "Treatments": "Surgery (hysterectomy), radiation therapy, chemotherapy, hormone therapy",
+    "Disease_Code": "D161",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Endometriosis",
+    "Symptoms": "Pelvic pain, painful periods, infertility",
+    "Treatments": "Pain medications, hormonal therapies, surgery",
+    "Disease_Code": "D162",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hydronephrosis",
+    "Symptoms": "Flank pain, urinary frequency, swelling in the abdomen",
+    "Treatments": "Treating underlying cause, medications, ureteral stent, surgery",
+    "Disease_Code": "D163",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Bell Palsy",
+    "Symptoms": "Facial weakness or paralysis, drooping of the mouth or eyelid",
+    "Treatments": "Corticosteroids, antiviral medications, eye protection, physical therapy",
+    "Disease_Code": "D164",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Abscess of Nose",
+    "Symptoms": "Pain, swelling, redness, discharge from the nose",
+    "Treatments": "Antibiotics, warm compresses, surgical drainage (in severe cases)",
+    "Disease_Code": "D165",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Bladder Disorder",
+    "Symptoms": "Frequent urination, urgency, pelvic pain",
+    "Treatments": "Medications, bladder training, lifestyle changes",
+    "Disease_Code": "D166",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Emphysema",
+    "Symptoms": "Shortness of breath, wheezing, chronic cough, chest tightness, fatigue, weight loss",
+    "Treatments": "Smoking cessation (the most important intervention), medications to manage symptoms (such as bronchodilators, inhaled corticosteroids), pulmonary rehabilitation (exercise training, breathing techniques), supplemental oxygen therapy (in advanced cases), vaccination against respiratory infections, avoiding exposure to irritants (such as secondhand smoke or air pollutants), regular monitoring of symptoms and lung function, surgical interventions (such as lung volume reduction surgery or lung transplantation)",
+    "Disease_Code": "D167",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Extrapyramidal Effect of Drugs",
+    "Symptoms": "Muscle stiffness, tremors, involuntary movements",
+    "Treatments": "Adjusting medication dosage, switching to alternative medications",
+    "Disease_Code": "D168",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Vasculitis",
+    "Symptoms": "Inflammation of blood vessels leading to various symptoms depending on the affected organs, including rash, fever, fatigue, muscle and joint pain, shortness of breath, weight loss",
+    "Treatments": "Treatment depends on the type and severity of vasculitis. It may include corticosteroids, immunosuppressive medications (such as cyclophosphamide or azathioprine), biologic therapies (such as rituximab), disease-specific treatments (such as plasmapheresis for certain types), supportive care to manage symptoms (such as pain relievers or blood pressure medications), monitoring and management of associated complications (such as organ damage or infections)",
+    "Disease_Code": "D169",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Female Infertility of Unknown Cause",
+    "Symptoms": "Inability to conceive after one year of unprotected intercourse, irregular or absent menstrual cycles, hormonal imbalances, age-related factors, other",
+    "Treatments": "Fertility testing and evaluation (hormone tests, imaging, genetic screening), lifestyle modifications (healthy diet, regular exercise, stress reduction), fertility treatments (assisted reproductive technologies, fertility medications)",
+    "Disease_Code": "D170",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Syringomyelia",
+    "Symptoms": "Muscle weakness, loss of sensation, chronic pain",
+    "Treatments": "Surgical decompression, draining of syrinx (cyst), physical therapy, pain management techniques",
+    "Disease_Code": "D171",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Von Hippel-Lindau Disease",
+    "Symptoms": "Hemangioblastomas (tumors in the brain, spinal cord, or other organs), retinal angiomas (abnormal blood vessel growth in the retina), renal cell carcinomas (kidney tumors), pheochromocytomas (adrenal gland tumors), pancreatic cysts/tumors, other tumors or cysts",
+    "Treatments": "Regular monitoring and surveillance to detect and manage tumor growth and associated complications, surgical removal or treatment of tumors if necessary, embolization or radiation therapy for certain tumors, medication or surgery to manage hormonal issues (such as pheochromocytomas), genetic counseling and testing, screening and management for other potential complications (such as kidney function monitoring)",
+    "Disease_Code": "D172",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hemorrhoids",
+    "Symptoms": "Swollen, itchy, or painful veins in the rectal area",
+    "Treatments": "Increasing fiber intake, staying hydrated, avoiding straining during bowel movements, warm sitz baths, topical creams or ointments, over-the-counter pain relievers (after consulting with a healthcare provider)",
+    "Disease_Code": "D173",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Bursitis",
+    "Symptoms": "Joint pain, swelling, tenderness, limited range of motion",
+    "Treatments": "Rest, ice, compression, elevation (RICE therapy), pain relievers, physical therapy, steroid injections",
+    "Disease_Code": "D174",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Cannabis Use Disorder",
+    "Symptoms": "Increased appetite, relaxation, altered perception of time, impaired memory and concentration, bloodshot eyes, anxiety or paranoia (in some individuals), withdrawal symptoms (such as irritability, insomnia) when attempting to stop or reduce cannabis use, continued use despite negative consequences (such as relationship problems, job difficulties)",
+    "Treatments": "Counseling or therapy (such as cognitive-behavioral therapy, motivational interviewing), support groups, addressing underlying psychological or social factors, lifestyle changes, addressing co-occurring mental health conditions, harm reduction strategies, ongoing monitoring and support",
+    "Disease_Code": "D175",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Heart Block",
+    "Symptoms": "Fatigue, dizziness, fainting, chest pain or discomfort, shortness of breath, irregular heart rhythms",
+    "Treatments": "Medications (such as beta-blockers, calcium channel blockers), pacemaker implantation (in severe cases or symptomatic heart block), underlying condition management",
+    "Disease_Code": "D176",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hemolytic Anemia",
+    "Symptoms": "Fatigue, weakness, pale skin, shortness of breath, jaundice",
+    "Treatments": "Treatment of underlying cause, blood transfusions, medications (immunosuppressants, corticosteroids), splenectomy (in some cases), supportive care, folic acid or iron supplementation",
+    "Disease_Code": "D177",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Benzodiazepine Use Disorder",
+    "Symptoms": "Sedation, relaxation, reduced anxiety, drowsiness, poor coordination, memory impairment, withdrawal symptoms (such as rebound anxiety, insomnia, tremors) when attempting to stop or reduce benzodiazepine use, continued use despite negative consequences (such as relationship problems, health risks)",
+    "Treatments": "Gradual tapering off benzodiazepines under medical supervision, counseling or therapy (such as cognitive-behavioral therapy), support groups, addressing underlying psychological or social factors, lifestyle changes, addressing co-occurring mental health conditions, harm reduction strategies, ongoing monitoring and support",
+    "Disease_Code": "D178",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Mitral Valve Disease",
+    "Symptoms": "Fatigue, shortness of breath, heart palpitations",
+    "Treatments": "Medications, lifestyle changes, surgical repair or replacement of the valve (in severe cases)",
+    "Disease_Code": "D179",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Varicose Veins",
+    "Symptoms": "Enlarged, swollen veins, often in the legs",
+    "Treatments": "Elevating legs, wearing compression stockings, regular exercise, avoiding prolonged sitting or standing, maintaining a healthy weight",
+    "Disease_Code": "D180",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Recurrent salivary stones",
+    "Symptoms": "Frequent episodes of stone formation",
+    "Treatments": "Hydration,Saliva stimulation, Stone removal",
+    "Disease_Code": "D181",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Ocular Hypertension",
+    "Symptoms": "Elevated intraocular pressure without optic nerve damage",
+    "Treatments": "Observation with regular eye exams, use of eye drops to lower intraocular pressure (if necessary)",
+    "Disease_Code": "D182",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Colonic Polyp",
+    "Symptoms": "Most colonic polyps do not cause symptoms. Some larger polyps or certain types may cause rectal bleeding or changes in bowel habits, such as diarrhea or constipation.",
+    "Treatments": "Polypectomy (removal of polyp during colonoscopy), surveillance colonoscopy (regular monitoring for recurrence or new polyps), lifestyle modifications (healthy diet, regular exercise, smoking cessation), follow-up based on pathology findings",
+    "Disease_Code": "D183",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Indigestion",
+    "Symptoms": "Abdominal pain, bloating, heartburn, nausea, acidic taste",
+    "Treatments": "Lifestyle changes (e.g., dietary modifications, stress reduction), over-the-counter antacids, medication, therapy",
+    "Disease_Code": "D184",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Acute Glaucoma",
+    "Symptoms": "Severe eye pain, blurred vision, halos around lights",
+    "Treatments": "Medications (eye drops), laser therapy, surgery (in some cases)",
+    "Disease_Code": "D185",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hypoglycemia",
+    "Symptoms": "Shaking, dizziness, confusion, sweating",
+    "Treatments": "Consuming glucose or sugar-containing foods, adjusting medication or insulin dosage",
+    "Disease_Code": "D186",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Sciatica",
+    "Symptoms": "Sharp pain, tingling, or numbness that radiates from the lower back through the hips and down the leg",
+    "Treatments": "Rest, gentle stretching exercises, warm or cold compresses, prenatal massages, maintaining good posture, avoiding activities that worsen the pain",
+    "Disease_Code": "D187",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Type 2 Diabetes",
+    "Symptoms": "Fatigue, Increased hunger, Slow healing of wounds",
+    "Treatments": "Oral medications, Insulin therapy (in some cases), Blood sugar monitoring, Exercise",
+    "Disease_Code": "D067",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Cystic Fibrosis",
+    "Symptoms": "Persistent cough with thick mucus, recurrent lung infections, poor growth or weight gain, salty-tasting skin",
+    "Treatments": "Medications (mucus-thinning drugs, bronchodilators), chest physical therapy, enzyme supplements, lung transplant (in severe cases)",
+    "Disease_Code": "D188",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Insulin Overdose",
+    "Symptoms": "Low blood sugar (hypoglycemia) symptoms (e.g., confusion, sweating)",
+    "Treatments": "Immediate treatment of hypoglycemia, medical assistance, adjusting insulin dosage and regimen",
+    "Disease_Code": "D189",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Peritonsillar Abscess",
+    "Symptoms": "Severe sore throat, difficulty swallowing, fever, swollen tonsils, voice changes, neck pain or stiffness",
+    "Treatments": "Antibiotics to treat infection, drainage of the abscess (needle aspiration or incision and drainage), pain relievers, warm saltwater gargles, rest, fluids, surgical removal of the tonsils (in chronic or recurrent cases)",
+    "Disease_Code": "D190",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Leishmaniasis",
+    "Symptoms": "Skin sores, fever, weight loss, enlarged spleen or liver",
+    "Treatments": "Antiparasitic medications, treatment of complications, vector control measures (in endemic areas)",
+    "Disease_Code": "D191",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Pulmonary Congestion",
+    "Symptoms": "Shortness of breath, cough, wheezing, fatigue, chest discomfort or tightness",
+    "Treatments": "Diuretics, medications to manage underlying conditions (e.g., heart failure), oxygen therapy, lifestyle changes",
+    "Disease_Code": "D192",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Magnesium Deficiency",
+    "Symptoms": "Muscle twitches or cramps, fatigue, weakness, loss of appetite, nausea, vomiting, irritability, mental confusion, irregular heartbeat, tingling or numbness, personality changes, seizures",
+    "Treatments": "Dietary changes (consuming magnesium-rich foods), oral magnesium supplements, intravenous magnesium therapy (in severe cases), addressing underlying causes (e.g., malabsorption), medical supervision and monitoring",
+    "Disease_Code": "D193",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Fracture of the Shoulder",
+    "Symptoms": "Shoulder pain, swelling, limited range of motion",
+    "Treatments": "Immobilization (sling, brace), pain management, physical therapy, surgical intervention (in severe cases)",
+    "Disease_Code": "D194",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Thrombophlebitis",
+    "Symptoms": "Redness, warmth, swelling, and tenderness along a vein, pain or discomfort, skin discoloration, visible veins, fever",
+    "Treatments": "Medications to manage pain and inflammation, compression stockings or bandages to promote blood flow, elevation of the affected limb, warm compresses, regular movement and exercise, treatment of underlying causes (such as infection or intravenous catheter removal), anticoagulant therapy to prevent clot formation or progression",
+    "Disease_Code": "D195",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Encephalitis",
+    "Symptoms": "Headache, fever, confusion, seizures, neurological symptoms",
+    "Treatments": "Hospitalization, antiviral medications (if caused by a viral infection), supportive care",
+    "Disease_Code": "D196",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Fat Embolism",
+    "Symptoms": "Respiratory distress, chest pain, confusion, petechial rash (small red or purple spots), neurological symptoms",
+    "Treatments": "Supportive care (oxygen therapy, fluid resuscitation), managing symptoms (pain medication, anticoagulants), treatment of underlying cause if possible",
+    "Disease_Code": "D197",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Cyst of the Eyelid",
+    "Symptoms": "Painful lump or swelling on the eyelid, redness, tenderness",
+    "Treatments": "Warm compresses, good eyelid hygiene, antibiotic ointments (if infected), surgical removal (if necessary)",
+    "Disease_Code": "D198",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Dislocation of the Patella",
+    "Symptoms": "Knee pain, swelling, inability to straighten the leg",
+    "Treatments": "Manual reduction, immobilization, physical therapy",
+    "Disease_Code": "D199",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Conjunctivitis due to Allergy",
+    "Symptoms": "Redness, itching, watery discharge, swollen eyelids",
+    "Treatments": "Allergen avoidance, antihistamine eye drops, cold compresses, lubricating eye drops",
+    "Disease_Code": "D200",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Coagulation (Bleeding) Disorder",
+    "Symptoms": "Easy bruising, prolonged bleeding after injury or surgery, excessive bleeding from minor cuts or abrasions, frequent nosebleeds, heavy menstrual bleeding",
+    "Treatments": "Blood transfusions, clotting factor replacement therapy, medications to stimulate clotting, lifestyle modifications, surgery (in some cases)",
+    "Disease_Code": "D201",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Idiopathic Absence of Menstruation",
+    "Symptoms": "Lack of menstrual periods",
+    "Treatments": "Evaluation to determine underlying cause, hormone therapy",
+    "Disease_Code": "D202",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Migraine",
+    "Symptoms": "Severe headaches, nausea, sensitivity to light and sound",
+    "Treatments": "Pain-relieving medications, lifestyle changes, preventive medications",
+    "Disease_Code": "D203",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Temporomandibular Joint Disorder",
+    "Symptoms": "Jaw pain or tenderness, clicking or popping sounds in the jaw joint, difficulty chewing or opening the mouth",
+    "Treatments": "Self-care measures (rest, applying heat or cold, jaw exercises), pain medications, physical therapy, oral splints",
+    "Disease_Code": "D204",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Vitamin A Deficiency",
+    "Symptoms": "Night blindness, dry eyes, dry or rough skin, poor wound healing, weakened immune system",
+    "Treatments": "Vitamin A supplementation, dietary changes to include foods rich in vitamin A",
+    "Disease_Code": "D205",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Glucocorticoid Deficiency",
+    "Symptoms": "Fatigue, weakness, weight loss, low blood pressure, abdominal pain",
+    "Treatments": "Hormone replacement therapy with glucocorticoid medications",
+    "Disease_Code": "D206",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Astigmatism",
+    "Symptoms": "Blurred or distorted vision, eye strain, headaches,uneven curvature of cornea",
+    "Treatments": "Eyeglasses, contact lenses, refractive surgery (LASIK, PRK), orthokeratology, toric intraocular lenses",
+    "Disease_Code": "D207",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Low-Tension Glaucoma",
+    "Symptoms": "Gradual loss of vision, visual field defects",
+    "Treatments": "Eye drops to lower intraocular pressure (e.g., prostaglandin analogs, beta blockers, alpha agonists, carbonic anhydrase inhibitors), oral medications (e.g., carbonic anhydrase inhibitors), laser trabeculoplasty, surgical procedures (e.g., trabeculectomy, glaucoma drainage implants)",
+    "Disease_Code": "D208",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Headache after lumbar puncture",
+    "Symptoms": "throbbing headache",
+    "Treatments": "Epidural blood patch, Conservative measures",
+    "Disease_Code": "D209",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Flat Feet",
+    "Symptoms": "Foot pain or achiness, difficulty with foot and ankle movement, foot fatigue, swelling",
+    "Treatments": "Supportive footwear, orthotic inserts, physical therapy exercises, pain management, surgery (in severe cases)",
+    "Disease_Code": "D210",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Carbon Monoxide Poisoning",
+    "Symptoms": "Headache, dizziness, nausea, confusion",
+    "Treatments": "Fresh air, oxygen therapy, immediate medical attention",
+    "Disease_Code": "D211",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Orbital Cellulitis",
+    "Symptoms": "Eye pain, swelling, redness, vision changes",
+    "Treatments": "Antibiotics, hospitalization (in severe cases), surgical drainage (in some cases)",
+    "Disease_Code": "D212",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Pulmonary Eosinophilia",
+    "Symptoms": "Cough, shortness of breath, wheezing, chest pain, fever, night sweats, fatigue, weight loss, elevated eosinophil count in the blood or sputum",
+    "Treatments": "Identification and treatment of underlying causes (such as parasitic infections, drug reactions, or allergic reactions), corticosteroids (such as prednisone) to reduce inflammation, bronchodilators (such as inhalers) to relieve bronchospasm and improve airflow, antiparasitic medications (if parasitic infection is identified), immunosuppressive medications (in severe cases), avoidance of triggers or allergens (if identified), symptomatic treatment for associated symptoms (such as fever or cough), regular monitoring and follow-up with a healthcare professional",
+    "Disease_Code": "D213",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Antimicrobial Drugs Poisoning",
+    "Symptoms": "Nausea, vomiting, diarrhea, neurological symptoms",
+    "Treatments": "Immediate medical attention, supportive care, antidote administration",
+    "Disease_Code": "D214",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Eczema",
+    "Symptoms": "Itchy, red, inflamed skin, rash",
+    "Treatments": "Emollients (moisturizers), topical corticosteroids or immunomodulators, avoiding triggers",
+    "Disease_Code": "D215",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Pneumonia",
+    "Symptoms": "Cough, fever, chest pain, difficulty breathing",
+    "Treatments": "Antibiotics, antiviral medications (if applicable), rest, fluids, symptomatic relief",
+    "Disease_Code": "D216",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Intestinal Malabsorption",
+    "Symptoms": "Chronic diarrhea, weight loss, abdominal pain or bloating, nutrient deficiencies (vitamins, minerals), fatigue, failure to thrive",
+    "Treatments": "Dietary modifications (specific to the underlying cause), supplementation of deficient nutrients, medications (to manage symptoms or underlying condition), treatment of underlying cause",
+    "Disease_Code": "D217",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Conductive Hearing Loss",
+    "Symptoms": "Reduced hearing sensitivity, muffled or blocked sound",
+    "Treatments": "Medications, surgical intervention, hearing aids",
+    "Disease_Code": "D218",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Pinworm Infection",
+    "Symptoms": "Itching around the anus or vagina, restless sleep, irritability, anal or vaginal discharge, abdominal pain or discomfort, loss of appetite",
+    "Treatments": "Anthelmintic medication, hygiene measures (handwashing, trimming nails, laundering bedding), treatment for household members",
+    "Disease_Code": "D219",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Esophageal Varices",
+    "Symptoms": "Swollen blood vessels in the esophagus, vomiting blood, black, tarry stools",
+    "Treatments": "Medications (beta-blockers, vasoconstrictors), endoscopic therapies, band ligation, transjugular intrahepatic portosystemic shunt (TIPS), surgical interventions",
+    "Disease_Code": "D220",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Dermatitis due to Sun Exposure",
+    "Symptoms": "Sunburn-like rash, redness, itching",
+    "Treatments": "Moisturizers, cool compresses, topical corticosteroids",
+    "Disease_Code": "D221",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Gonorrhea",
+    "Symptoms": "Painful urination, abnormal discharge from the genitals, pelvic pain",
+    "Treatments": "Antibiotics (dual therapy with ceftriaxone and azithromycin), safe sexual practices, partner notification",
+    "Disease_Code": "D222",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Chronic Sinusitis",
+    "Symptoms": "Facial pain or pressure, nasal congestion, thick nasal discharge, postnasal drip, cough, fatigue",
+    "Treatments": "Saline nasal irrigation, nasal corticosteroids, antibiotics (in bacterial cases), decongestants, pain relievers, surgery (in severe or chronic cases)",
+    "Disease_Code": "D223",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Concussion",
+    "Symptoms": "Headache, dizziness, nausea or vomiting, confusion, memory problems, sensitivity to light or noise, mood changes",
+    "Treatments": "Physical and cognitive rest, gradual return to normal activities, symptom management (such as pain relievers or anti-nausea medication), monitoring for complications (such as changes in neurological function), cognitive rehabilitation (if persistent cognitive problems), management of associated symptoms (such as sleep disturbances or mood changes), education and support for recovery, avoiding further head injuries",
+    "Disease_Code": "D224",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Parathyroid Adenoma",
+    "Symptoms": "Fatigue, weakness, bone pain, frequent urination, kidney stones",
+    "Treatments": "Surgical removal of the adenoma (parathyroidectomy), medications to manage calcium levels",
+    "Disease_Code": "D225",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Herpangina",
+    "Symptoms": "Sore throat, fever, painful sores or blisters in the mouth and throat, difficulty swallowing, loss of appetite",
+    "Treatments": "Symptomatic relief (pain relievers, throat lozenges, mouth rinses), rest, fluids, maintaining good oral hygiene, avoiding spicy or acidic foods",
+    "Disease_Code": "D226",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Conversion Disorder",
+    "Symptoms": "Neurological symptoms that cannot be explained by a medical condition or injury, such as paralysis, blindness, seizures, or difficulty speaking",
+    "Treatments": "Psychotherapy (such as cognitive-behavioral therapy or psychodynamic therapy), physical therapy or rehabilitation (to improve physical function and reduce disability), addressing underlying stressors or psychological factors, supportive care and reassurance, potentially medications (such as antidepressants or anti-anxiety medications)",
+    "Disease_Code": "D227",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Lymphedema",
+    "Symptoms": "Swelling in arms or legs, feeling of heaviness or tightness",
+    "Treatments": "Compression therapy, exercise, lymphatic drainage techniques, surgery (in severe cases)",
+    "Disease_Code": "D228",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hirschsprung Disease",
+    "Symptoms": "Chronic constipation, abdominal distension, failure to pass meconium (in newborns)",
+    "Treatments": "Surgery to remove the affected part of the colon (pull-through procedure)",
+    "Disease_Code": "D229",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Rheumatoid Arthritis",
+    "Symptoms": "Joint pain, stiffness, swelling, fatigue, loss of appetite",
+    "Treatments": "Medications (nonsteroidal anti-inflammatory drugs, disease-modifying antirheumatic drugs), physical therapy, exercise",
+    "Disease_Code": "D230",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Turner syndrome",
+    "Symptoms": "Short stature, Gonadal dysgenesis, Webbed neck, Lymphedema",
+    "Treatments": "Growth hormone therapy, Estrogen replacement therapy, Cardiac and renal evaluations",
+    "Disease_Code": "D231",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Sciatica",
+    "Symptoms": "Pain radiating from the lower back to the leg",
+    "Treatments": "Pain medications, physical therapy, stretching exercises",
+    "Disease_Code": "D187",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Endophthalmitis",
+    "Symptoms": "Eye pain, redness, swelling, blurred vision, decreased vision, floaters (dark spots or cobwebs in the vision), increased sensitivity to light (photophobia), discharge from the eye, excessive tearing, fever",
+    "Treatments": "Immediate medical attention is required. Treatment may include: intravenous antibiotics or antifungal medications, intravitreal injections (injections of antibiotics or antifungal agents directly into the eye), vitrectomy (surgical removal of the gel-like fluid within the eye), topical or oral medications (to manage pain, inflammation, or infection), frequent follow-up visits with an ophthalmologist, supportive care (such as warm compresses or lubricating eye drops)",
+    "Disease_Code": "D232",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Myelodysplastic Syndrome",
+    "Symptoms": "Fatigue, frequent infections, easy bruising or bleeding",
+    "Treatments": "Supportive care, blood transfusions, medications, bone marrow transplantation (in some cases)",
+    "Disease_Code": "D233",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Premature Ventricular Contractions (PVCs)",
+    "Symptoms": "Skipped or extra heartbeats, palpitations, lightheadedness",
+    "Treatments": "Monitoring (in most cases), lifestyle changes, medications (beta-blockers, antiarrhythmics)",
+    "Disease_Code": "D234",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Ludwig's angina",
+    "Symptoms": "Severe swelling of the floor of the mouth, fever, difficulty swallowing, drooling",
+    "Treatments": "Intravenous antibiotics, airway management, surgical drainage",
+    "Disease_Code": "D235",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Cryptococcosis",
+    "Symptoms": "Headache, fever, fatigue, cough, meningitis, pneumonia",
+    "Treatments": "Antifungal medication (e.g., Amphotericin B, Fluconazole), supportive care",
+    "Disease_Code": "D236",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Diabetic Kidney Disease",
+    "Symptoms": "High blood pressure, increased need to urinate, swelling in the legs and ankles, fatigue, nausea, loss of appetite",
+    "Treatments": "Blood pressure control, blood sugar control, medications to protect the kidneys (such as ACE inhibitors or ARBs), lifestyle modifications (healthy diet, regular exercise, quitting smoking), management of underlying diabetes, treatment of complications (such as dialysis or kidney transplantation in advanced stages)",
+    "Disease_Code": "D237",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Premenstrual Tension Syndrome",
+    "Symptoms": "Mood swings, bloating, breast tenderness, irritability",
+    "Treatments": "Lifestyle changes, medications (pain relievers, hormonal contraceptives), therapy",
+    "Disease_Code": "D238",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Drug Abuse (Methamphetamine)",
+    "Symptoms": "Increased energy and alertness, decreased appetite, rapid heartbeat",
+    "Treatments": "Detoxification, counseling, behavioral therapies, support groups, medication-assisted treatment (if applicable)",
+    "Disease_Code": "D239",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Urge Incontinence",
+    "Symptoms": "Sudden, intense urge to urinate followed by involuntary urine leakage",
+    "Treatments": "Behavioral therapies (bladder training, pelvic floor exercises), medications (anticholinergics, beta-3 agonists), medical devices",
+    "Disease_Code": "D240",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Dengue Fever",
+    "Symptoms": "High fever, severe headache, joint and muscle pain, rash, nausea or vomiting, bleeding tendencies",
+    "Treatments": "Supportive care (hydration, pain relievers, rest), monitoring, medical attention for severe cases (fluid replacement, blood transfusion, hospitalization)",
+    "Disease_Code": "D241",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Lead Poisoning",
+    "Symptoms": "Fatigue, abdominal pain, joint pain, memory loss or cognitive difficulties, developmental delays (in children), anemia",
+    "Treatments": "Removal of lead source, chelation therapy (in severe cases), supportive care, medication to manage symptoms, addressing complications (such as anemia)",
+    "Disease_Code": "D242",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Actinic Keratosis",
+    "Symptoms": "Rough, scaly patches on the skin, usually in sun-exposed areas",
+    "Treatments": "Topical medications (e.g., fluorouracil, imiquimod, diclofenac), cryotherapy, curettag",
+    "Disease_Code": "D243",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Choledocholithiasis",
+    "Symptoms": "Abdominal pain (often in the upper right quadrant), jaundice, dark urine, pale stools, nausea, vomiting, endoscopic retrograde cholangiopancreatography (ERCP) with stone removal, sphincterotomy, Cholecystectomy ",
+    "Treatments": "Non-surgical treatment options: Medications to manage pain and discomfort, antibiotics",
+    "Disease_Code": "D244",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Head and Neck Cancer",
+    "Symptoms": "Persistent sore throat, difficulty swallowing, voice changes, ear pain, neck mass, weight loss",
+    "Treatments": "Treatment depends on the specific type and stage of cancer, and may include surgery, radiation therapy, chemotherapy, targeted therapy, immunotherapy",
+    "Disease_Code": "D245",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Sjögren's syndrome",
+    "Symptoms": "Dry mouth and eyes, fatigue, joint pain, dry skin",
+    "Treatments": "Symptomatic relief with artificial tears, saliva substitutes, frequent sips of water, medications to stimulate saliva production, immune-modulating drugs",
+    "Disease_Code": "D246",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Peritonitis",
+    "Symptoms": "Severe abdominal pain, tenderness, bloating, fever, nausea, vomiting, loss of appetite, increased heart rate",
+    "Treatments": "Intravenous antibiotics to treat the infection, intravenous fluids to restore hydration, drainage or removal of any underlying fluid or abscess, surgery to repair or remove the source of infection",
+    "Disease_Code": "D247",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Anemia of Chronic Disease",
+    "Symptoms": "Fatigue, weakness, pale skin, shortness of breath, decreased exercise tolerance",
+    "Treatments": "Treating the underlying chronic disease, addressing nutritional deficiencies, blood transfusions (in severe cases)",
+    "Disease_Code": "D248",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Ovarian Torsion",
+    "Symptoms": "Sudden and severe abdominal or pelvic pain on one side, sharp or stabbing pain, nausea, vomiting, fever, rapid heartbeat, abdominal tenderness, bloating, swelling, pain during intercourse, abnormal bleeding or spotting",
+    "Treatments": "Emergency medical attention (as ovarian torsion is a medical emergency), imaging tests (such as ultrasound or CT scan) to diagnose torsion, surgical intervention (laparoscopic or open surgery) to untwist the ovary and restore blood flow, removal of the ovary (if it is damaged or non-viable), pain management (medications for pain relief)",
+    "Disease_Code": "D249",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Sciatica",
+    "Symptoms": "Lower back pain, leg pain, numbness or tingling",
+    "Treatments": "Pain relievers, physical therapy, exercise",
+    "Disease_Code": "D187",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Lupus",
+    "Symptoms": "Joint pain, fatigue, skin rashes",
+    "Treatments": "Medications (anti-inflammatory, immunosuppressants), lifestyle modifications",
+    "Disease_Code": "D250",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Neonatal Jaundice",
+    "Symptoms": "Yellowing of the skin and eyes, pale stools, dark urine",
+    "Treatments": "Phototherapy, exchange transfusion (in severe cases), monitoring of bilirubin levels, addressing underlying causes (e.g., breastfeeding)",
+    "Disease_Code": "D251",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Gastrointestinal Hemorrhage",
+    "Symptoms": "Abdominal pain, vomiting blood, bloody or black stools",
+    "Treatments": "Blood transfusions, endoscopy, surgery (in severe cases), medications to stop bleeding",
+    "Disease_Code": "D252",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Dislocation of the Ankle",
+    "Symptoms": "Swelling, severe pain, inability to bear weight",
+    "Treatments": "Reduction (realigning the bones), immobilization, rehab",
+    "Disease_Code": "D253",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Vaginal Cyst",
+    "Symptoms": "Small lump or swelling in the vaginal wall, discomfort or pain during intercourse",
+    "Treatments": "Observation (if asymptomatic), warm compresses, sitz baths, surgical removal (if necessary)",
+    "Disease_Code": "D254",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Orthorexia Nervosa",
+    "Symptoms": "Obsessive focus on \"clean\" eating, healthy food choices",
+    "Treatments": "Psychotherapy (such as cognitive-behavioral therapy or acceptance and commitment therapy), nutrition education, challenging distorted beliefs, addressing underlying issues",
+    "Disease_Code": "D255",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Urinary Tract Infection (UTI)",
+    "Symptoms": "Frequent urination, burning sensation during urination, cloudy or bloody urine, pelvic pain",
+    "Treatments": "Antibiotics, increased fluid intake, pain relievers",
+    "Disease_Code": "D256",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Placenta Previa",
+    "Symptoms": "Vaginal bleeding, painless bleeding in the third trimester",
+    "Treatments": "Bed rest, avoiding strenuous activity, frequent prenatal check-ups, potential hospitalization, potential cesarean delivery",
+    "Disease_Code": "D257",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Acute Pancreatitis",
+    "Symptoms": "Severe upper abdominal pain, nausea, vomiting, fever, rapid pulse, swollen and tender abdomen, jaundice",
+    "Treatments": "Hospitalization, intravenous fluids to restore hydration, pain management, bowel rest, nutritional support, medications to control pain and inflammation",
+    "Disease_Code": "D258",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Gum Disease",
+    "Symptoms": "Swollen, red, tender gums, bleeding gums",
+    "Treatments": "Oral hygiene practices (brushing, flossing), professional dental cleanings, medications, surgical interventions",
+    "Disease_Code": "D259",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Panic Attack",
+    "Symptoms": "Chest pain, shortness of breath, palpitations",
+    "Treatments": "Breathing exercises, relaxation techniques, therapy",
+    "Disease_Code": "D260",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Lice",
+    "Symptoms": "Itching and visible presence of lice or nits (eggs) in the hair",
+    "Treatments": "Over-the-counter or prescription medications specifically designed to kill lice (such as pediculicides), manual removal of lice and nits using a fine-toothed comb, washing and drying of infested clothing and bedding at high temperatures, vacuuming of upholstery and household surfaces, disinfection of personal items that cannot be washed or dried, avoiding direct head-to-head contact with infested individuals, education and prevention strategies",
+    "Disease_Code": "D261",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Pyloric stenosis",
+    "Symptoms": "Persistent hunger, Weight loss, Dehydration, Visible peristalsis, Palpable mass, Fussiness ",
+    "Treatments": "Ultrasound, Blood tests, Pyloromyotomy",
+    "Disease_Code": "D262",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Pigmentary Glaucoma",
+    "Symptoms": "Blurred vision, halos around lights, eye pain",
+    "Treatments": "Eye drops to lower intraocular pressure (e.g., prostaglandin analogs, beta blockers, alpha agonists, carbonic anhydrase inhibitors), laser trabeculoplasty, surgical procedures (e.g., trabeculectomy, glaucoma drainage implants)",
+    "Disease_Code": "D263",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Abscess",
+    "Symptoms": "Swelling, pain, redness, fever, pus formation",
+    "Treatments": "Antibiotics, surgical drainage",
+    "Disease_Code": "D264",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Myositis",
+    "Symptoms": "Muscle weakness, pain, inflammation",
+    "Treatments": "Medications (corticosteroids, immunosuppressants), physical therapy",
+    "Disease_Code": "D265",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Von Willebrand Disease",
+    "Symptoms": "Easy or excessive bruising, prolonged or excessive bleeding from cuts or injuries, frequent nosebleeds, heavy or prolonged menstrual periods, bleeding gums, blood in urine or stool",
+    "Treatments": "Desmopressin (DDAVP) medication, replacement therapy with von Willebrand factor (VWF) concentrate or cryoprecipitate, oral contraceptives (for women with heavy menstrual bleeding), avoiding certain medications, dental care precautions, regular medical follow-up",
+    "Disease_Code": "D266",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Gastroparesis",
+    "Symptoms": "Nausea, vomiting, early satiety, bloating, abdominal pain, poor appetite",
+    "Treatments": "Dietary modifications (small, frequent meals; low-fiber, low-fat diet), medication to promote gastric emptying, managing underlying cause if possible",
+    "Disease_Code": "D267",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Chancroid",
+    "Symptoms": "Painful ulcers or sores on the genital area, swollen lymph nodes in the groin",
+    "Treatments": "Antibiotics (such as azithromycin or ceftriaxone), pain management, warm compresses, good hygiene",
+    "Disease_Code": "D268",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Fungal Infection of the Skin",
+    "Symptoms": "Rash, itching, redness, peeling skin",
+    "Treatments": "Antifungal creams, powders, or oral medications, proper hygiene and skin care",
+    "Disease_Code": "D269",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Stimulant Use Disorder",
+    "Symptoms": "Increased energy and alertness, euphoria, decreased appetite, increased heart rate and blood pressure, insomnia, restlessness, irritability, paranoia, psychosis (in severe cases)",
+    "Treatments": "Counseling or therapy (such as cognitive-behavioral therapy, motivational interviewing), support groups, medication (if applicable), addressing underlying psychological or social factors, lifestyle changes, addressing co-occurring mental health conditions, harm reduction strategies, ongoing monitoring and support",
+    "Disease_Code": "D270",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Chronic Fatigue Syndrome",
+    "Symptoms": "Extreme fatigue, cognitive difficulties, unrefreshing sleep",
+    "Treatments": "Symptom management (such as medications to address pain, sleep disturbances, and other symptoms), graded exercise therapy, cognitive-behavioral therapy, sleep management techniques, pacing and energy conservation, stress reduction techniques, nutritional support, medications for specific symptoms",
+    "Disease_Code": "D271",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Threatened Pregnancy",
+    "Symptoms": "Vaginal bleeding, abdominal cramps, pelvic pain",
+    "Treatments": "Bed rest, medications (progesterone), monitoring, avoiding activities that may stress the pregnancy",
+    "Disease_Code": "D272",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Chronic Glaucoma",
+    "Symptoms": "Gradual vision loss, peripheral vision impairment, eye pain or discomfort, halos around lights",
+    "Treatments": "Eye drops (to reduce intraocular pressure), oral medications, laser therapy, surgery (trabeculectomy, implantable devices), regular eye exams",
+    "Disease_Code": "D273",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Urticaria (Hives)",
+    "Symptoms": "Raised, itchy welts on the skin",
+    "Treatments": "Antihistamines, avoiding triggers, corticosteroids (in severe cases)",
+    "Disease_Code": "D274",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Vitreous Hemorrhage",
+    "Symptoms": "Floaters in vision, blurry vision, eye pain",
+    "Treatments": "Observation, laser treatment, vitrectomy (in severe cases)",
+    "Disease_Code": "D275",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Binge Eating Disorder",
+    "Symptoms": "Recurrent episodes of binge eating without compensatory behaviors",
+    "Treatments": "Psychotherapy (such as cognitive-behavioral therapy or interpersonal therapy), nutritional counseling, medications (in some cases), support groups",
+    "Disease_Code": "D276",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hypercholesterolemia",
+    "Symptoms": "High levels of cholesterol in the blood, fatty deposits (xanthomas) on the skin or tendons, chest pain or angina, heart attacks, strokes",
+    "Treatments": "Lifestyle modifications (healthy diet, regular exercise, weight management, smoking cessation), medications to lower cholesterol levels (such as statins), regular monitoring of cholesterol levels, management of underlying conditions (such as diabetes or high blood pressure), potential additional treatments (such as bile acid sequestrants or PCSK9 inhibitors)",
+    "Disease_Code": "D277",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Stress Incontinence",
+    "Symptoms": "Unintentional urine leakage during physical activity",
+    "Treatments": "Pelvic floor exercises, behavioral techniques, surgery (in severe cases)",
+    "Disease_Code": "D278",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Labyrinthitis",
+    "Symptoms": "Vertigo, dizziness, nausea, hearing loss, ear pain",
+    "Treatments": "Medications (antibiotics, antivirals), vestibular rehabilitation therapy",
+    "Disease_Code": "D279",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Dysthymic Disorder",
+    "Symptoms": "Persistent depressive symptoms (low mood, lack of interest, changes in sleep and appetite), lasting for at least two years",
+    "Treatments": "Psychotherapy (cognitive-behavioral therapy, interpersonal therapy), antidepressant medications",
+    "Disease_Code": "D280",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Ethylene glycol poisoning-1",
+    "Symptoms": "Nausea, vomiting, abdominal pain, General malaise, weakness, Increased thirst, frequent urination",
+    "Treatments": "Supportive Measures, Gastric Decontamination, Antidote Administration, Hemodialysis",
+    "Disease_Code": "D281",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Impulse Control Disorder",
+    "Symptoms": "Impulsive behaviors (e.g., gambling, stealing), difficulty resisting urges",
+    "Treatments": "Psychotherapy, medication (in some cases), support groups, behavioral interventions",
+    "Disease_Code": "D282",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Intracranial Hemorrhage",
+    "Symptoms": "Severe headache, nausea or vomiting, changes in vision, loss of consciousness, seizures",
+    "Treatments": "Emergency medical attention, surgery (if needed), medications to control bleeding and manage symptoms",
+    "Disease_Code": "D283",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Postpartum Depression",
+    "Symptoms": "Persistent feelings of sadness, emptiness, or hopelessness, frequent crying, irritability, loss of interest or pleasure in activities, difficulty bonding with the baby, changes in appetite or sleep patterns, overwhelming fatigue, feelings of guilt or worthlessness, trouble concentrating or making decisions, thoughts of self-harm or harming the baby",
+    "Treatments": "Psychotherapy (such as cognitive-behavioral therapy or interpersonal therapy), support groups or peer counseling, antidepressant medication (if recommended by a healthcare professional), hormone therapy (in some cases), lifestyle changes (such as exercise, healthy diet, sleep hygiene), involving a partner or family in the care of the baby, social support and understanding from family and friends, regular follow-up and monitoring by healthcare professionals",
+    "Disease_Code": "D284",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Injury to the Leg",
+    "Symptoms": "Pain, swelling, bruising, difficulty walking",
+    "Treatments": "R.I.C.E. (Rest, Ice, Compression, Elevation), pain medications, physical therapy",
+    "Disease_Code": "D285",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Stroke",
+    "Symptoms": "Sudden numbness or weakness of the face, arm, or leg (typically on one side of the body), confusion, trouble speaking or understanding, severe headache",
+    "Treatments": "Emergency medical attention, medication (clot-busting drugs, anticoagulants), supportive care, rehabilitation (physical therapy, speech therapy), lifestyle modifications (diet, exercise, smoking cessation), addressing underlying risk factors",
+    "Disease_Code": "D286",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Huntington Disease",
+    "Symptoms": "Motor, cognitive, and psychiatric symptoms",
+    "Treatments": "Supportive care, medications (to manage symptoms), therapy",
+    "Disease_Code": "D287",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Mononucleosis",
+    "Symptoms": "Fatigue, sore throat, swollen lymph nodes",
+    "Treatments": "Rest, pain relievers, fluids, symptom management",
+    "Disease_Code": "D288",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Hallucinogen Use Disorder",
+    "Symptoms": "Altered perception of reality, visual or auditory hallucinations, changes in sensory experiences, introspective thoughts, feelings of connection or disconnection, anxiety or paranoia (in some individuals), flashbacks (in some individuals)",
+    "Treatments": "Counseling or therapy (such as cognitive-behavioral therapy, motivational interviewing), support groups, addressing underlying psychological or social factors, harm reduction strategies, ongoing monitoring and support",
+    "Disease_Code": "D289",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Ependymoma",
+    "Symptoms": "Headaches, nausea, seizures, changes in coordination or balance",
+    "Treatments": "Surgery, radiation therapy, chemotherapy, targeted therapy, rehabilitation",
+    "Disease_Code": "D290",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Lymphoma",
+    "Symptoms": "Swollen lymph nodes, unexplained weight loss, fatigue",
+    "Treatments": "Chemotherapy, radiation therapy, immunotherapy, targeted therapy",
+    "Disease_Code": "D291",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Urinary Tract Infection (UTI)",
+    "Symptoms": "Painful urination, frequent urination, pelvic pain, cloudy urine",
+    "Treatments": "Antibiotics safe for pregnancy, increased fluid intake, maintaining good hygiene, urine culture and sensitivity testing to guide antibiotic selection",
+    "Disease_Code": "D256",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Transient ischemic attack",
+    "Symptoms": "Sudden onset of neurological symptoms that resolve within 24 hours",
+    "Treatments": "Antiplatelet medications, Carotid endarterectomy,  Anticoagulant medications, Lifestyle modifications",
+    "Disease_Code": "D292",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Normal-Tension Glaucoma",
+    "Symptoms": "Gradual loss of vision, visual field defects",
+    "Treatments": "Eye drops to lower intraocular pressure (e.g., prostaglandin analogs, beta blockers, alpha agonists, carbonic anhydrase inhibitors), oral medications (e.g., carbonic anhydrase inhibitors), laser trabeculoplasty, surgical procedures (e.g., trabeculectomy, glaucoma drainage implants)",
+    "Disease_Code": "D293",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Thyroid Disease",
+    "Symptoms": "Fatigue, weight changes, mood swings, dry skin",
+    "Treatments": "Medications (thyroid hormone replacement, antithyroid drugs), radioactive iodine therapy, surgery (in some cases)",
+    "Disease_Code": "D294",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Bladder Cancer",
+    "Symptoms": "Blood in urine, frequent urination, pelvic pain",
+    "Treatments": "Surgery, chemotherapy, radiation therapy",
+    "Disease_Code": "D295",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Fracture of the Arm",
+    "Symptoms": "Pain, swelling, deformity, limited mobility or difficulty moving the arm, bruising",
+    "Treatments": "Immobilization (cast or splint), pain management, physical therapy, surgery (in complex fractures)",
+    "Disease_Code": "D296",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Mucocele",
+    "Symptoms": "Painless swelling, usually on the lower lip or floor of the mouth",
+    "Treatments": "Observation, surgical removal if necessary",
+    "Disease_Code": "D085",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Kidney Failure",
+    "Symptoms": "Decreased urine output, fluid retention, fatigue, shortness of breath, nausea, confusion, chest pain, seizures",
+    "Treatments": "Treatment depends on the underlying cause and may include medications to manage blood pressure and symptoms, dietary modifications (restricting salt, protein, and potassium), dialysis (hemodialysis or peritoneal dialysis) or kidney transplantation (in end-stage kidney failure), treatment of complications, management of fluid and electrolyte balance, lifestyle modifications (exercise, quitting smoking, healthy diet)",
+    "Disease_Code": "D297",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Chagas Disease",
+    "Symptoms": "Fever, fatigue, body aches, heart and digestive problems",
+    "Treatments": "Antiparasitic medications, medications to manage symptoms, supportive care",
+    "Disease_Code": "D298",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Leukemia",
+    "Symptoms": "Fatigue, pale skin, frequent infections, easy bleeding or bruising",
+    "Treatments": "Chemotherapy, radiation therapy, stem cell transplant, targeted therapy, supportive care",
+    "Disease_Code": "D299",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Vesicoureteral Reflux",
+    "Symptoms": "Frequent urinary tract infections, urinary urgency or frequency, bedwetting (in children), high blood pressure (in severe cases)",
+    "Treatments": "Antibiotics, bladder training exercises, surgical correction (in some cases)",
+    "Disease_Code": "D300",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Endometriosis",
+    "Symptoms": "Pelvic pain (during menstruation, intercourse, or bowel movements), heavy menstrual bleeding, infertility",
+    "Treatments": "Pain management (such as nonsteroidal anti-inflammatory drugs [NSAIDs], hormonal contraceptives, or progestins), hormone therapy (such as gonadotropin-releasing hormone [GnRH] agonists or oral contraceptives), surgical interventions (such as laparoscopic excision or hysterectomy), fertility treatments (if pregnancy is desired), lifestyle modifications (such as regular exercise, stress management), complementary therapies (such as acupuncture or dietary changes)",
+    "Disease_Code": "D162",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Psoriasis",
+    "Symptoms": "Red, scaly patches on the skin, itching",
+    "Treatments": "Topical treatments (corticosteroids, salicylic acid), systemic medications (retinoids, immunosuppressants), phototherapy",
+    "Disease_Code": "D301",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Infection of Open Wound",
+    "Symptoms": "Redness, swelling, warmth, pain or tenderness at the wound site, pus or drainage from the wound, fever, malaise",
+    "Treatments": "Cleaning and irrigation of the wound, antibiotic therapy (oral or intravenous), wound dressings, wound debridement (if necessary), tetanus prophylaxis",
+    "Disease_Code": "D302",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Anemia",
+    "Symptoms": "Fatigue, weakness, pale skin, shortness of breath",
+    "Treatments": "Iron supplementation, dietary changes (iron-rich foods), managing underlying causes (such as treating iron deficiency or vitamin B12 deficiency), prenatal vitamins",
+    "Disease_Code": "D303",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Spondylosis",
+    "Symptoms": "Neck or back pain, stiffness, limited range of motion, numbness or weakness in the extremities",
+    "Treatments": "Medications (pain relievers, muscle relaxants), physical therapy, exercise, posture improvement, heat or cold therapy, spinal injections, surgery (in severe cases or if conservative treatments fail)",
+    "Disease_Code": "D304",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Acute Otitis Media",
+    "Symptoms": "Ear pain, fever, fluid drainage from the ear, hearing loss or muffled hearing in the affected ear",
+    "Treatments": "Antibiotics, pain relievers (e.g., acetaminophen, ibuprofen), warm compresses, ear drops, tympanostomy tubes (in some cases)",
+    "Disease_Code": "D305",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Fracture",
+    "Symptoms": "Pain, Swelling, Bruising, Deformity, Difficulty moving, Loss of function",
+    "Treatments": "Immobilization, Surgery, Rehabilitation",
+    "Disease_Code": "D306",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Round Ligament Pain",
+    "Symptoms": "Sharp or aching pain in the lower abdomen or groin",
+    "Treatments": "Resting, changing positions slowly, warm compresses, gentle stretching, avoiding sudden movements",
+    "Disease_Code": "D307",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Autism",
+    "Symptoms": "Challenges with social interaction, communication difficulties, restricted interests or repetitive behaviors",
+    "Treatments": "Behavioral therapy, educational interventions, speech and language therapy, medications for associated symptoms",
+    "Disease_Code": "D308",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Pleomorphic adenoma",
+    "Symptoms": "Painless lump or swelling, Facial changes",
+    "Treatments": "Surgical excision",
+    "Disease_Code": "D309",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Otosclerosis",
+    "Symptoms": "Hearing loss (gradual and progressive), tinnitus (ringing in the ears), dizziness or balance problems",
+    "Treatments": "Hearing aids, surgical interventions (such as stapedectomy or stapedotomy to replace the affected bone in the middle ear), sodium fluoride therapy (to slow down the progression of the condition), communication strategies and support (such as lip-reading or sign language), regular hearing assessments",
+    "Disease_Code": "D310",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Bulimia Nervosa",
+    "Symptoms": "Recurrent episodes of binge eating followed by purging behaviors",
+    "Treatments": "Psychotherapy (such as cognitive-behavioral therapy or dialectical behavior therapy), nutritional counseling, medications (in some cases), support groups",
+    "Disease_Code": "D311",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Poisoning due to Analgesics",
+    "Symptoms": "Nausea, vomiting, abdominal pain, liver or kidney damage, dizziness, confusion, respiratory distress",
+    "Treatments": "Immediate medical attention, activated charcoal administration, supportive care, antidote (if available), treatment for complications",
+    "Disease_Code": "D312",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Pseudohypoparathyroidism",
+    "Symptoms": "Hypocalcemia (low calcium levels), tetany (muscle spasms), short stature, rounded face",
+    "Treatments": "Calcium and vitamin D supplementation, management of complications, hormone replacement therapy (if necessary)",
+    "Disease_Code": "D313",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Dermatitis due to Sun Exposure",
+    "Symptoms": "Redness, itching, rash, blistering",
+    "Treatments": "Topical corticosteroids, moisturizers, avoiding sun exposure",
+    "Disease_Code": "D221",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Anemia due to Malignancy",
+    "Symptoms": "Fatigue, weakness, shortness of breath, pale skin",
+    "Treatments": "Treating underlying malignancy, blood transfusions, medications (erythropoiesis-stimulating agents, iron supplements)",
+    "Disease_Code": "D314",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hyperhidrosis",
+    "Symptoms": "Excessive sweating (beyond what is necessary for temperature regulation), typically in specific areas (such as palms, soles, underarms), may interfere with daily activities",
+    "Treatments": "Antiperspirants, medications (anticholinergics, beta blockers), iontophoresis, Botox injections, surgical interventions (sympathectomy, sweat gland removal)",
+    "Disease_Code": "D315",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Otitis Media",
+    "Symptoms": "Ear pain, fever, fluid drainage from the ear",
+    "Treatments": "Antibiotics (if bacterial infection), pain relievers, observation (in some cases)",
+    "Disease_Code": "D316",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Benign Kidney Cyst",
+    "Symptoms": "Abdominal or flank pain, blood in urine, frequent urination",
+    "Treatments": "Observation, medication (if needed), surgery (in rare cases)",
+    "Disease_Code": "D317",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Pain after an Operation",
+    "Symptoms": "Surgical site pain, discomfort, swelling",
+    "Treatments": "Pain medications, ice packs, rest, wound care",
+    "Disease_Code": "D318",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Chronic Knee Pain",
+    "Symptoms": "Persistent knee pain, stiffness, swelling, limited range of motion",
+    "Treatments": "Pain management, physical therapy, lifestyle modifications, knee braces or supports",
+    "Disease_Code": "D319",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Volvulus",
+    "Symptoms": "Abdominal pain, nausea, vomiting, bloating, constipation, bloody stool",
+    "Treatments": "Emergency surgery to untwist the affected organ and restore blood flow",
+    "Disease_Code": "D320",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Scurvy",
+    "Symptoms": "Fatigue, swollen and bleeding gums, joint pain",
+    "Treatments": "Vitamin C supplementation, dietary changes, oral hygiene maintenance",
+    "Disease_Code": "D321",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Urinary Stones (Kidney Stones)",
+    "Symptoms": "Severe abdominal or back pain, blood in urine, frequent urination, pain during urination",
+    "Treatments": "Pain management, increased fluid intake, medications to help pass the stones, procedures or surgery",
+    "Disease_Code": "D322",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Injury to the Finger",
+    "Symptoms": "Pain, swelling, bruising, deformity, restricted range of motion, difficulty gripping or using the finger",
+    "Treatments": "RICE method (Rest, Ice, Compression, Elevation), splinting, pain medication, physical therapy, surgery (in severe cases)",
+    "Disease_Code": "D323",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Retinal Detachment",
+    "Symptoms": "Floaters (spots or cobweb-like shapes in vision), flashes of light, curtain-like shadow over vision, sudden vision loss",
+    "Treatments": "Surgical intervention (pneumatic retinopexy, scleral buckle, vitrectomy), laser therapy, cryotherapy, gas or silicone oil injection, positioning, regular eye exams",
+    "Disease_Code": "D324",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Chronic Rheumatic Fever",
+    "Symptoms": "Joint pain, fever, rash, heart inflammation",
+    "Treatments": "Antibiotics (to treat streptococcal infections), anti-inflammatory medications, medications for heart complications",
+    "Disease_Code": "D325",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Acute Bronchospasm",
+    "Symptoms": "Wheezing, shortness of breath, chest tightness",
+    "Treatments": "Bronchodilators (inhaled medications), corticosteroids, supplemental oxygen (if needed)",
+    "Disease_Code": "D326",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Vulvodynia",
+    "Symptoms": "Persistent pain or discomfort in the vulva, burning, stinging, rawness, itching",
+    "Treatments": "Topical medications (such as lidocaine or estrogen creams), nerve blocks, physical therapy (including pelvic floor muscle relaxation exercises), cognitive-behavioral therapy (CBT), biofeedback, medications (such as tricyclic antidepressants or anticonvulsants), vulvar care and hygiene practices, stress management techniques, alternative therapies (such as acupuncture or herbal remedies)",
+    "Disease_Code": "D327",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Other Specified Feeding or Eating Disorder (OSFED)",
+    "Symptoms": "Symptoms that do not meet the full criteria for a specific eating disorder",
+    "Treatments": "Treatment is based on the specific symptoms and can include a combination of psychotherapy, nutritional counseling, medical monitoring, and medications as necessary",
+    "Disease_Code": "D328",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Anemia due to Chronic Kidney Disease",
+    "Symptoms": "Fatigue, weakness, pale skin",
+    "Treatments": "Erythropoiesis-stimulating agents (ESA), iron supplementation, blood transfusions (in severe cases)",
+    "Disease_Code": "D329",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Pemphigus",
+    "Symptoms": "Painful blisters on the skin and mucous membranes",
+    "Treatments": "Corticosteroids, immunosuppressants, wound care",
+    "Disease_Code": "D330",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Syphilis",
+    "Symptoms": "Primary stage: painless sores (chancre) at the site of infection, secondary stage: skin rash, fever, swollen lymph nodes, sore throat, latent stage: no symptoms, tertiary stage: severe complications affecting the heart, brain, and other organs",
+    "Treatments": "Antibiotics (usually penicillin), treatment of complications, regular follow-up and testing",
+    "Disease_Code": "D331",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Omphalitis",
+    "Symptoms": "Redness, swelling, discharge, foul odor around the umbilical area",
+    "Treatments": "Antibiotics, wound care, surgical intervention (in severe cases)",
+    "Disease_Code": "D332",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Idiopathic Nonmenstrual Bleeding",
+    "Symptoms": "Abnormal vaginal bleeding outside of the menstrual period, unpredictable bleeding episodes, bleeding after sexual intercourse, bleeding after menopause, spotting or light bleeding between periods, prolonged or heavy bleeding",
+    "Treatments": "Evaluation to rule out underlying causes (such as hormonal imbalances, polyps, infections, or uterine abnormalities), hormonal therapy (such as birth control pills, hormone replacement therapy), non-hormonal medications (such as tranexamic acid), dilation and curettage (if necessary to remove excessive tissue or investigate the cause), endometrial ablation (in some cases), hysteroscopy (to examine the uterus), surgery (in rare cases), counseling or support for emotional well-being",
+    "Disease_Code": "D333",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Myofascial Pain Syndrome",
+    "Symptoms": "Localized muscle pain, trigger points",
+    "Treatments": "Physical therapy, trigger point injections, dry needling, medications (such as pain relievers, muscle relaxants), relaxation techniques, stress management, massage therapy, myofascial release, heat or cold therapy",
+    "Disease_Code": "D334",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Vocal cord polyp",
+    "Symptoms": "Hoarseness, Vocal Changes, Vocal Fatigue",
+    "Treatments": "Voice Rest, Speech Therapy, Surgical Removal",
+    "Disease_Code": "D335",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Rotator Cuff Injury",
+    "Symptoms": "Shoulder pain, weakness or loss of strength, limited range of motion, shoulder stiffness",
+    "Treatments": "Non-surgical treatment options: Rest, ice or heat therapy, pain medications, physical therapy exercises, Arthroscopic surgery",
+    "Disease_Code": "D336",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Fibromyalgia",
+    "Symptoms": "Widespread musculoskeletal pain, fatigue, sleep disturbances, cognitive difficulties (fibro fog), mood changes",
+    "Treatments": "Multidisciplinary approach: Medications for pain management (such as analgesics, antidepressants, and anticonvulsants), physical therapy, occupational therapy, cognitive-behavioral therapy, relaxation techniques, stress management, exercise programs",
+    "Disease_Code": "D337",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hypercalcemia",
+    "Symptoms": "Fatigue, nausea, excessive thirst, kidney stones",
+    "Treatments": "Treating underlying cause, hydration, medications",
+    "Disease_Code": "D338",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Secondary Glaucoma",
+    "Symptoms": "Varies depending on the underlying cause",
+    "Treatments": "Treatment of the underlying condition (e.g., medication adjustments, surgery, trauma management, tumor removal, inflammation control)",
+    "Disease_Code": "D339",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Drug Reaction",
+    "Symptoms": "Rash, itching, swelling, fever, respiratory symptoms",
+    "Treatments": "Discontinuation of the offending drug, supportive care, antihistamines, corticosteroids (in severe cases)",
+    "Disease_Code": "D340",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Acute Sinusitis",
+    "Symptoms": "Facial pain or pressure, nasal congestion, thick nasal discharge, post-nasal drip, cough, headache, fatigue, fever (in some cases)",
+    "Treatments": "Home remedies (such as nasal saline irrigation, steam inhalation), over-the-counter pain relievers (such as acetaminophen or ibuprofen), nasal decongestants (for short-term use), nasal corticosteroids (to reduce inflammation), plenty of fluids and rest, warm compresses, avoidance of irritants (such as smoke or allergens), prescription antibiotics (if bacterial infection is suspected or confirmed), management of underlying causes (such as allergies or nasal polyps), symptom relief medications (such as cough suppressants or antihistamines)",
+    "Disease_Code": "D341",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Polycystic Ovarian Syndrome",
+    "Symptoms": "Irregular periods, excessive hair growth, acne, weight gain, ovarian cysts",
+    "Treatments": "Lifestyle changes (diet, exercise, weight management), hormonal contraceptives, fertility treatments (if needed)",
+    "Disease_Code": "D342",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Complex Regional Pain Syndrome (CRPS)",
+    "Symptoms": "Severe and persistent pain, changes in skin color or temperature, swelling, stiffness",
+    "Treatments": "Medications (such as pain relievers, corticosteroids, anticonvulsants), physical therapy, sympathetic nerve blocks, spinal cord stimulation, occupational therapy, mirror therapy, psychotherapy, graded motor imagery, stress management techniques",
+    "Disease_Code": "D100",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Optic Neuritis",
+    "Symptoms": "Vision loss or blurry vision, eye pain with eye movement, color vision impairment, flashing lights or floaters",
+    "Treatments": "High-dose intravenous corticosteroids, treatment of underlying cause, symptom management, visual rehabilitation",
+    "Disease_Code": "D343",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Adrenal Cancer",
+    "Symptoms": "Abdominal or back pain, unexplained weight loss, hormonal imbalances",
+    "Treatments": "Surgery (adrenalectomy), chemotherapy, radiation therapy, targeted therapy, hormone replacement therapy",
+    "Disease_Code": "D344",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Intracranial Abscess",
+    "Symptoms": "Headache, fever, neurological deficits",
+    "Treatments": "Antibiotics, surgical drainage or removal of the abscess, supportive care",
+    "Disease_Code": "D345",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Adenoid cystic carcinoma",
+    "Symptoms": "Lump, swelling, Facial numbness, tingling",
+    "Treatments": "Surgery, Radiation therapy",
+    "Disease_Code": "D346",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Fracture of the Patella",
+    "Symptoms": "Severe pain, swelling, bruising, difficulty straightening or bending the knee, deformity",
+    "Treatments": "Immobilization (splint, cast, or brace), pain management, physical therapy, exercises to restore mobility and strength, potential surgical intervention (in severe cases or if displacement is present)",
+    "Disease_Code": "D347",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Restless Leg Syndrome",
+    "Symptoms": "Uncomfortable sensation in the legs, usually in the evening or at night, urge to move legs for relief",
+    "Treatments": "Lifestyle changes (such as regular exercise, avoiding triggers like caffeine), good sleep hygiene (maintaining a regular sleep schedule), leg massages or stretching exercises, hot or cold packs, medication therapy (such as dopamine agonists, anticonvulsants, opioids), iron supplementation (if iron deficiency is present)",
+    "Disease_Code": "D348",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Cold Sore",
+    "Symptoms": "Small, painful blisters on the lips or around the mouth",
+    "Treatments": "Antiviral medications (topical or oral), pain relievers, antiviral creams, self-care measures",
+    "Disease_Code": "D349",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Chronic Kidney Disease",
+    "Symptoms": "Fatigue, swelling of the legs or ankles, decreased appetite, difficulty concentrating, increased urination or urine changes, blood in urine, high blood pressure",
+    "Treatments": "Management of underlying conditions (such as diabetes or high blood pressure), lifestyle modifications (such as healthy diet, regular exercise, smoking cessation), medications (such as ACE inhibitors or diuretics), dialysis (in advanced stages), kidney transplant (in end-stage kidney disease), management of associated complications (such as anemia or bone disease), regular monitoring and follow-up with a nephrologist, education and support for self-care",
+    "Disease_Code": "D350",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Goiter",
+    "Symptoms": "Enlarged thyroid gland in the neck, swelling or visible protrusion, difficulty swallowing or breathing",
+    "Treatments": "Treatment depends on the underlying cause (medication, radioactive iodine therapy, surgery)",
+    "Disease_Code": "D351",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Type 1 Diabetes",
+    "Symptoms": "Frequent urination, Increased thirst, Weight loss",
+    "Treatments": "Insulin therapy, Blood sugar monitoring, Healthy eating, Regular exercise",
+    "Disease_Code": "D352",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Dislocation of the Elbow",
+    "Symptoms": "Severe pain, visible deformity, swelling, inability to move the elbow, numbness or tingling in the hand/arm",
+    "Treatments": "Closed reduction (realigning the bones without surgery), immobilization (splint or cast), physical therapy, pain management, surgical intervention (in complex or recurrent cases)",
+    "Disease_Code": "D353",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Rabies",
+    "Symptoms": "Flu-like symptoms (fever, headache, fatigue), anxiety, confusion, hallucinations, difficulty swallowing",
+    "Treatments": "Immediate medical attention (post-exposure prophylaxis), wound care, administration of rabies vaccine and immunoglobulin, supportive care, monitoring and management of symptoms",
+    "Disease_Code": "D354",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Contact Dermatitis",
+    "Symptoms": "Itchy, red rash caused by contact with irritants or allergens",
+    "Treatments": "Avoiding the trigger, corticosteroid creams or ointments, antihistamines",
+    "Disease_Code": "D355",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Hemophilia",
+    "Symptoms": "Excessive bleeding and bruising, prolonged bleeding from wounds or after dental work or surgery, spontaneous bleeding in joints or muscles",
+    "Treatments": "Replacement therapy with clotting factor concentrates, medications to control bleeding, physical therapy, joint protection measures, genetic counseling and testing for family members",
+    "Disease_Code": "D356",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Open Wound from Surgical Incision",
+    "Symptoms": "Redness, swelling, discharge from the wound",
+    "Treatments": "Wound care (cleaning, dressing changes), antibiotics (if infection is present), surgical interventions",
+    "Disease_Code": "D357",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Chronic Migraine",
+    "Symptoms": "Recurrent, disabling migraines",
+    "Treatments": "Medications (such as preventive medications, pain relievers, triptans), lifestyle modifications (such as identifying triggers, stress management, regular sleep patterns), relaxation techniques, biofeedback, cognitive-behavioral therapy, nerve blocks, Botox injections, neuromodulation devices, acupuncture",
+    "Disease_Code": "D358",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hyperkalemia",
+    "Symptoms": "Muscle weakness or fatigue, irregular heartbeat or palpitations, numbness or tingling, nausea or vomiting",
+    "Treatments": "Treatment of underlying cause, medications to reduce potassium levels, dietary modifications, dialysis (in severe cases)",
+    "Disease_Code": "D359",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Fibromyalgia",
+    "Symptoms": "Widespread musculoskeletal pain, fatigue, sleep disturbances",
+    "Treatments": "Medications (such as pain relievers, antidepressants, anticonvulsants), physical therapy, cognitive-behavioral therapy, stress management techniques, exercise, relaxation techniques, good sleep hygiene",
+    "Disease_Code": "D337",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Bipolar Disorder",
+    "Symptoms": "Mood swings, manic episodes, depressive episodes",
+    "Treatments": "Medications (mood stabilizers, antipsychotics), therapy",
+    "Disease_Code": "D360",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Sedatives Poisoning",
+    "Symptoms": "Drowsiness, confusion, slowed breathing",
+    "Treatments": "Immediate medical attention, supportive care, antidote administration",
+    "Disease_Code": "D361",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Migraine",
+    "Symptoms": "headache, nausea, sensitivity to light, visual disturbances",
+    "Treatments": "pain relief medication, rest, cold compress",
+    "Disease_Code": "D203",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Plantar Fasciitis",
+    "Symptoms": "Heel pain, tenderness, difficulty walking",
+    "Treatments": "Rest, stretching exercises, orthotic devices, physiotherapy",
+    "Disease_Code": "D362",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Priapism",
+    "Symptoms": "Persistent, painful erection",
+    "Treatments": "Medical intervention (aspiration, medication, surgery)",
+    "Disease_Code": "D363",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Gestational Hypertension",
+    "Symptoms": "High blood pressure without proteinuria (preeclampsia)",
+    "Treatments": "Monitoring blood pressure, lifestyle modifications (such as salt restriction, regular exercise), medication (such as antihypertensive drugs) if necessary, close monitoring by healthcare provider",
+    "Disease_Code": "D364",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Pyelonephritis",
+    "Symptoms": "Fever, chills, back or flank pain, frequent urination",
+    "Treatments": "Antibiotics (such as fluoroquinolones, cephalosporins, or trimethoprim-sulfamethoxazole) to target the specific bacteria causing the infection, adequate hydration, pain management (such as over-the-counter pain relievers or prescription medications), hospitalization (for severe cases or complications), urine culture to guide antibiotic therapy",
+    "Disease_Code": "D365",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Drug Abuse (Cocaine)",
+    "Symptoms": "Euphoria, increased energy, dilated pupils, rapid heart rate, high blood pressure, risk of heart attack or stroke",
+    "Treatments": "Medical detoxification, counseling, behavioral therapies, support groups",
+    "Disease_Code": "D366",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Gout",
+    "Symptoms": "Intense joint pain, swelling, redness",
+    "Treatments": "Medications (nonsteroidal anti-inflammatory drugs, colchicine), lifestyle changes",
+    "Disease_Code": "D367",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Narcolepsy",
+    "Symptoms": "Excessive daytime sleepiness, sudden loss of muscle tone (cataplexy)",
+    "Treatments": "Stimulant medications, antidepressants, lifestyle modifications, scheduled naps",
+    "Disease_Code": "D368",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Submandibular stones",
+    "Symptoms": "Swelling, pain, dry mouth, bad taste",
+    "Treatments": "Hydration,Saliva stimulation, Stone removal",
+    "Disease_Code": "D369",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Dental Caries",
+    "Symptoms": "Toothache, tooth sensitivity, visible pits or holes in the teeth, dark spots on the teeth, bad breath",
+    "Treatments": "Dental fillings, crowns, root canal treatment, tooth extraction (in severe cases), oral hygiene practices (brushing and flossing), regular dental check-ups, fluoride treatments, dietary modifications (reducing sugary and acidic foods and drinks), dental sealants (for prevention), education on proper oral care",
+    "Disease_Code": "D370",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Vitamin B12 Deficiency",
+    "Symptoms": "Fatigue, weakness, pale skin, shortness of breath, tingling or numbness in the hands and feet, balance problems, sore tongue",
+    "Treatments": "Vitamin B12 supplementation (such as oral supplements or injections), dietary changes to include B12-rich foods (such as meat, fish, eggs, and dairy products), identification and management of underlying causes (such as pernicious anemia or malabsorption disorders), management of associated symptoms or complications (such as nerve pain or balance problems), regular monitoring of B12 levels and treatment adjustment",
+    "Disease_Code": "D371",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Testicular Cancer",
+    "Symptoms": "Lump or swelling in the testicles, pain or discomfort, changes in testicular size or shape",
+    "Treatments": "Surgery (orchiectomy), chemotherapy, radiation therapy, surveillance (for some cases)",
+    "Disease_Code": "D372",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Peyronie Disease",
+    "Symptoms": "Curvature of the penis, pain during erections",
+    "Treatments": "Medications, traction therapy, surgery",
+    "Disease_Code": "D373",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hepatitis due to a Toxin",
+    "Symptoms": "Fatigue, jaundice, abdominal pain, nausea, vomiting",
+    "Treatments": "Supportive care, removal or avoidance of the toxic substance, management of symptoms",
+    "Disease_Code": "D374",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Foreign Body in the Throat",
+    "Symptoms": "Sensation of a foreign object stuck in the throat, difficulty swallowing or speaking",
+    "Treatments": "Immediate medical attention, removal of the foreign body, evaluation for any complications",
+    "Disease_Code": "D375",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Stenosis of the Tear Duct",
+    "Symptoms": "Excessive tearing, eye discharge, recurrent eye infections",
+    "Treatments": "Tear duct probing, dilation, surgical correction",
+    "Disease_Code": "D376",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Lateral Epicondylitis (Tennis Elbow)",
+    "Symptoms": "Pain or tenderness on the outer side of the elbow, weak grip strength, difficulty with forearm movements",
+    "Treatments": "Rest, ice or cold therapy, compression, elbow brace or strap, pain relievers, physical therapy exercises, corticosteroid injections (in severe cases), ergonomic modifications",
+    "Disease_Code": "D377",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Attention Deficit Hyperactivity Disorder (ADHD)",
+    "Symptoms": "Inattention, hyperactivity, impulsivity",
+    "Treatments": "Behavioral therapy, parent training programs, medication (such as stimulants or non-stimulants), individualized education plans (IEPs) for academic support, accommodations and modifications in school, psychoeducation, counseling",
+    "Disease_Code": "D378",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Tuberous Sclerosis",
+    "Symptoms": "Benign tumors in various organs, seizures, developmental delays, skin abnormalities",
+    "Treatments": "Medications (anti-seizure, behavioral, etc.), surgery (for tumor removal), therapy (physical, occupational, speech), educational interventions, support services, genetic counseling, monitoring of organ involvement",
+    "Disease_Code": "D379",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Pulmonic Valve Disease",
+    "Symptoms": "Fatigue, shortness of breath, chest pain or discomfort, heart palpitations, fainting or lightheadedness, swollen legs or ankles",
+    "Treatments": "Medications (such as diuretics, beta-blockers, or calcium channel blockers), surgical interventions (such as balloon valvuloplasty or valve replacement), lifestyle modifications (such as regular exercise, heart-healthy diet, smoking cessation), regular follow-up with a cardiologist",
+    "Disease_Code": "D380",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Pelvic Organ Prolapse",
+    "Symptoms": "Pelvic pressure or heaviness, urinary incontinence, bowel movement difficulties, discomfort or pain during intercourse",
+    "Treatments": "Pelvic floor exercises, pessary use, hormone therapy, surgical repair (in severe cases)",
+    "Disease_Code": "D381",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Sedative, Hypnotic, or Anxiolytic Use Disorder",
+    "Symptoms": "Sedation, relaxation, reduced anxiety, drowsiness, poor coordination, memory impairment, withdrawal symptoms (such as rebound anxiety, insomnia, tremors) when attempting to stop or reduce use, continued use despite negative consequences (such as relationship problems, health risks)",
+    "Treatments": "Gradual tapering off sedatives, hypnotics, or anxiolytics under medical supervision, counseling or therapy (such as cognitive-behavioral therapy), support groups, addressing underlying psychological or social factors, lifestyle changes, addressing co-occurring mental health conditions, harm reduction strategies, ongoing monitoring and support",
+    "Disease_Code": "D382",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Atrial Fibrillation",
+    "Symptoms": "Irregular or rapid heartbeat, palpitations, shortness of breath, chest pain or discomfort, dizziness or lightheadedness, fatigue",
+    "Treatments": "Medications (antiarrhythmics, anticoagulants), electrical cardioversion, catheter ablation, lifestyle changes",
+    "Disease_Code": "D383",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Asthma",
+    "Symptoms": "Recurrent episodes of wheezing, shortness of breath, chest tightness, coughing, especially at night or in response to triggers such as allergens or exercise",
+    "Treatments": "Long-term control medications (such as inhaled corticosteroids, long-acting beta-agonists), quick-relief medications (such as short-acting beta-agonists), avoidance of triggers (such as allergens, smoke), regular monitoring of symptoms and lung function, development of an asthma action plan, proper inhaler technique, regular follow-up with a healthcare provider, emergency medications (such as oral corticosteroids) as needed",
+    "Disease_Code": "D384",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Edward Syndrome",
+    "Symptoms": "Developmental delays, intellectual disability, distinct facial features (small jaw, low-set ears), heart defects",
+    "Treatments": "Supportive care, addressing associated medical issues, early intervention programs, palliative care",
+    "Disease_Code": "D385",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "West Nile Virus",
+    "Symptoms": "Fever, headache, body aches, rash",
+    "Treatments": "Supportive care, symptom management, prevention of mosquito bites",
+    "Disease_Code": "D386",
+    "Contagious": "True",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Obesity",
+    "Symptoms": "Excessive body weight, increased risk of chronic conditions",
+    "Treatments": "Antifungal medication eg  Amphotericin B, Fluconazole, supportive care",
+    "Disease_Code": "D387",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Hypertension",
+    "Symptoms": "headache, dizziness, blurred vision",
+    "Treatments": "medication, diet change, exercise",
+    "Disease_Code": "D388",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Sialolithiasis",
+    "Symptoms": "Swelling, pain, tenderness, difficulty eating",
+    "Treatments": "Warm compresses, Saliva stimulation, Sialagogues, Stone removal ",
+    "Disease_Code": "D389",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Hyperopia",
+    "Symptoms": "Difficulty seeing objects up close, blurred vision when focusing on near objects",
+    "Treatments": "Eyeglasses, contact lenses, refractive surgery",
+    "Disease_Code": "D390",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Liver Cancer",
+    "Symptoms": "Abdominal pain, jaundice (yellowing of the skin and eyes), unexplained weight loss, loss of appetite, fatigue, nausea, vomiting",
+    "Treatments": "Surgery, Radiation therapy, Chemotherapy, Targeted therapy, Immunotherapy, Radiofrequency ablation, Transarterial chemoembolization (TACE), Selective internal radiation therapy (SIRT), Palliative care, Clinical trials",
+    "Disease_Code": "D391",
+    "Contagious": "True",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Chalazion",
+    "Symptoms": "Painful, red lump or swelling on the eyelid, usually on the upper eyelid, sensitivity to light, blurred vision (if the chalazion affects the line of sight), mild discomfort, tenderness, localized inflammation and swelling",
+    "Treatments": "Warm compresses (to help soften and promote drainage of the blocked oil gland), gentle massage of the affected area, eyelid hygiene (keeping the area clean), over-the-counter lubricating eye drops, topical antibiotic ointments (if there is a risk of infection), corticosteroid injections (for larger or persistent chalazia), surgical drainage or excision (in rare cases or if conservative treatments are ineffective)",
+    "Disease_Code": "D392",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Hypocalcemia",
+    "Symptoms": "Numbness or tingling in fingers or around the mouth, muscle cramps",
+    "Treatments": "Calcium and vitamin D supplements, treating underlying causes, intravenous calcium (in severe cases)",
+    "Disease_Code": "D393",
+    "Contagious": "False",
+    "Chronic": "False"
+  },
+  {
+    "Name": "Viral Warts",
+    "Symptoms": "Small, rough growths on the skin or mucous membranes, typically painless, may appear in clusters or as single lesions",
+    "Treatments": "Topical treatments (salicylic acid, cryotherapy), laser therapy, surgical removal, immune therapy (for persistent or recurrent cases)",
+    "Disease_Code": "D394",
+    "Contagious": "False",
+    "Chronic": "True"
+  },
+  {
+    "Name": "Spondylitis",
+    "Symptoms": "Chronic back pain and stiffness, especially in the morning or after periods of inactivity, limited range of motion in the spine, fatigue, inflammation and pain in other joints (such as hips, shoulders, knees), discomfort or pain in the neck, difficulty maintaining proper posture, tenderness or swelling in affected areas, tingling or numbness in extremities in severe cases",
+    "Treatments": "Medication (such as nonsteroidal anti-inflammatory drugs, corticosteroids, disease-modifying antirheumatic drugs), physical therapy (including stretching and strengthening exercises), heat or cold therapy, posture correction techniques, lifestyle modifications (such as regular exercise, weight management), assistive devices (such as braces or supports), surgical intervention (in rare cases), pain management techniques (such as acupuncture or transcutaneous electrical nerve stimulation)",
+    "Disease_Code": "D395",
+    "Contagious": "True",
+    "Chronic": "True"
+  }
+]
