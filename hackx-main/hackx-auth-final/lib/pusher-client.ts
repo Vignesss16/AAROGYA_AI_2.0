@@ -15,7 +15,6 @@ export function getPusherClient(): PusherClient {
 
     pusher = new PusherClient(key, {
       cluster,
-      enabledTransports: ["ws", "wss"],
     });
 
     pusher.connection.bind("state_change", (states: { current: string; previous: string }) => {

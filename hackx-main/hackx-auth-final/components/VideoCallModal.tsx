@@ -71,12 +71,18 @@ function VideoView({ stream, label, isMirrored, isMuted, isSmall, isFullscreen }
   );
 }
 
-function AudioOnlyView({ name, isDoctor }: { name: string; isDoctor: boolean }) {
+function AudioOnlyView({ name, isDoctor, stream }: { name: string; isDoctor: boolean; stream: MediaStream | null }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  useEffect(() => {
+    if (audioRef.current && stream) audioRef.current.srcObject = stream;
+  }, [stream]);
+
   return (
     <div style={{
       height: 220, borderRadius: 16, background: "linear-gradient(135deg,#1A2332,#0F3460)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12,
     }}>
+      {stream && <audio ref={audioRef} autoPlay playsInline />}
       <div style={{
         width: 72, height: 72, borderRadius: "50%",
         background: isDoctor ? "#1B6CA8" : "#1E8449",
@@ -272,7 +278,7 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
                 </div>
               ) : (
                 <div style={{ marginBottom: 14 }}>
-                  <AudioOnlyView name={patientName} isDoctor={isDoctor} />
+                  <AudioOnlyView name={patientName} isDoctor={isDoctor} stream={state.remoteStream} />
                 </div>
               )}
 
