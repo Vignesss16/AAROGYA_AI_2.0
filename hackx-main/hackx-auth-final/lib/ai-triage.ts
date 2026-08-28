@@ -98,7 +98,7 @@ Task:
    - YELLOW: Moderate, requires doctor in 24-48 hrs, OR mild symptoms lasting >= 3 days.
    - GREEN: Mild, common, self-limiting (e.g., isolated fever/cough) lasting < 3 days.
 4. Finally, synthesize this combined data into your triage result.
-5. Provide a concise 'ragReasoning' (max 2-3 sentences) for the doctor explaining WHY this urgency was chosen. You MUST explicitly mention BOTH the "Local Dataset Match" AND the "Web Search Results" in your reasoning to show a comprehensive comparison. DO NOT mention confidence scores. Just state the clinical reasoning derived from both sources.
+5. Provide a simple, easy-to-understand 'ragReasoning' for the doctor. Keep it extremely brief and direct so a busy doctor can read it in 3 seconds. Briefly mention what the "Local Dataset" found and what the "Web Search" confirmed in plain English.
 
 Respond ONLY with raw JSON matching the TriageResult interface, adding 'ragReasoning':
 {
