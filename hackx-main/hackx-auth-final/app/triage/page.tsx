@@ -337,6 +337,11 @@ export default function TriagePage() {
               if (!s) return null;
               return <span key={id} style={{ background: "rgba(255,255,255,.15)", borderRadius: 8, padding: "4px 10px", fontSize: 11, color: "rgba(255,255,255,.85)" }}>{s.emoji} {lang === "hi" ? s.hi : s.en}</span>;
             })}
+            {result.extractedKeywords && result.extractedKeywords.map((kw, i) => (
+              <span key={"ext-"+i} style={{ background: "rgba(255,255,255,.15)", borderRadius: 8, padding: "4px 10px", fontSize: 11, color: "rgba(255,255,255,.85)" }}>
+                🎙️ {kw.charAt(0).toUpperCase() + kw.slice(1)}
+              </span>
+            ))}
           </div>
         </div>
 

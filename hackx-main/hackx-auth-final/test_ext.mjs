@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
 async function test() {
-  const customSymptoms = "हेलो डॉक्टर मुझे ना दो या तीन दिन से बुखार है और सर्दी खासी भी है मेरे मुझे और मुझे ऐसा नाक से पानी भी बह रहा है और थोड़ा सा सरदर्द भी है तो प्लीज मेरा इलाज कर दीजिये";
+  const customSymptoms = "डॉक्टर मुझे ना दो या तीन दिन से लगातार बुखार और सर्दी फासी है। थोड़ा सा सिरदर्द और पैरदर्द भी हो रहा है। और नाग से पानी भी बहरा है। लाइक मुझे कफ भी है। तो क्या आप मेरा इलाज कर सकते हो।";
   
   const extPrompt = `Extract up to 5 main medical symptom keywords in English from this text. Return ONLY a comma-separated list of english keywords, nothing else.\nText: "${customSymptoms}"`;
   console.log("Prompt:", extPrompt);

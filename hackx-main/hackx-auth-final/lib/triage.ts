@@ -18,6 +18,7 @@ export interface TriageResult {
   emergency: boolean;
   summary: string;
   homeRemedies?: Array<{ remedy: string; hi: string; en: string; icon: string }>;
+  extractedKeywords?: string[];
 }
 
 interface TriageRule {

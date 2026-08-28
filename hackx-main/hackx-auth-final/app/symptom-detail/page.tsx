@@ -185,6 +185,16 @@ export default function SymptomDetailPage() {
 
       const result = await res.json();
       localStorage.setItem("triageResult", JSON.stringify(result));
+      
+      if (result.extractedKeywords && result.extractedKeywords.length > 0) {
+        const currentNamesStr = localStorage.getItem("selectedSymptomNames");
+        let currentNames = [];
+        try { currentNames = JSON.parse(currentNamesStr || "[]"); } catch (e) {}
+        
+        const formattedExtracts = result.extractedKeywords.map((k: string) => `🎙️ ${k.charAt(0).toUpperCase() + k.slice(1)}`);
+        const merged = Array.from(new Set([...currentNames, ...formattedExtracts]));
+        localStorage.setItem("selectedSymptomNames", JSON.stringify(merged));
+      }
     } catch (error) {
       // OFFLINE FALLBACK: Use rule-based triage
       console.log("🔄 AI triage failed or offline — using rule-based fallback");

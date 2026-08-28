@@ -118,6 +118,7 @@ Respond ONLY with raw JSON matching the TriageResult interface, adding 'ragReaso
   if (!res2.ok) throw new Error("API error on Step 2");
   const data2 = await res2.json();
   const finalTriage = JSON.parse(data2.choices[0].message.content.replace(/```json|```/g, "").trim());
+  finalTriage.extractedKeywords = extractedKeywords;
 
   return finalTriage as TriageResult;
 }
