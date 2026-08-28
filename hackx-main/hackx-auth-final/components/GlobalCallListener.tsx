@@ -120,7 +120,7 @@ export default function GlobalCallListener() {
         />
       )}
       <style>{`
-        @keyframes slideUp { from { transform: translate(-50%, 100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        @keyframes slideUp { from { bottom: -100px; opacity: 0; } to { bottom: 24px; opacity: 1; } }
         @keyframes ring { 0%,100% { transform: rotate(0); } 10%,30%,50%,70%,90% { transform: rotate(-10deg); } 20%,40%,60%,80% { transform: rotate(10deg); } }
       `}</style>
     </>
