@@ -87,25 +87,34 @@ export default function GlobalCallListener() {
   return (
     <>
       {showCallBanner && !callOpen && (
-        <div style={{
-          position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)",
-          zIndex: 9999, background: "#1A2332", borderRadius: 20, padding: "14px 24px",
-          display: "flex", alignItems: "center", gap: 14, boxShadow: "0 8px 32px rgba(0,0,0,.4)",
-          animation: "slideUp .3s ease-out",
-        }}>
-          <span style={{ fontSize: 28, animation: "ring 1s infinite", display: "inline-block" }}>📲</span>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 800, color: "white" }}>Incoming {incomingCallType} call</div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,.6)" }}>Doctor is calling</div>
+        <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 9999 }}>
+          <div style={{
+            background: "#1A2332", borderRadius: 20, padding: "14px 24px",
+            display: "flex", alignItems: "center", gap: 14, boxShadow: "0 8px 32px rgba(0,0,0,.4)",
+            animation: "slideUp .3s ease-out forwards",
+          }}>
+            <span style={{ fontSize: 28, animation: "ring 1s infinite", display: "inline-block" }}>📲</span>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: "white" }}>Incoming {incomingCallType} call</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,.6)" }}>Doctor is calling</div>
+            </div>
+            <button onClick={() => { setCallOpen(true); setShowCallBanner(false); }}
+              style={{ padding: "8px 16px", borderRadius: 30, border: "none", background: "#1E8449", color: "white", fontWeight: 700, cursor: "pointer" }}>
+              Answer
+            </button>
+            <button onClick={() => {
+              setShowCallBanner(false);
+              const patientId = (session.user as any).phone || session.user.name || "patient-001";
+              fetch("/api/signal", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ roomId: `consultation-${patientId}`, fromClientId: patientClientIdRef.current, type: "call-rejected" }),
+              });
+            }}
+              style={{ padding: "8px 14px", borderRadius: 30, border: "none", background: "#C0392B", color: "white", fontWeight: 700, cursor: "pointer" }}>
+              Decline
+            </button>
           </div>
-          <button onClick={() => { setCallOpen(true); setShowCallBanner(false); }}
-            style={{ padding: "8px 16px", borderRadius: 30, border: "none", background: "#1E8449", color: "white", fontWeight: 700, cursor: "pointer" }}>
-            Answer
-          </button>
-          <button onClick={() => setShowCallBanner(false)}
-            style={{ padding: "8px 14px", borderRadius: 30, border: "none", background: "#C0392B", color: "white", fontWeight: 700, cursor: "pointer" }}>
-            Dismiss
-          </button>
         </div>
       )}
 

@@ -227,7 +227,7 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
                 {effectiveIncomingCallType === "video" ? "📹 Video Call" : "🎙️ Audio Call"}
               </div>
               <div style={{ display: "flex", gap: 14, justifyContent: "center" }}>
-                <button onClick={() => actions.rejectCall()}
+                <button onClick={() => { actions.rejectCall(); onClose(); }}
                   style={{ width: 64, height: 64, borderRadius: "50%", border: "none", cursor: "pointer", background: `linear-gradient(135deg,${C.redLight},${C.red})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, boxShadow: "0 4px 16px rgba(192,57,43,.4)" }}>
                   <span style={{ fontSize: 22 }}>📵</span>
                   <span style={{ fontSize: 9, fontWeight: 700, color: "white" }}>Decline</span>
