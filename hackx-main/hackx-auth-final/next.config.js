@@ -13,6 +13,9 @@ const nextConfig = {
   },
   experimental: {
     serverComponentsExternalPackages: ["mongoose"],
+    outputFileTracingIncludes: {
+      '/api/**/*': ['./data/**/*'],
+    }
   },
 
   async headers() {

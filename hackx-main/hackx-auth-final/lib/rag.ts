@@ -1,4 +1,6 @@
-import diseasesData from '../data/diseases.json';
+import fs from 'fs';
+import path from 'path';
+import Papa from 'papaparse';
 
 // Interface for CSV rows
 export interface DiseaseRow {
@@ -15,7 +17,15 @@ export interface DiseaseRow {
  */
 export async function retrieveRAGContext(patientSymptoms: string[]): Promise<DiseaseRow | null> {
   try {
-    const rows = diseasesData as DiseaseRow[];
+    const csvPath = path.join(process.cwd(), 'data', 'Diseases_Symptoms.csv');
+    const fileContent = fs.readFileSync(csvPath, 'utf8');
+
+    const parsed = Papa.parse<DiseaseRow>(fileContent, {
+      header: true,
+      skipEmptyLines: true,
+    });
+
+    const rows = parsed.data;
     
     // Find the best matching row by checking how many patient symptoms match the row's symptoms
     let bestMatch: DiseaseRow | null = null;
