@@ -157,7 +157,9 @@ export default function SymptomDetailPage() {
       fileNames: uploadedFiles.map(f => f.name),
     };
     localStorage.setItem("selectedSymptoms", JSON.stringify(allSelected));
+    localStorage.setItem("selectedSymptomNames", JSON.stringify(allSymptomNames));
     localStorage.setItem("symptomDetailData", JSON.stringify(detailData));
+    localStorage.setItem("customSymptoms", customSymptoms); // Ensure it's passed along
     // Store files (base64) separately
     localStorage.setItem("uploadedRecords", JSON.stringify(
       uploadedFiles.map(f => ({ name: f.name, type: f.type, dataUrl: f.dataUrl }))

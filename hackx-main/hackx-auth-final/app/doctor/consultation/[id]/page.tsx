@@ -267,7 +267,7 @@ export default function ConsultationDetailPage() {
             </div>
           </div>
 
-          {consultation.patientContext && (
+          {consultation.patientContext && (consultation.patientContext.duration || (consultation.patientContext.diseases && consultation.patientContext.diseases.length > 0) || consultation.patientContext.otherDisease) && (
             <div style={{ marginBottom: 12 }}>
               <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 8 }}>📝 PATIENT HISTORY</div>
               <div style={{ background: C.card, borderRadius: 16, padding: 14, border: `1px solid ${C.border}` }}>
@@ -277,13 +277,16 @@ export default function ConsultationDetailPage() {
                     <div style={{ fontSize: 14, fontWeight: 700 }}>{consultation.patientContext.duration}</div>
                   </div>
                 )}
-                {consultation.patientContext.diseases?.length > 0 && (
+                {(consultation.patientContext.diseases?.length > 0 || consultation.patientContext.otherDisease) && (
                   <div style={{ marginBottom: 8 }}>
                     <div style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>Pre-existing Conditions:</div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
-                      {consultation.patientContext.diseases.map((d: string, i: number) => (
+                      {consultation.patientContext.diseases?.map((d: string, i: number) => (
                         <span key={i} style={{ background: "#F5EEF8", color: "#8E44AD", borderRadius: 8, padding: "2px 8px", fontSize: 12, fontWeight: 600 }}>{d}</span>
                       ))}
+                      {consultation.patientContext.otherDisease && (
+                        <span style={{ background: "#F5EEF8", color: "#8E44AD", borderRadius: 8, padding: "2px 8px", fontSize: 12, fontWeight: 600 }}>{consultation.patientContext.otherDisease}</span>
+                      )}
                     </div>
                   </div>
                 )}

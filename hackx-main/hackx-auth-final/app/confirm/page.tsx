@@ -398,8 +398,13 @@ export default function ConfirmPage() {
     setQueueNo(qn);
 
     // Get symptoms and context from localStorage
-    const symptomsRaw = localStorage.getItem("selectedSymptoms");
+    const symptomsRaw = localStorage.getItem("selectedSymptomNames");
     const symptoms = symptomsRaw ? JSON.parse(symptomsRaw) : [];
+    
+    const customSymptoms = localStorage.getItem("customSymptoms");
+    if (customSymptoms && customSymptoms.trim().length > 0) {
+      symptoms.push(`Voice: "${customSymptoms.trim()}"`);
+    }
 
     const detailRaw = localStorage.getItem("symptomDetailData");
     const patientContext = detailRaw ? JSON.parse(detailRaw) : null;
