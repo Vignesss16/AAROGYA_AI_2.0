@@ -71,8 +71,8 @@ Web Search Results: ${webContext}
 Local RAG Match: ${ragText}
 
 Task:
-1. Evaluate the 'Local RAG Match' first. It contains the top matching diseases from the database. Decide which of these diseases is the most clinically accurate and likely match for the Patient Symptoms.
-2. If one of them is a correct match, use it as your foundational diagnosis. If they are all incorrect or irrelevant, rely more heavily on your own medical knowledge.
+1. Evaluate the 'Local RAG Match' first. These are just keyword matches. If the symptoms are mild (e.g., just fever and cough), DO NOT automatically select a severe disease like Pneumonia or Lung Abscess just because it is listed.
+2. If one of the RAG matches is a highly accurate clinical fit, use it. However, if the matches are too severe, unlikely, or overkill for the basic symptoms provided, REJECT them entirely. Instead, diagnose a more common, realistic condition (like Viral Fever or Common Cold) using your own medical knowledge.
 3. Next, cross-reference this baseline against the 'Web Search Results' to confirm the urgency level (RED/YELLOW/GREEN). Adjust the urgency if necessary, strictly using these rules:
    - RED: Life-threatening or critical.
    - YELLOW: Moderate, requires doctor in 24-48 hrs.
