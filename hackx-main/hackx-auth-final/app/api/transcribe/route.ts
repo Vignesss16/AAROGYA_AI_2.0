@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { audioBase64 } = await req.json();
+    const { audioBase64, lang } = await req.json();
 
     if (!audioBase64) {
       return NextResponse.json({ error: "Missing audioBase64" }, { status: 400 });
@@ -20,6 +20,12 @@ export async function POST(req: Request) {
     formData.append("file", blob, "audio.webm");
     formData.append("model", "whisper-large-v3");
     formData.append("response_format", "json");
+    
+    if (lang === "en") {
+      formData.append("language", "en");
+    } else if (lang === "hi") {
+      formData.append("language", "hi");
+    }
 
     // Call Groq Whisper API
     const groqRes = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
