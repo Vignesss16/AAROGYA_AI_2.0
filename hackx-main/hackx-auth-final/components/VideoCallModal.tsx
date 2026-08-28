@@ -117,8 +117,9 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
       : state.callMode;
   const effectiveIncomingCallType = state.incomingCallType ?? initialIncomingCallType ?? null;
 
-  const isActive = effectiveCallMode === "video" || effectiveCallMode === "audio";
-  const isConnecting = effectiveCallMode === "connecting";
+  const isFullyConnected = state.statusMessage === "";
+  const isActive = (effectiveCallMode === "video" || effectiveCallMode === "audio") && isFullyConnected;
+  const isConnecting = effectiveCallMode === "connecting" || ((effectiveCallMode === "video" || effectiveCallMode === "audio") && !isFullyConnected);
   const isIncoming = effectiveCallMode === "incoming";
 
   return (
@@ -251,7 +252,7 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
           {isConnecting && (
             <div style={{ textAlign: "center", padding: "30px 20px" }}>
               <div style={{ fontSize: 48, animation: "pulse 1s infinite", display: "inline-block" }}>📞</div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginTop: 14 }}>Connecting...</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginTop: 14 }}>{state.statusMessage || "Connecting..."}</div>
               <div style={{ fontSize: 13, color: C.muted, marginTop: 6 }}>Waiting for {patientName}</div>
               <button onClick={actions.endCall} style={{ marginTop: 20, padding: "12px 30px", borderRadius: 30, border: "none", background: C.red, color: "white", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
                 Cancel

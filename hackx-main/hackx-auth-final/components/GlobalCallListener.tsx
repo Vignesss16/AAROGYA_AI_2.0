@@ -69,7 +69,15 @@ export default function GlobalCallListener() {
       }
     });
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        pusher.connect();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       pusher.unsubscribe(channelName);
     };
   }, [session]);
