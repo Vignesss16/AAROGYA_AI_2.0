@@ -85,7 +85,7 @@ export default function SymptomsPage() {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
-        recognition.lang = lang === "hi" ? "hi-IN" : "en-US";
+        recognition.lang = "hi-IN"; // Always default to Hindi/Hinglish
         recognition.continuous = true;
         recognition.interimResults = true;
         
@@ -160,7 +160,6 @@ export default function SymptomsPage() {
               width: 56,
               height: 80,
               borderRadius: 12,
-              border: "none",
               background: isRecording ? "#FDEDED" : C.card,
               color: isRecording ? C.red : C.primary,
               border: `2px solid ${isRecording ? C.red : C.primary}`,
