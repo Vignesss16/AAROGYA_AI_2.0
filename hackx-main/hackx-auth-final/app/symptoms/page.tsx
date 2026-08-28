@@ -40,9 +40,9 @@ export default function SymptomsPage() {
   const [customSymptoms, setCustomSymptoms] = useState("");
   
   const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     // Clear previous session data when starting fresh
@@ -68,42 +68,37 @@ export default function SymptomsPage() {
         if (e.data.size > 0) audioChunksRef.current.push(e.data);
       };
 
-      recorder.onstop = () => {
+      recorder.onstop = async () => {
+        setIsTranscribing(true);
         const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         const reader = new FileReader();
         reader.readAsDataURL(blob);
-        reader.onloadend = () => {
+        reader.onloadend = async () => {
           const base64data = reader.result as string;
           localStorage.setItem("voiceNoteBase64", base64data);
+          
+          // Send to backend for Whisper transcription
+          try {
+            const startText = customSymptoms;
+            const res = await fetch("/api/transcribe", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ audioBase64: base64data })
+            });
+            const data = await res.json();
+            if (data.text) {
+              setCustomSymptoms(startText + (startText ? " " : "") + data.text);
+            }
+          } catch (e) {
+            console.error("Transcription failed", e);
+          } finally {
+            setIsTranscribing(false);
+          }
         };
         stream.getTracks().forEach(t => t.stop());
       };
 
       recorder.start();
-
-      // Speech Recognition
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.lang = "hi-IN"; // Always default to Hindi/Hinglish
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        
-        const startText = customSymptoms;
-        
-        recognition.onresult = (e: any) => {
-          let transcript = "";
-          for (let i = 0; i < e.results.length; ++i) {
-            transcript += e.results[i][0].transcript;
-          }
-          if (transcript) {
-            setCustomSymptoms(startText + (startText ? " " : "") + transcript);
-          }
-        };
-        recognition.start();
-        recognitionRef.current = recognition;
-      }
-
       setIsRecording(true);
     } catch (err) {
       alert("Microphone access denied or not supported.");
@@ -113,9 +108,6 @@ export default function SymptomsPage() {
   const stopRecording = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
       mediaRecorderRef.current.stop();
-    }
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
     }
     setIsRecording(false);
   };
@@ -156,25 +148,36 @@ export default function SymptomsPage() {
           />
           <button
             onClick={isRecording ? stopRecording : startRecording}
+            disabled={isTranscribing}
             style={{
-              width: 56,
+              width: 64,
               height: 80,
               borderRadius: 12,
-              background: isRecording ? "#FDEDED" : C.card,
-              color: isRecording ? C.red : C.primary,
-              border: `2px solid ${isRecording ? C.red : C.primary}`,
+              background: isTranscribing ? C.bg : (isRecording ? "#FDEDED" : C.card),
+              color: isTranscribing ? C.muted : (isRecording ? C.red : C.primary),
+              border: `2px solid ${isTranscribing ? C.border : (isRecording ? C.red : C.primary)}`,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
               gap: 4,
-              cursor: "pointer",
+              cursor: isTranscribing ? "not-allowed" : "pointer",
               boxShadow: isRecording ? "0 4px 12px rgba(231,76,60,0.3)" : "none",
               animation: isRecording ? "pulse 1.5s infinite" : "none",
+              opacity: isTranscribing ? 0.7 : 1,
             }}
           >
-            <span style={{ fontSize: 24 }}>{isRecording ? "⏹️" : "🎤"}</span>
-            <span style={{ fontSize: 10, fontWeight: 700 }}>{isRecording ? "Stop" : "Speak"}</span>
+            {isTranscribing ? (
+              <>
+                <span style={{ fontSize: 20 }}>⏳</span>
+                <span style={{ fontSize: 9, fontWeight: 700, textAlign: "center" }}>Wait...</span>
+              </>
+            ) : (
+              <>
+                <span style={{ fontSize: 24 }}>{isRecording ? "⏹️" : "🎤"}</span>
+                <span style={{ fontSize: 10, fontWeight: 700 }}>{isRecording ? "Stop" : "Speak"}</span>
+              </>
+            )}
           </button>
         </div>
         {/* Symptom grid */}
