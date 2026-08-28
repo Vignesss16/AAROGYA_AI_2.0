@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 const SYMPTOMS = [
@@ -29,7 +29,7 @@ const SYMPTOMS = [
   { id: "bleed",      emoji: "🩸",  hi: "असामान्य रक्तस्राव", en: "Unusual Bleeding" },
 ];
 
-const C = { primary: "#1B6CA8", primaryDark: "#0F4C7A", bg: "#F0F4F8", card: "#FFFFFF", text: "#1A2332", muted: "#6B7C93", border: "#DDE3EC" };
+const C = { primary: "#1B6CA8", primaryDark: "#0F4C7A", bg: "#F0F4F8", card: "#FFFFFF", text: "#1A2332", muted: "#6B7C93", border: "#DDE3EC", red: "#E74C3C" };
 
 export default function SymptomsPage() {
   const router = useRouter();
@@ -37,6 +37,12 @@ export default function SymptomsPage() {
   const t = (hi: string, en: string) => lang === "hi" ? hi : en;
 
   const [selected, setSelected] = useState<string[]>([]);
+  const [customSymptoms, setCustomSymptoms] = useState("");
+  
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     // Clear previous session data when starting fresh
@@ -45,12 +51,74 @@ export default function SymptomsPage() {
       localStorage.removeItem("triageResult");
       localStorage.removeItem("uploadedRecords");
       localStorage.removeItem("customSymptoms");
+      localStorage.removeItem("voiceNoteBase64");
     }
   }, []);
 
-  const [customSymptoms, setCustomSymptoms] = useState("");
-
   const toggle = (id: string) => setSelected(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm;codecs=opus" });
+      mediaRecorderRef.current = recorder;
+      audioChunksRef.current = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = () => {
+          const base64data = reader.result as string;
+          localStorage.setItem("voiceNoteBase64", base64data);
+        };
+        stream.getTracks().forEach(t => t.stop());
+      };
+
+      recorder.start();
+
+      // Speech Recognition
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = lang === "hi" ? "hi-IN" : "en-US";
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        
+        recognition.onresult = (e: any) => {
+          let finalTranscript = "";
+          for (let i = e.resultIndex; i < e.results.length; ++i) {
+            if (e.results[i].isFinal) {
+              finalTranscript += e.results[i][0].transcript;
+            }
+          }
+          if (finalTranscript) {
+            setCustomSymptoms(prev => prev + (prev ? " " : "") + finalTranscript);
+          }
+        };
+        recognition.start();
+        recognitionRef.current = recognition;
+      }
+
+      setIsRecording(true);
+    } catch (err) {
+      alert("Microphone access denied or not supported.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+    setIsRecording(false);
+  };
 
   const goToDetail = () => {
     if (selected.length === 0 && customSymptoms.trim().length === 0) return;
@@ -79,13 +147,36 @@ export default function SymptomsPage() {
           💡 {t("लक्षणों पर टैप करें या नीचे लिखें", "Tap icons or describe below")}
         </div>
         
-        <div style={{ padding: "10px 16px 0" }}>
+        <div style={{ padding: "10px 16px 0", display: "flex", gap: 10 }}>
           <textarea
             value={customSymptoms}
             onChange={(e) => setCustomSymptoms(e.target.value)}
             placeholder={t("मुझे बुखार और सिरदर्द है...", "I have fever and headache...")}
-            style={{ width: "100%", height: 80, borderRadius: 12, border: `1px solid ${C.border}`, padding: "12px", fontSize: 14, fontFamily: "inherit", resize: "none", outline: "none", color: C.text }}
+            style={{ flex: 1, height: 80, borderRadius: 12, border: `1px solid ${C.border}`, padding: "12px", fontSize: 14, fontFamily: "inherit", resize: "none", outline: "none", color: C.text }}
           />
+          <button
+            onClick={isRecording ? stopRecording : startRecording}
+            style={{
+              width: 56,
+              height: 80,
+              borderRadius: 12,
+              border: "none",
+              background: isRecording ? "#FDEDED" : C.card,
+              color: isRecording ? C.red : C.primary,
+              border: `2px solid ${isRecording ? C.red : C.primary}`,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 4,
+              cursor: "pointer",
+              boxShadow: isRecording ? "0 4px 12px rgba(231,76,60,0.3)" : "none",
+              animation: isRecording ? "pulse 1.5s infinite" : "none",
+            }}
+          >
+            <span style={{ fontSize: 24 }}>{isRecording ? "⏹️" : "🎤"}</span>
+            <span style={{ fontSize: 10, fontWeight: 700 }}>{isRecording ? "Stop" : "Speak"}</span>
+          </button>
         </div>
         {/* Symptom grid */}
         <div style={{ flex: 1, overflowY: "auto", padding: "10px 16px 0" }}>

@@ -8,6 +8,7 @@ export interface IConsultation extends Document {
   triageResult: object;
   patientContext?: any;
   uploadedRecords?: any[];
+  voiceNoteBase64?: string;
   doctorId?: string;
   doctorName?: string;
   hospital?: string;
@@ -29,6 +30,7 @@ const ConsultationSchema = new Schema<IConsultation>(
     triageResult: { type: Schema.Types.Mixed, required: true },
     patientContext: { type: Schema.Types.Mixed },
     uploadedRecords: { type: Schema.Types.Mixed },
+    voiceNoteBase64: { type: String },
     doctorId:     { type: String },
     doctorName:   { type: String },
     hospital:     { type: String },

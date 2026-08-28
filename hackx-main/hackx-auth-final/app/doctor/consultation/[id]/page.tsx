@@ -32,6 +32,7 @@ type Consultation = {
   doctorName?: string;
   patientContext?: any;
   uploadedRecords?: any[];
+  voiceNoteBase64?: string;
 };
 
 const emptyRow = (): RxRow => ({ medicine: "", dose: "", frequency: "", duration: "", instructions: "" });
@@ -286,6 +287,16 @@ export default function ConsultationDetailPage() {
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* Voice Note Player */}
+          {consultation.voiceNoteBase64 && (
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 8 }}>🎤 PATIENT VOICE NOTE</div>
+              <div style={{ background: C.card, borderRadius: 16, padding: 14, border: `1px solid ${C.border}` }}>
+                <audio controls style={{ width: "100%" }} src={consultation.voiceNoteBase64} />
               </div>
             </div>
           )}

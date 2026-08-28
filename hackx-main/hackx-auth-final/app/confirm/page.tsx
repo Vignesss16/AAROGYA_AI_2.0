@@ -407,6 +407,8 @@ export default function ConfirmPage() {
     const recordsRaw = localStorage.getItem("uploadedRecords");
     const uploadedRecords = recordsRaw ? JSON.parse(recordsRaw) : [];
 
+    const voiceNoteBase64 = localStorage.getItem("voiceNoteBase64") || undefined;
+
     const consultationData = {
       patientPhone: (session?.user as any)?.phone || patient?.phone || "",
       patientName:  session?.user?.name || patient?.name || "",
@@ -420,6 +422,7 @@ export default function ConfirmPage() {
       symptoms:     symptoms,
       patientContext: patientContext,
       uploadedRecords: uploadedRecords,
+      voiceNoteBase64: voiceNoteBase64,
       status:       "pending",
     };
 
