@@ -91,7 +91,7 @@ export default function GlobalCallListener() {
           <div style={{
             background: "#1A2332", borderRadius: 20, padding: "14px 24px",
             display: "flex", alignItems: "center", gap: 14, boxShadow: "0 8px 32px rgba(0,0,0,.4)",
-            animation: "slideUp .3s ease-out forwards",
+            animation: "popIn .4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
           }}>
             <span style={{ fontSize: 28, animation: "ring 1s infinite", display: "inline-block" }}>📲</span>
             <div>
@@ -129,7 +129,10 @@ export default function GlobalCallListener() {
         />
       )}
       <style>{`
-        @keyframes slideUp { from { bottom: -100px; opacity: 0; } to { bottom: 24px; opacity: 1; } }
+        @keyframes popIn { 
+          0% { transform: scale(0.5); opacity: 0; } 
+          100% { transform: scale(1); opacity: 1; } 
+        }
         @keyframes ring { 0%,100% { transform: rotate(0); } 10%,30%,50%,70%,90% { transform: rotate(-10deg); } 20%,40%,60%,80% { transform: rotate(10deg); } }
       `}</style>
     </>
