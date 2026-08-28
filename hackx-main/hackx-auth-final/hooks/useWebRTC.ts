@@ -300,6 +300,10 @@ export function useWebRTC(
         // Ignore duplicate answers that arrive after exchange is complete
         if (pc && pc.signalingState === "have-local-offer") {
           await pc.setRemoteDescription(new RTCSessionDescription(data as RTCSessionDescriptionInit));
+          for (const c of pendingCandidatesRef.current) {
+            try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch {}
+          }
+          pendingCandidatesRef.current = [];
         }
       } else if (type === "ice-candidate") {
         if (pc && pc.remoteDescription) {
