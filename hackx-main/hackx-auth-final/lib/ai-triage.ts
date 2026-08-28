@@ -21,7 +21,7 @@ export async function runAITriage(symptomNames: string[], customSymptoms?: strin
       const resExt = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({ model: "llama3-8b-8192", messages: [{ role: "user", content: extPrompt }], temperature: 0.1 }),
+        body: JSON.stringify({ model: "openai/gpt-oss-120b", messages: [{ role: "user", content: extPrompt }], temperature: 0.1 }),
       });
       if (resExt.ok) {
         const dataExt = await resExt.json();
