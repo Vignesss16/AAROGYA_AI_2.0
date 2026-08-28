@@ -80,7 +80,10 @@ Respond ONLY with raw JSON:
   // === STEP 2: Web Search Verification ===
   // Simplify search string so Wikipedia search actually returns results
   const searchStr = `${initialTriage.conditionEn}`;
-  const webContext = await verifyWithWebSearch(searchStr);
+  let webContext = await verifyWithWebSearch(searchStr);
+  if (webContext.includes("No external web results")) {
+    webContext = await verifyWithWebSearch(patientReports);
+  }
 
   const prompt2 = `You are a Senior Medical Verifier. 
 Review the Initial Triage Decision against the live Web Search Results.

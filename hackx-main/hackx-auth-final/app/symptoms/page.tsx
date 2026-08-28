@@ -83,7 +83,7 @@ export default function SymptomsPage() {
             const res = await fetch("/api/transcribe", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ audioBase64: base64data, lang })
+              body: JSON.stringify({ audioBase64: base64data })
             });
             const data = await res.json();
             if (data.text) {
