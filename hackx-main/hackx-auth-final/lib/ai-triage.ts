@@ -28,7 +28,10 @@ Patient reports: ${patientReports}.
 Context: ${JSON.stringify(context || {})}
 RAG Dataset Match: ${ragText}
 
-Classify urgency strictly into RED, YELLOW, or GREEN.
+Classify urgency strictly into RED, YELLOW, or GREEN based on these rules:
+- RED (Emergency): Life-threatening, severe pain, breathing difficulty, or critical condition.
+- YELLOW (Needs Attention): Moderate symptoms requiring a doctor's visit within 24-48 hours.
+- GREEN (Routine/Self-care): Mild, common, self-limiting symptoms (e.g., isolated mild fever and cough).
 Respond ONLY with raw JSON:
 {
   "urgency": "RED" or "YELLOW" or "GREEN",
@@ -70,7 +73,10 @@ Local RAG Match: ${ragText}
 Task:
 1. Evaluate the 'Local RAG Match' first. It contains the top matching diseases from the database. Decide which of these diseases is the most clinically accurate and likely match for the Patient Symptoms.
 2. If one of them is a correct match, use it as your foundational diagnosis. If they are all incorrect or irrelevant, rely more heavily on your own medical knowledge.
-3. Next, cross-reference this baseline against the 'Web Search Results' to confirm the urgency level (RED/YELLOW/GREEN). Adjust the urgency if necessary.
+3. Next, cross-reference this baseline against the 'Web Search Results' to confirm the urgency level (RED/YELLOW/GREEN). Adjust the urgency if necessary, strictly using these rules:
+   - RED: Life-threatening or critical.
+   - YELLOW: Moderate, requires doctor in 24-48 hrs.
+   - GREEN: Mild, common, self-limiting (e.g., isolated fever/cough without breathing issues).
 4. Finally, synthesize this combined data into your triage result.
 5. Provide a concise 'ragReasoning' (max 2-3 sentences) for the doctor explaining WHY this urgency was chosen. You MUST explicitly mention BOTH the "Local Dataset Match" AND the "Web Search Results" in your reasoning to show a comprehensive comparison. DO NOT mention confidence scores. Just state the clinical reasoning derived from both sources.
 
