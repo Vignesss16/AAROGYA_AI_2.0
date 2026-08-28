@@ -98,7 +98,7 @@ Task:
    - YELLOW: Moderate, requires doctor in 24-48 hrs, OR mild symptoms lasting >= 3 days.
    - GREEN: Mild, common, self-limiting (e.g., isolated fever/cough) lasting < 3 days.
 4. Finally, synthesize this combined data into your triage result.
-5. Provide a simple, easy-to-understand 'ragReasoning' for the doctor. Keep it extremely brief and direct so a busy doctor can read it in 3 seconds. Briefly mention what the "Local Dataset" found and what the "Web Search" confirmed in plain English.
+5. Provide a simple, easy-to-understand 'ragReasoning' for the doctor. Keep it extremely brief and direct so a busy doctor can read it in 3 seconds. Write pure CLINICAL reasoning. DO NOT mention "Local Dataset", "Web Search", "RAG", or AI mechanics. Just explain the clinical logic (e.g., "Mild fever and cough without dyspnea suggests a common viral infection, requiring standard monitoring.").
 
 Respond ONLY with raw JSON matching the TriageResult interface, adding 'ragReasoning':
 {
@@ -106,7 +106,7 @@ Respond ONLY with raw JSON matching the TriageResult interface, adding 'ragReaso
   "conditionHi": "...", "conditionEn": "...",
   "doNow": [...], "doNot": [...], "warnings": [...],
   "docType": {...}, "wait": {...}, "contagious": {...}, "emergency": true/false, "summary": "...",
-  "ragReasoning": "Comparing the local dataset (which suggests X) and web evidence (which confirms Y), the urgency is Z because..."
+  "ragReasoning": "Clinical reasoning here..."
 }`;
 
   const res2 = await fetch("https://api.groq.com/openai/v1/chat/completions", {
