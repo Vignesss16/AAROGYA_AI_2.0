@@ -281,8 +281,8 @@ export function useWebRTC(
         // (stable + no remoteDescription = fresh PC), apply immediately.
         // Ignore re-delivered offers after exchange is complete (stable + remoteDescription set).
         pendingOfferRef.current = data as RTCSessionDescriptionInit;
-        if (pc && pc.signalingState === "stable" && !pc.remoteDescription) {
-          // PC created before offer arrived — apply offer immediately
+        if (pc && pc.signalingState === "stable" && !pc.remoteDescription && localStreamRef.current) {
+          // PC created before offer arrived and media is ready — apply offer immediately
           await pc.setRemoteDescription(new RTCSessionDescription(data as RTCSessionDescriptionInit));
           for (const c of pendingCandidatesRef.current) {
             try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch {}
@@ -294,6 +294,7 @@ export function useWebRTC(
           pendingOfferRef.current = null; // consumed
         }
         // else: no PC yet → answerCall() will consume pendingOfferRef
+        // else: media not ready yet → answerCall() will consume pendingOfferRef
         // else: exchange already complete → ignore duplicate offer
       } else if (type === "answer" && isInitiator) {
         // Only apply answer if we're waiting for one (have-local-offer)
