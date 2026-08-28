@@ -13,8 +13,28 @@ export async function runAITriage(symptomNames: string[], customSymptoms?: strin
 
   const { retrieveRAGContext, verifyWithWebSearch } = await import("./rag");
 
+  // === STEP 0: Extract Keywords from Voice Input for RAG ===
+  let extractedKeywords: string[] = [];
+  if (customSymptoms && customSymptoms.trim()) {
+    try {
+      const extPrompt = `Extract up to 5 main medical symptom keywords in English from this text. Return ONLY a comma-separated list of english keywords, nothing else.\nText: "${customSymptoms}"`;
+      const resExt = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({ model: "llama3-8b-8192", messages: [{ role: "user", content: extPrompt }], temperature: 0.1 }),
+      });
+      if (resExt.ok) {
+        const dataExt = await resExt.json();
+        const keys = dataExt.choices[0].message.content.split(",");
+        extractedKeywords = keys.map((k: string) => k.trim());
+      }
+    } catch (e) {
+      console.error("Keyword extraction failed", e);
+    }
+  }
+
   // === STEP 1: RAG (CSV Dataset) Comparison ===
-  const ragContext = await retrieveRAGContext([...symptomNames, customSymptoms || ""]);
+  const ragContext = await retrieveRAGContext([...symptomNames, ...extractedKeywords]);
   let ragText = "No direct matching disease found in the local medical CSV dataset.";
   if (ragContext && ragContext.length > 0) {
     ragText = "LOCAL DATASET TOP MATCHES:\n" + ragContext.map((r, i) => 
