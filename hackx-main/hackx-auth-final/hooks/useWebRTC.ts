@@ -237,7 +237,7 @@ export function useWebRTC(
 
     console.log(`[${role}] Subscribed to ${channelName}`);
 
-    channel.bind("pusher:subscription_succeeded", () => {
+    const onSubSucceeded = () => {
       console.log(`[${role}] Successfully subscribed to ${channelName}`);
       if (!isInitiator) {
         sendSignal(roomId, cid, "patient-ready");
@@ -247,9 +247,9 @@ export function useWebRTC(
           sendSignal(roomId, cid, "offer", currentPc.localDescription);
         }
       }
-    });
+    };
 
-    channel.bind("signal", async (msg: { type: string; data?: unknown; fromClientId?: string }) => {
+    const onSignalMsg = async (msg: { type: string; data?: unknown; fromClientId?: string }) => {
       console.log(`[${role}] Received signal:`, msg);
       const { type, data, fromClientId } = msg;
       // Ignore own messages (safety net)
@@ -318,12 +318,14 @@ export function useWebRTC(
         cleanup();
         setState((s) => ({ ...s, callMode: "ended", statusMessage: "Call ended by other party" }));
       }
-    });
+    };
 
-    // Removed the setTimeout patient-ready signal; it is now strictly sent in pusher:subscription_succeeded
+    channel.bind("pusher:subscription_succeeded", onSubSucceeded);
+    channel.bind("signal", onSignalMsg);
 
     return () => {
-      pusher.unsubscribe(channelName);
+      channel.unbind("pusher:subscription_succeeded", onSubSucceeded);
+      channel.unbind("signal", onSignalMsg);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, role]);
