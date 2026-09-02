@@ -51,6 +51,9 @@ export default function ConsultationDetailPage() {
   const [diagnosis, setDiagnosis] = useState("");
   const [saving, setSaving] = useState(false);
   const [callOpen, setCallOpen] = useState(false);
+  const [referModalOpen, setReferModalOpen] = useState(false);
+  const [referralTarget, setReferralTarget] = useState("District Hospital, Nabha");
+  const [referralReason, setReferralReason] = useState("");
 
   useEffect(() => {
     if (!id) return;
@@ -132,6 +135,44 @@ export default function ConsultationDetailPage() {
       });
     } catch { /* offline */ }
     setSaving(false);
+  };
+
+  const handleReferPatient = async () => {
+    setSaving(true);
+    const prescriptionJson = JSON.stringify(rxRows.filter(r => r.medicine.trim()));
+    try {
+      await fetch("/api/referrals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patientPhone: consultation?.patientPhone,
+          patientName: consultation?.patientName,
+          consultationId: id,
+          referredByDoctorId: session?.user?.email || "doctor",
+          referredByDoctorName: doctorName,
+          sourceFacility: "Telemedicine Platform",
+          targetFacility: referralTarget,
+          reasonForReferral: referralReason || notes || "Requires advanced care",
+          urgency: consultation?.urgency,
+        })
+      });
+
+      await fetch("/api/consultations", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id,
+          status: "completed",
+          doctorNotes: notes + `\n\n[REFERRED TO ${referralTarget}]: ${referralReason}`,
+          prescription: prescriptionJson,
+          doctorName,
+          urgency: consultation?.urgency,
+        }),
+      });
+      router.push("/doctor/dashboard");
+    } catch { /* offline */ }
+    setSaving(false);
+    setReferModalOpen(false);
   };
 
   if (loading) {
@@ -388,12 +429,20 @@ export default function ConsultationDetailPage() {
             </button>
           </div>
 
-          <button
-            onClick={() => setCallOpen(true)}
-            style={{ width: "100%", padding: 13, borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 14, background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, color: "white", marginBottom: 10 }}
-          >
-            📞 Call Patient
-          </button>
+          <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+            <button
+              onClick={() => setCallOpen(true)}
+              style={{ flex: 1, padding: 13, borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 14, background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, color: "white" }}
+            >
+              📞 Call Patient
+            </button>
+            <button
+              onClick={() => setReferModalOpen(true)}
+              style={{ flex: 1, padding: 13, borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 14, background: `linear-gradient(135deg,#D35400,#E67E22)`, color: "white" }}
+            >
+              🏥 Refer Patient
+            </button>
+          </div>
 
           <div style={{ display: "flex", gap: 10 }}>
             <button
@@ -422,6 +471,40 @@ export default function ConsultationDetailPage() {
           patientId={consultation.patientPhone}
           isDoctor={true}
         />
+      )}
+
+      {referModalOpen && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.6)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ background: C.card, width: 340, borderRadius: 20, padding: 24, boxShadow: "0 20px 25px -5px rgba(0,0,0,0.2)" }}>
+            <h3 style={{ margin: "0 0 16px", fontSize: 18, fontWeight: 800 }}>Refer Patient</h3>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, display: "block", marginBottom: 6 }}>Target Facility</label>
+              <select 
+                value={referralTarget}
+                onChange={e => setReferralTarget(e.target.value)}
+                style={{ width: "100%", padding: 12, borderRadius: 10, border: `1px solid ${C.border}`, outline: "none", fontSize: 14 }}
+              >
+                <option value="District Hospital, Nabha">District Hospital, Nabha</option>
+                <option value="Tertiary Care Center, Patiala">Tertiary Care Center, Patiala</option>
+                <option value="Govt Medical College, Chandigarh">Govt Medical College, Chandigarh</option>
+              </select>
+            </div>
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, display: "block", marginBottom: 6 }}>Reason for Referral</label>
+              <textarea 
+                value={referralReason}
+                onChange={e => setReferralReason(e.target.value)}
+                placeholder="e.g. Needs immediate surgery"
+                rows={3}
+                style={{ width: "100%", padding: 12, borderRadius: 10, border: `1px solid ${C.border}`, outline: "none", fontSize: 14, fontFamily: "inherit" }}
+              />
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setReferModalOpen(false)} style={{ flex: 1, padding: 12, background: C.bg, border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer" }}>Cancel</button>
+              <button onClick={handleReferPatient} disabled={saving} style={{ flex: 1, padding: 12, background: "#D35400", color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", opacity: saving ? 0.7 : 1 }}>{saving ? "..." : "Confirm"}</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

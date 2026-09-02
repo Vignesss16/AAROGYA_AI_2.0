@@ -168,32 +168,64 @@ export default function ASHABloodTestPage() {
             <div style={{ fontSize: 10, color: C.muted, marginTop: 4 }}>If selected, this doctor will immediately see the report.</div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
-            <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: C.text, display: "block", marginBottom: 4 }}>Result *</label>
-              <input required type="text" placeholder="12.5 g/dL" value={form.result}
-                onChange={e => setForm(prev => ({ ...prev, result: e.target.value }))}
-                style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `2px solid ${C.border}`, fontSize: 14 }} />
-            </div>
-            <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: C.text, display: "block", marginBottom: 4 }}>Numeric Value (for alerts)</label>
-              <input type="number" step="0.1" placeholder="12.5" value={form.numericValue}
-                onChange={e => setForm(prev => ({ ...prev, numericValue: e.target.value }))}
-                style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `2px solid ${C.border}`, fontSize: 14 }} />
-            </div>
+          {/* Dynamic Result Input */}
+          <div style={{ marginBottom: 14 }}>
+            {["Malaria Rapid", "Dengue NS1", "Dengue IgM", "HIV Rapid", "Urine Routine"].includes(form.testType) ? (
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.text, display: "block", marginBottom: 4 }}>Test Result (Qualitative) *</label>
+                <select required value={form.result} onChange={e => setForm(prev => ({ ...prev, result: e.target.value, numericValue: "" }))}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `2px solid ${C.border}`, fontSize: 14, background: "white" }}>
+                  <option value="">-- Select Result --</option>
+                  <option value="Positive">Positive (Abnormal)</option>
+                  <option value="Negative">Negative (Normal)</option>
+                  <option value="Equivocal">Equivocal / Inconclusive</option>
+                  <option value="Normal">Normal</option>
+                  <option value="Abnormal">Abnormal</option>
+                </select>
+              </div>
+            ) : form.testType === "Typhoid (Widal)" || form.testType === "Complete Blood Count (CBC)" || form.testType === "Liver Function" || form.testType === "Kidney Function" || form.testType === "Other" ? (
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.text, display: "block", marginBottom: 4 }}>Test Result Details *</label>
+                <input required type="text" placeholder="e.g. 1:80 or see attached report" value={form.result}
+                  onChange={e => setForm(prev => ({ ...prev, result: e.target.value }))}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `2px solid ${C.border}`, fontSize: 14 }} />
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 10 }}>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: C.text, display: "block", marginBottom: 4 }}>Numeric Value *</label>
+                  <input required type="number" step="0.1" placeholder="e.g. 12.5" value={form.numericValue}
+                    onChange={e => setForm(prev => ({ ...prev, numericValue: e.target.value, result: e.target.value ? `${e.target.value} ${form.unit}` : "" }))}
+                    style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `2px solid ${C.border}`, fontSize: 14 }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: C.text, display: "block", marginBottom: 4 }}>Unit</label>
+                  <input type="text" value={form.unit} readOnly
+                    style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `2px solid ${C.border}`, fontSize: 14, background: "#f5f5f5" }} />
+                </div>
+              </div>
+            )}
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
-            <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: C.text, display: "block", marginBottom: 4 }}>Unit</label>
-              <input type="text" value={form.unit} readOnly
-                style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `2px solid ${C.border}`, fontSize: 14, background: "#f5f5f5" }} />
-            </div>
             <div>
               <label style={{ fontSize: 12, fontWeight: 600, color: C.text, display: "block", marginBottom: 4 }}>Test Date</label>
               <input type="date" value={form.testDate}
                 onChange={e => setForm(prev => ({ ...prev, testDate: e.target.value }))}
                 style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `2px solid ${C.border}`, fontSize: 14 }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 600, color: C.text, display: "block", marginBottom: 4 }}>Attach Lab Slip / Proof (Optional)</label>
+              <input type="file" accept="image/*" capture="environment" 
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => setForm(prev => ({ ...prev, imageDataUrl: reader.result as string }));
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                style={{ width: "100%", padding: "7px", borderRadius: 10, border: `2px solid ${C.border}`, fontSize: 12 }} />
             </div>
           </div>
 

@@ -261,4 +261,5 @@ const VitalSignsSchema = new Schema<IVitalSigns>(
 export const VitalSigns: Model<IVitalSigns> =
   mongoose.models.VitalSigns || mongoose.model<IVitalSigns>("VitalSigns", VitalSignsSchema);
 
-// ── SOS Alert ────────────────────────────────────────────────────────────
+// ── Referral Record ────────────────────────────────────────────────────────
+export { default as Referral, type IReferral } from "./Referral";

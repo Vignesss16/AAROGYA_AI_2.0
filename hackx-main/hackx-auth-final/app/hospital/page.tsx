@@ -45,6 +45,8 @@ export default function HospitalDesktopDashboard() {
   const [queue, setQueue] = useState<any[]>([]);
   const [doctors, setDoctors] = useState<any[]>([]);
   const [ashaVisits, setAshaVisits] = useState<any[]>([]);
+  const [labTests, setLabTests] = useState<any[]>([]);
+  const [referrals, setReferrals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [tick, setTick] = useState(30);
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -62,20 +64,26 @@ export default function HospitalDesktopDashboard() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [resQueue, resDocs, resAsha, resSos] = await Promise.all([
+      const [resQueue, resDocs, resAsha, resSos, resLabs, resRefs] = await Promise.all([
         fetch("/api/consultations?status=all"),
         fetch("/api/admin/doctors"),
         fetch("/api/asha/visits"),
-        fetch("/api/sos")
+        fetch("/api/sos"),
+        fetch("/api/blood-tests"),
+        fetch("/api/referrals")
       ]);
       const dataQueue = await resQueue.json();
       const dataDocs = await resDocs.json();
       const dataAsha = await resAsha.json();
       const dataSos = await resSos.json();
+      const dataLabs = await resLabs.json();
+      const dataRefs = await resRefs.json();
       setQueue(dataQueue.consultations || []);
       setDoctors(dataDocs.doctors || []);
       setAshaVisits(dataAsha.visits || []);
       setSosAlerts(dataSos.alerts || []);
+      setLabTests(dataLabs.tests || []);
+      setReferrals(dataRefs.referrals || []);
     } catch {
       /* offline */
     }
@@ -257,6 +265,8 @@ export default function HospitalDesktopDashboard() {
               {[
                 { id: "dashboard", label: T("डैशबोर्ड", "Dashboard") },
                 { id: "emergencies", label: T("आपात स्थिति", "Emergencies") },
+                { id: "referrals", label: T("रेफ़रल", "Referrals") },
+                { id: "diagnostics", label: T("लैब रिपोर्ट", "Lab Diagnostics") },
                 { id: "wards", label: T("वार्ड", "Wards") },
                 { id: "analytics", label: T("एनालिटिक्स", "Analytics") },
               ].map(nav => (
@@ -627,6 +637,118 @@ export default function HospitalDesktopDashboard() {
                             </td>
                             <td style={{ padding: "20px 32px" }}>
                               <div style={{ fontSize: 15, fontWeight: 600 }}>{p.doctorName || "Unassigned"}</div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Referrals Queue */}
+            {(activeTab === "dashboard" || activeTab === "referrals") && (
+              <div style={{ background: C.card, borderRadius: 24, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)" }}>
+                <div style={{ padding: "24px 32px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.text }}>{T("इनबाउंड रेफ़रल", "Inbound Referrals")}</h3>
+                  <div style={{ fontSize: 14, color: "#D35400", fontWeight: 700, background: "#FDEBD0", padding: "6px 16px", borderRadius: 20 }}>
+                    {referrals.filter(r => r.status === "pending").length} Pending Arrivals
+                  </div>
+                </div>
+                <div style={{ padding: 0 }}>
+                  {referrals.length === 0 ? (
+                    <div style={{ padding: 40, textAlign: "center", color: C.muted }}>No inbound referrals.</div>
+                  ) : (
+                    <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                      <thead>
+                        <tr style={{ background: "#F8FAFC", fontSize: 13, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Patient</th>
+                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Referral Source</th>
+                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Reason / Urgency</th>
+                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {referrals.map((r, i) => (
+                          <tr key={r._id} style={{ borderTop: `1px solid ${C.border}`, transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#F8FAFC"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                            <td style={{ padding: "20px 32px" }}>
+                              <div style={{ fontWeight: 700, color: C.text, fontSize: 15 }}>{r.patientName}</div>
+                              <div style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>📱 {r.patientPhone}</div>
+                            </td>
+                            <td style={{ padding: "20px 32px" }}>
+                              <div style={{ fontSize: 14, fontWeight: 700 }}>Dr. {r.referredByDoctorName}</div>
+                              <div style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>{r.sourceFacility}</div>
+                            </td>
+                            <td style={{ padding: "20px 32px" }}>
+                              <div style={{ fontSize: 14, color: C.text, fontWeight: 600, marginBottom: 4 }}>{r.reasonForReferral}</div>
+                              <span style={{ background: r.urgency === "RED" ? C.red : r.urgency === "YELLOW" ? "#FEF3C7" : "#D1FAE5", color: r.urgency === "RED" ? "white" : r.urgency === "YELLOW" ? "#D97706" : "#059669", padding: "4px 10px", borderRadius: 20, fontSize: 11, fontWeight: 800 }}>
+                                {r.urgency} URGENCY
+                              </span>
+                            </td>
+                            <td style={{ padding: "20px 32px" }}>
+                              {r.status === "pending" ? (
+                                <button 
+                                  onClick={async () => {
+                                    await fetch("/api/referrals", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: r._id, status: "arrived" }) });
+                                    fetchData();
+                                  }}
+                                  style={{ padding: "8px 16px", background: C.green, color: "white", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                                >
+                                  Mark Arrived
+                                </button>
+                              ) : (
+                                <span style={{ fontSize: 13, fontWeight: 700, color: C.muted }}>{r.status.toUpperCase()}</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Lab Diagnostics Safety Net */}
+            {(activeTab === "dashboard" || activeTab === "diagnostics") && (
+              <div style={{ background: C.card, borderRadius: 24, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)" }}>
+                <div style={{ padding: "24px 32px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.text }}>{T("ग्लोबल लैब रिपोर्ट (सेफ्टी नेट)", "Global Lab Reports (Diagnostics Safety Net)")}</h3>
+                  <div style={{ fontSize: 14, color: C.accent, fontWeight: 700, background: `${C.accent}15`, padding: "6px 16px", borderRadius: 20 }}>
+                    {labTests.length} Total Reports
+                  </div>
+                </div>
+                <div style={{ padding: 0 }}>
+                  {labTests.length === 0 ? (
+                    <div style={{ padding: 40, textAlign: "center", color: C.muted }}>No lab reports found.</div>
+                  ) : (
+                    <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                      <thead>
+                        <tr style={{ background: "#F8FAFC", fontSize: 13, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Patient</th>
+                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Test Result</th>
+                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Status / Assignment</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {labTests.slice(0, 20).map((t, i) => (
+                          <tr key={t._id} style={{ borderTop: `1px solid ${C.border}`, transition: "background 0.2s", background: t.isCritical && !t.assignedDoctorId ? "#FEF2F2" : "transparent" }} onMouseEnter={e => e.currentTarget.style.background = t.isCritical ? "#FEE2E2" : "#F8FAFC"} onMouseLeave={e => e.currentTarget.style.background = t.isCritical && !t.assignedDoctorId ? "#FEF2F2" : "transparent"}>
+                            <td style={{ padding: "20px 32px" }}>
+                              <div style={{ fontWeight: 700, color: C.text, fontSize: 15 }}>{t.patientName}</div>
+                              <div style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>📱 {t.patientPhone}</div>
+                            </td>
+                            <td style={{ padding: "20px 32px" }}>
+                              <div style={{ fontSize: 15, fontWeight: 800, color: t.isCritical ? C.red : C.text }}>{t.testType}: {t.result}</div>
+                              <div style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>📅 {new Date(t.testDate).toLocaleDateString()}</div>
+                              {t.imageDataUrl && <div style={{ fontSize: 12, color: C.primary, marginTop: 4 }}>📎 Attachment Available</div>}
+                            </td>
+                            <td style={{ padding: "20px 32px" }}>
+                              {t.assignedDoctorId ? (
+                                <span style={{ background: "#D1FAE5", color: "#059669", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 800 }}>✅ Assigned to Doctor</span>
+                              ) : (
+                                <span style={{ background: t.isCritical ? C.red : "#FEF3C7", color: t.isCritical ? "white" : "#D97706", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 800 }}>⚠️ Unassigned {t.isCritical && "(CRITICAL)"}</span>
+                              )}
                             </td>
                           </tr>
                         ))}
