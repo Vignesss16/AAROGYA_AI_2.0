@@ -54,6 +54,7 @@ export default function ConsultationDetailPage() {
   const [referModalOpen, setReferModalOpen] = useState(false);
   const [referralTarget, setReferralTarget] = useState("District Hospital, Nabha");
   const [referralReason, setReferralReason] = useState("");
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -173,6 +174,26 @@ export default function ConsultationDetailPage() {
     } catch { /* offline */ }
     setSaving(false);
     setReferModalOpen(false);
+  };
+
+  const handleExportABDM = async () => {
+    setExporting(true);
+    try {
+      const res = await fetch("/api/abdm/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ consultationId: id })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("✅ Success: " + data.message + "\n\nFHIR Bundle generated for patient.");
+      } else {
+        alert("❌ Error: " + data.error);
+      }
+    } catch (err) {
+      alert("Network error while exporting to ABDM");
+    }
+    setExporting(false);
   };
 
   if (loading) {
@@ -441,6 +462,13 @@ export default function ConsultationDetailPage() {
               style={{ flex: 1, padding: 13, borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 14, background: `linear-gradient(135deg,#D35400,#E67E22)`, color: "white" }}
             >
               🏥 Refer Patient
+            </button>
+            <button
+              onClick={handleExportABDM}
+              disabled={exporting}
+              style={{ flex: 1, padding: 13, borderRadius: 14, border: "none", cursor: exporting ? "wait" : "pointer", fontWeight: 700, fontSize: 14, background: `linear-gradient(135deg,#27AE60,#1E8449)`, color: "white", opacity: exporting ? 0.7 : 1 }}
+            >
+              {exporting ? "⏳ Syncing..." : "🌐 Sync ABDM"}
             </button>
           </div>
 

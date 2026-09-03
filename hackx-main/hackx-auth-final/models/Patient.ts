@@ -12,6 +12,8 @@ export interface IPatient extends Document {
   bloodGroup?: string;
   password:   string;
   role:       "patient";
+  abhaAddress?: string;
+  abhaLinked?:  boolean;
   createdAt:  Date;
   updatedAt:  Date;
 }
@@ -29,6 +31,8 @@ const PatientSchema = new Schema<IPatient>(
     bloodGroup: { type: String },
     password:   { type: String, required: true, select: false },
     role:       { type: String, default: "patient" },
+    abhaAddress: { type: String, default: "" },
+    abhaLinked: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
