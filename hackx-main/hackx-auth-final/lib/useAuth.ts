@@ -13,6 +13,8 @@ export interface PatientUser {
   conditions: string[];
   bloodGroup?: string;
   role:       string;
+  abhaAddress?: string;
+  abhaLinked?: boolean;
 }
 
 /** Drop-in replacement for the old custom useAuth hook, now backed by NextAuth. */
@@ -37,6 +39,8 @@ export function useAuth() {
           ? session!.user.conditions.split(",").filter(Boolean)
           : [],
         role:       session!.user.role ?? "patient",
+        abhaAddress: (session!.user as any).abhaAddress,
+        abhaLinked:  (session!.user as any).abhaLinked,
       }
     : null;
 
