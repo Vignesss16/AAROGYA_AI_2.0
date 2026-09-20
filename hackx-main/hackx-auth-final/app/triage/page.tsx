@@ -4,19 +4,19 @@ import { useRouter } from "next/navigation";
 import type { TriageResult } from "@/lib/triage";
 import { fallbackTriage } from "@/lib/triage";
 
-const SYMPTOMS_MAP: Record<string, { emoji: string; hi: string; en: string }> = {
-  fever: { emoji: "🌡️", hi: "बुखार", en: "Fever" }, chest: { emoji: "💔", hi: "सीने में दर्द", en: "Chest Pain" },
-  breath: { emoji: "😮‍💨", hi: "सांस में तकलीफ", en: "Breathless" }, cough: { emoji: "😮", hi: "खांसी", en: "Cough" },
-  cold: { emoji: "🤧", hi: "जुकाम", en: "Cold" }, headache: { emoji: "🤕", hi: "सिरदर्द", en: "Headache" },
-  vomit: { emoji: "🤢", hi: "उल्टी", en: "Vomiting" }, diarrhea: { emoji: "💧", hi: "दस्त", en: "Diarrhea" },
-  rash: { emoji: "🔴", hi: "दाने", en: "Skin Rash" }, pain: { emoji: "🦴", hi: "जोड़ों में दर्द", en: "Joint Pain" },
-  weakness: { emoji: "😴", hi: "कमज़ोरी", en: "Weakness" }, stomach: { emoji: "😣", hi: "पेट में दर्द", en: "Stomach Pain" },
-  eyes: { emoji: "👁️", hi: "आँखों में जलन", en: "Eye Pain" }, back: { emoji: "🔙", hi: "कमर दर्द", en: "Back Pain" },
-  dizzy: { emoji: "💫", hi: "चक्कर", en: "Dizziness" }, swelling: { emoji: "🦵", hi: "सूजन", en: "Swelling" },
-  chills: { emoji: "🥶", hi: "ठंड लगना", en: "Chills" }, body_ache: { emoji: "🤸", hi: "शरीर दर्द", en: "Body Ache" },
-  sweat: { emoji: "💦", hi: "पसीना", en: "Sweating" }, urine_burn: { emoji: "🔥", hi: "पेशाब में जलन", en: "Burning Urination" },
-  nausea: { emoji: "😰", hi: "जी मिचलाना", en: "Nausea" }, unconscious: { emoji: "😵", hi: "बेहोशी", en: "Unconscious" },
-  seizure: { emoji: "⚡", hi: "दौरे", en: "Seizures" }, bleed: { emoji: "🩸", hi: "रक्तस्राव", en: "Bleeding" },
+const SYMPTOMS_MAP: Record<string, { icon: string; hi: string; en: string }> = {
+  fever: { icon: "/icons/fever.png", hi: "बुखार", en: "Fever" }, chest: { icon: "/icons/chest_pain.png", hi: "सीने में दर्द", en: "Chest Pain" },
+  breath: { icon: "/icons/breathlessness.png", hi: "सांस में तकलीफ", en: "Breathless" }, cough: { icon: "/icons/cough.png", hi: "खांसी", en: "Cough" },
+  cold: { icon: "/icons/cold.png", hi: "जुकाम", en: "Cold" }, headache: { icon: "/icons/headache.png", hi: "सिरदर्द", en: "Headache" },
+  vomit: { icon: "/icons/vomiting.png", hi: "उल्टी", en: "Vomiting" }, diarrhea: { icon: "/icons/stomach_pain.png", hi: "दस्त", en: "Diarrhea" },
+  rash: { icon: "/icons/skin_rash.png", hi: "दाने", en: "Skin Rash" }, pain: { icon: "/icons/joint_pain.png", hi: "जोड़ों में दर्द", en: "Joint Pain" },
+  weakness: { icon: "/icons/weakness.png", hi: "कमज़ोरी", en: "Weakness" }, stomach: { icon: "/icons/stomach_pain.png", hi: "पेट में दर्द", en: "Stomach Pain" },
+  eyes: { icon: "/icons/eye_problem.png", hi: "आँखों में जलन", en: "Eye Pain" }, back: { icon: "/icons/back_pain.png", hi: "कमर दर्द", en: "Back Pain" },
+  dizzy: { icon: "/icons/dizziness.png", hi: "चक्कर", en: "Dizziness" }, swelling: { icon: "/icons/joint_pain.png", hi: "सूजन", en: "Swelling" },
+  chills: { icon: "/icons/chills.png", hi: "ठंड लगना", en: "Chills" }, body_ache: { icon: "/icons/body_ache.png", hi: "शरीर दर्द", en: "Body Ache" },
+  sweat: { icon: "/icons/sweating.png", hi: "पसीना", en: "Sweating" }, urine_burn: { icon: "/icons/burning_urination.png", hi: "पेशाब में जलन", en: "Burning Urination" },
+  nausea: { icon: "/icons/nausea.png", hi: "जी मिचलाना", en: "Nausea" }, unconscious: { icon: "/icons/unconsciousness.png", hi: "बेहोशी", en: "Unconscious" },
+  seizure: { icon: "/icons/seizures.png", hi: "दौरे", en: "Seizures" }, bleed: { icon: "/icons/unusual_bleeding.png", hi: "रक्तस्राव", en: "Bleeding" },
 };
 
 // ── HOME REMEDIES (GREEN only) ─────────────────────────────────────────────
@@ -335,7 +335,10 @@ export default function TriagePage() {
             {selectedSymptoms.map(id => {
               const s = SYMPTOMS_MAP[id];
               if (!s) return null;
-              return <span key={id} style={{ background: "rgba(255,255,255,.15)", borderRadius: 8, padding: "4px 10px", fontSize: 11, color: "rgba(255,255,255,.85)" }}>{s.emoji} {lang === "hi" ? s.hi : s.en}</span>;
+              return <span key={id} style={{ background: "rgba(255,255,255,.15)", borderRadius: 8, padding: "4px 10px", fontSize: 11, color: "rgba(255,255,255,.85)", display: "flex", alignItems: "center", gap: 6 }}>
+                <img src={s.icon} alt={s.en} style={{ width: 14, height: 14, objectFit: "contain" }} />
+                {lang === "hi" ? s.hi : s.en}
+              </span>;
             })}
             {result.extractedKeywords && result.extractedKeywords.map((kw, i) => (
               <span key={"ext-"+i} style={{ background: "rgba(255,255,255,.15)", borderRadius: 8, padding: "4px 10px", fontSize: 11, color: "rgba(255,255,255,.85)" }}>
