@@ -30,16 +30,16 @@ const SYMPTOMS_LIST = [
 ];
 
 const DISEASES = [
-  { id: "diabetes",       emoji: "🩺", hi: "मधुमेह (Diabetes)",            en: "Diabetes" },
-  { id: "hypertension",   emoji: "❤️‍🔥", hi: "उच्च रक्तचाप (BP)",          en: "Hypertension / High BP" },
-  { id: "asthma",         emoji: "🫁", hi: "अस्थमा",                        en: "Asthma" },
-  { id: "heart_disease",  emoji: "💓", hi: "हृदय रोग",                      en: "Heart Disease" },
-  { id: "kidney_disease", emoji: "🫘", hi: "किडनी रोग",                     en: "Kidney Disease" },
-  { id: "thyroid",        emoji: "🦋", hi: "थायरॉइड",                       en: "Thyroid" },
-  { id: "arthritis",      emoji: "🦴", hi: "गठिया (Arthritis)",             en: "Arthritis" },
-  { id: "cancer",         emoji: "🎗️", hi: "कैंसर",                         en: "Cancer" },
-  { id: "liver_disease",  emoji: "🫀", hi: "लीवर रोग",                     en: "Liver Disease" },
-  { id: "none",           emoji: "✅", hi: "कोई नहीं",                       en: "None" },
+  { id: "diabetes",       icon: "/icons/diabetes.png", hi: "मधुमेह (Diabetes)",            en: "Diabetes" },
+  { id: "hypertension",   icon: "/icons/hypertension.png", hi: "उच्च रक्तचाप (BP)",          en: "Hypertension / High BP" },
+  { id: "asthma",         icon: "/icons/asthma.png", hi: "अस्थमा",                        en: "Asthma" },
+  { id: "heart_disease",  icon: "/icons/heart_disease.png", hi: "हृदय रोग",                      en: "Heart Disease" },
+  { id: "kidney_disease", icon: "/icons/kidney_disease.png", hi: "किडनी रोग",                     en: "Kidney Disease" },
+  { id: "thyroid",        icon: "/icons/thyroid.png", hi: "थायरॉइड",                       en: "Thyroid" },
+  { id: "arthritis",      icon: "/icons/arthritis.png", hi: "गठिया (Arthritis)",             en: "Arthritis" },
+  { id: "cancer",         icon: "/icons/cancer.png", hi: "कैंसर",                         en: "Cancer" },
+  { id: "liver_disease",  icon: "/icons/liver_disease.png", hi: "लीवर रोग",                     en: "Liver Disease" },
+  { id: "none",           icon: "/icons/none.png", hi: "कोई नहीं",                       en: "None" },
 ];
 
 const DURATION_OPTIONS = [
@@ -297,7 +297,9 @@ export default function SymptomDetailPage() {
                     {sel && (
                       <div style={{ position: "absolute", top: 4, right: 4, width: 14, height: 14, background: C.primary, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, color: "white", fontWeight: 800 }}>✓</div>
                     )}
-                    <img src={sym.icon} alt={sym.en} style={{ width: 32, height: 32, marginBottom: 4, objectFit: "contain" }} />
+                    <div style={{ width: 44, height: 44, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "flex-start", marginBottom: 2 }}>
+                      <img src={sym.icon} alt={sym.en} style={{ width: "100%", height: "125%", objectFit: "cover", objectPosition: "top" }} />
+                    </div>
                     <div style={{ fontSize: 10, fontWeight: 600, textAlign: "center", color: sel ? C.primary : C.text, lineHeight: 1.3 }}>
                       {lang === "hi" ? sym.hi : sym.en}
                     </div>
@@ -325,8 +327,10 @@ export default function SymptomDetailPage() {
                       padding: "10px 12px", display: "flex", alignItems: "center",
                       gap: 10, cursor: "pointer", transition: "all .18s",
                     }}>
-                    <div style={{ fontSize: 20, flexShrink: 0 }}>{d.emoji}</div>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: sel ? C.primary : C.text, lineHeight: 1.3 }}>
+                    <div style={{ width: 36, height: 36, overflow: "hidden", flexShrink: 0, display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+                      <img src={d.icon} alt={d.en} style={{ width: "100%", height: "125%", objectFit: "cover", objectPosition: "top" }} />
+                    </div>
+                    <div style={{ flex: 1, fontFamily: "var(--font-hi)", fontSize: 13, fontWeight: 600, color: sel ? C.primary : C.text, lineHeight: 1.4 }}>
                       {lang === "hi" ? d.hi : d.en}
                     </div>
                     {sel && (
