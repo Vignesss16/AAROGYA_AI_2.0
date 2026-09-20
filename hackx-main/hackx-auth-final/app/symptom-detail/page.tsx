@@ -7,7 +7,7 @@ const SYMPTOMS_LIST = [
   { id: "chest",      icon: "/icons/chest_pain.png",  hi: "सीने में दर्द",      en: "Chest Pain" },
   { id: "breath",     icon: "/icons/breathlessness.png", hi: "सांस में तकलीफ",    en: "Breathlessness" },
   { id: "cough",      icon: "/icons/cough.png",  hi: "खांसी",              en: "Cough" },
-  { id: "cold",       icon: "/icons/cough.png",  hi: "जुकाम",              en: "Cold / Runny Nose" },
+  { id: "cold",       icon: "/icons/cold.png",  hi: "जुकाम",              en: "Cold / Runny Nose" },
   { id: "headache",   icon: "/icons/headache.png",  hi: "सिरदर्द",            en: "Headache" },
   { id: "vomit",      icon: "/icons/vomiting.png",  hi: "उल्टी",              en: "Vomiting" },
   { id: "diarrhea",   icon: "/icons/stomach_pain.png",  hi: "दस्त",               en: "Diarrhea" },
