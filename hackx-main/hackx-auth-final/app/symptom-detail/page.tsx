@@ -297,9 +297,7 @@ export default function SymptomDetailPage() {
                     {sel && (
                       <div style={{ position: "absolute", top: 4, right: 4, width: 14, height: 14, background: C.primary, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, color: "white", fontWeight: 800 }}>✓</div>
                     )}
-                    <div style={{ width: 44, height: 44, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "flex-start", marginBottom: 2 }}>
-                      <img src={sym.icon} alt={sym.en} style={{ width: "100%", height: "125%", objectFit: "cover", objectPosition: "top" }} />
-                    </div>
+                    <img src={sym.icon} alt={sym.en} style={{ width: 32, height: 32, marginBottom: 4, objectFit: "contain" }} />
                     <div style={{ fontSize: 10, fontWeight: 600, textAlign: "center", color: sel ? C.primary : C.text, lineHeight: 1.3 }}>
                       {lang === "hi" ? sym.hi : sym.en}
                     </div>
@@ -327,9 +325,7 @@ export default function SymptomDetailPage() {
                       padding: "10px 12px", display: "flex", alignItems: "center",
                       gap: 10, cursor: "pointer", transition: "all .18s",
                     }}>
-                    <div style={{ width: 36, height: 36, overflow: "hidden", flexShrink: 0, display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
-                      <img src={d.icon} alt={d.en} style={{ width: "100%", height: "125%", objectFit: "cover", objectPosition: "top" }} />
-                    </div>
+                    <img src={d.icon} alt={d.en} style={{ width: 36, height: 36, flexShrink: 0, objectFit: "contain" }} />
                     <div style={{ flex: 1, fontFamily: "var(--font-hi)", fontSize: 13, fontWeight: 600, color: sel ? C.primary : C.text, lineHeight: 1.4 }}>
                       {lang === "hi" ? d.hi : d.en}
                     </div>

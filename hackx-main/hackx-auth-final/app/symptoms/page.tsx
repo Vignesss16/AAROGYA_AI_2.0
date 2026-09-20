@@ -189,8 +189,8 @@ export default function SymptomsPage() {
                 <div key={sym.id} onClick={() => toggle(sym.id)}
                   style={{ background: sel ? "#EBF4FD" : C.card, borderRadius: 14, border: `2px solid ${sel ? C.primary : C.border}`, padding: "10px 4px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, cursor: "pointer", transition: "all .18s", minHeight: 80, justifyContent: "center", position: "relative" }}>
                   {sel && <div style={{ position: "absolute", top: 4, right: 4, width: 16, height: 16, background: C.primary, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: "white", fontWeight: 800 }}>✓</div>}
-                  <div style={{ width: 48, height: 48, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "flex-start", marginBottom: 2 }}>
-                    <img src={sym.icon} alt={sym.en} style={{ width: "100%", height: "125%", objectFit: "cover", objectPosition: "top" }} />
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
+                    <img src={sym.icon} alt={sym.en} style={{ width: 44, height: 44, objectFit: "contain" }} />
                   </div>
                   <div style={{ fontFamily: "var(--font-hi)", fontSize: 10, fontWeight: 600, textAlign: "center", color: sel ? C.primary : C.text, lineHeight: 1.3 }}>{lang === "hi" ? sym.hi : sym.en}</div>
                   {lang === "hi" && <div style={{ fontSize: 9, color: C.muted, textAlign: "center" }}>{sym.en}</div>}
