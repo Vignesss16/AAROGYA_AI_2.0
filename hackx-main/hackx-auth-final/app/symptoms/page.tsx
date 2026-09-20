@@ -3,30 +3,30 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 const SYMPTOMS = [
-  { id: "fever",      emoji: "🌡️", hi: "बुखार",              en: "Fever" },
-  { id: "chest",      emoji: "💔",  hi: "सीने में दर्द",      en: "Chest Pain" },
-  { id: "breath",     emoji: "😮‍💨", hi: "सांस में तकलीफ",    en: "Breathlessness" },
-  { id: "cough",      emoji: "😮",  hi: "खांसी",              en: "Cough" },
-  { id: "cold",       emoji: "🤧",  hi: "जुकाम",              en: "Cold / Runny Nose" },
-  { id: "headache",   emoji: "🤕",  hi: "सिरदर्द",            en: "Headache" },
-  { id: "vomit",      emoji: "🤢",  hi: "उल्टी",              en: "Vomiting" },
-  { id: "diarrhea",   emoji: "💧",  hi: "दस्त",               en: "Diarrhea" },
-  { id: "rash",       emoji: "🔴",  hi: "दाने / चकत्ते",     en: "Skin Rash" },
-  { id: "pain",       emoji: "🦴",  hi: "जोड़ों में दर्द",    en: "Joint Pain" },
-  { id: "weakness",   emoji: "😴",  hi: "कमज़ोरी",            en: "Weakness" },
-  { id: "stomach",    emoji: "😣",  hi: "पेट में दर्द",       en: "Stomach Pain" },
-  { id: "eyes",       emoji: "👁️", hi: "आँखों में जलन",      en: "Eye Problem" },
-  { id: "back",       emoji: "🔙",  hi: "कमर दर्द",           en: "Back Pain" },
-  { id: "dizzy",      emoji: "💫",  hi: "चक्कर",              en: "Dizziness" },
-  { id: "swelling",   emoji: "🦵",  hi: "सूजन",               en: "Swelling" },
-  { id: "chills",     emoji: "🥶",  hi: "ठंड लगना / कंपकंपी", en: "Chills / Shivering" },
-  { id: "body_ache",  emoji: "🤸",  hi: "पूरे शरीर में दर्द", en: "Body Ache" },
-  { id: "sweat",      emoji: "💦",  hi: "अत्यधिक पसीना",      en: "Excessive Sweating" },
-  { id: "urine_burn", emoji: "🔥",  hi: "पेशाब में जलन",      en: "Burning Urination" },
-  { id: "nausea",     emoji: "😰",  hi: "जी मिचलाना",         en: "Nausea" },
-  { id: "unconscious",emoji: "😵",  hi: "बेहोशी",             en: "Unconsciousness" },
-  { id: "seizure",    emoji: "⚡",  hi: "दौरे पड़ना",          en: "Seizures" },
-  { id: "bleed",      emoji: "🩸",  hi: "असामान्य रक्तस्राव", en: "Unusual Bleeding" },
+  { id: "fever",      icon: "/icons/fever.png", hi: "बुखार",              en: "Fever" },
+  { id: "chest",      icon: "/icons/chest_pain.png",  hi: "सीने में दर्द",      en: "Chest Pain" },
+  { id: "breath",     icon: "/icons/breathlessness.png", hi: "सांस में तकलीफ",    en: "Breathlessness" },
+  { id: "cough",      icon: "/icons/cough.png",  hi: "खांसी",              en: "Cough" },
+  { id: "cold",       icon: "/icons/cough.png",  hi: "जुकाम",              en: "Cold / Runny Nose" },
+  { id: "headache",   icon: "/icons/headache.png",  hi: "सिरदर्द",            en: "Headache" },
+  { id: "vomit",      icon: "/icons/vomiting.png",  hi: "उल्टी",              en: "Vomiting" },
+  { id: "diarrhea",   icon: "/icons/stomach_pain.png",  hi: "दस्त",               en: "Diarrhea" },
+  { id: "rash",       icon: "/icons/skin_rash.png",  hi: "दाने / चकत्ते",     en: "Skin Rash" },
+  { id: "pain",       icon: "/icons/joint_pain.png",  hi: "जोड़ों में दर्द",    en: "Joint Pain" },
+  { id: "weakness",   icon: "/icons/weakness.png",  hi: "कमज़ोरी",            en: "Weakness" },
+  { id: "stomach",    icon: "/icons/stomach_pain.png",  hi: "पेट में दर्द",       en: "Stomach Pain" },
+  { id: "eyes",       icon: "/icons/eye_problem.png", hi: "आँखों में जलन",      en: "Eye Problem" },
+  { id: "back",       icon: "/icons/back_pain.png",  hi: "कमर दर्द",           en: "Back Pain" },
+  { id: "dizzy",      icon: "/icons/dizziness.png",  hi: "चक्कर",              en: "Dizziness" },
+  { id: "swelling",   icon: "/icons/joint_pain.png",  hi: "सूजन",               en: "Swelling" },
+  { id: "chills",     icon: "/icons/chills.png",  hi: "ठंड लगना / कंपकंपी", en: "Chills / Shivering" },
+  { id: "body_ache",  icon: "/icons/body_ache.png",  hi: "पूरे शरीर में दर्द", en: "Body Ache" },
+  { id: "sweat",      icon: "/icons/sweating.png",  hi: "अत्यधिक पसीना",      en: "Excessive Sweating" },
+  { id: "urine_burn", icon: "/icons/burning_urination.png",  hi: "पेशाब में जलन",      en: "Burning Urination" },
+  { id: "nausea",     icon: "/icons/nausea.png",  hi: "जी मिचलाना",         en: "Nausea" },
+  { id: "unconscious",icon: "/icons/unconsciousness.png",  hi: "बेहोशी",             en: "Unconsciousness" },
+  { id: "seizure",    icon: "/icons/seizures.png",  hi: "दौरे पड़ना",          en: "Seizures" },
+  { id: "bleed",      icon: "/icons/body_ache.png",  hi: "असामान्य रक्तस्राव", en: "Unusual Bleeding" },
 ];
 
 const C = { primary: "#1B6CA8", primaryDark: "#0F4C7A", bg: "#F0F4F8", card: "#FFFFFF", text: "#1A2332", muted: "#6B7C93", border: "#DDE3EC", red: "#E74C3C" };
@@ -189,7 +189,9 @@ export default function SymptomsPage() {
                 <div key={sym.id} onClick={() => toggle(sym.id)}
                   style={{ background: sel ? "#EBF4FD" : C.card, borderRadius: 14, border: `2px solid ${sel ? C.primary : C.border}`, padding: "10px 4px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, cursor: "pointer", transition: "all .18s", minHeight: 80, justifyContent: "center", position: "relative" }}>
                   {sel && <div style={{ position: "absolute", top: 4, right: 4, width: 16, height: 16, background: C.primary, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: "white", fontWeight: 800 }}>✓</div>}
-                  <div style={{ fontSize: 26, lineHeight: 1 }}>{sym.emoji}</div>
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
+                    <img src={sym.icon} alt={sym.en} style={{ width: 44, height: 44, objectFit: "contain" }} />
+                  </div>
                   <div style={{ fontFamily: "var(--font-hi)", fontSize: 10, fontWeight: 600, textAlign: "center", color: sel ? C.primary : C.text, lineHeight: 1.3 }}>{lang === "hi" ? sym.hi : sym.en}</div>
                   {lang === "hi" && <div style={{ fontSize: 9, color: C.muted, textAlign: "center" }}>{sym.en}</div>}
                 </div>
