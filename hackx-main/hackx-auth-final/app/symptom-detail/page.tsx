@@ -26,7 +26,7 @@ const SYMPTOMS_LIST = [
   { id: "nausea",     icon: "/icons/nausea.png",  hi: "जी मिचलाना",         en: "Nausea" },
   { id: "unconscious",icon: "/icons/unconsciousness.png",  hi: "बेहोशी",             en: "Unconsciousness" },
   { id: "seizure",    icon: "/icons/seizures.png",  hi: "दौरे पड़ना",          en: "Seizures" },
-  { id: "bleed",      icon: "/icons/body_ache.png",  hi: "असामान्य रक्तस्राव", en: "Unusual Bleeding" },
+  { id: "bleed",      icon: "/icons/unusual_bleeding.png",  hi: "असामान्य रक्तस्राव", en: "Unusual Bleeding" },
 ];
 
 const DISEASES = [

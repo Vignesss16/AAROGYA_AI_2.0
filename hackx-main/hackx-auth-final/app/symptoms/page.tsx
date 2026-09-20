@@ -26,7 +26,7 @@ const SYMPTOMS = [
   { id: "nausea",     icon: "/icons/nausea.png",  hi: "जी मिचलाना",         en: "Nausea" },
   { id: "unconscious",icon: "/icons/unconsciousness.png",  hi: "बेहोशी",             en: "Unconsciousness" },
   { id: "seizure",    icon: "/icons/seizures.png",  hi: "दौरे पड़ना",          en: "Seizures" },
-  { id: "bleed",      icon: "/icons/body_ache.png",  hi: "असामान्य रक्तस्राव", en: "Unusual Bleeding" },
+  { id: "bleed",      icon: "/icons/unusual_bleeding.png",  hi: "असामान्य रक्तस्राव", en: "Unusual Bleeding" },
 ];
 
 const C = { primary: "#1B6CA8", primaryDark: "#0F4C7A", bg: "#F0F4F8", card: "#FFFFFF", text: "#1A2332", muted: "#6B7C93", border: "#DDE3EC", red: "#E74C3C" };
