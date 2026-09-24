@@ -34,26 +34,23 @@ export default function RecordsPage() {
   }, []);
 
   useEffect(() => {
-    if (status === "unauthenticated") router.push("/login");
-  }, [status]);
+    // Only redirect to login if we are ONLINE and genuinely unauthenticated
+    if (isOnline && status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, isOnline]);
 
   useEffect(() => {
-    if (status !== "authenticated" || fetched) return;
-    const identifier = (session?.user as any)?.phone || session?.user?.name || "";
-    if (!identifier) return;
-
-    setFetched(true);
-    setFetching(true);
-
     // Seed offline data on first visit
     if (typeof window !== "undefined") {
       seedOfflineData().catch(console.error);
     }
 
-    // If offline, load from IndexedDB
+    // If offline, load directly from IndexedDB
     if (!isOnline) {
       console.log("📡 Offline mode — loading records from IndexedDB");
       setIsOfflineMode(true);
+      setFetching(true);
 
       getDB()
         .consultations.toArray()
@@ -70,6 +67,7 @@ export default function RecordsPage() {
 
           setConsultations(converted);
           setFetching(false);
+          setFetched(true);
         })
         .catch((err) => {
           console.error("Failed to load offline records:", err);
@@ -79,6 +77,14 @@ export default function RecordsPage() {
     }
 
     // If online, fetch from server AND cache in IndexedDB
+    if (status !== "authenticated" || fetched) return;
+    const identifier = (session?.user as any)?.phone || session?.user?.name || "";
+    if (!identifier) return;
+
+    setFetched(true);
+    setFetching(true);
+    setIsOfflineMode(false);
+
     fetch(`/api/consultations/my?identifier=${encodeURIComponent(identifier)}`)
       .then((res) => res.json())
       .then(async (data) => {
@@ -113,14 +119,27 @@ export default function RecordsPage() {
           }
         }
       })
-      .catch(() => {
-        const local = localStorage.getItem("myConsultations");
-        if (local) setConsultations(JSON.parse(local));
+      .catch((err) => {
+        console.error("Fetch failed, falling back to offline records:", err);
+        setIsOfflineMode(true);
+        getDB()
+          .consultations.toArray()
+          .then((offlineRecords) => {
+            const converted: Consultation[] = offlineRecords.map((rec) => ({
+              _id: `offline-${rec.id}`,
+              symptoms: rec.symptoms || [],
+              urgency: rec.urgency,
+              triageResult: typeof rec.triageResult === "string" ? JSON.parse(rec.triageResult) : rec.triageResult,
+              status: "pending",
+              createdAt: rec.createdAt instanceof Date ? rec.createdAt.toISOString() : String(rec.createdAt),
+            }));
+            setConsultations(converted);
+          });
       })
       .finally(() => setFetching(false));
-  }, [status, isOnline]);
+  }, [status, isOnline, fetched, session]);
 
-  if (status === "loading") {
+  if (status === "loading" && isOnline) {
     return (
       <div style={{ background: "#0d1520", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
         <div style={{ fontSize: 20, color: "white" }}>⏳ Loading...</div>
@@ -128,17 +147,20 @@ export default function RecordsPage() {
     );
   }
 
-  if (!session?.user) return null;
+  // Get user profile from session or offline fallback
+  const cachedUserStr = typeof window !== "undefined" ? localStorage.getItem("aarogya_user") : null;
+  const cachedUser = cachedUserStr ? JSON.parse(cachedUserStr) : null;
+  const user = (session?.user as any) || cachedUser;
 
-  const user = session.user as any;
+  if (!user && !isOfflineMode) return null;
 
   const patient: PatientInfo = {
-    name: user.name || "Patient",
-    gender: user.gender === "female" ? t("महिला", "Female") : t("पुरुष", "Male"),
-    age: user.age || "—",
-    phone: user.phone || "—",
-    bloodGroup: user.bloodGroup || "—",
-    condition: user.conditions?.split(",")[0] || "—",
+    name: user?.name || "Patient",
+    gender: user?.gender === "female" ? t("महिला", "Female") : t("पुरुष", "Male"),
+    age: user?.age || "—",
+    phone: user?.phone || "—",
+    bloodGroup: user?.bloodGroup || "—",
+    condition: Array.isArray(user?.conditions) ? user.conditions[0] : (user?.conditions?.split(",")[0] || "—"),
   };
 
   const handleDownloadAll = () => {

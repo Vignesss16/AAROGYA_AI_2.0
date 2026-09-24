@@ -188,24 +188,56 @@ export default function TriagePage() {
       // but a new emergency session will submit successfully.
       const lockKey = "redAutoDispatched_" + syms.join("-");
       if (res.urgency === "RED" && !localStorage.getItem(lockKey)) {
+        let storedPatient: any = null;
+        try {
+          const raw = localStorage.getItem("patient");
+          if (raw) storedPatient = JSON.parse(raw);
+        } catch {}
+
+        const emergencyData = {
+          patientName: storedPatient?.name || "Emergency Patient",
+          patientPhone: storedPatient?.phone || "8591292159", 
+          doctorId: "D1",
+          doctorName: "Dr. Ravi Patel",
+          hospital: "Nabha Civil Hospital",
+          slot: "Immediate",
+          urgency: "RED",
+          queueNo: 0,
+          triageResult: res,
+          symptoms: syms,
+          patientContext: detailStr ? JSON.parse(detailStr) : null,
+          status: "pending",
+        };
+
         fetch("/api/consultations", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            patientName: "Tanishq", // Hardcoded for this demo
-            patientPhone: "8591292159", 
-            doctorId: "D1",
-            doctorName: "Dr. Ravi Patel",
-            hospital: "Nabha Civil Hospital",
-            slot: "Immediate",
-            urgency: "RED",
-            queueNo: 0,
-            triageResult: res,
-            symptoms: syms,
-            patientContext: detailStr ? JSON.parse(detailStr) : null,
-            status: "pending",
-          })
-        }).then(() => localStorage.setItem(lockKey, "true")).catch(console.error);
+          body: JSON.stringify(emergencyData)
+        })
+        .then((resp) => {
+          if (!resp.ok) throw new Error("Offline / Server Error");
+          localStorage.setItem(lockKey, "true");
+        })
+        .catch(async () => {
+          // OFFLINE: Queue emergency to Dexie so it immediately syncs when internet connects
+          try {
+            const { addToSyncQueue, getDB } = await import("@/lib/db-offline");
+            const db = getDB();
+            await db.consultations.add({
+              patientPhone: emergencyData.patientPhone,
+              patientName: emergencyData.patientName,
+              symptoms: emergencyData.symptoms,
+              urgency: "RED",
+              triageResult: JSON.stringify(emergencyData.triageResult),
+              createdAt: new Date(),
+              needsSync: true,
+            });
+            await addToSyncQueue("/api/consultations", "POST", emergencyData, lockKey);
+            localStorage.setItem(lockKey, "true");
+          } catch (e) {
+            console.error("Failed to queue offline RED emergency:", e);
+          }
+        });
       }
     };
 

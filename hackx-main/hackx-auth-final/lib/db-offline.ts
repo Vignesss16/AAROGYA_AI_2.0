@@ -65,6 +65,7 @@ export interface SyncQueueItem {
   body: string;
   createdAt: Date;
   retries: number;
+  idempotencyKey?: string;
 }
 
 class SehatSetuDB extends Dexie {
@@ -140,9 +141,23 @@ export async function seedOfflineData() {
 }
 
 // ── Sync queue helpers ────────────────────────────────────
-export async function addToSyncQueue(endpoint: string, method: string, body: object) {
+export async function addToSyncQueue(endpoint: string, method: string, body: object, idempotencyKey?: string) {
   const db = getDB();
-  await db.syncQueue.add({ endpoint, method, body: JSON.stringify(body), createdAt: new Date(), retries: 0 });
+  if (idempotencyKey) {
+    const existing = await db.syncQueue.filter(item => item.idempotencyKey === idempotencyKey).first();
+    if (existing) {
+      console.log(`[syncQueue] Duplicate prevented for key: ${idempotencyKey}`);
+      return;
+    }
+  }
+  await db.syncQueue.add({
+    endpoint,
+    method,
+    body: JSON.stringify(body),
+    createdAt: new Date(),
+    retries: 0,
+    idempotencyKey,
+  });
 }
 
 export async function flushSyncQueue() {
@@ -169,6 +184,10 @@ export async function flushSyncQueue() {
       await db.syncQueue.update(item.id!, { retries: item.retries + 1 });
       failed++;
     }
+  }
+
+  if (synced > 0 && typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("syncComplete", { detail: { synced } }));
   }
 
   return { synced, failed };

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
-import { flushSyncQueue, getDB } from "@/lib/db-offline";
+import { flushSyncQueue, getDB, seedOfflineData } from "@/lib/db-offline";
 
 export default function OfflineBanner() {
   const { isOnline, justCameOnline } = useOnlineStatus();
@@ -9,6 +9,24 @@ export default function OfflineBanner() {
   const [queueCount, setQueueCount] = useState(0);
   const [syncing, setSyncing] = useState(false);
   const [syncedCount, setSyncedCount] = useState(0);
+
+  // Auto-seed offline data and register Service Worker on boot
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      seedOfflineData().catch(console.error);
+
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/sw.js")
+          .then((reg) => {
+            console.log("✅ Service Worker active:", reg.scope);
+          })
+          .catch((err) => {
+            console.error("❌ Service Worker registration failed:", err);
+          });
+      }
+    }
+  }, []);
 
   // Check sync queue count when coming back online
   useEffect(() => {

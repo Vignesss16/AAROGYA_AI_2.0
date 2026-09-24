@@ -22,8 +22,8 @@ export async function GET(req: NextRequest) {
     }).sort({ createdAt: -1 });
 
     return NextResponse.json({ consultations });
-  } catch (err) {
-    console.error("Error fetching consultations:", err);
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+  } catch (err: any) {
+    console.warn("Could not fetch remote consultations (offline or DB unreachable):", err.message);
+    return NextResponse.json({ consultations: [], isOffline: true });
   }
 }

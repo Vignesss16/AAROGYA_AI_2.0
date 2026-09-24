@@ -11,7 +11,14 @@ export async function GET() {
     const doctors = await Doctor.find({}).select("-passwordHash").sort({ createdAt: -1 });
     return NextResponse.json({ doctors });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.warn("Could not connect to MongoDB for doctors list, using fallback:", error.message);
+    return NextResponse.json({
+      doctors: [
+        { _id: "doc-1", name: "Dr. Ramesh Sharma", specialization: "General Physician", hospital: "Nabha Civil Hospital" },
+        { _id: "doc-2", name: "Dr. Allwin Nadar", specialization: "General Physician", hospital: "Nabha Civil Hospital" }
+      ],
+      isFallback: true
+    });
   }
 }
 

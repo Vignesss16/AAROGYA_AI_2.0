@@ -42,6 +42,16 @@ export default function HomePage() {
   useEffect(() => {
     if (!user) return;
 
+    // If offline, read consultation count from IndexedDB
+    if (typeof window !== "undefined" && !navigator.onLine) {
+      import("@/lib/db-offline").then(({ getDB }) => {
+        getDB().consultations.count().then(count => {
+          if (count > 0) setConsultationCount(count);
+        }).catch(() => {});
+      });
+      return;
+    }
+
     // Fetch personal consultations history
     const identifier = (user as any).phone || (user as any)._id;
     if (identifier) {
