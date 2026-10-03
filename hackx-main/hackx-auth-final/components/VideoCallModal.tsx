@@ -117,9 +117,9 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
       : state.callMode;
   const effectiveIncomingCallType = state.incomingCallType ?? initialIncomingCallType ?? null;
 
-  const isFullyConnected = state.statusMessage === "";
-  const isActive = (effectiveCallMode === "video" || effectiveCallMode === "audio") && isFullyConnected;
-  const isConnecting = effectiveCallMode === "connecting" || ((effectiveCallMode === "video" || effectiveCallMode === "audio") && !isFullyConnected);
+  const isCallStarted = (effectiveCallMode === "video" || effectiveCallMode === "audio") && (state.localStream !== null || state.callDuration > 0);
+  const isActive = isCallStarted;
+  const isConnecting = effectiveCallMode === "connecting" || ((effectiveCallMode === "video" || effectiveCallMode === "audio") && !isCallStarted);
   const isIncoming = effectiveCallMode === "incoming";
 
   return (
@@ -262,6 +262,19 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
                   {effectiveCallMode === "video" ? "📹 Video" : "🎙️ Audio"} Call
                 </span>
               </div>
+
+              {/* Floating Reconnection Alert during network handover */}
+              {state.statusMessage && (
+                <div style={{
+                  background: "rgba(192, 57, 43, 0.95)", color: "white", padding: "8px 14px",
+                  borderRadius: 12, marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "center",
+                  gap: 8, fontSize: 13, fontWeight: 700, boxShadow: "0 4px 12px rgba(192,57,43,0.3)",
+                  animation: "pulse 1.5s infinite",
+                }}>
+                  <span>⚠️</span>
+                  <span>{state.statusMessage}</span>
+                </div>
+              )}
 
               {effectiveCallMode === "video" ? (
                 <div style={{ position: "relative", marginBottom: 14, flex: 1, display: "flex", borderRadius: 16, overflow: "hidden", minHeight: 300 }}>

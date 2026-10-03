@@ -55,15 +55,25 @@ async function sendSignal(
   roomId: string,
   fromClientId: string,
   type: string,
-  data?: unknown
+  data?: unknown,
+  retries = 2
 ) {
-  try {
-    await fetch("/api/signal", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roomId, fromClientId, type, data }),
-    });
-  } catch {}
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch("/api/signal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomId, fromClientId, type, data }),
+      });
+      if (res.ok) return;
+    } catch (err) {
+      if (attempt === retries) {
+        console.warn(`[WebRTC] sendSignal failed for ${type} after ${retries + 1} attempts`, err);
+      } else {
+        await new Promise((r) => setTimeout(r, 350 * (attempt + 1)));
+      }
+    }
+  }
 }
 
 export function useWebRTC(
@@ -86,6 +96,7 @@ export function useWebRTC(
   const audioChunksRef = useRef<Blob[]>([]);
   const currentQualityRef = useRef<NetworkQuality>("good");
   const criticalCountRef = useRef<number>(0);
+  const lastRestartRef = useRef<number>(0);
 
   const [state, setState] = useState<WebRTCState>({
     callMode: "idle",
@@ -232,6 +243,34 @@ export function useWebRTC(
     }));
   }, [roomId]);
 
+  const triggerIceRestart = useCallback(async () => {
+    const pc = pcRef.current;
+    if (!pc || pc.connectionState === "closed") return;
+    const now = Date.now();
+    if (now - lastRestartRef.current < 2000) return;
+    lastRestartRef.current = now;
+
+    console.log(`[${role}] Initiating ICE restart...`);
+    try {
+      if (pc.signalingState === "stable") {
+        const offer = await pc.createOffer({ iceRestart: true });
+        await pc.setLocalDescription(offer);
+        await sendSignal(roomId, clientIdRef.current, "offer", pc.localDescription);
+        console.log(`[${role}] Sent ICE restart offer`);
+      }
+    } catch (err) {
+      console.warn(`[${role}] ICE restart failed:`, err);
+    }
+  }, [roomId, role]);
+
+  const requestReconnect = useCallback(async () => {
+    const now = Date.now();
+    if (now - lastRestartRef.current < 2000) return;
+    lastRestartRef.current = now;
+    console.log(`[${role}] Requesting reconnection from initiator...`);
+    await sendSignal(roomId, clientIdRef.current, "need-reconnect");
+  }, [roomId, role]);
+
   const createPeerConnection = useCallback(() => {
     const pc = new RTCPeerConnection({
       iceServers: ICE_SERVERS,
@@ -258,25 +297,34 @@ export function useWebRTC(
 
     pc.ontrack = (e) => setState((s) => ({ ...s, remoteStream: e.streams[0] }));
 
-    // Auto ICE Restart when connection drops or fails on fluctuating network
+    // Auto ICE Restart when connection drops or fails on fluctuating network (e.g. Wi-Fi / Mobile switch)
     pc.oniceconnectionstatechange = () => {
-      if ((pc.iceConnectionState === "disconnected" || pc.iceConnectionState === "failed") && isInitiator) {
-        console.log(`[WebRTC] ICE state: ${pc.iceConnectionState} — attempting ICE restart...`);
-        pc.createOffer({ iceRestart: true })
-          .then((offer) => pc.setLocalDescription(offer))
-          .then(() => sendSignal(roomId, clientIdRef.current, "offer", pc.localDescription))
-          .catch((err) => console.warn("[WebRTC] ICE restart failed:", err));
+      console.log(`[${role}] ICE connection state: ${pc.iceConnectionState}`);
+      if (pc.iceConnectionState === "disconnected" || pc.iceConnectionState === "failed") {
+        setState((s) => ({ ...s, statusMessage: "⚠️ Connection lost — reconnecting..." }));
+        if (isInitiator) {
+          triggerIceRestart();
+        } else {
+          requestReconnect();
+        }
+      } else if (pc.iceConnectionState === "connected" || pc.iceConnectionState === "completed") {
+        setState((s) => ({ ...s, statusMessage: "" }));
       }
     };
 
     pc.onconnectionstatechange = () => {
+      console.log(`[${role}] Peer connection state: ${pc.connectionState}`);
       if (pc.connectionState === "connected") {
         setState((s) => ({ ...s, statusMessage: "" }));
-        networkMonitorRef.current = setInterval(monitorNetwork, 3000);
-        durationRef.current = setInterval(
-          () => setState((s) => ({ ...s, callDuration: s.callDuration + 1 })),
-          1000
-        );
+        if (!networkMonitorRef.current) {
+          networkMonitorRef.current = setInterval(monitorNetwork, 3000);
+        }
+        if (!durationRef.current) {
+          durationRef.current = setInterval(
+            () => setState((s) => ({ ...s, callDuration: s.callDuration + 1 })),
+            1000
+          );
+        }
 
         // Start recording if initiator (doctor)
         if (isInitiator && localStreamRef.current && !mediaRecorderRef.current) {
@@ -315,12 +363,17 @@ export function useWebRTC(
         }
       } else if (pc.connectionState === "failed" || pc.connectionState === "disconnected") {
         setState((s) => ({ ...s, statusMessage: "⚠️ Connection lost — reconnecting..." }));
+        if (isInitiator) {
+          triggerIceRestart();
+        } else {
+          requestReconnect();
+        }
       }
     };
     return pc;
-  }, [roomId, monitorNetwork, isInitiator]);
+  }, [roomId, monitorNetwork, isInitiator, role, triggerIceRestart, requestReconnect]);
 
-  // ── Pusher subscription ────────────────────────────────────────────────────
+  // ── Pusher subscription & Network recovery ──────────────────────────────────
   useEffect(() => {
     if (!roomId) return;
     const cid = clientIdRef.current;
@@ -333,11 +386,17 @@ export function useWebRTC(
     const onSubSucceeded = () => {
       console.log(`[${role}] Successfully subscribed to ${channelName}`);
       if (!isInitiator) {
-        sendSignal(roomId, cid, "patient-ready");
+        if (localStreamRef.current && pcRef.current) {
+          requestReconnect();
+        } else {
+          sendSignal(roomId, cid, "patient-ready");
+        }
       } else {
         const currentPc = pcRef.current;
         if (currentPc?.localDescription && currentPc.signalingState === "have-local-offer") {
           sendSignal(roomId, cid, "offer", currentPc.localDescription);
+        } else if (currentPc && currentPc.connectionState !== "connected" && localStreamRef.current) {
+          triggerIceRestart();
         }
       }
     };
@@ -351,12 +410,15 @@ export function useWebRTC(
       const pc = pcRef.current;
 
       if (type === "patient-ready" && isInitiator) {
-        // Patient's hook just (re-)connected. Re-send our offer only if
-        // the exchange is not yet complete (still waiting for answer).
         const currentPc = pcRef.current;
         if (currentPc?.localDescription && currentPc.signalingState === "have-local-offer") {
           await sendSignal(roomId, cid, "offer", currentPc.localDescription);
+        } else if (currentPc && currentPc.connectionState !== "connected" && localStreamRef.current) {
+          triggerIceRestart();
         }
+      } else if (type === "need-reconnect" && isInitiator) {
+        console.log(`[Doctor] Received need-reconnect signal from patient`);
+        triggerIceRestart();
       } else if (type === "call-invite") {
         const callType = (data as { mode: string }).mode as "video" | "audio";
         setState((s) => ({
@@ -369,30 +431,27 @@ export function useWebRTC(
         cleanup();
         setState((s) => ({ ...s, callMode: "ended", statusMessage: "Call was declined" }));
       } else if (type === "offer" && !isInitiator) {
-        // Store offer for answerCall() to consume.
-        // If PC already exists and hasn't been through an exchange yet
-        // (stable + no remoteDescription = fresh PC), apply immediately.
-        // Ignore re-delivered offers after exchange is complete (stable + remoteDescription set).
         pendingOfferRef.current = data as RTCSessionDescriptionInit;
-        if (pc && pc.signalingState === "stable" && !pc.remoteDescription && localStreamRef.current) {
-          // PC created before offer arrived and media is ready — apply offer immediately
-          await pc.setRemoteDescription(new RTCSessionDescription(data as RTCSessionDescriptionInit));
-          for (const c of pendingCandidatesRef.current) {
-            try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch {}
+        if (pc && pc.signalingState === "stable" && localStreamRef.current) {
+          try {
+            console.log(`[Patient] Applying renegotiation/ICE restart offer...`);
+            await pc.setRemoteDescription(new RTCSessionDescription(data as RTCSessionDescriptionInit));
+            for (const c of pendingCandidatesRef.current) {
+              try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch {}
+            }
+            pendingCandidatesRef.current = [];
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            await sendSignal(roomId, cid, "answer", answer);
+            pendingOfferRef.current = null;
+            console.log(`[Patient] Responded with answer`);
+          } catch (err) {
+            console.warn(`[Patient] Error handling offer:`, err);
           }
-          pendingCandidatesRef.current = [];
-          const answer = await pc.createAnswer();
-          await pc.setLocalDescription(answer);
-          await sendSignal(roomId, cid, "answer", answer);
-          pendingOfferRef.current = null; // consumed
         }
-        // else: no PC yet → answerCall() will consume pendingOfferRef
-        // else: media not ready yet → answerCall() will consume pendingOfferRef
-        // else: exchange already complete → ignore duplicate offer
       } else if (type === "answer" && isInitiator) {
-        // Only apply answer if we're waiting for one (have-local-offer)
-        // Ignore duplicate answers that arrive after exchange is complete
         if (pc && pc.signalingState === "have-local-offer") {
+          console.log(`[Doctor] Applying answer for offer...`);
           await pc.setRemoteDescription(new RTCSessionDescription(data as RTCSessionDescriptionInit));
           for (const c of pendingCandidatesRef.current) {
             try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch {}
@@ -402,8 +461,12 @@ export function useWebRTC(
       } else if (type === "ice-candidates" || type === "ice-candidate") {
         const candidates: RTCIceCandidateInit[] = Array.isArray(data) ? (data as RTCIceCandidateInit[]) : [data as RTCIceCandidateInit];
         for (const c of candidates) {
-          if (pc && pc.remoteDescription) {
-            try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch {}
+          if (pc && pc.remoteDescription && pc.signalingState !== "closed") {
+            try {
+              await pc.addIceCandidate(new RTCIceCandidate(c));
+            } catch {
+              pendingCandidatesRef.current.push(c);
+            }
           } else {
             pendingCandidatesRef.current.push(c);
           }
@@ -416,15 +479,36 @@ export function useWebRTC(
       }
     };
 
+    const handleOnline = () => {
+      console.log(`[${role}] Online event detected — network interface changed`);
+      try {
+        const p = getPusherClient();
+        p.disconnect();
+        p.connect();
+      } catch {}
+
+      if (localStreamRef.current && pcRef.current) {
+        setTimeout(() => {
+          if (isInitiator) {
+            triggerIceRestart();
+          } else {
+            requestReconnect();
+          }
+        }, 400);
+      }
+    };
+
+    window.addEventListener("online", handleOnline);
     channel.bind("pusher:subscription_succeeded", onSubSucceeded);
     channel.bind("signal", onSignalMsg);
 
     return () => {
+      window.removeEventListener("online", handleOnline);
       channel.unbind("pusher:subscription_succeeded", onSubSucceeded);
       channel.unbind("signal", onSignalMsg);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId, role]);
+  }, [roomId, role, isInitiator, triggerIceRestart, requestReconnect]);
 
   const startCall = useCallback(async (mode: "video" | "audio") => {
     const cid = clientIdRef.current;
