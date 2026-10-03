@@ -50,7 +50,10 @@ export default function LogVisitPage() {
     }
   }, []);
 
-  const ashaPhone = (session?.user as any)?.phone || "";
+  const cachedAshaPhone = typeof window !== "undefined"
+    ? (() => { try { return JSON.parse(localStorage.getItem("cachedAshaUser") || "{}").phone; } catch { return ""; } })()
+    : "";
+  const ashaPhone = (session?.user as any)?.phone || cachedAshaPhone || "9876502001";
 
   const saveVisit = async () => {
     if (!patientName.trim()) {
@@ -70,6 +73,8 @@ export default function LogVisitPage() {
       ashaWorkerPhone: ashaPhone,
     };
 
+    let wasOffline = false;
+
     try {
       if (isOnline) {
         // Send directly to server when online
@@ -83,10 +88,22 @@ export default function LogVisitPage() {
           throw new Error(errData.error || "Failed to save to server");
         }
       } else {
+        wasOffline = true;
         // OFFLINE: Save to IndexedDB + sync queue
         const db = getDB();
 
-        // Save to offline consultations table
+        // 1. Save directly to ashaVisits table so it displays in ASHA dashboard right away
+        await db.ashaVisits.add({
+          patientPhone: visitData.patientPhone,
+          patientName: visitData.patientName,
+          visitDate: visitData.visitDate,
+          notes: visitData.notes,
+          appLearned: visitData.appLearned,
+          ashaWorkerPhone: visitData.ashaWorkerPhone,
+          needsSync: true,
+        });
+
+        // 2. Save to offline consultations table
         await db.consultations.add({
           patientPhone: visitData.patientPhone,
           patientName: visitData.patientName,
@@ -97,7 +114,7 @@ export default function LogVisitPage() {
           needsSync: true,
         });
 
-        // Add to sync queue for later
+        // 3. Add to sync queue for later
         await addToSyncQueue("/api/asha/visits", "POST", visitData);
 
         setSavedOffline(true);
@@ -107,15 +124,17 @@ export default function LogVisitPage() {
     } catch (err) {
       console.error("Failed to save visit:", err);
       setError(t("सेव करने में त्रुटि", "Error saving visit"));
+      setSaving(false);
+      return;
     }
 
     setSaving(false);
 
-    if (savedOffline) {
-      // Show message and stay on page briefly
+    if (wasOffline) {
+      // Show confirmation briefly before navigating back to dashboard
       setTimeout(() => {
         router.push("/asha/dashboard");
-      }, 2000);
+      }, 1500);
     } else {
       router.push("/asha/dashboard");
     }

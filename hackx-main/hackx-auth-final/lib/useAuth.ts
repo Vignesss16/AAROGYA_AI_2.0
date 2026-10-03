@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useMemo } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -22,27 +23,50 @@ export function useAuth() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const loading = status === "loading";
-  const isAuthenticated = status === "authenticated" && !!session?.user;
+  const [cachedUser, setCachedUser] = useState<PatientUser | null>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("cachedPatientUser");
+      if (stored) {
+        try { return JSON.parse(stored); } catch {}
+      }
+    }
+    return null;
+  });
+
+  const isOnlineAuth = status === "authenticated" && !!session?.user;
 
   // Map NextAuth session → legacy PatientUser shape
-  const user: PatientUser | null = isAuthenticated
-    ? {
-        _id:        session!.user.id,
-        phone:      session!.user.phone ?? "",
-        name:       session!.user.name  ?? "",
-        age:        Number(session!.user.age ?? 0),
-        gender:     session!.user.gender ?? "",
-        village:    session!.user.village ?? "",
-        bloodGroup: session!.user.bloodGroup ?? "",
-        conditions: session!.user.conditions
-          ? session!.user.conditions.split(",").filter(Boolean)
-          : [],
-        role:       session!.user.role ?? "patient",
-        abhaAddress: (session!.user as any).abhaAddress,
-        abhaLinked:  (session!.user as any).abhaLinked,
-      }
-    : null;
+  const liveUser: PatientUser | null = useMemo(() => {
+    if (!isOnlineAuth) return null;
+    return {
+      _id:        session!.user.id,
+      phone:      session!.user.phone ?? "",
+      name:       session!.user.name  ?? "",
+      age:        Number(session!.user.age ?? 0),
+      gender:     session!.user.gender ?? "",
+      village:    session!.user.village ?? "",
+      bloodGroup: session!.user.bloodGroup ?? "",
+      conditions: session!.user.conditions
+        ? session!.user.conditions.split(",").filter(Boolean)
+        : [],
+      role:       session!.user.role ?? "patient",
+      abhaAddress: (session!.user as any).abhaAddress,
+      abhaLinked:  (session!.user as any).abhaLinked,
+    };
+  }, [isOnlineAuth, session]);
+
+  // Cache user locally whenever live session exists
+  useEffect(() => {
+    if (liveUser && typeof window !== "undefined") {
+      localStorage.setItem("cachedPatientUser", JSON.stringify(liveUser));
+      setCachedUser(liveUser);
+    }
+  }, [liveUser]);
+
+  // Use live session when online, fall back to cached user when offline
+  const user: PatientUser | null = liveUser || (status !== "loading" ? cachedUser : null);
+  const isAuthenticated = !!user;
+  const loading = status === "loading" && !cachedUser;
 
   /** Login a patient with phone + password via NextAuth CredentialsProvider */
   const login = async (phone: string, password: string) => {
@@ -122,6 +146,9 @@ export function useAuth() {
   };
 
   const logout = async () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("cachedPatientUser");
+    }
     await signOut({ redirect: false });
     router.push("/login");
   };

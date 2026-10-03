@@ -19,10 +19,22 @@ export default function ASHALoginPage() {
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState("");
 
-  // Already logged in as ASHA → go straight to dashboard
+  // Already logged in as ASHA → go straight to dashboard (online or offline cached)
   useEffect(() => {
     if (status === "authenticated" && session?.user?.role === "ashaworker") {
       router.replace("/asha/dashboard");
+      return;
+    }
+    if (typeof window !== "undefined") {
+      const cachedAsha = localStorage.getItem("cachedAshaUser");
+      if (cachedAsha) {
+        try {
+          const parsed = JSON.parse(cachedAsha);
+          if (parsed && (parsed.role === "ashaworker" || parsed.phone)) {
+            router.replace("/asha/dashboard");
+          }
+        } catch {}
+      }
     }
   }, [session, status, router]);
 
@@ -39,6 +51,14 @@ export default function ASHALoginPage() {
     setLoading(false);
 
     if (res?.ok) {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("cachedAshaUser", JSON.stringify({
+          phone,
+          role: "ashaworker",
+          name: phone === "9876502001" ? "Priya Sharma" : "ASHA Worker",
+          villages: "Kesri, Nabha Sector 4",
+        }));
+      }
       router.replace("/asha/dashboard");
     } else {
       setError(T("नंबर या पासवर्ड गलत है", "Incorrect phone or password"));

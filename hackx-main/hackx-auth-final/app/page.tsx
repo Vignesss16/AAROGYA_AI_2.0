@@ -1,14 +1,70 @@
 "use client";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { seedOfflineData } from "@/lib/db-offline";
 
 export default function SplashPage() {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    // Seed offline DB on first load
+    // Seed offline DB on load
     seedOfflineData().catch(console.error);
-  }, []);
+
+    // WhatsApp-like auto-login check:
+    if (typeof window !== "undefined") {
+      // 1. Check ASHA worker cached session
+      const cachedAsha = localStorage.getItem("cachedAshaUser");
+      if (cachedAsha) {
+        try {
+          const parsed = JSON.parse(cachedAsha);
+          if (parsed && (parsed.role === "ashaworker" || parsed.phone)) {
+            router.replace("/asha/dashboard");
+            return;
+          }
+        } catch {}
+      }
+
+      // 2. Check Patient cached session
+      const cachedPatient = localStorage.getItem("cachedPatientUser");
+      if (cachedPatient) {
+        router.replace("/home");
+        return;
+      }
+    }
+
+    // 3. Online NextAuth session check
+    if (status === "authenticated" && session?.user) {
+      if ((session.user as any).role === "ashaworker") {
+        router.replace("/asha/dashboard");
+        return;
+      }
+      router.replace("/home");
+      return;
+    }
+
+    if (status !== "loading") {
+      setChecking(false);
+    }
+  }, [session, status, router]);
+
+  if (checking) {
+    return (
+      <div style={{
+        background: "linear-gradient(145deg, #0f3d61 0%, #1B6CA8 100%)",
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
+      }}>
+        <div style={{ width: 38, height: 38, border: "4px solid rgba(255,255,255,.3)", borderTop: "4px solid white", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      </div>
+    );
+  }
 
   return (
     <div style={{ 

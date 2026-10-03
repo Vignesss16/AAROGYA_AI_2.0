@@ -15,8 +15,11 @@ const C = {
 
 import { generatePDF, PatientInfo, Consultation, urgencyConfig, formatDate, getTitle } from '@/lib/pdf';
 
+import { useAuth } from "@/lib/useAuth";
+
 export default function RecordsPage() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const { data: session, status } = useSession();
   const { isOnline } = useOnlineStatus();
   const [lang, setLang] = useState("hi");
@@ -34,12 +37,14 @@ export default function RecordsPage() {
   }, []);
 
   useEffect(() => {
-    if (status === "unauthenticated") router.push("/login");
-  }, [status]);
+    if (!authLoading && !user && status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [authLoading, user, status, router]);
 
   useEffect(() => {
-    if (status !== "authenticated" || fetched) return;
-    const identifier = (session?.user as any)?.phone || session?.user?.name || "";
+    if (!user || fetched) return;
+    const identifier = user.phone || user.name || (user as any)._id || "";
     if (!identifier) return;
 
     setFetched(true);
@@ -82,15 +87,14 @@ export default function RecordsPage() {
     fetch(`/api/consultations/my?identifier=${encodeURIComponent(identifier)}`)
       .then((res) => res.json())
       .then(async (data) => {
-        const consultations = data.consultations || [];
-        setConsultations(consultations);
+        const serverConsultations = data.consultations || [];
+        setConsultations(serverConsultations);
 
         // Cache in IndexedDB for offline use
-        if (typeof window !== "undefined" && consultations.length > 0) {
+        if (typeof window !== "undefined" && serverConsultations.length > 0) {
           try {
             const db = getDB();
-            for (const c of consultations) {
-              // Check if already exists
+            for (const c of serverConsultations) {
               const existing = await db.consultations
                 .where("patientPhone")
                 .equals(identifier)
@@ -98,12 +102,13 @@ export default function RecordsPage() {
 
               if (!existing) {
                 await db.consultations.add({
+                  clientId: c._id,
                   patientPhone: identifier,
-                  patientName: (session?.user as any)?.name || "",
+                  patientName: user.name || "",
                   symptoms: c.symptoms || [],
-                  urgency: c.urgency,
+                  urgency: c.urgency || "GREEN",
                   triageResult: JSON.stringify(c.triageResult || {}),
-                  createdAt: new Date(c.createdAt),
+                  createdAt: new Date(c.createdAt || Date.now()),
                   needsSync: false,
                 });
               }
@@ -113,14 +118,25 @@ export default function RecordsPage() {
           }
         }
       })
-      .catch(() => {
-        const local = localStorage.getItem("myConsultations");
-        if (local) setConsultations(JSON.parse(local));
+      .catch((err) => {
+        console.warn("Online fetch failed, falling back to IndexedDB:", err);
+        setIsOfflineMode(true);
+        getDB().consultations.toArray().then((offlineRecords) => {
+          const converted: Consultation[] = offlineRecords.map((rec) => ({
+            _id: `offline-${rec.id}`,
+            symptoms: rec.symptoms || [],
+            urgency: rec.urgency,
+            triageResult: typeof rec.triageResult === "string" ? JSON.parse(rec.triageResult) : rec.triageResult,
+            status: "pending",
+            createdAt: rec.createdAt instanceof Date ? rec.createdAt.toISOString() : String(rec.createdAt),
+          }));
+          setConsultations(converted);
+        }).catch(console.error);
       })
       .finally(() => setFetching(false));
-  }, [status, isOnline]);
+  }, [user, isOnline, fetched]);
 
-  if (status === "loading") {
+  if (authLoading) {
     return (
       <div style={{ background: "#0d1520", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
         <div style={{ fontSize: 20, color: "white" }}>⏳ Loading...</div>
@@ -128,17 +144,15 @@ export default function RecordsPage() {
     );
   }
 
-  if (!session?.user) return null;
-
-  const user = session.user as any;
+  if (!user) return null;
 
   const patient: PatientInfo = {
     name: user.name || "Patient",
     gender: user.gender === "female" ? t("महिला", "Female") : t("पुरुष", "Male"),
-    age: user.age || "—",
+    age: user.age ? String(user.age) : "—",
     phone: user.phone || "—",
     bloodGroup: user.bloodGroup || "—",
-    condition: user.conditions?.split(",")[0] || "—",
+    condition: (user.conditions && user.conditions[0]) || "—",
   };
 
   const handleDownloadAll = () => {

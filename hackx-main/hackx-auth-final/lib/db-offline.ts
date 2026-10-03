@@ -101,43 +101,115 @@ export function getDB(): SehatSetuDB {
 export async function seedOfflineData() {
   const db = getDB();
   const medCount = await db.medicines.count();
-  if (medCount > 0) return; // already seeded
+  if (medCount === 0) {
+    await db.medicines.bulkAdd([
+      {
+        name: "Paracetamol",
+        pharmacies: JSON.stringify([
+          { name: "Nabha Medical Store", village: "Nabha", dist: "1.2", phone: "9876500001", qty: 200, inStock: true },
+          { name: "Punjab Pharmacy", village: "Kesri", dist: "3.4", phone: "9876500002", qty: 100, inStock: true },
+          { name: "Sharma Medical", village: "Barnala Road", dist: "5.8", phone: "9876500003", qty: 150, inStock: true },
+        ]),
+      },
+      {
+        name: "Metformin",
+        pharmacies: JSON.stringify([
+          { name: "Nabha Medical Store", village: "Nabha", dist: "1.2", phone: "9876500001", qty: 50, inStock: true },
+          { name: "Punjab Pharmacy", village: "Kesri", dist: "3.4", phone: "9876500002", qty: 0, inStock: false },
+          { name: "Sharma Medical", village: "Barnala Road", dist: "5.8", phone: "9876500003", qty: 80, inStock: true },
+        ]),
+      },
+      {
+        name: "ORS",
+        pharmacies: JSON.stringify([
+          { name: "Nabha Medical Store", village: "Nabha", dist: "1.2", phone: "9876500001", qty: 500, inStock: true },
+          { name: "Punjab Pharmacy", village: "Kesri", dist: "3.4", phone: "9876500002", qty: 300, inStock: true },
+          { name: "Sharma Medical", village: "Barnala Road", dist: "5.8", phone: "9876500003", qty: 0, inStock: false },
+        ]),
+      },
+      {
+        name: "Amoxicillin",
+        pharmacies: JSON.stringify([
+          { name: "Nabha Medical Store", village: "Nabha", dist: "1.2", phone: "9876500001", qty: 0, inStock: false },
+          { name: "Punjab Pharmacy", village: "Kesri", dist: "3.4", phone: "9876500002", qty: 80, inStock: true },
+          { name: "Sharma Medical", village: "Barnala Road", dist: "5.8", phone: "9876500003", qty: 60, inStock: true },
+        ]),
+      },
+    ]);
+  }
 
-  await db.medicines.bulkAdd([
-    {
-      name: "Paracetamol",
-      pharmacies: JSON.stringify([
-        { name: "Nabha Medical Store", village: "Nabha", dist: "1.2", phone: "9876500001", qty: 200, inStock: true },
-        { name: "Punjab Pharmacy", village: "Kesri", dist: "3.4", phone: "9876500002", qty: 100, inStock: true },
-        { name: "Sharma Medical", village: "Barnala Road", dist: "5.8", phone: "9876500003", qty: 150, inStock: true },
-      ]),
-    },
-    {
-      name: "Metformin",
-      pharmacies: JSON.stringify([
-        { name: "Nabha Medical Store", village: "Nabha", dist: "1.2", phone: "9876500001", qty: 50, inStock: true },
-        { name: "Punjab Pharmacy", village: "Kesri", dist: "3.4", phone: "9876500002", qty: 0, inStock: false },
-        { name: "Sharma Medical", village: "Barnala Road", dist: "5.8", phone: "9876500003", qty: 80, inStock: true },
-      ]),
-    },
-    {
-      name: "ORS",
-      pharmacies: JSON.stringify([
-        { name: "Nabha Medical Store", village: "Nabha", dist: "1.2", phone: "9876500001", qty: 500, inStock: true },
-        { name: "Punjab Pharmacy", village: "Kesri", dist: "3.4", phone: "9876500002", qty: 300, inStock: true },
-        { name: "Sharma Medical", village: "Barnala Road", dist: "5.8", phone: "9876500003", qty: 0, inStock: false },
-      ]),
-    },
-    {
-      name: "Amoxicillin",
-      pharmacies: JSON.stringify([
-        { name: "Nabha Medical Store", village: "Nabha", dist: "1.2", phone: "9876500001", qty: 0, inStock: false },
-        { name: "Punjab Pharmacy", village: "Kesri", dist: "3.4", phone: "9876500002", qty: 80, inStock: true },
-        { name: "Sharma Medical", village: "Barnala Road", dist: "5.8", phone: "9876500003", qty: 60, inStock: true },
-      ]),
-    },
-  ]);
-  console.log("✅ Offline data seeded");
+  // Seed sample village patients if none exist
+  const ptCount = await db.patients.count();
+  if (ptCount === 0) {
+    await db.patients.bulkAdd([
+      {
+        name: "arya",
+        phone: "8591292959",
+        village: "Kesri",
+        age: 24,
+        gender: "female",
+        conditions: "",
+        bloodGroup: "B+",
+        needsSync: false,
+      },
+      {
+        name: "Suresh Kumar",
+        phone: "9876501002",
+        village: "Nabha Sector 4",
+        age: 38,
+        gender: "male",
+        conditions: "",
+        bloodGroup: "O+",
+        needsSync: false,
+      },
+      {
+        name: "Ramkali Devi",
+        phone: "9876501001",
+        village: "Kesri",
+        age: 52,
+        gender: "female",
+        conditions: "diabetes, hypertension",
+        bloodGroup: "B+",
+        needsSync: false,
+      },
+    ]);
+  }
+
+  // Seed sample ASHA visits if none exist
+  const visitCount = await db.ashaVisits.count();
+  if (visitCount === 0) {
+    await db.ashaVisits.bulkAdd([
+      {
+        patientName: "Ramkali Devi",
+        patientPhone: "9876501001",
+        ashaWorkerPhone: "9876502001",
+        visitDate: "2026-10-02",
+        notes: "BP & blood glucose checkup. Diet counselling given for diabetes.",
+        appLearned: true,
+        needsSync: false,
+      },
+      {
+        patientName: "Suresh Kumar",
+        patientPhone: "9876501002",
+        ashaWorkerPhone: "9876502001",
+        visitDate: "2026-10-01",
+        notes: "Seasonal fever assessment. ORS and paracetamol advice provided.",
+        appLearned: true,
+        needsSync: false,
+      },
+      {
+        patientName: "arya",
+        patientPhone: "8591292959",
+        ashaWorkerPhone: "9876502001",
+        visitDate: "2026-09-29",
+        notes: "Antenatal checkup check. Iron & folic acid tablets supplied.",
+        appLearned: true,
+        needsSync: false,
+      },
+    ]);
+  }
+
+  console.log("✅ Offline data seeded (medicines, patients, and visits)");
 }
 
 // ── Sync queue helpers ────────────────────────────────────

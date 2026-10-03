@@ -184,28 +184,57 @@ export default function TriagePage() {
     }
 
     const autoDispatchRed = (res: any, syms: any, detailStr: string | null) => {
-      // Use the exact symptom combination as the lock so the same emergency doesn't submit twice, 
-      // but a new emergency session will submit successfully.
       const lockKey = "redAutoDispatched_" + syms.join("-");
       if (res.urgency === "RED" && !localStorage.getItem(lockKey)) {
-        fetch("/api/consultations", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            patientName: "Tanishq", // Hardcoded for this demo
-            patientPhone: "8591292159", 
-            doctorId: "D1",
-            doctorName: "Dr. Ravi Patel",
-            hospital: "Nabha Civil Hospital",
-            slot: "Immediate",
-            urgency: "RED",
-            queueNo: 0,
-            triageResult: res,
-            symptoms: syms,
-            patientContext: detailStr ? JSON.parse(detailStr) : null,
-            status: "pending",
-          })
-        }).then(() => localStorage.setItem(lockKey, "true")).catch(console.error);
+        let pName = "Patient";
+        let pPhone = "9876501001";
+        try {
+          const cached = localStorage.getItem("cachedPatientUser");
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed.name) pName = parsed.name;
+            if (parsed.phone) pPhone = parsed.phone;
+          }
+        } catch {}
+
+        const redPayload = {
+          patientName: pName,
+          patientPhone: pPhone,
+          doctorId: "D1",
+          doctorName: "Dr. Ravi Patel",
+          hospital: "Nabha Civil Hospital",
+          slot: "Immediate",
+          urgency: "RED",
+          queueNo: 0,
+          triageResult: res,
+          symptoms: syms,
+          patientContext: detailStr ? JSON.parse(detailStr) : null,
+          status: "pending",
+        };
+
+        if (typeof window !== "undefined" && !navigator.onLine) {
+          import("@/lib/db-offline").then(({ getDB, addToSyncQueue }) => {
+            const db = getDB();
+            db.consultations.add({
+              patientPhone: pPhone,
+              patientName: pName,
+              symptoms: syms,
+              urgency: "RED",
+              triageResult: JSON.stringify(res),
+              createdAt: new Date(),
+              needsSync: true,
+            }).then(() => {
+              addToSyncQueue("/api/consultations", "POST", redPayload);
+              localStorage.setItem(lockKey, "true");
+            }).catch(console.error);
+          });
+        } else {
+          fetch("/api/consultations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(redPayload),
+          }).then(() => localStorage.setItem(lockKey, "true")).catch(console.error);
+        }
       }
     };
 

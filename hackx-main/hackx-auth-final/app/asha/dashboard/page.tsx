@@ -3,10 +3,12 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useLang } from "@/lib/useLang";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { getDB, seedOfflineData } from "@/lib/db-offline";
 
 const C = { primary: "#1B6CA8", green: "#1E8449", red: "#C0392B", yellow: "#F39C12", purple: "#7D3C98", bg: "#F0F4F8", card: "#FFFFFF", text: "#1A2332", muted: "#6B7C93", border: "#DDE3EC" };
 
-type Patient = { _id: string; name: string; phone: string; age?: number; gender?: string; village?: string; conditions?: string[]; };
+type Patient = { _id: string; name: string; phone: string; age?: number; gender?: string; village?: string; conditions?: string[]; bloodGroup?: string; };
 type Visit   = { _id: string; patientName: string; patientPhone: string; visitDate: string; notes: string; appLearned: boolean; createdAt: string; };
 
 function timeAgo(dateStr: string) {
@@ -20,6 +22,7 @@ function timeAgo(dateStr: string) {
 export default function ASHADashboardPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const { isOnline } = useOnlineStatus();
   const { lang, setLang, mounted } = useLang();
   const [activeTab, setActiveTab]     = useState<"patients" | "visits" | "stats" | "blood-tests" | "vitals" | "patient-history">("patients");
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,42 +31,193 @@ export default function ASHADashboardPage() {
   const [loadingPt, setLoadingPt]     = useState(true);
   const [loadingVt, setLoadingVt]     = useState(true);
 
-  const ashaPhone = session?.user?.phone || "";
-  const ashaName  = session?.user?.name  || "";
-  const ashaVillages = session?.user?.villages || "";
-
-  const fetchPatients = useCallback(async () => {
-    try { 
-      const queryParams = ashaVillages ? `?village=${encodeURIComponent(ashaVillages)}` : '';
-      const r = await fetch(`/api/patients${queryParams}`); 
-      const d = await r.json(); 
-      setPatients(d.patients || []); 
+  // Read cached ASHA credentials for WhatsApp-style instant offline login
+  const [cachedAsha, setCachedAsha] = useState<any>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("cachedAshaUser");
+        if (stored) return JSON.parse(stored);
+      } catch {}
     }
-    catch { /* offline */ }
-    setLoadingPt(false);
-  }, [ashaVillages]);
+    return null;
+  });
 
-  // Re-fetch patients when switching to the 'patients' tab
+  // Keep cachedAshaUser fresh when live NextAuth session is active
   useEffect(() => {
-    if (activeTab === "patients") {
-      fetchPatients();
+    if (session?.user && (session.user as any).role === "ashaworker") {
+      const u = {
+        id: session.user.id,
+        phone: session.user.phone,
+        name: session.user.name,
+        villages: (session.user as any).villages,
+        role: "ashaworker",
+      };
+      localStorage.setItem("cachedAshaUser", JSON.stringify(u));
+      setCachedAsha(u);
     }
-  }, [activeTab, fetchPatients]);
+  }, [session]);
 
-  const fetchVisits = useCallback(async () => {
-    try { const r = await fetch(`/api/asha/visits?ashaPhone=${ashaPhone}`); const d = await r.json(); setVisits(d.visits || []); }
-    catch { /* offline */ }
-    setLoadingVt(false);
-  }, [ashaPhone]);
+  const ashaPhone = session?.user?.phone || cachedAsha?.phone || "9876502001";
+  const ashaName  = session?.user?.name  || cachedAsha?.name  || "Priya Sharma";
+  const ashaVillages = (session?.user as any)?.villages || cachedAsha?.villages || "Kesri, Nabha Sector 4";
 
+  // Auth protection: don't kick user out to login if offline and cached session exists
   useEffect(() => {
     if (status === "loading") return;
-    if (status === "unauthenticated" || session?.user?.role !== "ashaworker") {
+    const hasAccess = (status === "authenticated" && session?.user?.role === "ashaworker") || !!cachedAsha;
+    if (!hasAccess) {
       router.replace("/asha/login");
     }
-  }, [status, session, router]);
+  }, [status, session, cachedAsha, router]);
 
-  useEffect(() => { if (ashaPhone) { fetchPatients(); fetchVisits(); } }, [fetchPatients, fetchVisits, ashaPhone]);
+  // Seed offline DB on first mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      seedOfflineData().catch(console.error);
+    }
+  }, []);
+
+  const fetchPatients = useCallback(async () => {
+    try {
+      if (isOnline) {
+        const queryParams = ashaVillages ? `?village=${encodeURIComponent(ashaVillages)}` : "";
+        const r = await fetch(`/api/patients${queryParams}`);
+        const d = await r.json();
+        const serverPatients = d.patients || [];
+        setPatients(serverPatients);
+
+        // Cache in Dexie for offline use
+        if (typeof window !== "undefined" && serverPatients.length > 0) {
+          const db = getDB();
+          for (const sp of serverPatients) {
+            const existing = await db.patients.where("phone").equals(sp.phone).first();
+            if (!existing) {
+              await db.patients.add({
+                phone: sp.phone,
+                name: sp.name,
+                age: sp.age || 0,
+                gender: sp.gender || "",
+                village: sp.village || "",
+                conditions: Array.isArray(sp.conditions) ? sp.conditions.join(", ") : (sp.conditions || ""),
+                bloodGroup: sp.bloodGroup || "",
+                needsSync: false,
+              });
+            }
+          }
+        }
+      } else {
+        // Offline: Load from Dexie
+        const db = getDB();
+        const offlinePts = await db.patients.toArray();
+        if (offlinePts.length > 0) {
+          setPatients(offlinePts.map(p => ({
+            _id: String(p.id || p.phone),
+            name: p.name,
+            phone: p.phone,
+            age: p.age,
+            gender: p.gender,
+            village: p.village,
+            conditions: p.conditions ? p.conditions.split(", ") : [],
+            bloodGroup: p.bloodGroup,
+          })));
+        }
+      }
+    } catch {
+      // Fetch failed: fallback to Dexie
+      try {
+        const db = getDB();
+        const offlinePts = await db.patients.toArray();
+        if (offlinePts.length > 0) {
+          setPatients(offlinePts.map(p => ({
+            _id: String(p.id || p.phone),
+            name: p.name,
+            phone: p.phone,
+            age: p.age,
+            gender: p.gender,
+            village: p.village,
+            conditions: p.conditions ? p.conditions.split(", ") : [],
+            bloodGroup: p.bloodGroup,
+          })));
+        }
+      } catch {}
+    }
+    setLoadingPt(false);
+  }, [ashaVillages, isOnline]);
+
+  const fetchVisits = useCallback(async () => {
+    try {
+      if (isOnline && ashaPhone) {
+        const r = await fetch(`/api/asha/visits?ashaPhone=${ashaPhone}`);
+        const d = await r.json();
+        const serverVisits = d.visits || [];
+        setVisits(serverVisits);
+
+        // Cache in Dexie
+        if (typeof window !== "undefined" && serverVisits.length > 0) {
+          const db = getDB();
+          for (const sv of serverVisits) {
+            const existing = await db.ashaVisits.where("patientPhone").equals(sv.patientPhone).first();
+            if (!existing) {
+              await db.ashaVisits.add({
+                patientPhone: sv.patientPhone,
+                patientName: sv.patientName,
+                visitDate: sv.visitDate || sv.createdAt,
+                notes: sv.notes || "",
+                appLearned: !!sv.appLearned,
+                ashaWorkerPhone: ashaPhone,
+                needsSync: false,
+              });
+            }
+          }
+        }
+      } else {
+        // Offline: Load from Dexie
+        const db = getDB();
+        const offlineV = await db.ashaVisits.toArray();
+        if (offlineV.length > 0) {
+          setVisits(offlineV.map(v => ({
+            _id: `offline-${v.id}`,
+            patientName: v.patientName,
+            patientPhone: v.patientPhone,
+            visitDate: v.visitDate,
+            notes: v.notes,
+            appLearned: v.appLearned,
+            createdAt: v.visitDate || new Date().toISOString(),
+          })));
+        }
+      }
+    } catch {
+      try {
+        const db = getDB();
+        const offlineV = await db.ashaVisits.toArray();
+        if (offlineV.length > 0) {
+          setVisits(offlineV.map(v => ({
+            _id: `offline-${v.id}`,
+            patientName: v.patientName,
+            patientPhone: v.patientPhone,
+            visitDate: v.visitDate,
+            notes: v.notes,
+            appLearned: v.appLearned,
+            createdAt: v.visitDate || new Date().toISOString(),
+          })));
+        }
+      } catch {}
+    }
+    setLoadingVt(false);
+  }, [ashaPhone, isOnline]);
+
+  // Re-fetch when switching tabs
+  useEffect(() => {
+    if (activeTab === "patients") fetchPatients();
+    if (activeTab === "visits") fetchVisits();
+  }, [activeTab, fetchPatients, fetchVisits]);
+
+  useEffect(() => {
+    if (ashaPhone) {
+      fetchPatients();
+      fetchVisits();
+    }
+  }, [fetchPatients, fetchVisits, ashaPhone]);
 
   const T = (hi: string, en: string) => lang === "hi" ? hi : en;
 
@@ -80,16 +234,38 @@ export default function ASHADashboardPage() {
   return (
     <div style={{ background: "#0d1520", minHeight: "100vh", display: "flex", justifyContent: "center" }}>
       <div style={{ width: 390, background: C.bg, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-        <div style={{ background: "#E8F8EF", padding: "8px 16px", fontSize: 12, fontWeight: 700, color: C.green, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        {/* Status bar */}
+        <div style={{
+          background: isOnline ? "#E8F8EF" : "#FEF3C7",
+          padding: "8px 16px",
+          fontSize: 12,
+          fontWeight: 700,
+          color: isOnline ? C.green : "#D97706",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between"
+        }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.green, animation: "pulse 2s infinite" }} />
-            {T("ऑनलाइन", "Online")}
+            <div style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background: isOnline ? C.green : "#D97706",
+              animation: "pulse 2s infinite"
+            }} />
+            {isOnline ? T("ऑनलाइन", "Online") : T("ऑफ़लाइन मोड (लोकल डेटा)", "Offline Mode (0G)")}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <button onClick={() => { const newLang = lang === "hi" ? "en" : "hi"; setLang(newLang); }} style={{ background: C.primary, border: "none", borderRadius: 12, padding: "4px 12px", fontSize: 11, fontWeight: 800, color: "white", cursor: "pointer" }}>
               {lang === "hi" ? "EN" : "हिं"}
             </button>
-            <button onClick={async () => { try { await signOut({ redirect: false }); } catch {} window.location.href = "/asha/login"; }} style={{ background: "rgba(0,0,0,0.05)", border: "none", borderRadius: 12, padding: "4px 10px", fontSize: 11, fontWeight: 700, color: C.muted, cursor: "pointer" }}>
+            <button onClick={async () => {
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("cachedAshaUser");
+              }
+              try { await signOut({ redirect: false }); } catch {}
+              window.location.href = "/asha/login";
+            }} style={{ background: "rgba(0,0,0,0.05)", border: "none", borderRadius: 12, padding: "4px 10px", fontSize: 11, fontWeight: 700, color: C.muted, cursor: "pointer" }}>
               {T("लॉग आउट", "Logout")}
             </button>
           </div>

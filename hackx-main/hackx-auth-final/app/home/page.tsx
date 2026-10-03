@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/lib/useAuth";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import dynamic from "next/dynamic";
 
 const C = {
@@ -20,6 +21,7 @@ const C = {
 export default function HomePage() {
   const router = useRouter();
   const { user, logout, loading } = useAuth();
+  const { isOnline } = useOnlineStatus();
   const [lang, setLang] = useState("hi");
   const [hasReport, setHasReport] = useState(false);
   const [consultationCount, setConsultationCount] = useState(0);
@@ -38,9 +40,19 @@ export default function HomePage() {
   }, [user, loading, router]);
 
 
-  // Fetch dynamic stats (consultations and doctors online)
+  // Fetch dynamic stats (consultations and doctors online) with offline caching
   useEffect(() => {
     if (!user) return;
+
+    // Load cached counts first
+    if (typeof window !== "undefined") {
+      const cachedConsults = localStorage.getItem("cachedConsultationCount");
+      if (cachedConsults) setConsultationCount(parseInt(cachedConsults) || 0);
+      const cachedDocs = localStorage.getItem("cachedDoctorsCount");
+      if (cachedDocs) setDoctorsCount(parseInt(cachedDocs) || 2);
+    }
+
+    if (!isOnline) return;
 
     // Fetch personal consultations history
     const identifier = (user as any).phone || (user as any)._id;
@@ -50,6 +62,7 @@ export default function HomePage() {
         .then(data => {
           if (data.consultations) {
             setConsultationCount(data.consultations.length);
+            localStorage.setItem("cachedConsultationCount", String(data.consultations.length));
           }
         })
         .catch(err => console.error("Error fetching consultations:", err));
@@ -61,10 +74,11 @@ export default function HomePage() {
       .then(data => {
         if (data.doctors) {
           setDoctorsCount(data.doctors.length);
+          localStorage.setItem("cachedDoctorsCount", String(data.doctors.length));
         }
       })
       .catch(err => console.error("Error fetching doctors:", err));
-  }, [user]);
+  }, [user, isOnline]);
 
   const t = (hi: string, en: string) => (lang === "hi" ? hi : en);
 
@@ -117,15 +131,14 @@ export default function HomePage() {
             flexDirection: "column",
           }}
         >
-          {/* Online bar */}
-          {/* Online bar */}
+          {/* Online/Offline status bar */}
           <div
             style={{
-              background: "#E8F8EF",
+              background: isOnline ? "#E8F8EF" : "#FEF3C7",
               padding: "6px 16px",
               fontSize: 12,
               fontWeight: 700,
-              color: C.green,
+              color: isOnline ? C.green : "#D97706",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
@@ -137,11 +150,13 @@ export default function HomePage() {
                   width: 8,
                   height: 8,
                   borderRadius: "50%",
-                  background: C.green,
+                  background: isOnline ? C.green : "#D97706",
                   animation: "pulse 2s infinite",
                 }}
               />
-              {t("ऑनलाइन — AI सक्रिय है", "Online — AI Active")}
+              {isOnline
+                ? t("ऑनलाइन — AI सक्रिय है", "Online — AI Active")
+                : t("ऑफ़लाइन मोड — लोकल AI सक्रिय (0G)", "Offline Mode — Local AI Active (0G)")}
             </div>
             <button
               onClick={() => {

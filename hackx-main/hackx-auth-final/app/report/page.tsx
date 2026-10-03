@@ -299,7 +299,22 @@ export default function ReportPage() {
 
   useEffect(() => {
     setLang(localStorage.getItem("lang") || "hi");
-    try { const p = localStorage.getItem("patient"); if (p) setLocalPatient(JSON.parse(p)); } catch { }
+    try {
+      const cached = localStorage.getItem("cachedPatientUser");
+      if (cached) {
+        const cp = JSON.parse(cached);
+        setLocalPatient({
+          name: cp.name || "",
+          age: String(cp.age || ""),
+          village: cp.village || "",
+          phone: cp.phone || "",
+          gender: cp.gender || "",
+          conditions: (cp.conditions || []).join(", "),
+          bloodGroup: cp.bloodGroup || "",
+        });
+      }
+    } catch { }
+    try { const p = localStorage.getItem("patient"); if (p) setLocalPatient(prev => ({ ...prev, ...JSON.parse(p) })); } catch { }
     try { const r = localStorage.getItem("triageResult"); if (r) setResult(JSON.parse(r)); } catch { }
     try { const s = localStorage.getItem("selectedSymptoms"); if (s) setSymptoms(JSON.parse(s)); } catch { }
     try { const cs = localStorage.getItem("customSymptoms"); if (cs) setCustomSymptoms(cs); } catch { }
