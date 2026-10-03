@@ -19,6 +19,7 @@ export interface OfflinePatient {
 
 export interface OfflineConsultation {
   id?: number;
+  clientId?: string;
   patientPhone: string;
   patientName: string;
   symptoms: string[];
@@ -172,4 +173,83 @@ export async function flushSyncQueue() {
   }
 
   return { synced, failed };
+}
+
+// ── Complete Batch Sync (One-shot batch upload for all offline models) ──
+export async function syncAllOfflineData(): Promise<{ synced: number; failed: number }> {
+  const db = getDB();
+  let totalSynced = 0;
+  let totalFailed = 0;
+
+  try {
+    // 1. Flush any queued individual requests first
+    const queueRes = await flushSyncQueue();
+    totalSynced += queueRes.synced;
+    totalFailed += queueRes.failed;
+
+    // 2. Fetch all offline tables marked as needsSync
+    const [pendingPatients, pendingConsultations, pendingVisits, pendingSOS] = await Promise.all([
+      db.patients.filter((p) => p.needsSync === true).toArray(),
+      db.consultations.filter((c) => c.needsSync === true).toArray(),
+      db.ashaVisits.filter((v) => v.needsSync === true).toArray(),
+      db.sosAlerts.filter((s) => s.needsSync === true).toArray(),
+    ]);
+
+    const hasData = pendingPatients.length > 0 || pendingConsultations.length > 0 || pendingVisits.length > 0 || pendingSOS.length > 0;
+    if (!hasData) {
+      return { synced: totalSynced, failed: totalFailed };
+    }
+
+    // Format consultations (parse triageResult JSON if string)
+    const formattedConsultations = pendingConsultations.map((c) => ({
+      clientId: c.clientId || `offline-${c.id}-${new Date(c.createdAt).getTime()}`,
+      patientPhone: c.patientPhone,
+      patientName: c.patientName,
+      symptoms: c.symptoms,
+      urgency: c.urgency,
+      triageResult: typeof c.triageResult === "string" ? JSON.parse(c.triageResult) : c.triageResult,
+      createdAt: c.createdAt,
+    }));
+
+    // Send single batch POST to /api/sync
+    const res = await fetch("/api/sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        patients: pendingPatients,
+        consultations: formattedConsultations,
+        ashaVisits: pendingVisits,
+        sosAlerts: pendingSOS,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      totalSynced += data.synced || 0;
+
+      // Mark local items as synced
+      const now = new Date();
+      await db.transaction("rw", [db.patients, db.consultations, db.ashaVisits, db.sosAlerts], async () => {
+        for (const p of pendingPatients) {
+          if (p.id) await db.patients.update(p.id, { needsSync: false, syncedAt: now });
+        }
+        for (const c of pendingConsultations) {
+          if (c.id) await db.consultations.update(c.id, { needsSync: false, syncedAt: now });
+        }
+        for (const v of pendingVisits) {
+          if (v.id) await db.ashaVisits.update(v.id, { needsSync: false, syncedAt: now });
+        }
+        for (const s of pendingSOS) {
+          if (s.id) await db.sosAlerts.update(s.id, { needsSync: false, syncedAt: now });
+        }
+      });
+    } else {
+      totalFailed += pendingPatients.length + pendingConsultations.length + pendingVisits.length + pendingSOS.length;
+    }
+  } catch (err) {
+    console.error("[syncAllOfflineData] Batch sync failed:", err);
+    totalFailed++;
+  }
+
+  return { synced: totalSynced, failed: totalFailed };
 }

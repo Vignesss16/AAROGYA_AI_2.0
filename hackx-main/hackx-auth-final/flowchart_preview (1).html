@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Aarogya.AI — Technical Approach Architecture Flowchart</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    body {
+      background-color: #12141a;
+      color: #e5e7eb;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+      max-width: 1000px;
+    }
+    .header h1 {
+      font-size: 26px;
+      margin: 0 0 8px 0;
+      color: #f9fafb;
+      letter-spacing: -0.5px;
+    }
+    .header p {
+      font-size: 14px;
+      color: #9ca3af;
+      margin: 0;
+      line-height: 1.5;
+    }
+    .badge {
+      display: inline-block;
+      padding: 5px 14px;
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 9999px;
+      font-size: 12px;
+      color: #38bdf8;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+    .container {
+      background: #181b22;
+      border: 1px solid #2d3342;
+      border-radius: 12px;
+      padding: 32px 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      max-width: 1500px;
+      width: 100%;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+    .mermaid {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🏥 AAROGYA.AI — Official Technical Architecture Flowchart</h1>
+    <p>Aligned with the SIH 2025 Problem Statement: Timely Access, Continuity, Quality & Accountability across Rural & Underserved Communities</p>
+    <div class="badge">100% Keywords Aligned · Sample-Image Layout Architecture</div>
+  </div>
+
+  <div class="container">
+    <div class="mermaid">
+flowchart TD
+    %% ─────────────────────────────────────────────────────────────
+    %% STYLES & COLOR SCHEMES (Dark High-Contrast Aesthetic)
+    %% ─────────────────────────────────────────────────────────────
+    classDef default fill:#1c1f26,stroke:#4b5563,stroke-width:1.5px,color:#f3f4f6;
+    classDef topNode fill:#2d1f3d,stroke:#a855f7,stroke-width:2px,color:#f3e8ff;
+    classDef connNode fill:#152836,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe;
+    classDef edgeNode fill:#231e33,stroke:#c084fc,stroke-width:1.5px,color:#f5f3ff;
+    classDef procNode fill:#1e2430,stroke:#60a5fa,stroke-width:1.5px,color:#eff6ff;
+    classDef hubBox fill:#14171f,stroke:#374151,stroke-width:1.5px,color:#f9fafb;
+    classDef diagBox fill:#1a202c,stroke:#4a5568,stroke-width:1px,color:#e2e8f0;
+    classDef aiBox fill:#1a202c,stroke:#4a5568,stroke-width:1px,color:#e2e8f0;
+    classDef aiStep fill:#252d3d,stroke:#6366f1,stroke-width:1px,color:#e0e7ff;
+    classDef redTag fill:#451a1a,stroke:#ef4444,stroke-width:1.5px,color:#fecaca;
+    classDef yelTag fill:#453214,stroke:#f59e0b,stroke-width:1.5px,color:#fef08a;
+    classDef grnTag fill:#133926,stroke:#10b981,stroke-width:1.5px,color:#bbf7d0;
+    classDef redCard fill:#2b1416,stroke:#f87171,stroke-width:2px,color:#fee2e2;
+    classDef yelCard fill:#2e2410,stroke:#fbbf24,stroke-width:2px,color:#fef9c3;
+    classDef grnCard fill:#0f2e1e,stroke:#34d399,stroke-width:2px,color:#d1fae5;
+    classDef abdmCard fill:#12283a,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe;
+    classDef loopCard fill:#1f242e,stroke:#64748b,stroke-width:1.5px,color:#f1f5f9;
+
+    %% ─────────────────────────────────────────────────────────────
+    %% STAGE 1: FRONTLINE WORKERS & LOW-CONNECTIVITY GATEWAY
+    %% ─────────────────────────────────────────────────────────────
+    USER["👤 Rural Patients & Frontline Health Workers<br/>• ASHA Worker Assisted Entry & Doorstep Vitals<br/>• Multilingual Interaction (Speech / Voice / 16-Icon Tap)<br/>• Keypad IVR Audio for Underserved Communities"]:::topNode
+    GATEWAY{"🌐 Low-Connectivity Environment Gateway<br/>(Online vs Low-Bandwidth 0G/2G Detection)"}:::connNode
+
+    USER --> GATEWAY
+
+    %% Offline Edge Layer
+    GATEWAY -- "Offline (0G/2G Low-Connectivity)" --> DEXIE["💾 Offline-First Edge Engine (Dexie.js / SQLite)<br/>• Uninterrupted Care in Remote / Low-Connectivity Areas<br/>• Local Symptom & Medicine Database Cache<br/>• Offline Digital Triage & Transactional Sync Queue"]:::edgeNode
+    DEXIE -- "Transactional Auto-Sync on Reconnect" --> PROCESS
+
+    %% Online Connected Path
+    GATEWAY -- "Online / Connected" --> PROCESS["⚙️ Process Patient Input & Medical Context<br/>• Multilingual Speech-to-Text & Vernacular Parsing<br/>• Illness Duration Analysis for Earlier Consultation<br/>• Health Literacy Support & Chronic Condition History"]:::procNode
+
+    %% ─────────────────────────────────────────────────────────────
+    %% STAGE 2: INTELLIGENT DIGITAL TRIAGE & DIAGNOSTIC HUB
+    %% ─────────────────────────────────────────────────────────────
+    PROCESS --> HUB
+
+    subgraph HUB["🧠 Intelligent Digital Triage & Diagnostic Hub (Strengthening Public Health)"]
+        direction TB
+
+        subgraph DIAG_BOX["🧪 Diagnostic Coordination & Point-of-Care Testing"]
+            TESTS["Irregular Diagnostics Solution<br/>• Critical Diagnostic Value Detection<br/>• Point-of-Care Tests: Hb% Anemia Flag | Blood Sugar<br/>• Rapid Test Kits: Malaria Rapid / Dengue NS1<br/>• Objective Vitals: SpO2, Heart Rate & Blood Pressure<br/>• Improved Diagnostic Availability Visibility"]:::aiStep
+        end
+
+        subgraph AI_BOX["🤖 AI Clinical Digital Triage Engine"]
+            direction LR
+            RAG["Local Indian RAG<br/>(Curated Clinical Datasets)"]:::aiStep --> LLM["Groq LLaMA 3.3 70B<br/>Dual-Pass Clinical Reasoning"]:::aiStep --> WIKI["Approved Medical Guidelines<br/>Anti-Hallucination Verifier"]:::aiStep
+        end
+    end
+    class HUB hubBox;
+    class DIAG_BOX diagBox;
+    class AI_BOX aiBox;
+
+    %% ─────────────────────────────────────────────────────────────
+    %% STAGE 3: TRI-COLOR SEVERITY ROUTING & INTEGRATED CARE PATHWAYS
+    %% ─────────────────────────────────────────────────────────────
+    HUB --> RED_TAG["🔴 RED: Emergency Escalation"]:::redTag
+    HUB --> YEL_TAG["🟡 YELLOW: Assisted Teleconsultation & Referral"]:::yelTag
+    HUB --> GRN_TAG["🟢 GREEN: Routine Care & Medicine Availability"]:::grnTag
+
+    RED_TAG --> RED_ACTION["🚨 Emergency Escalation Pathway<br/>• Instant Pusher WebSocket Push Alerts<br/>• Doctor Emergency Dashboard Blinking Notification<br/>• Frontline ASHA Community SOS Broadcast<br/>• Rapid Ambulance Dispatch to Rural/District Hospital"]:::redCard
+
+    YEL_TAG --> YEL_ACTION["🩺 Assisted Teleconsultation & Referral System<br/>• Overcomes Shortage of Specialists (Low-Bandwidth WebRTC P2P)<br/>• Appointment & Queue Management (Reduced Waiting Time)<br/>• Diagnostic Coordination (Lab Test Orders ➔ Digital Report Return)<br/>• Sub-Centre ➔ PHC ➔ Rural Hospital ➔ District Hospital Tracking"]:::yelCard
+
+    GRN_TAG --> GRN_ACTION["🌿 Routine Care & Medicine Availability<br/>• Vernacular Home Care Guidance & Health Literacy Support<br/>• Timely Appointment Scheduling at Primary Facilities<br/>• Leaflet GIS Map of Affordable Jan Aushadhi Generic Stores<br/>• Real-Time Medicine Availability Visibility & Stock Alerts"]:::grnCard
+
+    %% ─────────────────────────────────────────────────────────────
+    %% STAGE 4: INTEROPERABLE HEALTH RECORDS (APPROVED STANDARDS)
+    %% ─────────────────────────────────────────────────────────────
+    RED_ACTION --> ABDM_RECORD["📄 Interoperable Health Records (Approved Standards)<br/>• 14-Digit ABHA ID Digital Healthcare Passport (ABDM Compliant)<br/>• HL7 FHIR Standard Clinical Document Bundle<br/>• Complete Continuity of Information Across Healthcare Tiers"]:::abdmCard
+    YEL_ACTION --> ABDM_RECORD
+    GRN_ACTION -.-> ABDM_RECORD
+
+    %% ─────────────────────────────────────────────────────────────
+    %% STAGE 5: CONTINUOUS CARE, QUALITY MONITORING & ACCOUNTABILITY LOOP
+    %% ─────────────────────────────────────────────────────────────
+    ABDM_RECORD --> LOOP
+
+    subgraph LOOP["🔄 Continuous Care, Quality Monitoring & Accountability Loop"]
+        direction LR
+        L1["🪪 Longitudinal Patient Records<br/>(Lifelong Portable Record<br/>Across All Health Facilities)"]:::loopCard --- L2["🔁 Closed-Loop Referral Tracking<br/>(Sub-Centre ➔ PHC ➔ RH ➔ DH<br/>Improved Referral Completion)"]:::loopCard --- L3["🤰 High-Risk Patient Follow-Up<br/>(Maternal ANC/PNC Care, Child Health<br/>& Chronic Diabetes/Hypertension)"]:::loopCard --- L4["📊 Facility Dashboards & Quality Monitoring<br/>(Reduced Waiting Times, Service Quality<br/>& Real-Time Disease Outbreak Surveillance)"]:::loopCard
+    end
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#181b22',
+        mainBkg: '#1c1f26',
+        textColor: '#f3f4f6',
+        fontSize: '14px',
+        fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
+      },
+      flowchart: {
+        useMaxWidth: false,
+        htmlLabels: true,
+        curve: 'basis'
+      }
+    });
+  </script>
+</body>
+</html>

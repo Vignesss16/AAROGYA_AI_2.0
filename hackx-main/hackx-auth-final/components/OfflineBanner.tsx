@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
-import { flushSyncQueue, getDB } from "@/lib/db-offline";
+import { syncAllOfflineData, flushSyncQueue, getDB } from "@/lib/db-offline";
 
 export default function OfflineBanner() {
   const { isOnline, justCameOnline } = useOnlineStatus();
@@ -10,11 +10,11 @@ export default function OfflineBanner() {
   const [syncing, setSyncing] = useState(false);
   const [syncedCount, setSyncedCount] = useState(0);
 
-  // Check sync queue count when coming back online
+  // Check sync queue and run batch sync when coming back online
   useEffect(() => {
     if (justCameOnline && typeof window !== "undefined") {
       setSyncing(true);
-      flushSyncQueue()
+      syncAllOfflineData()
         .then((result) => {
           setSyncedCount(result.synced);
           // Update queue count after sync
@@ -101,7 +101,7 @@ export default function OfflineBanner() {
     >
       <span style={{ fontSize: 16 }}>⚠️</span>
       <span>
-        You're offline — {queueCount > 0 ? `${queueCount} item(s) will sync when online` : "Some features limited"}
+        You&apos;re offline — {queueCount > 0 ? `${queueCount} item(s) will sync when online` : "Some features limited"}
       </span>
       <style>{`@keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }`}</style>
     </div>

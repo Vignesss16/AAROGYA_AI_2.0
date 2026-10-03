@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IConsultation extends Document {
+  clientId?: string;
   patientPhone: string;
   patientName: string;
   symptoms: string[];
@@ -23,6 +24,7 @@ export interface IConsultation extends Document {
 
 const ConsultationSchema = new Schema<IConsultation>(
   {
+    clientId:     { type: String, sparse: true, index: true },
     patientPhone: { type: String, required: true, index: true },
     patientName:  { type: String, required: true },
     symptoms:     { type: [String], required: true },

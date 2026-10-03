@@ -226,23 +226,16 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
               <div style={{ fontSize: 13, color: C.muted, marginTop: 6, marginBottom: 24 }}>
                 {effectiveIncomingCallType === "video" ? "📹 Video Call" : "🎙️ Audio Call"}
               </div>
-              <div style={{ display: "flex", gap: 14, justifyContent: "center" }}>
+              <div style={{ display: "flex", gap: 24, justifyContent: "center" }}>
                 <button onClick={() => { actions.rejectCall(); onClose(); }}
-                  style={{ width: 64, height: 64, borderRadius: "50%", border: "none", cursor: "pointer", background: `linear-gradient(135deg,${C.redLight},${C.red})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, boxShadow: "0 4px 16px rgba(192,57,43,.4)" }}>
-                  <span style={{ fontSize: 22 }}>📵</span>
-                  <span style={{ fontSize: 9, fontWeight: 700, color: "white" }}>Decline</span>
+                  style={{ width: 66, height: 66, borderRadius: "50%", border: "none", cursor: "pointer", background: `linear-gradient(135deg,${C.redLight},${C.red})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, boxShadow: "0 4px 16px rgba(192,57,43,.4)" }}>
+                  <span style={{ fontSize: 24 }}>📵</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: "white" }}>Decline</span>
                 </button>
-                {effectiveIncomingCallType === "video" && (
-                  <button onClick={() => actions.answerCall("video")}
-                    style={{ width: 64, height: 64, borderRadius: "50%", border: "none", cursor: "pointer", background: `linear-gradient(135deg,${C.primary},#0F4C7A)`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, boxShadow: "0 4px 16px rgba(27,108,168,.4)" }}>
-                    <span style={{ fontSize: 22 }}>📹</span>
-                    <span style={{ fontSize: 9, fontWeight: 700, color: "white" }}>Video</span>
-                  </button>
-                )}
-                <button onClick={() => actions.answerCall("audio")}
-                  style={{ width: 64, height: 64, borderRadius: "50%", border: "none", cursor: "pointer", background: `linear-gradient(135deg,${C.green},#155930)`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, boxShadow: "0 4px 16px rgba(30,132,73,.4)" }}>
-                  <span style={{ fontSize: 22 }}>🎙️</span>
-                  <span style={{ fontSize: 9, fontWeight: 700, color: "white" }}>Audio</span>
+                <button onClick={() => actions.answerCall(effectiveIncomingCallType === "video" ? "video" : "audio")}
+                  style={{ width: 66, height: 66, borderRadius: "50%", border: "none", cursor: "pointer", background: `linear-gradient(135deg,${C.green},#155930)`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, boxShadow: "0 4px 16px rgba(30,132,73,.4)" }}>
+                  <span style={{ fontSize: 24 }}>📞</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: "white" }}>Answer</span>
                 </button>
               </div>
             </div>
@@ -304,6 +297,17 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
                   </button>
                 )}
 
+                {effectiveCallMode === "video" && (
+                  <button onClick={actions.downgradeToAudio} style={{
+                    width: 54, height: 54, borderRadius: "50%", border: "none", cursor: "pointer",
+                    background: C.card, boxShadow: "0 2px 8px rgba(0,0,0,.12)",
+                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2,
+                  }}>
+                    <span style={{ fontSize: 20 }}>🎙️</span>
+                    <span style={{ fontSize: 8, fontWeight: 700, color: C.muted, textAlign: "center", lineHeight: 1.1 }}>Audio Only</span>
+                  </button>
+                )}
+
                 <button onClick={actions.endCall} style={{
                   width: 64, height: 64, borderRadius: "50%", border: "none", cursor: "pointer",
                   background: `linear-gradient(135deg,${C.redLight},${C.red})`,
@@ -316,17 +320,26 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
               </div>
 
               {state.networkQuality !== "good" && (
-                <div style={{ background: state.networkQuality === "critical" ? "#FDEDED" : "#FEF9E7", borderRadius: 12, padding: "10px 14px", display: "flex", gap: 8 }}>
+                <div style={{ background: state.networkQuality === "critical" ? "#FDEDED" : "#FEF9E7", borderRadius: 12, padding: "10px 14px", display: "flex", gap: 8, alignItems: "flex-start" }}>
                   <span>{state.networkQuality === "critical" ? "🔴" : "🟡"}</span>
-                  <div>
+                  <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: state.networkQuality === "critical" ? C.red : "#7D6608" }}>
                       {state.networkQuality === "critical" ? "Very Poor Network" : "Weak Network Detected"}
                     </div>
                     <div style={{ fontSize: 12, color: state.networkQuality === "critical" ? C.red : "#7D6608", marginTop: 2 }}>
                       {state.networkQuality === "critical"
-                        ? "Switching to audio call to keep you connected..."
-                        : "Video quality may be reduced. Will auto-switch to audio if needed."}
+                        ? "Video connection struggling. Switching to audio call to prevent drop..."
+                        : "Video resolution reduced automatically. You can switch to audio to save data."}
                     </div>
+                    {effectiveCallMode === "video" && (
+                      <button onClick={actions.downgradeToAudio} style={{
+                        marginTop: 8, padding: "5px 12px", borderRadius: 8, border: "none",
+                        background: state.networkQuality === "critical" ? C.red : "#B7770D",
+                        color: "white", fontSize: 11, fontWeight: 700, cursor: "pointer",
+                      }}>
+                        🎙️ Switch to Audio Only Now
+                      </button>
+                    )}
                   </div>
                 </div>
               )}

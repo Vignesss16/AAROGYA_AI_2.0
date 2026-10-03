@@ -25,26 +25,26 @@ export interface WebRTCActions {
   toggleCamera: () => void;
   answerCall: (mode: "video" | "audio") => Promise<void>;
   rejectCall: () => void;
+  downgradeToAudio: () => void;
 }
 
-const ICE_SERVERS = [
-  { urls: "stun:stun.l.google.com:19302" },
-  { urls: "stun:stun1.l.google.com:19302" },
+const ICE_SERVERS: RTCIceServer[] = [
+  { urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"] },
+  { urls: "stun:stun.cloudflare.com:3478" },
   {
-    urls: "turn:openrelay.metered.ca:80",
-    username: "openrelayproject",
-    credential: "openrelayproject",
-  },
-  {
-    urls: "turn:openrelay.metered.ca:443",
+    urls: [
+      "turn:openrelay.metered.ca:80",
+      "turn:openrelay.metered.ca:443",
+      "turn:openrelay.metered.ca:443?transport=tcp",
+    ],
     username: "openrelayproject",
     credential: "openrelayproject",
   },
 ];
 
-const POOR_RTT_MS = 400;
-const CRITICAL_RTT_MS = 800;
-const POOR_PACKET_LOSS = 0.05;
+const POOR_RTT_MS = 350;
+const CRITICAL_RTT_MS = 650;
+const POOR_PACKET_LOSS = 0.06;
 
 // Each tab gets a unique clientId so same-browser testing works correctly
 function makeClientId() {
@@ -80,8 +80,12 @@ export function useWebRTC(
   const durationRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pendingOfferRef = useRef<RTCSessionDescriptionInit | null>(null);
   const pendingCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
+  const candidateBatchRef = useRef<RTCIceCandidateInit[]>([]);
+  const candidateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const currentQualityRef = useRef<NetworkQuality>("good");
+  const criticalCountRef = useRef<number>(0);
 
   const [state, setState] = useState<WebRTCState>({
     callMode: "idle",
@@ -99,6 +103,10 @@ export function useWebRTC(
   const cleanup = useCallback(() => {
     if (networkMonitorRef.current) clearInterval(networkMonitorRef.current);
     if (durationRef.current) clearInterval(durationRef.current);
+    if (candidateTimerRef.current) clearTimeout(candidateTimerRef.current);
+    candidateBatchRef.current = [];
+    currentQualityRef.current = "good";
+    criticalCountRef.current = 0;
     
     // Stop recording if active
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
@@ -122,6 +130,46 @@ export function useWebRTC(
     }));
   }, []);
 
+  // ── Adaptive Bitrate & Resolution (YouTube Auto Mode) ──
+  const applyAdaptiveEncoding = useCallback(async (quality: NetworkQuality) => {
+    const pc = pcRef.current;
+    if (!pc) return;
+    const videoSender = pc.getSenders().find((s) => s.track?.kind === "video");
+    if (!videoSender) return;
+
+    try {
+      const params = videoSender.getParameters();
+      if (!params.encodings || params.encodings.length === 0) {
+        params.encodings = [{}];
+      }
+
+      if (quality === "good") {
+        // Full Crisp HD (720p/1080p, 30fps, 2.0 Mbps)
+        params.encodings[0].maxBitrate = 2000000;
+        params.encodings[0].scaleResolutionDownBy = 1.0;
+        params.encodings[0].maxFramerate = 30;
+        params.degradationPreference = "balanced";
+      } else if (quality === "poor") {
+        // Scaled Down (360p-480p, 20fps, 450 kbps)
+        params.encodings[0].maxBitrate = 450000;
+        params.encodings[0].scaleResolutionDownBy = 2.0;
+        params.encodings[0].maxFramerate = 20;
+        params.degradationPreference = "maintain-framerate";
+      } else if (quality === "critical") {
+        // Low Bandwidth Mode (240p, 15fps, 180 kbps)
+        params.encodings[0].maxBitrate = 180000;
+        params.encodings[0].scaleResolutionDownBy = 3.0;
+        params.encodings[0].maxFramerate = 15;
+        params.degradationPreference = "maintain-framerate";
+      }
+
+      await videoSender.setParameters(params);
+      console.log(`[WebRTC Auto-Resolution] Switched video encoding profile to: ${quality.toUpperCase()}`);
+    } catch (err) {
+      console.warn("[WebRTC Auto-Resolution] Failed to set encoding parameters:", err);
+    }
+  }, []);
+
   const monitorNetwork = useCallback(async () => {
     const pc = pcRef.current;
     if (!pc || pc.connectionState !== "connected") return;
@@ -138,17 +186,34 @@ export function useWebRTC(
           packetLoss = lost / (lost + sent);
         }
       });
+
       let quality: NetworkQuality = "good";
-      if (rtt > CRITICAL_RTT_MS || packetLoss > POOR_PACKET_LOSS * 3) quality = "critical";
-      else if (rtt > POOR_RTT_MS || packetLoss > POOR_PACKET_LOSS) quality = "poor";
+      if (rtt > CRITICAL_RTT_MS || packetLoss > POOR_PACKET_LOSS * 3) {
+        quality = "critical";
+        criticalCountRef.current += 1;
+      } else if (rtt > POOR_RTT_MS || packetLoss > POOR_PACKET_LOSS) {
+        quality = "poor";
+        criticalCountRef.current = 0;
+      } else {
+        quality = "good";
+        criticalCountRef.current = 0;
+      }
+
+      // Auto-tune resolution & bitrate like YouTube Auto mode
+      if (quality !== currentQualityRef.current) {
+        currentQualityRef.current = quality;
+        applyAdaptiveEncoding(quality);
+      }
+
       setState((s) => {
-        if (quality === "critical" && s.callMode === "video" && hasVideoTrack)
+        if (criticalCountRef.current >= 3 && s.callMode === "video" && hasVideoTrack) {
           handleDowngradeToAudio(false);
+        }
         return { ...s, networkQuality: quality };
       });
     } catch {}
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [applyAdaptiveEncoding]);
 
   const handleDowngradeToAudio = useCallback((fromRemote: boolean) => {
     const stream = localStreamRef.current;
@@ -168,14 +233,42 @@ export function useWebRTC(
   }, [roomId]);
 
   const createPeerConnection = useCallback(() => {
-    const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+    const pc = new RTCPeerConnection({
+      iceServers: ICE_SERVERS,
+      iceCandidatePoolSize: 10,
+      bundlePolicy: "max-bundle",
+      rtcpMuxPolicy: "require",
+    });
     pcRef.current = pc;
 
     pc.onicecandidate = (e) => {
-      if (e.candidate)
-        sendSignal(roomId, clientIdRef.current, "ice-candidate", e.candidate.toJSON());
+      if (e.candidate) {
+        candidateBatchRef.current.push(e.candidate.toJSON());
+        if (!candidateTimerRef.current) {
+          candidateTimerRef.current = setTimeout(() => {
+            if (candidateBatchRef.current.length > 0) {
+              sendSignal(roomId, clientIdRef.current, "ice-candidates", [...candidateBatchRef.current]);
+              candidateBatchRef.current = [];
+            }
+            candidateTimerRef.current = null;
+          }, 40);
+        }
+      }
     };
+
     pc.ontrack = (e) => setState((s) => ({ ...s, remoteStream: e.streams[0] }));
+
+    // Auto ICE Restart when connection drops or fails on fluctuating network
+    pc.oniceconnectionstatechange = () => {
+      if ((pc.iceConnectionState === "disconnected" || pc.iceConnectionState === "failed") && isInitiator) {
+        console.log(`[WebRTC] ICE state: ${pc.iceConnectionState} — attempting ICE restart...`);
+        pc.createOffer({ iceRestart: true })
+          .then((offer) => pc.setLocalDescription(offer))
+          .then(() => sendSignal(roomId, clientIdRef.current, "offer", pc.localDescription))
+          .catch((err) => console.warn("[WebRTC] ICE restart failed:", err));
+      }
+    };
+
     pc.onconnectionstatechange = () => {
       if (pc.connectionState === "connected") {
         setState((s) => ({ ...s, statusMessage: "" }));
@@ -221,7 +314,7 @@ export function useWebRTC(
           }
         }
       } else if (pc.connectionState === "failed" || pc.connectionState === "disconnected") {
-        setState((s) => ({ ...s, statusMessage: "⚠️ Connection lost — trying to reconnect..." }));
+        setState((s) => ({ ...s, statusMessage: "⚠️ Connection lost — reconnecting..." }));
       }
     };
     return pc;
@@ -306,11 +399,14 @@ export function useWebRTC(
           }
           pendingCandidatesRef.current = [];
         }
-      } else if (type === "ice-candidate") {
-        if (pc && pc.remoteDescription) {
-          try { await pc.addIceCandidate(new RTCIceCandidate(data as RTCIceCandidateInit)); } catch {}
-        } else {
-          pendingCandidatesRef.current.push(data as RTCIceCandidateInit);
+      } else if (type === "ice-candidates" || type === "ice-candidate") {
+        const candidates: RTCIceCandidateInit[] = Array.isArray(data) ? (data as RTCIceCandidateInit[]) : [data as RTCIceCandidateInit];
+        for (const c of candidates) {
+          if (pc && pc.remoteDescription) {
+            try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch {}
+          } else {
+            pendingCandidatesRef.current.push(c);
+          }
         }
       } else if (type === "downgrade-to-audio") {
         handleDowngradeToAudio(true);
@@ -342,18 +438,37 @@ export function useWebRTC(
     const pc = createPeerConnection();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: mode === "video" ? { width: 640, height: 480, frameRate: 24 } : false,
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+        video: mode === "video" ? {
+          width: { ideal: 1280, max: 1920 },
+          height: { ideal: 720, max: 1080 },
+          frameRate: { ideal: 30, max: 30 },
+          facingMode: "user",
+        } : false,
       });
       localStreamRef.current = stream;
       stream.getTracks().forEach((t) => pc.addTrack(t, stream));
       setState((s) => ({ ...s, localStream: stream }));
 
+      // Set audio bitrate and initialize with High Quality mode
+      pc.getSenders().forEach((sender) => {
+        if (sender.track?.kind === "audio") {
+          const p = sender.getParameters();
+          if (!p.encodings || p.encodings.length === 0) p.encodings = [{}];
+          p.encodings[0].maxBitrate = 32000;
+          try { sender.setParameters(p); } catch {}
+        }
+      });
+      currentQualityRef.current = "good";
+      criticalCountRef.current = 0;
+      await applyAdaptiveEncoding("good");
+
       if (isInitiator) {
         // Create the offer immediately and store it as localDescription.
-        // Wait a bit for patient to subscribe, then send the offer.
-        // The patient will send "patient-ready" when they successfully connect to Pusher,
-        // which triggers a re-send if they missed this initial offer.
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
         await sendSignal(roomId, cid, "offer", offer);
@@ -368,8 +483,6 @@ export function useWebRTC(
     const cid = clientIdRef.current;
     setState((s) => ({ ...s, callMode: "connecting", statusMessage: "Connecting..." }));
 
-    // If the SSE handler already created a PC and applied the offer (Bug 3 fix),
-    // reuse it. Otherwise create a new one.
     let pc = pcRef.current;
     if (!pc) {
       pc = createPeerConnection();
@@ -377,12 +490,34 @@ export function useWebRTC(
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: mode === "video" ? { width: 640, height: 480, frameRate: 24 } : false,
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+        video: mode === "video" ? {
+          width: { ideal: 1280, max: 1920 },
+          height: { ideal: 720, max: 1080 },
+          frameRate: { ideal: 30, max: 30 },
+          facingMode: "user",
+        } : false,
       });
       localStreamRef.current = stream;
       stream.getTracks().forEach((t) => pc!.addTrack(t, stream));
       setState((s) => ({ ...s, localStream: stream, callMode: mode }));
+
+      // Set audio bitrate and initialize with High Quality mode
+      pc.getSenders().forEach((sender) => {
+        if (sender.track?.kind === "audio") {
+          const p = sender.getParameters();
+          if (!p.encodings || p.encodings.length === 0) p.encodings = [{}];
+          p.encodings[0].maxBitrate = 32000;
+          try { sender.setParameters(p); } catch {}
+        }
+      });
+      currentQualityRef.current = "good";
+      criticalCountRef.current = 0;
+      await applyAdaptiveEncoding("good");
 
       if (pendingOfferRef.current) {
         // Offer not yet applied — apply it now
@@ -396,13 +531,8 @@ export function useWebRTC(
         await sendSignal(roomId, cid, "answer", answer);
         pendingOfferRef.current = null;
       } else if (pc.localDescription && pc.signalingState !== "stable") {
-        // Offer was already applied & answered by SSE handler but exchange
-        // not yet complete — re-send answer in case doctor missed it.
-        // Do NOT re-send if already stable (exchange complete) — would cause
-        // InvalidStateError on doctor's setRemoteDescription.
         await sendSignal(roomId, cid, "answer", pc.localDescription);
       }
-      // else: offer hasn't arrived yet — it will be handled by SSE onmessage
     } catch {
       setState((s) => ({ ...s, callMode: "idle", statusMessage: "Could not access camera/microphone" }));
     }
@@ -430,9 +560,13 @@ export function useWebRTC(
     if (track) { track.enabled = !track.enabled; setState((s) => ({ ...s, isCameraOff: !track.enabled })); }
   }, []);
 
+  const downgradeToAudio = useCallback(() => {
+    handleDowngradeToAudio(false);
+  }, [handleDowngradeToAudio]);
+
   useEffect(() => () => cleanup(), [cleanup]);
 
-  return [state, { startCall, endCall, toggleMute, toggleCamera, answerCall, rejectCall }];
+  return [state, { startCall, endCall, toggleMute, toggleCamera, answerCall, rejectCall, downgradeToAudio }];
 }
 
 export function formatDuration(seconds: number): string {

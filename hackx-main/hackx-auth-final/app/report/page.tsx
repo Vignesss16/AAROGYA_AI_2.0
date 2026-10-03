@@ -453,7 +453,7 @@ export default function ReportPage() {
               })}
               {customSymptoms && (
                 <div style={{ width: "100%", background: "#F5F8FA", border: `1px solid ${C.border}`, borderRadius: 10, padding: "8px 12px", fontSize: 13, color: C.text, fontStyle: "italic", marginTop: 4 }}>
-                  "{customSymptoms}"
+                  &ldquo;{customSymptoms}&rdquo;
                 </div>
               )}
               {symptoms.length === 0 && !customSymptoms && <span style={{ fontSize: 13, color: C.muted }}>{t("लक्षण नहीं मिले", "No symptoms recorded")}</span>}
@@ -522,7 +522,7 @@ export default function ReportPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
                 <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, transparent, #B0C8E0)` }} />
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#1B6CA8", letterSpacing: 1.5, textTransform: "uppercase", background: "#EBF4FD", padding: "5px 14px", borderRadius: 20, border: "1px solid #C0D8F0", whiteSpace: "nowrap" }}>
-                  💊 Doctor's Prescription
+                  💊 Doctor&apos;s Prescription
                 </div>
                 <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, #B0C8E0, transparent)` }} />
               </div>
