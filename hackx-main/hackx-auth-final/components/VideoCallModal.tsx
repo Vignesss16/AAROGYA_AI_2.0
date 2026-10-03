@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useWebRTC, formatDuration, WebRTCState, WebRTCActions, NetworkQuality } from "@/hooks/useWebRTC";
 
 const C = {
@@ -105,7 +105,7 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
   const roomId = `consultation-${patientId}`;
   const [state, actions] = useWebRTC(roomId, isDoctor);
 
-  if (!isOpen) return null;
+  const [hasConnectedOnce, setHasConnectedOnce] = useState(false);
 
   // Bug #2 fix: When the patient's home page SSE receives call-invite and opens
   // this modal, the hook's own SSE is brand-new and never saw the call-invite.
@@ -117,9 +117,20 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
       : state.callMode;
   const effectiveIncomingCallType = state.incomingCallType ?? initialIncomingCallType ?? null;
 
-  const isCallStarted = (effectiveCallMode === "video" || effectiveCallMode === "audio") && (state.localStream !== null || state.callDuration > 0);
-  const isActive = isCallStarted;
-  const isConnecting = effectiveCallMode === "connecting" || ((effectiveCallMode === "video" || effectiveCallMode === "audio") && !isCallStarted);
+  useEffect(() => {
+    if ((effectiveCallMode === "video" || effectiveCallMode === "audio") && state.statusMessage === "") {
+      setHasConnectedOnce(true);
+    }
+    if (effectiveCallMode === "idle" || effectiveCallMode === "ended" || effectiveCallMode === "incoming" || !isOpen) {
+      setHasConnectedOnce(false);
+    }
+  }, [effectiveCallMode, state.statusMessage, isOpen]);
+
+  if (!isOpen) return null;
+
+  const isCallType = effectiveCallMode === "video" || effectiveCallMode === "audio";
+  const isActive = isCallType && (state.statusMessage === "" || hasConnectedOnce);
+  const isConnecting = effectiveCallMode === "connecting" || (isCallType && !hasConnectedOnce && state.statusMessage !== "");
   const isIncoming = effectiveCallMode === "incoming";
 
   return (
@@ -264,7 +275,7 @@ export default function VideoCallModal({ isOpen, onClose, patientName, patientId
               </div>
 
               {/* Floating Reconnection Alert during network handover */}
-              {state.statusMessage && (
+              {hasConnectedOnce && state.statusMessage && (
                 <div style={{
                   background: "rgba(192, 57, 43, 0.95)", color: "white", padding: "8px 14px",
                   borderRadius: 12, marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "center",
