@@ -7,6 +7,7 @@ const VideoCallModal = dynamic(() => import("@/components/VideoCallModal"), { ss
 
 const C = {
   primary: "#0F766E", // Deep Teal
+  primaryDark: "#0D5E58", // Dark Teal
   primaryLight: "#14B8A6", // Bright Teal
   accent: "#0284C7", // Ocean Blue
   green: "#10B981",
@@ -28,6 +29,262 @@ const InfoButton = ({ text }: { text: string }) => (
     </div>
   </div>
 );
+const DEFAULT_FACILITIES = [
+  {
+    facilityId: "HOSP-SION-001",
+    name: "Lokmanya Tilak Municipal General Hospital (SION Hospital)",
+    shortName: "SION Hospital (LTMGH Mumbai)",
+    type: "Govt Civil Hospital (Apex Trauma & Research)",
+    location: "Sion West, Mumbai",
+    city: "Mumbai",
+    state: "Maharashtra",
+    address: "Sion West, Mumbai, Maharashtra 400022",
+    phone: "+91 22 24076381",
+    departments: ["Emergency & Trauma 24/7", "Cardiology", "Neurology", "General Medicine", "Pediatrics", "Orthopedics", "Pulmonology", "Diagnostic Lab"],
+    emergencyAvailable: true,
+    ayushmanBharat: true,
+    opdTimings: "24/7 Emergency & Casualty / OPD 08:00 AM - 02:00 PM",
+    receptionistPhone: "+91 98765 01010",
+    totalBeds: 1400,
+    occupiedBeds: 1120,
+    icuBeds: 120,
+    icuOccupied: 98,
+    catchmentVillages: ["Dharavi Health Ward", "Sion Koliwada", "Kurla West", "Chunabhatti"],
+  },
+  {
+    facilityId: "HOSP-KLY-002",
+    name: "Kalyan Sub-District & Rural Civil Hospital",
+    shortName: "Kalyan Civil Hospital",
+    type: "Govt Sub-District Civil Hospital",
+    location: "Kalyan West, Thane Rural",
+    city: "Kalyan",
+    state: "Maharashtra",
+    address: "Station Road, Near Shivaji Chowk, Kalyan West, Maharashtra 421301",
+    phone: "+91 251 2314567",
+    departments: ["General Medicine", "Cardiology", "Pediatrics", "Gynecology", "Emergency 24/7", "Diagnostic Lab"],
+    emergencyAvailable: true,
+    ayushmanBharat: true,
+    opdTimings: "08:30 AM - 02:00 PM / 04:00 PM - 07:30 PM",
+    receptionistPhone: "+91 98765 01004",
+    totalBeds: 250,
+    occupiedBeds: 180,
+    icuBeds: 20,
+    icuOccupied: 14,
+    catchmentVillages: ["Kalyan Rural Gaothan", "Titwala", "Khadegolavali", "Shahad"],
+  },
+  {
+    facilityId: "HOSP-KLW-003",
+    name: "Chhatrapati Shivaji Maharaj Hospital & Medical College",
+    shortName: "CSMH Kalwa Hospital",
+    type: "Govt Civil Hospital & Teaching Hospital",
+    location: "Kalwa, Thane",
+    city: "Thane",
+    state: "Maharashtra",
+    address: "Belapur Road, Kalwa, Thane, Maharashtra 400605",
+    phone: "+91 22 25372555",
+    departments: ["Emergency & Trauma 24/7", "General Medicine", "Pediatrics", "Orthopedics", "ICU & Surgery"],
+    emergencyAvailable: true,
+    ayushmanBharat: true,
+    opdTimings: "08:00 AM - 02:00 PM / 04:00 PM - 08:00 PM",
+    receptionistPhone: "+91 98765 01006",
+    totalBeds: 500,
+    occupiedBeds: 410,
+    icuBeds: 45,
+    icuOccupied: 38,
+    catchmentVillages: ["Kalwa Naka", "Mumbra Hills", "Digha Rural", "Kharegaon"],
+  },
+  {
+    facilityId: "HOSP-PLG-004",
+    name: "Palghar Tribal & Rural Sub-District Civil Hospital",
+    shortName: "Palghar Rural Civil Hospital",
+    type: "Community Health Center (CHC) & Tribal Hospital",
+    location: "Manor Road, Palghar Rural",
+    city: "Palghar",
+    state: "Maharashtra",
+    address: "Manor Highway, Palghar Rural Tribal Belt, Maharashtra 401404",
+    phone: "+91 2525 252033",
+    departments: ["General Medicine", "Maternal Health & Delivery", "Pediatrics", "Malaria & Dengue Clinic", "Emergency 24/7"],
+    emergencyAvailable: true,
+    ayushmanBharat: true,
+    opdTimings: "08:30 AM - 02:30 PM (24/7 Emergency)",
+    receptionistPhone: "+91 98765 01007",
+    totalBeds: 120,
+    occupiedBeds: 92,
+    icuBeds: 10,
+    icuOccupied: 7,
+    catchmentVillages: ["Manor Tribal Pada", "Saphale Rural", "Kelva Beach", "Boisar Gaon"],
+  },
+  {
+    facilityId: "HOSP-MRB-005",
+    name: "Murbad Rural Sub-District & Referral Hospital",
+    shortName: "Murbad Rural Hospital",
+    type: "Rural Sub-District Hospital",
+    location: "Murbad-Karjat Road, Thane Rural",
+    city: "Murbad",
+    state: "Maharashtra",
+    address: "Murbad Main Road, Murbad Tehsil, Maharashtra 421401",
+    phone: "+91 2524 222105",
+    departments: ["General Medicine", "Snakebite & Poisoning Unit", "Pediatrics", "Maternity & Delivery", "Emergency 24/7"],
+    emergencyAvailable: true,
+    ayushmanBharat: true,
+    opdTimings: "08:00 AM - 02:00 PM (24/7 Casualty)",
+    receptionistPhone: "+91 98765 01008",
+    totalBeds: 80,
+    occupiedBeds: 54,
+    icuBeds: 6,
+    icuOccupied: 3,
+    catchmentVillages: ["Mhasla Pada", "Dhasai Rural", "Saralgaon", "Tokawade Tribal"],
+  },
+  {
+    facilityId: "HOSP-JWH-006",
+    name: "Jawhar Sub-District Hospital & Tribal Health Center",
+    shortName: "Jawhar Tribal Hospital",
+    type: "Tribal Sub-District Hospital",
+    location: "Palghar Tribal Hill Region",
+    city: "Jawhar",
+    state: "Maharashtra",
+    address: "Palghar Road, Jawhar Hill Station Tribal Zone, Maharashtra 401603",
+    phone: "+91 2520 222014",
+    departments: ["General Medicine", "Malnutrition Care Unit (NRC)", "Maternal Health", "Pediatrics", "Emergency 24/7"],
+    emergencyAvailable: true,
+    ayushmanBharat: true,
+    opdTimings: "08:30 AM - 02:00 PM (24/7 Casualty)",
+    receptionistPhone: "+91 98765 01009",
+    totalBeds: 100,
+    occupiedBeds: 78,
+    icuBeds: 8,
+    icuOccupied: 6,
+    catchmentVillages: ["Jawhar Ghat Pada", "Mokhada Tribal", "Dehre Gaon", "Nyhale"],
+  },
+  {
+    facilityId: "HOSP-DMB-007",
+    name: "CityCare Super-Specialty Medical Center",
+    shortName: "CityCare Hospital Dombivli",
+    type: "Private Multi-Specialty Hospital",
+    location: "Dombivli East, Thane",
+    city: "Dombivli",
+    state: "Maharashtra",
+    address: "Manpada Road, Near Phadke Ground, Dombivli East, Maharashtra 421201",
+    phone: "+91 251 2865432",
+    departments: ["Cardiology", "General Medicine", "Neurology", "Orthopedics", "Emergency 24/7", "Advanced ICU"],
+    emergencyAvailable: true,
+    ayushmanBharat: true,
+    opdTimings: "09:00 AM - 09:00 PM (24/7 Casualty)",
+    receptionistPhone: "+91 98765 01005",
+    totalBeds: 150,
+    occupiedBeds: 110,
+    icuBeds: 25,
+    icuOccupied: 19,
+    catchmentVillages: ["Dombivli East", "Nilje Rural", "Kolegaon", "Lodha Palava"],
+  },
+  {
+    facilityId: "HOSP-NBH-008",
+    name: "Nabha Civil Sub-Divisional Hospital",
+    shortName: "Nabha Civil Hospital",
+    type: "Govt Civil Hospital",
+    location: "Circular Road, Nabha",
+    city: "Nabha",
+    state: "Punjab",
+    address: "Circular Road, Near Old Bus Stand, Nabha, Punjab 147201",
+    phone: "+91 1765 220102",
+    departments: ["General Medicine", "Cardiology", "Pediatrics", "Orthopedics", "Emergency 24/7", "Diagnostic Lab"],
+    emergencyAvailable: true,
+    ayushmanBharat: true,
+    opdTimings: "08:30 AM - 01:30 PM / 03:30 PM - 06:30 PM",
+    receptionistPhone: "+91 98765 01001",
+    totalBeds: 120,
+    occupiedBeds: 85,
+    icuBeds: 12,
+    icuOccupied: 8,
+    catchmentVillages: ["Alhoran", "Rohti Chhanna", "Bhadson", "Dhingi"],
+  },
+  {
+    facilityId: "HOSP-PTL-009",
+    name: "Rajindra Multi-Specialty Government Hospital",
+    shortName: "Rajindra Hospital Patiala",
+    type: "Govt Civil Hospital & Medical College",
+    location: "Sangrur Road, Patiala",
+    city: "Patiala",
+    state: "Punjab",
+    address: "Medical College Campus, Sangrur Road, Patiala, Punjab 147001",
+    phone: "+91 175 2212018",
+    departments: ["General Medicine", "Cardiology", "Neurology", "Pediatrics", "Orthopedics", "Emergency 24/7", "Dialysis Unit"],
+    emergencyAvailable: true,
+    ayushmanBharat: true,
+    opdTimings: "08:00 AM - 02:00 PM / 04:00 PM - 08:00 PM",
+    receptionistPhone: "+91 98765 01002",
+    totalBeds: 900,
+    occupiedBeds: 720,
+    icuBeds: 80,
+    icuOccupied: 65,
+    catchmentVillages: ["Patiala Rural", "Sanaur", "Bahadurgarh", "Samana"],
+  },
+];
+
+const MOCK_STAFF_MAP: Record<string, { doctors: any[]; ashaWorkers: any[] }> = {
+  "HOSP-SION-001": {
+    doctors: [
+      { id: "D_SION_1", name: "Dr. S. Kulkarni", role: "Head of Emergency & Trauma", dept: "Emergency & Trauma", experience: "18 yrs", onDuty: true, rating: 4.9 },
+      { id: "D_SION_2", name: "Dr. Aniruddh Joshi", role: "Senior Cardiologist", dept: "Cardiology", experience: "14 yrs", onDuty: true, rating: 5.0 },
+      { id: "D_SION_3", name: "Dr. Priya Nair", role: "Consultant Pediatrician", dept: "Pediatrics", experience: "11 yrs", onDuty: false, rating: 4.8 },
+      { id: "D_SION_4", name: "Dr. Vilas Patil", role: "General Physician", dept: "General Medicine", experience: "9 yrs", onDuty: true, rating: 4.7 },
+    ],
+    ashaWorkers: [
+      { id: "ASHA_SION_1", name: "Sunita Kamble", area: "Dharavi Health Ward 9", phone: "+91 98765 11001", visitsThisMonth: 84, activeAlerts: 1 },
+      { id: "ASHA_SION_2", name: "Rekha Gaikwad", area: "Sion Koliwada", phone: "+91 98765 11002", visitsThisMonth: 62, activeAlerts: 0 },
+      { id: "ASHA_SION_3", name: "Meena Shinde", area: "Kurla West Slum Pocket", phone: "+91 98765 11003", visitsThisMonth: 95, activeAlerts: 2 },
+    ]
+  },
+  "HOSP-KLY-002": {
+    doctors: [
+      { id: "D_KLY_1", name: "Dr. Ramesh Sharma", role: "Chief Medical Officer", dept: "General Medicine", experience: "16 yrs", onDuty: true, rating: 4.7 },
+      { id: "D_KLY_2", name: "Dr. Sneha Gokhale", role: "Consultant Gynecologist", dept: "Gynecology & Maternal", experience: "12 yrs", onDuty: true, rating: 4.9 },
+      { id: "D_KLY_3", name: "Dr. Amit Vernekar", role: "Orthopedic Surgeon", dept: "Orthopedics", experience: "10 yrs", onDuty: false, rating: 4.6 },
+    ],
+    ashaWorkers: [
+      { id: "ASHA_KLY_1", name: "Vandana More", area: "Titwala Rural", phone: "+91 98765 12001", visitsThisMonth: 71, activeAlerts: 1 },
+      { id: "ASHA_KLY_2", name: "Geeta Jadhav", area: "Kalyan Gaothan & Khadegolavali", phone: "+91 98765 12002", visitsThisMonth: 58, activeAlerts: 0 },
+    ]
+  },
+  "HOSP-PLG-004": {
+    doctors: [
+      { id: "D_PLG_1", name: "Dr. Anjali Deshmukh", role: "Rural Maternal & Child Specialist", dept: "Pediatrics", experience: "13 yrs", onDuty: true, rating: 4.8 },
+      { id: "D_PLG_2", name: "Dr. Deepak Vaze", role: "Malaria & Communicable Diseases Lead", dept: "General Medicine", experience: "8 yrs", onDuty: true, rating: 4.7 },
+    ],
+    ashaWorkers: [
+      { id: "ASHA_PLG_1", name: "Parvati Bhoye", area: "Manor Tribal Pada", phone: "+91 98765 14001", visitsThisMonth: 104, activeAlerts: 3 },
+      { id: "ASHA_PLG_2", name: "Anita Waghmare", area: "Kelva Beach Tribal Hamlet", phone: "+91 98765 14002", visitsThisMonth: 78, activeAlerts: 1 },
+    ]
+  },
+  "HOSP-MRB-005": {
+    doctors: [
+      { id: "D_MRB_1", name: "Dr. Sanjay Raut", role: "Rural Emergency & Toxicology Lead", dept: "Emergency & Snakebite Unit", experience: "15 yrs", onDuty: true, rating: 4.9 },
+    ],
+    ashaWorkers: [
+      { id: "ASHA_MRB_1", name: "Shobha Telam", area: "Tokawade Tribal Belt", phone: "+91 98765 15001", visitsThisMonth: 69, activeAlerts: 1 },
+      { id: "ASHA_MRB_2", name: "Laxmi Pawar", area: "Mhasla Pada", phone: "+91 98765 15002", visitsThisMonth: 53, activeAlerts: 0 },
+    ]
+  },
+  "HOSP-JWH-006": {
+    doctors: [
+      { id: "D_JWH_1", name: "Dr. Hemant Mukne", role: "Tribal Malnutrition & Primary Health Lead", dept: "Pediatrics & NRC", experience: "11 yrs", onDuty: true, rating: 4.8 },
+    ],
+    ashaWorkers: [
+      { id: "ASHA_JWH_1", name: "Kalpana Gavit", area: "Jawhar Hill Pada", phone: "+91 98765 16001", visitsThisMonth: 112, activeAlerts: 4 },
+      { id: "ASHA_JWH_2", name: "Usha Baraf", area: "Mokhada Tribal Cluster", phone: "+91 98765 16002", visitsThisMonth: 91, activeAlerts: 2 },
+    ]
+  },
+  "HOSP-NBH-008": {
+    doctors: [
+      { id: "D_NBH_1", name: "Dr. Arvind Kumar", role: "Civil Surgeon", dept: "General Medicine", experience: "20 yrs", onDuty: true, rating: 4.9 },
+      { id: "D_NBH_2", name: "Dr. Vasanth", role: "Medical Officer", dept: "General Medicine", experience: "7 yrs", onDuty: true, rating: 5.0 },
+    ],
+    ashaWorkers: [
+      { id: "ASHA_NBH_1", name: "Gurpreet Kaur", area: "Alhoran Village", phone: "+91 98765 17001", visitsThisMonth: 64, activeAlerts: 0 },
+      { id: "ASHA_NBH_2", name: "Manjit Kaur", area: "Rohti Chhanna", phone: "+91 98765 17002", visitsThisMonth: 52, activeAlerts: 1 },
+    ]
+  }
+};
 
 export default function HospitalDesktopDashboard() {
   const router = useRouter();
@@ -41,6 +298,15 @@ export default function HospitalDesktopDashboard() {
   const [pass, setPass] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
+
+  // Facility Management State
+  const [facilities, setFacilities] = useState<any[]>(DEFAULT_FACILITIES);
+  const [selectedFacilityId, setSelectedFacilityId] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("hospitalSelectedFacility") || "HOSP-SION-001";
+    }
+    return "HOSP-SION-001";
+  });
 
   const [queue, setQueue] = useState<any[]>([]);
   const [doctors, setDoctors] = useState<any[]>([]);
@@ -61,16 +327,16 @@ export default function HospitalDesktopDashboard() {
   const [sosAlerts, setSosAlerts] = useState<any[]>([]);
   const [callPatient, setCallPatient] = useState<{ id: string; name: string } | null>(null);
 
-
   const fetchData = useCallback(async () => {
     try {
-      const [resQueue, resDocs, resAsha, resSos, resLabs, resRefs] = await Promise.all([
+      const [resQueue, resDocs, resAsha, resSos, resLabs, resRefs, resFacs] = await Promise.all([
         fetch("/api/consultations?status=all"),
         fetch("/api/admin/doctors"),
         fetch("/api/asha/visits"),
         fetch("/api/sos"),
         fetch("/api/blood-tests"),
-        fetch("/api/referrals")
+        fetch("/api/referrals"),
+        fetch("/api/facilities"),
       ]);
       const dataQueue = await resQueue.json();
       const dataDocs = await resDocs.json();
@@ -78,14 +344,19 @@ export default function HospitalDesktopDashboard() {
       const dataSos = await resSos.json();
       const dataLabs = await resLabs.json();
       const dataRefs = await resRefs.json();
+      const dataFacs = await resFacs.json();
+
       setQueue(dataQueue.consultations || []);
       setDoctors(dataDocs.doctors || []);
       setAshaVisits(dataAsha.visits || []);
       setSosAlerts(dataSos.alerts || []);
       setLabTests(dataLabs.tests || []);
       setReferrals(dataRefs.referrals || []);
+      if (dataFacs.facilities && dataFacs.facilities.length > 0) {
+        setFacilities(dataFacs.facilities);
+      }
     } catch {
-      /* offline */
+      /* offline fallback */
     }
     setLoading(false);
   }, []);
@@ -245,41 +516,91 @@ export default function HospitalDesktopDashboard() {
     );
   }
 
-  let filteredQueue = queue;
+  const activeFacility = facilities.find((f) => f.facilityId === selectedFacilityId) || facilities[0];
+
+  // Facility-scoped queue
+  let facilityScopedQueue = queue;
+  if (selectedFacilityId !== "ALL" && activeFacility) {
+    const fn = (activeFacility.name || "").toLowerCase();
+    const sn = (activeFacility.shortName || "").toLowerCase();
+    const fid = activeFacility.facilityId;
+    facilityScopedQueue = queue.filter((q) => {
+      if (q.facilityId && q.facilityId === fid) return true;
+      const h = (q.hospital || "").toLowerCase();
+      return h.includes(sn) || h.includes(fn) || fn.includes(h) || sn.includes(h);
+    });
+  }
+
+  let filteredQueue = facilityScopedQueue;
 
   if (filterDate) {
-    filteredQueue = filteredQueue.filter(q => {
-      if (!q.createdAt) return true; // fallback if no date
+    filteredQueue = filteredQueue.filter((q) => {
+      if (!q.createdAt) return true;
       const qDate = new Date(q.createdAt).toISOString().split("T")[0];
       return qDate === filterDate;
     });
   }
 
   if (filterStatus !== "ALL") {
-    filteredQueue = filteredQueue.filter(q => q.urgency === filterStatus);
+    filteredQueue = filteredQueue.filter((q) => q.urgency === filterStatus);
   }
 
   if (searchQuery.trim()) {
     const ql = searchQuery.toLowerCase();
-    filteredQueue = filteredQueue.filter(q =>
-      (q.patientName || "").toLowerCase().includes(ql) ||
-      (q.doctorName || "").toLowerCase().includes(ql) ||
-      (q.symptoms || []).some((s: string) => s.toLowerCase().includes(ql))
+    filteredQueue = filteredQueue.filter(
+      (q) =>
+        (q.patientName || "").toLowerCase().includes(ql) ||
+        (q.doctorName || "").toLowerCase().includes(ql) ||
+        (q.symptoms || []).some((s: string) => s.toLowerCase().includes(ql))
     );
   }
 
-  const pendingQueue = filteredQueue.filter(q => q.status !== "completed");
-  const curedQueue = filteredQueue.filter(q => q.status === "completed");
+  const pendingQueue = filteredQueue.filter((q) => q.status !== "completed");
+  const curedQueue = filteredQueue.filter((q) => q.status === "completed");
 
-  const redPatients = pendingQueue.filter(q => q.urgency === "RED");
-  const yellowPatients = pendingQueue.filter(q => q.urgency === "YELLOW");
-  const greenPatients = pendingQueue.filter(q => q.urgency === "GREEN");
-  
+  const redPatients = pendingQueue.filter((q) => q.urgency === "RED");
+  const yellowPatients = pendingQueue.filter((q) => q.urgency === "YELLOW");
+  const greenPatients = pendingQueue.filter((q) => q.urgency === "GREEN");
+
+  // Facility-specific Staff & ASHA Roster
+  const activeFacilityStaff =
+    selectedFacilityId !== "ALL" && MOCK_STAFF_MAP[selectedFacilityId]
+      ? MOCK_STAFF_MAP[selectedFacilityId]
+      : {
+          doctors:
+            doctors.length > 0
+              ? doctors.map((d) => ({
+                  id: d._id || d.id,
+                  name: d.name.startsWith("Dr.") ? d.name : `Dr. ${d.name}`,
+                  role: "Consultant Medical Officer",
+                  dept: d.specialization || "General Medicine",
+                  experience: "8 yrs",
+                  onDuty: true,
+                  rating: 4.8,
+                }))
+              : MOCK_STAFF_MAP["HOSP-SION-001"].doctors,
+          ashaWorkers: MOCK_STAFF_MAP["HOSP-SION-001"].ashaWorkers,
+        };
+
+  // Facility-specific ASHA visits
+  const facilityAshaVisits =
+    selectedFacilityId !== "ALL" && activeFacility?.catchmentVillages
+      ? ashaVisits.filter((v) =>
+          activeFacility.catchmentVillages.some((cv: string) =>
+            (v.village || "").toLowerCase().includes(cv.toLowerCase())
+          )
+        )
+      : ashaVisits;
+
   // Logic Integration:
-  const admittedPatients = redPatients.concat(yellowPatients.slice(0, Math.floor(yellowPatients.length / 2)));
-  const outpatientClinic = greenPatients.slice(0, Math.floor(greenPatients.length * 0.6)).concat(yellowPatients.slice(Math.floor(yellowPatients.length / 2)));
+  const admittedPatients = redPatients.concat(
+    yellowPatients.slice(0, Math.floor(yellowPatients.length / 2))
+  );
+  const outpatientClinic = greenPatients
+    .slice(0, Math.floor(greenPatients.length * 0.6))
+    .concat(yellowPatients.slice(Math.floor(yellowPatients.length / 2)));
   const telemedicineVisits = greenPatients.slice(Math.floor(greenPatients.length * 0.6));
-  const fieldVisits = ashaVisits.length;
+  const fieldVisits = facilityAshaVisits.length || ashaVisits.length;
 
   const totalPatients = pendingQueue.length;
   const curedPatientsCount = curedQueue.length;
@@ -294,58 +615,233 @@ export default function HospitalDesktopDashboard() {
       <nav style={{ background: "rgba(255, 255, 255, 0.75)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: `1px solid ${C.border}`, padding: "0 40px", position: "sticky", top: 20, margin: "20px 40px 20px 40px", borderRadius: 24, zIndex: 50, boxShadow: "0 10px 25px -5px rgba(0,0,0,0.05)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 80 }}>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 40 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 30 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{ background: "linear-gradient(135deg, #0F766E 0%, #14B8A6 100%)", width: 40, height: 40, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: "white", boxShadow: "0 4px 10px rgba(20, 184, 166, 0.3)" }}>🏥</div>
-              <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: "-0.5px", color: C.primary }}>AarogyaAI</h1>
+              <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, letterSpacing: "-0.5px", color: C.primary }}>AarogyaAI</h1>
             </div>
 
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               {[
                 { id: "dashboard", label: T("डैशबोर्ड", "Dashboard") },
-                { id: "appointments", label: T("अपॉइंटमेंट & रिसेप्शन", "Appointments & Reception") },
+                { id: "appointments", label: T("अपॉइंटमेंट & रिसेप्शन", "Reception & Slots") },
+                { id: "staff", label: T("स्टाफ व आशा नेटवर्क", "Staff & ASHA Roster") },
                 { id: "emergencies", label: T("आपात स्थिति", "Emergencies") },
                 { id: "referrals", label: T("रेफ़रल", "Referrals") },
                 { id: "diagnostics", label: T("लैब रिपोर्ट", "Lab Diagnostics") },
                 { id: "wards", label: T("वार्ड", "Wards") },
                 { id: "analytics", label: T("एनालिटिक्स", "Analytics") },
-              ].map(nav => (
-                <button key={nav.id} onClick={() => { setActiveTab(nav.id); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                  style={{ padding: "10px 18px", borderRadius: 12, border: "none", background: activeTab === nav.id ? "rgba(15, 118, 110, 0.08)" : "transparent", color: activeTab === nav.id ? C.primary : C.muted, fontWeight: activeTab === nav.id ? 700 : 600, fontSize: 14, cursor: "pointer", transition: "all 0.2s" }}
+              ].map((nav) => (
+                <button
+                  key={nav.id}
+                  onClick={() => {
+                    setActiveTab(nav.id);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  style={{
+                    padding: "8px 14px",
+                    borderRadius: 12,
+                    border: "none",
+                    background: activeTab === nav.id ? "rgba(15, 118, 110, 0.1)" : "transparent",
+                    color: activeTab === nav.id ? C.primary : C.muted,
+                    fontWeight: activeTab === nav.id ? 800 : 600,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
                 >
                   {nav.label}
                 </button>
               ))}
-              <button onClick={() => router.push("/admin")} style={{ padding: "10px 20px", borderRadius: 12, border: "none", background: "transparent", color: C.muted, fontWeight: 600, fontSize: 15, cursor: "pointer" }}>
-                {T("स्टाफ प्रबंधित करें", "Manage Staff")} ↗
+              <button
+                onClick={() => router.push("/admin")}
+                style={{
+                  padding: "8px 14px",
+                  borderRadius: 12,
+                  border: "none",
+                  background: "transparent",
+                  color: C.muted,
+                  fontWeight: 600,
+                  fontSize: 13,
+                  cursor: "pointer",
+                }}
+              >
+                {T("व्यवस्थापक", "Admin Portal")} ↗
               </button>
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-            <button onClick={() => setLang(lang === "hi" ? "en" : "hi")} style={{ background: "#F1F5F9", border: "none", borderRadius: 20, padding: "8px 16px", fontSize: 13, fontWeight: 700, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            <button
+              onClick={() => setLang(lang === "hi" ? "en" : "hi")}
+              style={{
+                background: "#F1F5F9",
+                border: "none",
+                borderRadius: 20,
+                padding: "8px 16px",
+                fontSize: 13,
+                fontWeight: 700,
+                color: C.text,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
               🌐 {lang === "hi" ? "English" : "हिंदी"}
             </button>
             <div style={{ height: 32, width: 1, background: C.border }} />
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 14, fontWeight: 700 }}>Admin User</div>
-                <div style={{ fontSize: 12, color: C.primaryLight, fontWeight: 600 }}>Director</div>
+                <div style={{ fontSize: 13, fontWeight: 700 }}>Medical Director</div>
+                <div style={{ fontSize: 11, color: C.primaryLight, fontWeight: 600 }}>Command Admin</div>
               </div>
-              <div style={{ width: 44, height: 44, borderRadius: "50%", border: `2px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", background: "#F8FAFC", fontSize: 18 }}>👨‍💼</div>
+              <div style={{ width: 40, height: 40, borderRadius: "50%", border: `2px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", background: "#F8FAFC", fontSize: 16 }}>
+                👨‍⚕️
+              </div>
             </div>
           </div>
 
         </div>
       </nav>
 
-      <main style={{ flex: 1, padding: "40px", maxWidth: 1600, margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
+      <main style={{ flex: 1, padding: "20px 40px 60px", maxWidth: 1600, margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
 
-        {/* Page Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 40 }}>
+        {/* Multi-Hospital Command Center Switcher Banner */}
+        <div
+          style={{
+            background: "white",
+            borderRadius: 24,
+            padding: "20px 28px",
+            border: `1px solid ${C.border}`,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 30,
+            boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.04)",
+            flexWrap: "wrap",
+            gap: 20,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 16,
+                background: "linear-gradient(135deg, #0F766E, #0D5E58)",
+                color: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 26,
+                boxShadow: "0 4px 12px rgba(15, 118, 110, 0.3)",
+              }}
+            >
+              🏥
+            </div>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: C.muted, letterSpacing: 0.6 }}>
+                {T("सक्रिय अस्पताल कमांड सेंटर", "Active Hospital Command Center")}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 3, flexWrap: "wrap" }}>
+                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: C.primary }}>
+                  {activeFacility?.shortName || activeFacility?.name || "State Health Authority Network"}
+                </h2>
+                <span
+                  style={{
+                    background: "#E0F2FE",
+                    color: "#0369A1",
+                    fontSize: 11,
+                    fontWeight: 800,
+                    padding: "3px 9px",
+                    borderRadius: 8,
+                  }}
+                >
+                  {activeFacility?.type || "Network View"}
+                </span>
+                {activeFacility?.emergencyAvailable && (
+                  <span style={{ background: "#FEE2E2", color: "#B91C1C", fontSize: 11, fontWeight: 800, padding: "3px 9px", borderRadius: 8 }}>
+                    🚨 24/7 Casualty Active
+                  </span>
+                )}
+              </div>
+              <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>
+                📍 {activeFacility?.address || activeFacility?.location || "Maharashtra & Regional Network"} · 📞 {activeFacility?.phone || "+91 22 24076381"}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+            {/* Live Beds & Occupancy Widget */}
+            <div style={{ display: "flex", gap: 12, background: "#F8FAFC", padding: "8px 16px", borderRadius: 16, border: `1px solid ${C.border}` }}>
+              <div>
+                <div style={{ fontSize: 10, color: C.muted, fontWeight: 700, textTransform: "uppercase" }}>{T("कुल बेड", "Total Beds")}</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: C.text }}>
+                  {activeFacility?.occupiedBeds || 1120} / {activeFacility?.totalBeds || 1400}
+                </div>
+              </div>
+              <div style={{ width: 1, height: 28, background: C.border, alignSelf: "center" }} />
+              <div>
+                <div style={{ fontSize: 10, color: C.muted, fontWeight: 700, textTransform: "uppercase" }}>{T("आईसीयू क्षमता", "ICU Beds")}</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: C.red }}>
+                  {activeFacility?.icuOccupied || 98} / {activeFacility?.icuBeds || 120}
+                </div>
+              </div>
+            </div>
+
+            {/* Hospital Facility Dropdown Switcher */}
+            <div>
+              <div style={{ fontSize: 11, color: C.muted, fontWeight: 700, marginBottom: 4 }}>
+                {T("अस्पताल बदलें (कमांड सेंटर)", "Switch Hospital Center")}
+              </div>
+              <select
+                value={selectedFacilityId}
+                onChange={(e) => {
+                  setSelectedFacilityId(e.target.value);
+                  if (typeof window !== "undefined") {
+                    localStorage.setItem("hospitalSelectedFacility", e.target.value);
+                  }
+                }}
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: 12,
+                  border: `1.5px solid ${C.primary}`,
+                  background: "#F0FDFA",
+                  color: C.primaryDark,
+                  fontSize: 13,
+                  fontWeight: 800,
+                  outline: "none",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 6px rgba(15, 118, 110, 0.15)",
+                }}
+              >
+                <option value="HOSP-SION-001">🏥 SION Hospital (LTMGH Mumbai) - Apex Trauma</option>
+                <option value="HOSP-KLY-002">🏥 Kalyan Sub-District & Rural Civil Hospital</option>
+                <option value="HOSP-KLW-003">🏥 CSMH Kalwa Hospital & Medical College</option>
+                <option value="HOSP-PLG-004">🏥 Palghar Tribal & Rural Sub-District Hospital</option>
+                <option value="HOSP-MRB-005">🏥 Murbad Rural Sub-District Hospital</option>
+                <option value="HOSP-JWH-006">🏥 Jawhar Tribal Sub-District Hospital</option>
+                <option value="HOSP-DMB-007">🏥 CityCare Hospital Dombivli</option>
+                <option value="HOSP-NBH-008">🏥 Nabha Civil Hospital (Punjab)</option>
+                <option value="HOSP-PTL-009">🏥 Rajindra Hospital Patiala</option>
+                <option value="ALL">🌐 All Regional Facilities (Combined Health Authority)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Page Subheader */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 30 }}>
           <div>
-            <h2 style={{ fontSize: 32, fontWeight: 800, margin: "0 0 8px 0", letterSpacing: "-1px" }}>{T("कमांड सेंटर ओवरव्यू", "Command Center Overview")}</h2>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 15, color: C.muted, fontWeight: 500 }}>
+            <h2 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 6px 0", letterSpacing: "-0.5px" }}>
+              {activeTab === "staff"
+                ? T("अस्पताल स्टाफ एवं आशा नेटवर्क", "Hospital Staff & ASHA Network")
+                : activeTab === "appointments"
+                ? T("रिसेप्शनिस्ट अपॉइंटमेंट व स्लॉट डेस्क", "Receptionist Appointment & Slot Desk")
+                : T("कमांड सेंटर ओवरव्यू", "Command Center Overview")}
+            </h2>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 14, color: C.muted, fontWeight: 500 }}>
               <span style={{ display: "flex", alignItems: "center", gap: 6, color: C.green, fontWeight: 700, background: "rgba(16, 185, 129, 0.1)", padding: "4px 10px", borderRadius: 20 }}>
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.green, animation: "pulse 2s infinite" }} />
                 {T("सिस्टम लाइव", "System Live")}
@@ -355,8 +851,8 @@ export default function HospitalDesktopDashboard() {
             </div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: C.muted, marginBottom: 4 }}>{new Date().toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-            <div style={{ fontSize: 24, fontWeight: 800, color: C.text }}>{new Date().toLocaleTimeString(lang === 'hi' ? 'hi-IN' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: C.muted, marginBottom: 2 }}>{new Date().toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: C.text }}>{new Date().toLocaleTimeString(lang === 'hi' ? 'hi-IN' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</div>
           </div>
         </div>
 
@@ -458,6 +954,397 @@ export default function HospitalDesktopDashboard() {
         )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+
+          {/* Receptionist-Assisted Booking & Slot Desk */}
+          {(activeTab === "dashboard" || activeTab === "appointments") && (
+            <div style={{ background: C.card, borderRadius: 24, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)" }}>
+              <div style={{ padding: "24px 32px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: "#F0FDFA" }}>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: 22 }}>📋</span>
+                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.primary }}>
+                      {T("रिसेप्शनिस्ट अपॉइंटमेंट व स्लॉट डेस्क", "Receptionist Appointment & Slot Desk")}
+                    </h3>
+                  </div>
+                  <p style={{ margin: "4px 0 0 0", fontSize: 13, color: C.muted, fontWeight: 500 }}>
+                    {T("ग्रामीण व वॉक-इन मरीजों के लिए एआई सहायता प्राप्त स्लॉट आवंटन और एसएमएस सूचना प्रणाली", "AI-assisted slot allocation and SMS notification workflow for rural and walk-in patients")}
+                  </p>
+                </div>
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  <div style={{ background: "white", border: `1px solid ${C.border}`, padding: "6px 14px", borderRadius: 12, fontSize: 12, fontWeight: 700, color: C.primary }}>
+                    🏥 {activeFacility?.shortName || activeFacility?.name || "Command Center"}
+                  </div>
+                  <div style={{ fontSize: 13, color: "#0F766E", fontWeight: 800, background: "rgba(15, 118, 110, 0.15)", padding: "6px 16px", borderRadius: 20 }}>
+                    {facilityScopedQueue.length} {T("कुल स्लॉट अनुरोध", "Total Slot Requests")}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ padding: 0 }}>
+                {facilityScopedQueue.length === 0 ? (
+                  <div style={{ padding: 60, textAlign: "center", color: C.muted }}>
+                    <div style={{ fontSize: 40, marginBottom: 12 }}>📭</div>
+                    <div style={{ fontSize: 16, fontWeight: 700 }}>{T("कोई नया अपॉइंटमेंट स्लॉट अनुरोध नहीं है", "No Pending Appointment Slot Requests")}</div>
+                    <div style={{ fontSize: 13, marginTop: 6 }}>{T("मरीजों द्वारा बुक किए गए सभी स्लॉट वर्तमान में संसाधित हैं।", "All patient slot requests for this facility have been acknowledged.")}</div>
+                  </div>
+                ) : (
+                  <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                    <thead>
+                      <tr style={{ background: "#F8FAFC", fontSize: 13, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                        <th style={{ padding: "18px 28px", fontWeight: 700 }}>{T("मरीज व संपर्क", "Patient & Contact")}</th>
+                        <th style={{ padding: "18px 28px", fontWeight: 700 }}>{T("विभाग व चयनित स्लॉट", "Dept & Slot Time")}</th>
+                        <th style={{ padding: "18px 28px", fontWeight: 700 }}>{T("एआई ट्राइएज लक्षण", "AI Triage & Urgency")}</th>
+                        <th style={{ padding: "18px 28px", fontWeight: 700 }}>{T("रिसेप्शन स्थिति", "Desk Status")}</th>
+                        <th style={{ padding: "18px 28px", fontWeight: 700 }}>{T("कार्रवाई / एसएमएस अलर्ट", "Action / Notification")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {facilityScopedQueue.slice(0, 15).map((p) => {
+                        const isConfirmed = p.receptionistStatus === "CONFIRMED" || p.status === "confirmed";
+                        return (
+                          <tr key={p._id} style={{ borderTop: `1px solid ${C.border}`, transition: "background 0.2s" }} onMouseEnter={(e) => (e.currentTarget.style.background = "#F8FAFC")} onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
+                            <td style={{ padding: "18px 28px" }}>
+                              <div style={{ fontWeight: 800, color: C.text, fontSize: 15 }}>{p.patientName || "Walk-in Patient"}</div>
+                              <div style={{ fontSize: 13, color: C.muted, marginTop: 4, display: "flex", alignItems: "center", gap: 6 }}>
+                                <span>📱 {p.patientPhone || "No Phone"}</span>
+                                {p.hospital && <span style={{ background: "#F1F5F9", padding: "2px 6px", borderRadius: 6, fontSize: 11, fontWeight: 700 }}>{p.hospital}</span>}
+                              </div>
+                            </td>
+                            <td style={{ padding: "18px 28px" }}>
+                              <div style={{ fontSize: 14, fontWeight: 800, color: C.primaryDark }}>
+                                🩺 {p.department || "General OPD"}
+                              </div>
+                              <div style={{ fontSize: 13, color: C.muted, marginTop: 4, fontWeight: 600 }}>
+                                ⏰ {p.slotTime || p.preferredSlot || "Immediate Token / Regular OPD"}
+                              </div>
+                              {p.doctorName && (
+                                <div style={{ fontSize: 12, color: C.primaryLight, marginTop: 2, fontWeight: 600 }}>
+                                  👨‍⚕️ {p.doctorName}
+                                </div>
+                              )}
+                            </td>
+                            <td style={{ padding: "18px 28px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                                <span
+                                  style={{
+                                    background: p.urgency === "RED" ? "#FEE2E2" : p.urgency === "YELLOW" ? "#FEF3C7" : "#D1FAE5",
+                                    color: p.urgency === "RED" ? "#B91C1C" : p.urgency === "YELLOW" ? "#D97706" : "#059669",
+                                    padding: "3px 10px",
+                                    borderRadius: 12,
+                                    fontSize: 11,
+                                    fontWeight: 800,
+                                  }}
+                                >
+                                  {p.urgency === "RED" ? "🚨 RED CRITICAL" : p.urgency === "YELLOW" ? "🟡 YELLOW URGENT" : "🟢 GREEN ROUTINE"}
+                                </span>
+                              </div>
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                                {(p.symptoms || []).slice(0, 2).map((s: string, idx: number) => (
+                                  <span key={idx} style={{ background: "#F1F5F9", color: C.text, padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600 }}>
+                                    {s}
+                                  </span>
+                                ))}
+                              </div>
+                            </td>
+                            <td style={{ padding: "18px 28px" }}>
+                              {isConfirmed ? (
+                                <span style={{ background: "#D1FAE5", color: "#059669", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                                  ✓ {T("पुष्टीकृत (एसएमएस प्रेषित)", "Confirmed (SMS Sent)")}
+                                </span>
+                              ) : (
+                                <span style={{ background: "#FEF3C7", color: "#D97706", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                                  ⏳ {T("प्रतीक्षारत स्लॉट", "Awaiting Reception")}
+                                </span>
+                              )}
+                            </td>
+                            <td style={{ padding: "18px 28px" }}>
+                              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                                {!isConfirmed ? (
+                                  <>
+                                    <button
+                                      onClick={() => handleConfirmAppointment(p._id)}
+                                      style={{
+                                        background: C.green,
+                                        color: "white",
+                                        border: "none",
+                                        padding: "8px 14px",
+                                        borderRadius: 10,
+                                        fontSize: 12,
+                                        fontWeight: 800,
+                                        cursor: "pointer",
+                                        boxShadow: "0 2px 6px rgba(16, 185, 129, 0.3)",
+                                      }}
+                                    >
+                                      ✓ {T("स्लॉट पुष्टि व एसएमएस", "Confirm & SMS")}
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeclineAppointment(p._id)}
+                                      style={{
+                                        background: "#FEE2E2",
+                                        color: "#B91C1C",
+                                        border: "none",
+                                        padding: "8px 12px",
+                                        borderRadius: 10,
+                                        fontSize: 12,
+                                        fontWeight: 700,
+                                        cursor: "pointer",
+                                      }}
+                                    >
+                                      ✕ {T("अस्वीकार", "Decline")}
+                                    </button>
+                                  </>
+                                ) : (
+                                  <button
+                                    onClick={() => alert(`Resent SMS confirmation reminder to patient mobile: ${p.patientPhone}`)}
+                                    style={{
+                                      background: "#F0FDFA",
+                                      color: C.primary,
+                                      border: `1px solid ${C.primary}`,
+                                      padding: "6px 12px",
+                                      borderRadius: 8,
+                                      fontSize: 12,
+                                      fontWeight: 700,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    📲 {T("दोबारा एसएमएस भेजें", "Resend SMS")}
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => setCallPatient({ id: p.patientPhone || p._id, name: p.patientName })}
+                                  style={{
+                                    background: "#E0F2FE",
+                                    color: "#0369A1",
+                                    border: "none",
+                                    padding: "8px 12px",
+                                    borderRadius: 10,
+                                    fontSize: 12,
+                                    fontWeight: 700,
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  💻 {T("वीडियो कॉल", "Video")}
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Hospital Staff & Dedicated ASHA Network */}
+          {(activeTab === "dashboard" || activeTab === "staff") && (
+            <div style={{ background: C.card, borderRadius: 24, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)" }}>
+              <div style={{ padding: "24px 32px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: "#F8FAFC" }}>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: 22 }}>👨‍⚕️</span>
+                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.text }}>
+                      {T("अस्पताल स्टाफ एवं आशा फील्ड कार्यकर्ता रोस्टर", "Hospital Staff & ASHA Field Roster")}
+                    </h3>
+                  </div>
+                  <p style={{ margin: "4px 0 0 0", fontSize: 13, color: C.muted, fontWeight: 500 }}>
+                    {activeFacility?.name || "Facility Command"} — {T("संबद्ध मेडिकल ऑफिसर, विशेषज्ञ और आशा कार्यकर्ता", "Affiliated Medical Officers, Specialists, and Field ASHA Workers")}
+                  </p>
+                </div>
+                <div style={{ display: "flex", gap: 10 }}>
+                  <div style={{ background: "rgba(15, 118, 110, 0.1)", color: C.primary, padding: "6px 14px", borderRadius: 12, fontSize: 12, fontWeight: 800 }}>
+                    👨‍⚕️ {activeFacilityStaff.doctors.length} {T("डॉक्टर ऑन-ड्यूटी", "Doctors On-Duty")}
+                  </div>
+                  <div style={{ background: "rgba(245, 158, 11, 0.15)", color: "#B45309", padding: "6px 14px", borderRadius: 12, fontSize: 12, fontWeight: 800 }}>
+                    🏘️ {activeFacilityStaff.ashaWorkers.length} {T("आशा कार्यकर्ता", "ASHA Field Workers")}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ padding: "28px 32px" }}>
+                {/* Doctors Roster Grid */}
+                <div style={{ marginBottom: 28 }}>
+                  <h4 style={{ fontSize: 14, fontWeight: 800, textTransform: "uppercase", color: C.muted, letterSpacing: 0.6, marginBottom: 16 }}>
+                    🩺 {T("संबद्ध मेडिकल ऑफिसर एवं विशेषज्ञ", "Affiliated Medical Officers & Specialists")}
+                  </h4>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20 }}>
+                    {activeFacilityStaff.doctors.map((doc: any) => (
+                      <div
+                        key={doc.id}
+                        style={{
+                          background: "#FFFFFF",
+                          border: `1.5px solid ${C.border}`,
+                          borderRadius: 18,
+                          padding: "20px",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.03)",
+                        }}
+                      >
+                        <div>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                              <div
+                                style={{
+                                  width: 44,
+                                  height: 44,
+                                  borderRadius: 14,
+                                  background: "linear-gradient(135deg, #0F766E, #14B8A6)",
+                                  color: "white",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  fontSize: 20,
+                                  fontWeight: 800,
+                                }}
+                              >
+                                👨‍⚕️
+                              </div>
+                              <div>
+                                <div style={{ fontSize: 16, fontWeight: 800, color: C.text }}>{doc.name}</div>
+                                <div style={{ fontSize: 12, color: C.primary, fontWeight: 700 }}>{doc.dept}</div>
+                              </div>
+                            </div>
+                            <span
+                              style={{
+                                background: doc.onDuty ? "#D1FAE5" : "#F1F5F9",
+                                color: doc.onDuty ? "#059669" : C.muted,
+                                padding: "4px 10px",
+                                borderRadius: 12,
+                                fontSize: 11,
+                                fontWeight: 800,
+                              }}
+                            >
+                              {doc.onDuty ? "🟢 On Duty" : "⚪ Off Duty"}
+                            </span>
+                          </div>
+
+                          <div style={{ fontSize: 13, color: C.muted, marginBottom: 8 }}>
+                            💼 {doc.role} · <span style={{ fontWeight: 700, color: C.text }}>{doc.experience}</span> exp
+                          </div>
+
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "#D97706" }}>
+                            <span>⭐ {doc.rating || 4.9}</span>
+                            <span style={{ fontSize: 11, color: C.muted, fontWeight: 500 }}>({T("सत्यापित समीक्षाएं", "Verified Reviews")})</span>
+                          </div>
+                        </div>
+
+                        <div style={{ marginTop: 16, paddingTop: 12, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>
+                            🏥 {activeFacility?.shortName || "Hospital Unit"}
+                          </span>
+                          <button
+                            onClick={() => alert(`Calling ${doc.name} intercom...`)}
+                            style={{
+                              background: "#F0FDFA",
+                              border: `1px solid ${C.primary}`,
+                              color: C.primary,
+                              borderRadius: 8,
+                              padding: "6px 12px",
+                              fontSize: 12,
+                              fontWeight: 700,
+                              cursor: "pointer",
+                            }}
+                          >
+                            📞 Intercom
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ASHA Field Workers Network */}
+                <div>
+                  <h4 style={{ fontSize: 14, fontWeight: 800, textTransform: "uppercase", color: C.muted, letterSpacing: 0.6, marginBottom: 16 }}>
+                    🏘️ {T("संबद्ध आशा कार्यकर्ता एवं पाड़ा क्लस्टर", "Affiliated ASHA Field Workers & Pada Clusters")}
+                  </h4>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20 }}>
+                    {activeFacilityStaff.ashaWorkers.map((asha: any) => (
+                      <div
+                        key={asha.id}
+                        style={{
+                          background: "#FFFBEB",
+                          border: `1.5px solid #FDE68A`,
+                          borderRadius: 18,
+                          padding: "20px",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          boxShadow: "0 4px 12px rgba(245, 158, 11, 0.05)",
+                        }}
+                      >
+                        <div>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                              <div
+                                style={{
+                                  width: 44,
+                                  height: 44,
+                                  borderRadius: 14,
+                                  background: "linear-gradient(135deg, #D97706, #F59E0B)",
+                                  color: "white",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  fontSize: 20,
+                                  fontWeight: 800,
+                                }}
+                              >
+                                👩‍🌾
+                              </div>
+                              <div>
+                                <div style={{ fontSize: 16, fontWeight: 800, color: C.text }}>{asha.name}</div>
+                                <div style={{ fontSize: 12, color: "#B45309", fontWeight: 700 }}>
+                                  📍 {asha.area || asha.village || "Catchment Area"}
+                                </div>
+                              </div>
+                            </div>
+                            {asha.activeAlerts > 0 ? (
+                              <span style={{ background: "#FEE2E2", color: "#B91C1C", padding: "4px 8px", borderRadius: 10, fontSize: 11, fontWeight: 800 }}>
+                                🚨 {asha.activeAlerts} {T("अलर्ट", "Alerts")}
+                              </span>
+                            ) : (
+                              <span style={{ background: "#D1FAE5", color: "#059669", padding: "4px 8px", borderRadius: 10, fontSize: 11, fontWeight: 800 }}>
+                                ✓ Normal
+                              </span>
+                            )}
+                          </div>
+
+                          <div style={{ fontSize: 13, color: C.muted, marginBottom: 6 }}>
+                            📱 {asha.phone} · <span style={{ fontWeight: 700, color: C.text }}>{asha.visitsThisMonth || 48}</span> {T("विजिट इस माह", "visits this month")}
+                          </div>
+                        </div>
+
+                        <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid #FDE68A", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontSize: 12, color: "#92400E", fontWeight: 700 }}>
+                            🌿 Field Community Lead
+                          </span>
+                          <button
+                            onClick={() => window.open(`tel:${asha.phone}`)}
+                            style={{
+                              background: "#D97706",
+                              border: "none",
+                              color: "white",
+                              borderRadius: 8,
+                              padding: "6px 14px",
+                              fontSize: 12,
+                              fontWeight: 800,
+                              cursor: "pointer",
+                            }}
+                          >
+                            📞 Direct Call
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Emergencies */}
             {(activeTab === "dashboard" || activeTab === "emergencies") && (

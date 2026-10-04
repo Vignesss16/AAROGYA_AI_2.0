@@ -1,7 +1,7 @@
 "use client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import type { TriageResult } from "@/lib/triage";
 import { getDB, addToSyncQueue } from "@/lib/db-offline";
 
@@ -21,6 +21,78 @@ const C = {
 };
 
 const DEFAULT_DOCTORS = [
+  {
+    id: "D_SION_1",
+    name: "Dr. S. Kulkarni",
+    specialization: "Emergency & Trauma Specialist",
+    hospital: "Lokmanya Tilak Municipal General Hospital (SION Hospital)",
+    city: "Mumbai",
+    dist: "1.4 km",
+    rating: 4.9,
+    reviewCount: 42,
+    slots: ["8:30 AM", "10:00 AM", "12:30 PM", "3:00 PM", "5:30 PM"],
+    fee: "₹0 (Govt)",
+  },
+  {
+    id: "D_SION_2",
+    name: "Dr. Aniruddh Joshi",
+    specialization: "Cardiologist",
+    hospital: "Lokmanya Tilak Municipal General Hospital (SION Hospital)",
+    city: "Mumbai",
+    dist: "1.4 km",
+    rating: 5.0,
+    reviewCount: 38,
+    slots: ["9:00 AM", "11:00 AM", "2:00 PM", "4:30 PM"],
+    fee: "₹0 (Govt)",
+  },
+  {
+    id: "D5",
+    name: "Dr. Ramesh Sharma",
+    specialization: "General Physician",
+    hospital: "Kalyan Civil Hospital",
+    city: "Kalyan",
+    dist: "2.2 km",
+    rating: 4.7,
+    reviewCount: 15,
+    slots: ["9:00 AM", "11:00 AM", "1:30 PM", "4:00 PM"],
+    fee: "₹0 (Govt)",
+  },
+  {
+    id: "D_PLG_1",
+    name: "Dr. Anjali Deshmukh",
+    specialization: "Pediatrician & Rural Maternal Health",
+    hospital: "Palghar Rural Civil Hospital",
+    city: "Palghar",
+    dist: "1.8 km",
+    rating: 4.8,
+    reviewCount: 29,
+    slots: ["9:00 AM", "11:30 AM", "2:30 PM", "4:00 PM"],
+    fee: "₹0 (Govt)",
+  },
+  {
+    id: "D6",
+    name: "Dr. Allwin Nadar",
+    specialization: "General Physician",
+    hospital: "CityCare Hospital Dombivli",
+    city: "Dombivli",
+    dist: "2.5 km",
+    rating: 4.9,
+    reviewCount: 22,
+    slots: ["9:00 AM", "10:30 AM", "12:00 PM", "2:30 PM"],
+    fee: "₹0 (Govt)",
+  },
+  {
+    id: "D4",
+    name: "Dr. Vasanth",
+    specialization: "General Physician",
+    hospital: "Nabha Civil Hospital",
+    city: "Nabha",
+    dist: "3.7 km",
+    rating: 5.0,
+    reviewCount: 6,
+    slots: ["9:00 AM", "10:30 AM", "12:00 PM", "2:30 PM", "5:00 PM"],
+    fee: "₹0 (Govt)",
+  },
   {
     id: "D1",
     name: "Dr. Arvind Kumar",
@@ -57,52 +129,19 @@ const DEFAULT_DOCTORS = [
     slots: ["10:00 AM", "11:30 AM", "4:30 PM"],
     fee: "₹200",
   },
-  {
-    id: "D4",
-    name: "Dr. Vasanth",
-    specialization: "General Physician",
-    hospital: "Nabha Civil Hospital",
-    city: "Nabha",
-    dist: "3.7 km",
-    rating: 5.0,
-    reviewCount: 6,
-    slots: ["9:00 AM", "10:30 AM", "12:00 PM", "2:30 PM", "5:00 PM"],
-    fee: "₹0 (Govt)",
-  },
-  {
-    id: "D5",
-    name: "Dr. Ramesh Sharma",
-    specialization: "General Physician",
-    hospital: "Kalyan Civil Hospital",
-    city: "Kalyan",
-    dist: "2.2 km",
-    rating: 4.7,
-    reviewCount: 15,
-    slots: ["9:00 AM", "11:00 AM", "1:30 PM", "4:00 PM"],
-    fee: "₹0 (Govt)",
-  },
-  {
-    id: "D6",
-    name: "Dr. Allwin Nadar",
-    specialization: "General Physician",
-    hospital: "CityCare Hospital Dombivli",
-    city: "Dombivli",
-    dist: "2.5 km",
-    rating: 4.9,
-    reviewCount: 22,
-    slots: ["9:00 AM", "10:30 AM", "12:00 PM", "2:30 PM"],
-    fee: "₹0 (Govt)",
-  },
 ];
 
 const PRESET_LOCATIONS = [
+  { city: "Mumbai", state: "Maharashtra", label: "Mumbai (Sion / Dharavi)", lat: 19.0360, lng: 72.8601 },
+  { city: "Kalyan", state: "Maharashtra", label: "Kalyan West, Thane Rural", lat: 19.2437, lng: 73.1355 },
+  { city: "Palghar", state: "Maharashtra", label: "Palghar Rural & Tribal Belt", lat: 19.6967, lng: 72.7699 },
+  { city: "Murbad", state: "Maharashtra", label: "Murbad Rural Tehsil", lat: 19.2530, lng: 73.3980 },
+  { city: "Jawhar", state: "Maharashtra", label: "Jawhar Hill Tribal Area", lat: 19.9056, lng: 73.2323 },
+  { city: "Thane", state: "Maharashtra", label: "Thane / Kalwa", lat: 19.1970, lng: 72.9765 },
+  { city: "Dombivli", state: "Maharashtra", label: "Dombivli East", lat: 19.2183, lng: 73.0867 },
   { city: "Nabha", state: "Punjab", label: "Nabha, Punjab", lat: 30.3752, lng: 76.1528 },
   { city: "Patiala", state: "Punjab", label: "Patiala, Punjab", lat: 30.3398, lng: 76.3869 },
   { city: "Kesri", state: "Punjab", label: "Kesri Village, Nabha", lat: 30.4011, lng: 76.1923 },
-  { city: "Kalyan", state: "Maharashtra", label: "Kalyan West, Thane", lat: 19.2437, lng: 73.1355 },
-  { city: "Dombivli", state: "Maharashtra", label: "Dombivli East, Thane", lat: 19.2183, lng: 73.0867 },
-  { city: "Thane", state: "Maharashtra", label: "Thane West, Mumbai NCR", lat: 19.1970, lng: 72.9765 },
-  { city: "Mumbai", state: "Maharashtra", label: "Mumbai Central", lat: 18.9712, lng: 72.8197 },
 ];
 
 export default function ConfirmBookingPage() {
@@ -189,6 +228,149 @@ export default function ConfirmBookingPage() {
       });
     }
   }, [session]);
+
+  // Search and AI Recommendation
+  const [patientSearchQuery, setPatientSearchQuery] = useState("");
+
+  // AI Clinical Recommendation calculation based on Triage Results & Symptoms
+  const aiRecommendations = useMemo(() => {
+    const urg = result?.urgency || "GREEN";
+    let symptoms: string[] = [];
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem("selectedSymptomNames");
+        if (raw) symptoms = JSON.parse(raw);
+      } catch {}
+    }
+    let voiceNote = "";
+    if (typeof window !== "undefined") {
+      voiceNote = localStorage.getItem("customSymptoms") || "";
+    }
+    const allText = `${symptoms.join(" ")} ${voiceNote} ${result?.summary || ""}`.toLowerCase();
+
+    const isEmergency =
+      urg === "RED" ||
+      allText.includes("chest") ||
+      allText.includes("heart") ||
+      allText.includes("breath") ||
+      allText.includes("stroke") ||
+      allText.includes("trauma") ||
+      allText.includes("attack");
+
+    const isCardio =
+      allText.includes("chest") ||
+      allText.includes("heart") ||
+      allText.includes("cardiac") ||
+      allText.includes("pressure");
+
+    const isPediatric =
+      allText.includes("child") ||
+      allText.includes("baby") ||
+      allText.includes("infant") ||
+      allText.includes("pediatric");
+
+    // Match top 1-3 Recommended Hospitals
+    let recFacilities = facilities.filter((f) => {
+      const facText = `${f.name} ${f.shortName} ${(f.departments || []).join(" ")}`.toLowerCase();
+      if (isEmergency) {
+        return (
+          f.emergencyAvailable ||
+          facText.includes("sion") ||
+          facText.includes("trauma") ||
+          facText.includes("emergency")
+        );
+      }
+      if (isCardio) return facText.includes("cardio") || f.emergencyAvailable;
+      if (isPediatric) return facText.includes("pediatric") || facText.includes("maternal");
+      return true;
+    });
+
+    if (recFacilities.length === 0) recFacilities = facilities;
+    const topHospitals = recFacilities.slice(0, 3);
+
+    // Match top 1-2 Recommended Doctors
+    let recDoctors = doctors.filter((d) => {
+      const docText = `${d.name} ${d.specialization} ${d.hospital}`.toLowerCase();
+      if (isEmergency || isCardio) {
+        return (
+          docText.includes("cardio") ||
+          docText.includes("trauma") ||
+          docText.includes("emergency") ||
+          docText.includes("physician")
+        );
+      }
+      if (isPediatric) return docText.includes("pediatric");
+      return true;
+    });
+
+    if (recDoctors.length === 0) recDoctors = doctors;
+    const topDoctors = recDoctors.slice(0, 2);
+
+    return {
+      isEmergency,
+      isCardio,
+      isPediatric,
+      topHospitals,
+      topDoctors,
+      reasonHi: isEmergency
+        ? "AI क्लिनिकल ट्राइएज ने उच्च जोखिम/आपात स्थिति पाई है। 24/7 आईसीयू एवं ट्रॉमा सुसज्जित SION अस्पताल या निकटतम इमरजेंसी सेंटर तुरंत अनुशंसित है।"
+        : isCardio
+        ? "सीने में दर्द/हृदय के लक्षणों के आधार पर कार्डियोलॉजी एवं इमरजेंसी ओपीडी सुसज्जित अस्पताल व डॉक्टर अनुशंसित हैं।"
+        : isPediatric
+        ? "शिशु व बाल स्वास्थ्य लक्षणों हेतु विशेषज्ञ पीडियाट्रिक्स व मैटरनल केयर सेंटर अनुशंसित है।"
+        : "आपके लक्षणों के त्वरित निदान व सस्ती/निःशुल्क देखभाल के लिए निकटतम सुसज्जित अस्पताल व डॉक्टर अनुशंसित हैं।",
+      reasonEn: isEmergency
+        ? "AI Clinical Triage detected critical symptoms. 24/7 ICU & Trauma equipped facility (like SION Hospital) is highly recommended."
+        : isCardio
+        ? "Cardiac & chest symptoms detected. Hospitals with active Cardiology & emergency OPD recommended."
+        : isPediatric
+        ? "Pediatric symptoms detected. Specialized child and maternal healthcare centers recommended."
+        : "Based on your clinical triage, these top-rated nearby medical centers and doctors are recommended for fast care.",
+    };
+  }, [result, facilities, doctors]);
+
+  // Search filtered facilities
+  const displayedFacilities = useMemo(() => {
+    let list = facilities;
+    if (selectedDeptFilter !== "ALL") {
+      list = list.filter((f) =>
+        f.departments?.some((d: string) => d.toLowerCase().includes(selectedDeptFilter.toLowerCase()))
+      );
+    }
+    if (patientSearchQuery.trim()) {
+      const q = patientSearchQuery.toLowerCase();
+      list = list.filter(
+        (f) =>
+          (f.name || "").toLowerCase().includes(q) ||
+          (f.shortName || "").toLowerCase().includes(q) ||
+          (f.location || "").toLowerCase().includes(q) ||
+          (f.city || "").toLowerCase().includes(q) ||
+          (f.departments || []).some((d: string) => d.toLowerCase().includes(q))
+      );
+    }
+    return list;
+  }, [facilities, selectedDeptFilter, patientSearchQuery]);
+
+  // Search filtered doctors
+  const displayedDoctors = useMemo(() => {
+    let list = doctors;
+    if (selectedDeptFilter !== "ALL") {
+      list = list.filter((d) =>
+        d.specialization?.toLowerCase().includes(selectedDeptFilter.toLowerCase())
+      );
+    }
+    if (patientSearchQuery.trim()) {
+      const q = patientSearchQuery.toLowerCase();
+      list = list.filter(
+        (d) =>
+          (d.name || "").toLowerCase().includes(q) ||
+          (d.specialization || "").toLowerCase().includes(q) ||
+          (d.hospital || "").toLowerCase().includes(q) ||
+          (d.city || "").toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [doctors, selectedDeptFilter, patientSearchQuery]);
 
   // Fetch Facilities and Reviews
   const fetchFacilitiesAndDoctors = useCallback(async () => {
@@ -498,86 +680,234 @@ export default function ConfirmBookingPage() {
         {/* STEP 1: Discovery Screen (Hospitals vs Individual Doctors) */}
         {step === "discovery" && (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", overflowY: "auto" }}>
-            
-            {/* BookMyShow Style 2-Tier Segmented Toggle */}
-            <div style={{ padding: "14px 16px 0", background: C.card, borderBottom: `1px solid ${C.border}` }}>
-              <div style={{ display: "flex", background: "#F1F5F9", borderRadius: 12, padding: 3, marginBottom: 12 }}>
-                <button
-                  type="button"
-                  onClick={() => setBookingSection("hospitals")}
-                  style={{
-                    flex: 1,
-                    padding: "9px 8px",
-                    borderRadius: 10,
-                    border: "none",
-                    background: bookingSection === "hospitals" ? C.primary : "transparent",
-                    color: bookingSection === "hospitals" ? "white" : C.muted,
-                    fontSize: 12,
-                    fontWeight: 800,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 6,
-                    transition: "all 0.2s",
-                  }}
-                >
-                  <span>🏥</span>
-                  <span>{t("अस्पताल (हॉस्पिटल)", "Hospitals & Facilities")}</span>
-                </button>
 
-                <button
-                  type="button"
-                  onClick={() => setBookingSection("doctors")}
+            {/* AI Clinical Recommendation Banner (Designed for Fast Rural Decision Making) */}
+            <div
+              style={{
+                margin: "14px 16px 0",
+                background: "linear-gradient(135deg, #0F766E, #0D5E58)",
+                borderRadius: 18,
+                padding: "16px",
+                color: "white",
+                boxShadow: "0 4px 16px rgba(15, 118, 110, 0.25)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: 8,
+                      background: "rgba(255, 255, 255, 0.2)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 14,
+                    }}
+                  >
+                    🤖
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: "-0.2px" }}>
+                    {t("AI क्लिनिकल सिफारिश (ट्राइएज आधारित)", "AI Clinical Recommendation (Triage-Based)")}
+                  </span>
+                </div>
+                <span
                   style={{
-                    flex: 1,
-                    padding: "9px 8px",
-                    borderRadius: 10,
-                    border: "none",
-                    background: bookingSection === "doctors" ? C.primary : "transparent",
-                    color: bookingSection === "doctors" ? "white" : C.muted,
-                    fontSize: 12,
+                    background: "rgba(255, 255, 255, 0.2)",
+                    padding: "3px 8px",
+                    borderRadius: 12,
+                    fontSize: 10,
                     fontWeight: 800,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 6,
-                    transition: "all 0.2s",
                   }}
                 >
-                  <span>👨‍⚕️</span>
-                  <span>{t("निजी / विशेषज्ञ डॉक्टर", "Private & OPD Doctors")}</span>
-                </button>
+                  {aiRecommendations.topHospitals.length} {t("अस्पताल", "Hospitals")} · {aiRecommendations.topDoctors.length} {t("डॉक्टर", "Doctors")}
+                </span>
               </div>
 
-              {/* Department Filter Chips */}
-              <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 10, scrollbarWidth: "none" }}>
-                {["ALL", "General Medicine", "Cardiology", "Pediatrics", "Orthopedics", "Emergency 24/7"].map((dept) => {
-                  const active = selectedDeptFilter === dept;
-                  return (
+              <p style={{ fontSize: 12, lineHeight: 1.4, color: "rgba(255, 255, 255, 0.9)", margin: "0 0 12px 0" }}>
+                {t(aiRecommendations.reasonHi, aiRecommendations.reasonEn)}
+              </p>
+
+              {/* Recommended Facilities & Doctors Horizontal Cards */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {aiRecommendations.topHospitals.map((fac) => (
+                  <div
+                    key={`rec-fac-${fac.facilityId || fac._id}`}
+                    style={{
+                      background: "rgba(255, 255, 255, 0.12)",
+                      borderRadius: 12,
+                      padding: "10px 12px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      backdropFilter: "blur(4px)",
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: "white" }}>
+                        🏥 {fac.shortName || fac.name}
+                      </div>
+                      <div style={{ fontSize: 11, color: "rgba(255, 255, 255, 0.8)", marginTop: 2 }}>
+                        📍 {fac.location} · {fac.distanceKm} km {fac.emergencyAvailable ? "· 🚨 24/7 Casualty" : ""}
+                      </div>
+                    </div>
                     <button
-                      key={dept}
-                      onClick={() => setSelectedDeptFilter(dept)}
+                      onClick={() => startFacilityBooking(fac)}
                       style={{
-                        whiteSpace: "nowrap",
-                        padding: "5px 12px",
-                        borderRadius: 20,
-                        border: `1px solid ${active ? C.primary : C.border}`,
-                        background: active ? `${C.primary}15` : C.card,
-                        color: active ? C.primary : C.muted,
+                        background: "white",
+                        color: C.primary,
+                        border: "none",
+                        borderRadius: 8,
+                        padding: "6px 12px",
                         fontSize: 11,
-                        fontWeight: 700,
+                        fontWeight: 800,
                         cursor: "pointer",
+                        whiteSpace: "nowrap",
+                        boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
                       }}
                     >
-                      {dept === "ALL" ? t("सभी विभाग", "All Departments") : dept}
+                      {t("चुनें", "1-Tap Select")} →
                     </button>
-                  );
-                })}
+                  </div>
+                ))}
+
+                {aiRecommendations.topDoctors.map((doc) => (
+                  <div
+                    key={`rec-doc-${doc.id}`}
+                    style={{
+                      background: "rgba(255, 255, 255, 0.12)",
+                      borderRadius: 12,
+                      padding: "10px 12px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      backdropFilter: "blur(4px)",
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: "white" }}>
+                        👨‍⚕️ {doc.name}
+                      </div>
+                      <div style={{ fontSize: 11, color: "rgba(255, 255, 255, 0.8)", marginTop: 2 }}>
+                        {doc.specialization} · ★ {Number(doc.rating).toFixed(1)} ({doc.reviewCount || 0})
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => startDoctorBooking(doc)}
+                      style={{
+                        background: "#FEF3C7",
+                        color: "#92400E",
+                        border: "none",
+                        borderRadius: 8,
+                        padding: "6px 12px",
+                        fontSize: 11,
+                        fontWeight: 800,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                        boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                      }}
+                    >
+                      {t("डॉक्टर चुनें", "Pick Doctor")} →
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
 
+            {/* Manual Patient Search Bar */}
+            <div style={{ padding: "12px 16px 0", background: C.card }}>
+              <div style={{ position: "relative" }}>
+                <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", fontSize: 14 }}>
+                  🔍
+                </span>
+                <input
+                  type="text"
+                  placeholder={t("खुद से खोजें (अस्पताल, डॉक्टर, विभाग)...", "Self search hospitals, doctors, or departments...")}
+                  value={patientSearchQuery}
+                  onChange={(e) => setPatientSearchQuery(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "10px 32px 10px 36px",
+                    borderRadius: 12,
+                    border: `1px solid ${C.border}`,
+                    background: "#F8FAFC",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+                {patientSearchQuery && (
+                  <button
+                    onClick={() => setPatientSearchQuery("")}
+                    style={{
+                      position: "absolute",
+                      right: 10,
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "transparent",
+                      border: "none",
+                      color: C.muted,
+                      cursor: "pointer",
+                      fontSize: 12,
+                    }}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Discovery Tab Switcher (BookMyShow Style) */}
+            <div style={{ display: "flex", padding: "12px 16px 0", gap: 10, background: C.card }}>
+              <button
+                onClick={() => setBookingSection("hospitals")}
+                style={{
+                  flex: 1,
+                  padding: "10px",
+                  borderRadius: 12,
+                  border: bookingSection === "hospitals" ? `2px solid ${C.primary}` : `1px solid ${C.border}`,
+                  background: bookingSection === "hospitals" ? "#F0FDFA" : "#F8FAFC",
+                  color: bookingSection === "hospitals" ? C.primary : C.muted,
+                  fontWeight: 800,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6,
+                }}
+              >
+                <span>🏥</span>
+                <span>{t("अस्पताल", "Hospitals")} ({displayedFacilities.length})</span>
+              </button>
+              <button
+                onClick={() => setBookingSection("doctors")}
+                style={{
+                  flex: 1,
+                  padding: "10px",
+                  borderRadius: 12,
+                  border: bookingSection === "doctors" ? `2px solid ${C.accent}` : `1px solid ${C.border}`,
+                  background: bookingSection === "doctors" ? "#F0F9FF" : "#F8FAFC",
+                  color: bookingSection === "doctors" ? C.accent : C.muted,
+                  fontWeight: 800,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6,
+                }}
+              >
+                <span>👨‍⚕️</span>
+                <span>{t("डॉक्टर", "Doctors")} ({displayedDoctors.length})</span>
+              </button>
+            </div>
+            
             {/* List Content */}
             <div style={{ flex: 1, padding: "14px 16px 30px" }}>
               
@@ -586,7 +916,7 @@ export default function ConfirmBookingPage() {
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                     <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                      {t(`निकटवर्ती अस्पताल (${facilities.length})`, `Nearby Hospitals & Medical Centers (${facilities.length})`)}
+                      {t(`निकटवर्ती अस्पताल (${displayedFacilities.length})`, `Nearby Hospitals & Medical Centers (${displayedFacilities.length})`)}
                     </div>
                     <span style={{ fontSize: 11, color: C.primary, fontWeight: 700 }}>
                       {t("रिसेप्शनिस्ट असिस्टेड", "Receptionist-Assisted")}
@@ -598,17 +928,17 @@ export default function ConfirmBookingPage() {
                       <div style={{ fontSize: 28, marginBottom: 8 }}>⏳</div>
                       <div style={{ fontSize: 13 }}>{t("निकटवर्ती अस्पताल लोड हो रहे हैं...", "Loading nearby hospitals & facilities...")}</div>
                     </div>
-                  ) : facilities.length === 0 ? (
+                  ) : displayedFacilities.length === 0 ? (
                     <div style={{ background: C.card, borderRadius: 16, padding: "30px 20px", textAlign: "center", border: `1px dashed ${C.border}` }}>
                       <div style={{ fontSize: 32, marginBottom: 8 }}>🏥</div>
-                      <div style={{ fontSize: 14, fontWeight: 800 }}>{t("इस लोकेशन में कोई अस्पताल पंजीकृत नहीं", "No Facilities in this Location")}</div>
+                      <div style={{ fontSize: 14, fontWeight: 800 }}>{t("इस खोज में कोई अस्पताल नहीं मिला", "No Facilities Match Your Search")}</div>
                       <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>
-                        {t("कृपया अपनी लोकेशन बदलें या डॉक्टर सेक्शन देखें।", "Try changing your city or view the Doctors tab.")}
+                        {t("कृपया खोज शब्द बदलें या डॉक्टर सेक्शन देखें।", "Try clearing search filters or view the Doctors tab.")}
                       </div>
                     </div>
                   ) : (
                     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                      {facilities.map((fac) => (
+                      {displayedFacilities.map((fac) => (
                         <div
                           key={fac._id || fac.facilityId}
                           style={{
@@ -713,16 +1043,24 @@ export default function ConfirmBookingPage() {
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                     <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                      {t(`उपलब्ध डॉक्टर (${doctors.length})`, `Verified Doctors & Consultants (${doctors.length})`)}
+                      {t(`उपलब्ध डॉक्टर (${displayedDoctors.length})`, `Verified Doctors & Consultants (${displayedDoctors.length})`)}
                     </div>
                     <span style={{ fontSize: 11, color: C.green, fontWeight: 700 }}>
                       ⚡ {t("तत्काल बुकिंग", "Instant Booking")}
                     </span>
                   </div>
 
-                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                    {doctors.map((doc) => {
-                      return (
+                  {displayedDoctors.length === 0 ? (
+                    <div style={{ background: C.card, borderRadius: 16, padding: "30px 20px", textAlign: "center", border: `1px dashed ${C.border}` }}>
+                      <div style={{ fontSize: 32, marginBottom: 8 }}>👨‍⚕️</div>
+                      <div style={{ fontSize: 14, fontWeight: 800 }}>{t("इस खोज में कोई डॉक्टर नहीं मिला", "No Doctors Match Your Search")}</div>
+                      <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>
+                        {t("कृपया खोज फ़िल्टर साफ़ करें।", "Try clearing search filters.")}
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                      {displayedDoctors.map((doc) => (
                         <div
                           key={doc.id}
                           style={{
@@ -809,9 +1147,9 @@ export default function ConfirmBookingPage() {
                             </button>
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
