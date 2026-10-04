@@ -144,6 +144,90 @@ const PRESET_LOCATIONS = [
   { city: "Kesri", state: "Punjab", label: "Kesri Village, Nabha", lat: 30.4011, lng: 76.1923 },
 ];
 
+const calculateGeoDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const R = 6371; // km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+// Real Reverse Geocoding with Address details
+const reverseGeocodeLocation = async (lat: number, lng: number) => {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4500);
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`,
+      {
+        headers: { "Accept-Language": "en" },
+        signal: controller.signal,
+      }
+    );
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      const data = await res.json();
+      const addr = data.address || {};
+      const suburb =
+        addr.suburb ||
+        addr.neighbourhood ||
+        addr.residential ||
+        addr.village ||
+        addr.hamlet ||
+        "";
+      const city =
+        addr.city ||
+        addr.town ||
+        addr.city_district ||
+        addr.county ||
+        addr.state_district ||
+        "";
+      const state = addr.state || "Maharashtra";
+
+      const parts = [suburb, city, state].filter(Boolean);
+      let label = parts.join(", ");
+      if (!label && data.display_name) {
+        label = data.display_name.split(",").slice(0, 3).join(", ");
+      }
+      if (label) {
+        return {
+          city: city || suburb || "Current Area",
+          state,
+          label: `📍 ${label}`,
+          lat,
+          lng,
+        };
+      }
+    }
+  } catch {
+    // network or abort fallback
+  }
+
+  // Fallback: match nearest preset location by geo distance
+  let nearest = PRESET_LOCATIONS[0];
+  let minD = Infinity;
+  for (const p of PRESET_LOCATIONS) {
+    const d = calculateGeoDistance(lat, lng, p.lat, p.lng);
+    if (d < minD) {
+      minD = d;
+      nearest = p;
+    }
+  }
+  return {
+    city: nearest.city,
+    state: nearest.state,
+    label: `${nearest.label}`,
+    lat,
+    lng,
+  };
+};
+
 export default function ConfirmBookingPage() {
   const router = useRouter();
   const { data: session } = useSession();
@@ -159,11 +243,11 @@ export default function ConfirmBookingPage() {
 
   // Location State
   const [currentLocation, setCurrentLocation] = useState<{ city: string; state: string; label: string; lat: number; lng: number }>({
-    city: "Nabha",
-    state: "Punjab",
-    label: "Nabha, Punjab",
-    lat: 30.3752,
-    lng: 76.1528,
+    city: "Mumbai",
+    state: "Maharashtra",
+    label: "Mumbai (Sion / Dharavi)",
+    lat: 19.0360,
+    lng: 72.8601,
   });
   const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [locSearchQuery, setLocSearchQuery] = useState("");
@@ -190,7 +274,36 @@ export default function ConfirmBookingPage() {
 
   const t = (hi: string, en: string) => (lang === "hi" ? hi : en);
 
-  // Online detection
+  // GPS Auto-Detection with real Reverse Geocoded address
+  const handleDetectGPS = useCallback((silent = false) => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      if (!silent) alert("Geolocation is not supported by your browser.");
+      return;
+    }
+    setDetectingGps(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const detected = await reverseGeocodeLocation(lat, lng);
+        setCurrentLocation(detected);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("userLocation", JSON.stringify(detected));
+        }
+        setDetectingGps(false);
+        setLocationModalOpen(false);
+      },
+      (err) => {
+        setDetectingGps(false);
+        if (!silent) {
+          alert("Unable to retrieve GPS coordinates. Please select your city from the list.");
+        }
+      },
+      { timeout: 12000, enableHighAccuracy: true }
+    );
+  }, []);
+
+  // Online detection & Auto-location on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       setLang(localStorage.getItem("lang") || "hi");
@@ -205,6 +318,9 @@ export default function ConfirmBookingPage() {
         try {
           setCurrentLocation(JSON.parse(savedLoc));
         } catch {}
+      } else {
+        // Auto-request location permission on first launch in PWA or mobile browser
+        handleDetectGPS(true);
       }
 
       const r = localStorage.getItem("triageResult");
@@ -218,7 +334,7 @@ export default function ConfirmBookingPage() {
         window.removeEventListener("offline", setOff);
       };
     }
-  }, []);
+  }, [handleDetectGPS]);
 
   useEffect(() => {
     if (session?.user) {
@@ -433,38 +549,7 @@ export default function ConfirmBookingPage() {
     fetchFacilitiesAndDoctors();
   }, [fetchFacilitiesAndDoctors]);
 
-  // GPS Auto-Detection
-  const handleDetectGPS = () => {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser.");
-      return;
-    }
-    setDetectingGps(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        const detected = {
-          city: "Nearby Location",
-          state: "GPS",
-          label: `GPS (${lat.toFixed(3)}, ${lng.toFixed(3)})`,
-          lat,
-          lng,
-        };
-        setCurrentLocation(detected);
-        if (typeof window !== "undefined") {
-          localStorage.setItem("userLocation", JSON.stringify(detected));
-        }
-        setDetectingGps(false);
-        setLocationModalOpen(false);
-      },
-      () => {
-        setDetectingGps(false);
-        alert("Unable to retrieve GPS coordinates. Please select your city from the list.");
-      },
-      { timeout: 10000 }
-    );
-  };
+
 
   const handleSelectLocation = (loc: (typeof PRESET_LOCATIONS)[0]) => {
     setCurrentLocation(loc);
@@ -614,7 +699,7 @@ export default function ConfirmBookingPage() {
     <div style={{ background: "#0d1520", minHeight: "100vh", display: "flex", justifyContent: "center" }}>
       <div style={{ width: "100%", maxWidth: 440, background: C.bg, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
         
-        {/* Top Header & BookMyShow Location Banner */}
+        {/* Top Header & Location Banner */}
         <div style={{ background: `linear-gradient(135deg, ${C.primaryDark}, ${C.primary})`, padding: "16px 18px", color: "white" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <button
@@ -625,7 +710,7 @@ export default function ConfirmBookingPage() {
             </button>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 16, fontWeight: 800 }}>{t("डॉक्टर व अस्पताल खोजें", "Healthcare & Doctor Discovery")}</div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)" }}>{t("बुकमायशो शैली में स्मार्ट अपॉइंटमेंट", "BookMyShow-Style Smart Booking")}</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)" }}>{t("स्मार्ट ओपीडी व अस्पताल नेटवर्क", "Integrated Health Facility Grid")}</div>
             </div>
             <button
               onClick={() => setLang(lang === "hi" ? "en" : "hi")}
@@ -862,7 +947,7 @@ export default function ConfirmBookingPage() {
               </div>
             </div>
 
-            {/* Discovery Tab Switcher (BookMyShow Style) */}
+            {/* Discovery Tab Switcher (Hospitals vs Doctors) */}
             <div style={{ display: "flex", padding: "12px 16px 0", gap: 10, background: C.card }}>
               <button
                 onClick={() => setBookingSection("hospitals")}
@@ -911,7 +996,7 @@ export default function ConfirmBookingPage() {
             {/* List Content */}
             <div style={{ flex: 1, padding: "14px 16px 30px" }}>
               
-              {/* SECTION 1: HOSPITALS & CLINICS (BookMyShow Theatre Style) */}
+              {/* SECTION 1: HOSPITALS & MEDICAL CENTERS (Facility Reception Desk) */}
               {bookingSection === "hospitals" && (
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
@@ -1388,7 +1473,7 @@ export default function ConfirmBookingPage() {
           </div>
         )}
 
-        {/* Location Picker Modal (BookMyShow Style) */}
+        {/* Regional Location Picker Modal */}
         {locationModalOpen && (
           <div
             style={{
@@ -1436,7 +1521,7 @@ export default function ConfirmBookingPage() {
               {/* 1-Tap GPS Auto Detect */}
               <button
                 type="button"
-                onClick={handleDetectGPS}
+                onClick={() => handleDetectGPS(false)}
                 disabled={detectingGps}
                 style={{
                   width: "100%",
