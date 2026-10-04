@@ -50,10 +50,16 @@ export default function HomePage() {
       if (cachedConsults) setConsultationCount(parseInt(cachedConsults) || 0);
       const cachedDocs = localStorage.getItem("cachedDoctorsCount");
       if (cachedDocs) setDoctorsCount(parseInt(cachedDocs) || 2);
+
+      if (!isOnline || !navigator.onLine) {
+        import("@/lib/db-offline").then(({ getDB }) => {
+          getDB().consultations.count().then(count => {
+            if (count > 0) setConsultationCount(count);
+          }).catch(() => {});
+        });
+        return;
+      }
     }
-
-    if (!isOnline) return;
-
     // Fetch personal consultations history
     const identifier = (user as any).phone || (user as any)._id;
     if (identifier) {

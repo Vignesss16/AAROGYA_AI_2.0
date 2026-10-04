@@ -18,14 +18,14 @@ export interface PatientUser {
   abhaLinked?: boolean;
 }
 
-/** Drop-in replacement for the old custom useAuth hook, now backed by NextAuth. */
+/** Drop-in replacement for the old custom useAuth hook, now backed by NextAuth + offline fallback. */
 export function useAuth() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
   const [cachedUser, setCachedUser] = useState<PatientUser | null>(() => {
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("cachedPatientUser");
+      const stored = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user");
       if (stored) {
         try { return JSON.parse(stored); } catch {}
       }
@@ -59,6 +59,7 @@ export function useAuth() {
   useEffect(() => {
     if (liveUser && typeof window !== "undefined") {
       localStorage.setItem("cachedPatientUser", JSON.stringify(liveUser));
+      localStorage.setItem("aarogya_user", JSON.stringify(liveUser));
       setCachedUser(liveUser);
     }
   }, [liveUser]);
@@ -148,7 +149,9 @@ export function useAuth() {
   const logout = async () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("cachedPatientUser");
+      localStorage.removeItem("aarogya_user");
     }
+    setCachedUser(null);
     await signOut({ redirect: false });
     router.push("/login");
   };

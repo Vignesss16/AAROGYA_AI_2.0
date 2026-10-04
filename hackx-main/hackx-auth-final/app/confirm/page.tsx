@@ -315,10 +315,39 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { TriageResult } from "@/lib/triage";
+import { getDB, addToSyncQueue } from "@/lib/db-offline";
 
 const C = { primary: "#1B6CA8", primaryDark: "#0F4C7A", green: "#1E8449", greenLight: "#27AE60", red: "#C0392B", yellow: "#F39C12", bg: "#F0F4F8", card: "#FFFFFF", text: "#1A2332", muted: "#6B7C93", border: "#DDE3EC" };
 
-// Dynamic fetch handles this now
+const DEFAULT_DOCTORS = [
+  {
+    id: "D1",
+    name: "Dr. Arvind Kumar",
+    spec: (t: any) => t("जनरल फिजिशियन", "General Physician"),
+    hospital: "Nabha Civil Hospital",
+    dist: "2.1 km",
+    slots: ["9:00 AM", "10:30 AM", "12:00 PM", "2:30 PM", "4:00 PM"],
+    fee: "₹0 (Govt)",
+  },
+  {
+    id: "D2",
+    name: "Dr. Sunita Sharma",
+    spec: (t: any) => t("बाल रोग विशेषज्ञ", "Pediatrician"),
+    hospital: "PHC Kesri",
+    dist: "0.8 km",
+    slots: ["9:30 AM", "11:00 AM", "3:00 PM", "4:00 PM"],
+    fee: "₹0 (Govt)",
+  },
+  {
+    id: "D3",
+    name: "Dr. Ravi Patel",
+    spec: (t: any) => t("हृदय रोग विशेषज्ञ", "Cardiologist"),
+    hospital: "District Hospital",
+    dist: "5.2 km",
+    slots: ["10:00 AM", "11:30 AM", "4:30 PM"],
+    fee: "₹200",
+  },
+];
 
 function t(lang: string, hi: string, en: string) { return lang === "hi" ? hi : en; }
 
@@ -329,7 +358,7 @@ export default function ConfirmPage() {
   const [patient, setPatient] = useState<{ name: string; phone: string } | null>(null);
   const { data: session } = useSession();
   const [step, setStep] = useState<"select-doctor" | "select-slot" | "booked">("select-doctor");
-  const [doctors, setDoctors] = useState<any[]>([]);
+  const [doctors, setDoctors] = useState<any[]>(DEFAULT_DOCTORS);
   const [selectedDoctor, setSelectedDoctor] = useState<any | null>(null);
   const [selectedSlot, setSelectedSlot] = useState("");
   const [queueNo, setQueueNo] = useState("");
@@ -337,6 +366,7 @@ export default function ConfirmPage() {
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
+  const [isOfflineSaved, setIsOfflineSaved] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -371,7 +401,7 @@ export default function ConfirmPage() {
       try {
         const res = await fetch("/api/admin/doctors");
         const data = await res.json();
-        if (data.doctors) {
+        if (data.doctors && data.doctors.length > 0) {
           const mapped = data.doctors.map((d: any) => ({
             id: d._id,
             name: d.name.startsWith("Dr.") ? d.name : "Dr. " + d.name,
@@ -382,8 +412,12 @@ export default function ConfirmPage() {
             fee: "₹0 (Govt)"
           }));
           setDoctors(mapped);
+        } else {
+          setDoctors(DEFAULT_DOCTORS);
         }
-      } catch {}
+      } catch {
+        setDoctors(DEFAULT_DOCTORS);
+      }
     };
     fetchDoctors();
   }, []);
@@ -431,24 +465,57 @@ export default function ConfirmPage() {
       status:       "pending",
     };
 
-    try {
-      const res = await fetch("/api/consultations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(consultationData),
-      });
+    const idempotencyKey = `consult_${consultationData.patientPhone || "anon"}_${Date.now()}`;
+    let savedOffline = false;
 
-      if (res.ok) {
-        // Also save to localStorage as backup
-        const existing = JSON.parse(localStorage.getItem("myConsultations") || "[]");
-        const saved = await res.json();
-        existing.unshift(saved.consultation);
-        localStorage.setItem("myConsultations", JSON.stringify(existing));
+    if (!isOnline) {
+      savedOffline = true;
+    } else {
+      try {
+        const res = await fetch("/api/consultations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(consultationData),
+        });
+
+        if (res.ok) {
+          const saved = await res.json();
+          const existing = JSON.parse(localStorage.getItem("myConsultations") || "[]");
+          existing.unshift(saved.consultation);
+          localStorage.setItem("myConsultations", JSON.stringify(existing));
+        } else {
+          savedOffline = true;
+        }
+      } catch {
+        savedOffline = true;
       }
-    } catch {
-      // Save offline as backup
+    }
+
+    if (savedOffline) {
+      setIsOfflineSaved(true);
+      try {
+        const db = getDB();
+        await db.consultations.add({
+          patientPhone: consultationData.patientPhone,
+          patientName: consultationData.patientName,
+          symptoms: consultationData.symptoms,
+          urgency: consultationData.urgency as any,
+          triageResult: JSON.stringify(consultationData.triageResult),
+          createdAt: new Date(),
+          needsSync: true,
+        });
+        await addToSyncQueue("/api/consultations", "POST", consultationData, idempotencyKey);
+      } catch (err) {
+        console.error("Dexie queue error:", err);
+      }
+
       const existing = JSON.parse(localStorage.getItem("myConsultations") || "[]");
-      existing.unshift({ ...consultationData, _id: Date.now().toString(), createdAt: new Date().toISOString() });
+      existing.unshift({
+        ...consultationData,
+        _id: "offline_" + Date.now(),
+        isOffline: true,
+        createdAt: new Date().toISOString()
+      });
       localStorage.setItem("myConsultations", JSON.stringify(existing));
     }
 
@@ -460,8 +527,12 @@ export default function ConfirmPage() {
     setLoadingSlots(true);
     try {
       const res = await fetch(`/api/consultations/slots?doctorId=${doctorId}`);
-      const data = await res.json();
-      setBookedSlots(data.bookedSlots || []);
+      if (res.ok) {
+        const data = await res.json();
+        setBookedSlots(data.bookedSlots || []);
+      } else {
+        setBookedSlots([]);
+      }
     } catch { setBookedSlots([]); }
     setLoadingSlots(false);
   };
@@ -606,10 +677,12 @@ export default function ConfirmPage() {
             </div>
           ))}
         </div>
-        {!isOnline && (
+        {(isOfflineSaved || !isOnline) && (
           <div style={{ background: "#FEF9E7", borderRadius: 12, padding: 12, width: "100%", marginBottom: 16, border: "1px solid #F4D03F", display: "flex", gap: 8 }}>
             <span>⚡</span>
-            <p style={{ fontSize: 13, color: "#7D6608", margin: 0, lineHeight: 1.5 }}>{T("जब इंटरनेट आएगा, डॉक्टर को सूचना मिलेगी", "When internet returns, doctor will be notified automatically")}</p>
+            <p style={{ fontSize: 13, color: "#7D6608", margin: 0, lineHeight: 1.5, fontWeight: 600 }}>
+              {T("ऑफ़लाइन सेव हो गया — इंटरनेट आने पर डॉक्टर को स्वतः सूचना मिल जाएगी", "Saved Offline — will automatically sync to hospital database when internet returns")}
+            </p>
           </div>
         )}
         <button onClick={() => router.push("/home")} style={{ width: "100%", padding: 16, borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 16, background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, color: "white" }}>

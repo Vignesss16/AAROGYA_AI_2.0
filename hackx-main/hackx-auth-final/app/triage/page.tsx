@@ -189,7 +189,7 @@ export default function TriagePage() {
         let pName = "Patient";
         let pPhone = "9876501001";
         try {
-          const cached = localStorage.getItem("cachedPatientUser");
+          const cached = localStorage.getItem("cachedPatientUser") || localStorage.getItem("patient");
           if (cached) {
             const parsed = JSON.parse(cached);
             if (parsed.name) pName = parsed.name;
@@ -233,7 +233,30 @@ export default function TriagePage() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(redPayload),
-          }).then(() => localStorage.setItem(lockKey, "true")).catch(console.error);
+          })
+          .then((resp) => {
+            if (!resp.ok) throw new Error("Offline / Server Error");
+            localStorage.setItem(lockKey, "true");
+          })
+          .catch(async () => {
+            try {
+              const { addToSyncQueue, getDB } = await import("@/lib/db-offline");
+              const db = getDB();
+              await db.consultations.add({
+                patientPhone: pPhone,
+                patientName: pName,
+                symptoms: syms,
+                urgency: "RED",
+                triageResult: JSON.stringify(res),
+                createdAt: new Date(),
+                needsSync: true,
+              });
+              await addToSyncQueue("/api/consultations", "POST", redPayload);
+              localStorage.setItem(lockKey, "true");
+            } catch (e) {
+              console.error("Failed to queue offline RED emergency:", e);
+            }
+          });
         }
       }
     };

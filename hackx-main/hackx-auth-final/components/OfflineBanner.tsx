@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
-import { syncAllOfflineData, flushSyncQueue, getDB } from "@/lib/db-offline";
+import { syncAllOfflineData, flushSyncQueue, getDB, seedOfflineData } from "@/lib/db-offline";
 
 export default function OfflineBanner() {
   const { isOnline, justCameOnline } = useOnlineStatus();
@@ -9,6 +9,13 @@ export default function OfflineBanner() {
   const [queueCount, setQueueCount] = useState(0);
   const [syncing, setSyncing] = useState(false);
   const [syncedCount, setSyncedCount] = useState(0);
+
+  // Auto-seed offline data on boot
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      seedOfflineData().catch(console.error);
+    }
+  }, []);
 
   // Check sync queue and run batch sync when coming back online
   useEffect(() => {

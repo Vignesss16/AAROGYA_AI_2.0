@@ -11,6 +11,20 @@ const withPWA = require("next-pwa")({
     document: "/~offline",
   },
   runtimeCaching: [
+    // 1. Next.js 14 App Router RSC payload caching (?_rsc=...)
+    {
+      urlPattern: ({ url }) => url.searchParams.has("_rsc"),
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "next-rsc-cache",
+        expiration: {
+          maxEntries: 64,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+        },
+        networkTimeoutSeconds: 2,
+      },
+    },
+    // 2. HTML navigation requests
     {
       urlPattern: ({ request }) => request.mode === "navigate",
       handler: "NetworkFirst",
@@ -23,6 +37,7 @@ const withPWA = require("next-pwa")({
         },
       },
     },
+    // 3. Fallback to standard next-pwa cache rules for assets/fonts/images
     ...defaultRuntimeCaching,
   ],
 });
