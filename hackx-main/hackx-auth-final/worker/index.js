@@ -46,13 +46,13 @@ self.addEventListener('fetch', (event) => {
           // 2. Network failed or timed out — device is offline
           const url = new URL(event.request.url);
 
-          // If offline and attempting to open /login, serve /home directly!
-          if (url.pathname === '/login' || url.pathname === '/') {
+          // If offline and attempting to open root '/', serve /home if cached!
+          if (url.pathname === '/') {
             const homeMatch = await caches.match('/home', { ignoreSearch: true });
             if (homeMatch) return homeMatch;
           }
 
-          // Attempt A: Match the requested URL from any cache
+          // Attempt A: Match the requested URL from any cache (e.g. /login, /home, /records)
           const exactMatch = await caches.match(event.request, { ignoreSearch: true });
           if (exactMatch) return exactMatch;
 

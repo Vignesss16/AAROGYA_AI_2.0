@@ -50,6 +50,11 @@ export default function LoginPage() {
     const storedLang = localStorage.getItem("lang") || "hi";
     setLang(storedLang);
 
+    // If user explicitly clicked Logout, respect their decision and remain on login screen
+    if (typeof window !== "undefined" && sessionStorage.getItem("user_explicitly_logged_out")) {
+      return;
+    }
+
     // 1. WhatsApp-like Auto-redirect to previously logged-in role
     const lastRole = localStorage.getItem("last_logged_role");
 
@@ -76,20 +81,14 @@ export default function LoginPage() {
 
     // Patient
     const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
-    const lastPhone = localStorage.getItem("last_login_phone");
-    if (cachedPatient || isAuthenticated || lastRole === "patient" || lastPhone) {
+    if (cachedPatient || isAuthenticated || lastRole === "patient") {
       localStorage.removeItem("pending_reg");
       router.replace("/home");
       return;
     }
 
-    // If completely offline: Never block user on login page, directly enter home dashboard!
-    if (!navigator.onLine || !isOnline) {
-      handleOfflineEnter();
-      return;
-    }
-
     // Prepopulate phone if previously saved
+    const lastPhone = localStorage.getItem("last_login_phone");
     if (lastPhone && !phone) {
       setPhone(lastPhone);
     }
@@ -114,6 +113,9 @@ export default function LoginPage() {
 
   // Direct 1-tap offline entrance
   const handleOfflineEnter = () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("user_explicitly_logged_out");
+    }
     const activePhone = phone.trim().replace(/\D/g, "") || localStorage.getItem("last_login_phone") || "9876543210";
     const offlineUser = {
       _id: `offline-${activePhone}`,
@@ -187,6 +189,9 @@ export default function LoginPage() {
     // Always remember this phone
     localStorage.setItem("last_login_phone", cleanPhone);
     localStorage.setItem("last_logged_role", "patient");
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("user_explicitly_logged_out");
+    }
 
     // If offline: No password required! Phone is identity. Immediate local login!
     if (!navigator.onLine || !isOnline) {
@@ -218,6 +223,9 @@ export default function LoginPage() {
     try {
       const result = await login(cleanPhone, password);
       if (result.success) {
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("user_explicitly_logged_out");
+        }
         localStorage.setItem("last_login_phone", cleanPhone);
         localStorage.setItem("last_logged_role", "patient");
         router.replace("/home");

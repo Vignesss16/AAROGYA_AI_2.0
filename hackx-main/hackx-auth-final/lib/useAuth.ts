@@ -252,12 +252,13 @@ export function useAuth() {
       localStorage.removeItem("patient");
       localStorage.removeItem("last_logged_role");
       localStorage.removeItem("last_login_phone");
+      sessionStorage.setItem("user_explicitly_logged_out", "true");
     }
     setCachedUser(null);
     try {
       await signOut({ redirect: false });
     } catch {}
-    router.push("/login");
+    router.replace("/login");
   };
 
   return {
