@@ -52,7 +52,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       if (localStorage.getItem("user_is_logged_out") === "true") {
-        window.location.replace("/login");
+        router.replace("/login");
         return;
       }
       const stored = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
@@ -65,14 +65,14 @@ export default function ProfilePage() {
           }
         } catch {}
       } else if (!authUser && !loading) {
-        window.location.replace("/login");
+        router.replace("/login");
         return;
       }
     }
     if (authUser) {
       setProfile(authUser);
     }
-  }, [authUser, loading]);
+  }, [authUser, loading, router]);
 
   const handleStartEdit = () => {
     setEditForm({

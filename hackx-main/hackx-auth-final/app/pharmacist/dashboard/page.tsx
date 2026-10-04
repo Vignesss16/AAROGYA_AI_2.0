@@ -178,7 +178,7 @@ export default function PharmacistDashboard() {
             <button onClick={async () => {
                 localStorage.removeItem("pharmacist");
                 try { await signOut({ redirect: false }); } catch {}
-                window.location.href = "/pharmacist/login";
+                router.push("/pharmacist/login");
               }}
               style={{ background: "rgba(255,255,255,.15)", border: "none", borderRadius: 8, color: "rgba(255,255,255,.8)", fontSize: 11, fontWeight: 700, padding: "5px 10px", cursor: "pointer" }}>
               Logout

@@ -33,21 +33,7 @@ export function useAuth() {
       if (stored) {
         try { return JSON.parse(stored); } catch {}
       }
-      const lastPhone = localStorage.getItem("last_login_phone");
-      const lastRole = localStorage.getItem("last_logged_role");
-      if (lastRole === "patient" && lastPhone) {
-        return {
-          _id: `offline-${lastPhone}`,
-          phone: lastPhone,
-          name: "Patient",
-          age: 28,
-          gender: "other",
-          village: "Local Area",
-          conditions: [],
-          bloodGroup: "—",
-          role: "patient",
-        };
-      }
+      // If no valid cached patient profile exists, return null so user is not shown mock data
     }
     return null;
   });
@@ -218,12 +204,19 @@ export function useAuth() {
         console.warn("Dexie sync error:", dexErr);
       }
 
-      // 2. Background session sync via NextAuth signIn
-      signIn("patient-credentials", {
-        phone,
-        password,
-        redirect: false,
-      }).catch(err => console.warn("NextAuth session background sync:", err));
+      // 2. Sync NextAuth session cookie before navigating so session is immediately active
+      try {
+        await Promise.race([
+          signIn("patient-credentials", {
+            phone,
+            password,
+            redirect: false,
+          }),
+          new Promise((resolve) => setTimeout(resolve, 1200)),
+        ]);
+      } catch (syncErr) {
+        console.warn("NextAuth session sync warning:", syncErr);
+      }
 
       return { success: true };
     } catch (err: any) {
@@ -359,7 +352,7 @@ export function useAuth() {
     try {
       await signOut({ redirect: false });
     } catch {}
-    window.location.replace("/login");
+    router.replace("/login");
   };
 
   return {

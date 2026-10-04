@@ -31,37 +31,34 @@ export default function SplashPage() {
       // 0. If user has explicitly logged out, respect it and go directly to /login
       const isLoggedOut = localStorage.getItem("user_is_logged_out") === "true";
       if (isLoggedOut) {
-        window.location.replace("/login");
+        router.replace("/login");
         return;
       }
 
-      // WhatsApp-like auto-login check across all storage keys:
-      const lastRole = localStorage.getItem("last_logged_role");
-
       // 1. Check ASHA worker cached session
       const cachedAsha = localStorage.getItem("cachedAshaUser") || localStorage.getItem("asha_user") || localStorage.getItem("ashaworker");
-      if (cachedAsha || lastRole === "ashaworker" || lastRole === "asha") {
+      if (cachedAsha) {
         router.replace("/asha/dashboard");
         return;
       }
 
       // 2. Check Doctor cached session
       const cachedDoc = localStorage.getItem("cachedDoctorUser") || localStorage.getItem("doctor_user");
-      if (cachedDoc || lastRole === "doctor") {
+      if (cachedDoc) {
         router.replace("/doctor/dashboard");
         return;
       }
 
       // 3. Check Pharmacist cached session
       const cachedPharm = localStorage.getItem("pharmacist");
-      if (cachedPharm || lastRole === "pharmacist") {
+      if (cachedPharm) {
         router.replace("/pharmacist");
         return;
       }
 
       // 4. Check Patient cached session
       const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
-      if (cachedPatient || lastRole === "patient") {
+      if (cachedPatient) {
         router.replace("/home");
         return;
       }
@@ -69,11 +66,6 @@ export default function SplashPage() {
       // 5. If no active session exists (offline or online), go to /login
       router.replace("/login");
       return;
-
-      return () => {
-        window.removeEventListener("online", handleOnline);
-        window.removeEventListener("offline", handleOffline);
-      };
     }
 
     // 6. Online NextAuth session check
@@ -105,28 +97,26 @@ export default function SplashPage() {
         return;
       }
 
-      const lastRole = localStorage.getItem("last_logged_role");
-
       const cachedAsha = localStorage.getItem("cachedAshaUser") || localStorage.getItem("asha_user") || localStorage.getItem("ashaworker");
-      if (cachedAsha || lastRole === "ashaworker" || lastRole === "asha") {
+      if (cachedAsha) {
         router.push("/asha/dashboard");
         return;
       }
 
       const cachedDoc = localStorage.getItem("cachedDoctorUser") || localStorage.getItem("doctor_user");
-      if (cachedDoc || lastRole === "doctor") {
+      if (cachedDoc) {
         router.push("/doctor/dashboard");
         return;
       }
 
       const cachedPharm = localStorage.getItem("pharmacist");
-      if (cachedPharm || lastRole === "pharmacist") {
+      if (cachedPharm) {
         router.push("/pharmacist");
         return;
       }
 
       const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
-      if (cachedPatient || lastRole === "patient") {
+      if (cachedPatient) {
         router.push("/home");
         return;
       }

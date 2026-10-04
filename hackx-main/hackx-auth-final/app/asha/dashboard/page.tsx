@@ -267,7 +267,7 @@ export default function ASHADashboardPage() {
                 localStorage.setItem("last_logged_role", "patient");
                 sessionStorage.removeItem("user_explicitly_logged_out");
               }
-              window.location.href = "/login";
+              router.push("/login");
             }} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 10, padding: "4px 8px", fontSize: 11, fontWeight: 700, color: "white", cursor: "pointer" }}>
               👤 {T("मरीज़ पोर्टल", "Patient Portal")}
             </button>
@@ -280,7 +280,7 @@ export default function ASHADashboardPage() {
                 sessionStorage.setItem("user_explicitly_logged_out", "true");
               }
               try { await signOut({ redirect: false }); } catch {}
-              window.location.href = "/asha/login";
+              router.push("/asha/login");
             }} style={{ background: "rgba(0,0,0,0.08)", border: "none", borderRadius: 10, padding: "4px 8px", fontSize: 11, fontWeight: 700, color: C.muted, cursor: "pointer" }}>
               {T("लॉग आउट", "Logout")}
             </button>
@@ -294,7 +294,7 @@ export default function ASHADashboardPage() {
               <p style={{ fontSize: 11, color: "rgba(255,255,255,.65)", marginTop: 3 }}>{ashaName} · {ashaVillages}</p>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => { window.location.href = "/asha/sos"; }} style={{ background: C.red, color: "white", border: "none", borderRadius: 10, padding: "8px 10px", fontWeight: 800, fontSize: 12, cursor: "pointer" }}>
+              <button onClick={() => { router.push("/asha/sos"); }} style={{ background: C.red, color: "white", border: "none", borderRadius: 10, padding: "8px 10px", fontWeight: 800, fontSize: 12, cursor: "pointer" }}>
                 🚨 SOS
               </button>
             </div>

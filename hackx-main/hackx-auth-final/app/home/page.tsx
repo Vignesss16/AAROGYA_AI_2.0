@@ -37,14 +37,14 @@ export default function HomePage() {
     const storedLang = localStorage.getItem("lang") || "hi";
     setLang(storedLang);
 
-    // If logged out or unauthenticated with no cached patient session, immediately redirect to /login
+    // Smoothly redirect unauthenticated visitors without cached session or if explicitly logged out
     if (isLoggedOut || (!loading && !user && !cachedPatientStr)) {
-      window.location.replace("/login");
+      router.replace("/login");
       return;
     }
 
     setHasReport(!!localStorage.getItem("triageResult"));
-  }, [user, loading, isLoggedOut, cachedPatientStr]);
+  }, [user, loading, isLoggedOut, cachedPatientStr, router]);
 
   let cachedUserParsed: any = null;
   if (cachedPatientStr) {
@@ -63,22 +63,6 @@ export default function HomePage() {
     bloodGroup: "—",
     role: "patient",
   };
-
-  // If user is logged out or unauthenticated, show a clean splash loader while redirecting
-  if (isLoggedOut || (!loading && !user && !cachedPatientStr)) {
-    return (
-      <div style={{
-        background: "linear-gradient(145deg, #0f3d61 0%, #1B6CA8 100%)",
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
-      }}>
-        <div style={{ width: 38, height: 38, border: "4px solid rgba(255,255,255,.3)", borderTop: "4px solid white", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-      </div>
-    );
-  }
 
   // Fetch dynamic stats (consultations and doctors online) with offline caching
   useEffect(() => {
@@ -128,7 +112,8 @@ export default function HomePage() {
 
   const t = (hi: string, en: string) => (lang === "hi" ? hi : en);
 
-  if (loading && !user && (!isOnline ? false : true)) {
+  // If visitor is unauthenticated or explicitly logged out, show minimal neutral screen while redirect completes
+  if (isLoggedOut || (!user && !cachedPatientStr)) {
     return (
       <div
         style={{
@@ -139,7 +124,8 @@ export default function HomePage() {
           alignItems: "center",
         }}
       >
-        <div style={{ fontSize: 20, color: "white" }}>⏳ {t("लोड हो रहा है", "Loading...")}</div>
+        <div style={{ width: 32, height: 32, border: "3px solid rgba(255,255,255,.3)", borderTop: "3px solid white", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
     );
   }

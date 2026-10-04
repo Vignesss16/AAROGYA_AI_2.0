@@ -35,14 +35,9 @@ export default function ServiceWorkerRegister() {
           console.error("[PWA] Service Worker registration failed:", error);
         });
 
-      // Handle controller change
-      let refreshing = false;
+      // Handle controller change cleanly without page reload
       navigator.serviceWorker.addEventListener("controllerchange", () => {
-        if (!refreshing) {
-          refreshing = true;
-          console.log("[PWA] Service Worker controller changed, reloading page.");
-          window.location.reload();
-        }
+        console.log("[PWA] Service Worker controller updated.");
       });
     }
   }, []);

@@ -50,29 +50,22 @@ export default function LoginPage() {
     const storedLang = localStorage.getItem("lang") || "hi";
     setLang(storedLang);
 
+    // Prepopulate phone if previously saved
+    const lastPhone = typeof window !== "undefined" ? localStorage.getItem("last_login_phone") : null;
+    if (lastPhone && !phone) {
+      setPhone(lastPhone);
+    }
+
     // If user explicitly clicked Logout, respect their decision and remain on login screen
     if (typeof window !== "undefined" && (sessionStorage.getItem("user_explicitly_logged_out") || localStorage.getItem("user_is_logged_out") === "true")) {
       return;
     }
 
-    // Patient WhatsApp-like auto-redirect: ONLY redirect to /home if a patient session exists AND not logged out!
-    const isLoggedOut = typeof window !== "undefined" && localStorage.getItem("user_is_logged_out") === "true";
-    if (isLoggedOut) {
+    // Auto-redirect ONLY if an active cached patient session exists
+    const cachedPatient = typeof window !== "undefined" && (localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user"));
+    if (cachedPatient) {
+      router.replace("/home");
       return;
-    }
-
-    const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
-    const lastRole = localStorage.getItem("last_logged_role");
-    if (cachedPatient || (isAuthenticated && lastRole === "patient")) {
-      localStorage.removeItem("pending_reg");
-      window.location.replace("/home");
-      return;
-    }
-
-    // Prepopulate phone if previously saved
-    const lastPhone = localStorage.getItem("last_login_phone");
-    if (lastPhone && !phone) {
-      setPhone(lastPhone);
     }
 
     const savedReg = localStorage.getItem("pending_reg");
@@ -85,7 +78,7 @@ export default function LoginPage() {
         if (parsed.step) setStep(parsed.step);
       } catch { }
     }
-  }, [isAuthenticated, router, isOnline]);
+  }, [router]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -137,7 +130,7 @@ export default function LoginPage() {
     localStorage.setItem("patient", JSON.stringify(offlineUser));
     localStorage.setItem("last_login_phone", activePhone);
     localStorage.setItem("last_logged_role", "patient");
-    window.location.replace("/home");
+    router.replace("/home");
   };
 
   // Countdown timer for OTP resend
@@ -178,6 +171,7 @@ export default function LoginPage() {
   };
 
   const handleLogin = async () => {
+    if (loading) return;
     setError("");
     const cleanPhone = phone.trim().replace(/\D/g, "");
     if (!cleanPhone || cleanPhone.length !== 10) {
@@ -220,8 +214,7 @@ export default function LoginPage() {
         }
         localStorage.setItem("last_login_phone", cleanPhone);
         localStorage.setItem("last_logged_role", "patient");
-        // Instant hard navigation — 1-click redirect without router delay
-        window.location.replace("/home");
+        router.replace("/home");
         return;
       } else {
         setError(result.error || t("लॉगिन विफल", "Login failed"));
@@ -259,7 +252,7 @@ export default function LoginPage() {
         if (typeof window !== "undefined") {
           sessionStorage.removeItem("user_explicitly_logged_out");
         }
-        window.location.replace("/home");
+        router.replace("/home");
         return;
       } else {
         setError(result.error || t("लॉगिन विफल", "Login failed"));
@@ -323,7 +316,7 @@ export default function LoginPage() {
         if (typeof window !== "undefined") {
           sessionStorage.removeItem("user_explicitly_logged_out");
         }
-        window.location.replace("/home");
+        router.replace("/home");
         return;
       } else {
         setError(result.error || t("पंजीकरण विफल", "Registration failed"));
