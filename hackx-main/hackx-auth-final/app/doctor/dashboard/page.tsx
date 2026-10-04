@@ -52,7 +52,7 @@ export default function DoctorDashboardPage() {
   const { data: session } = useSession();
   const { lang, setLang, mounted } = useLang();
   const [tick, setTick] = useState(30);
-  const [activeTab, setActiveTab] = useState<"queue" | "lab-reports" | "reviews">("queue");
+  const [activeTab, setActiveTab] = useState<"queue" | "lab-reports" | "referrals" | "reviews">("queue");
   const [queue, setQueue] = useState<Consultation[]>([]);
   const [loadingQueue, setLoadingQueue] = useState(true);
   const [markingDone, setMarkingDone] = useState<string | null>(null);
@@ -68,6 +68,11 @@ export default function DoctorDashboardPage() {
   const [selectedTest, setSelectedTest] = useState<any>(null);
   const [reviewNote, setReviewNote] = useState("");
   const [savingReview, setSavingReview] = useState(false);
+
+  // Referrals & Physical In-Person Follow-up State
+  const [referrals, setReferrals] = useState<any[]>([]);
+  const [loadingReferrals, setLoadingReferrals] = useState(true);
+  const [referralFilter, setReferralFilter] = useState<"ALL" | "IN_PERSON_FOLLOWUP" | "SPECIALIST_FACILITY_TRANSFER">("ALL");
 
   // Doctor Reviews & Rating State
   const [reviews, setReviews] = useState<any[]>([]);
@@ -100,6 +105,21 @@ export default function DoctorDashboardPage() {
       setSosAlerts(data.alerts || []);
     } catch { }
   }, []);
+
+  const fetchReferrals = useCallback(async () => {
+    try {
+      const docEmail = session?.user?.email || "";
+      const docName = session?.user?.name || "";
+      const docQuery = docEmail ? `doctorId=${encodeURIComponent(docEmail)}` : `doctorName=${encodeURIComponent(docName)}`;
+      const res = await fetch(`/api/referrals?${docQuery}`);
+      const data = await res.json();
+      setReferrals(data.referrals || []);
+    } catch {
+      /* offline */
+    } finally {
+      setLoadingReferrals(false);
+    }
+  }, [session]);
 
   const fetchReviews = useCallback(async () => {
     if (!session?.user?.id && !session?.user?.name) return;
@@ -144,15 +164,34 @@ export default function DoctorDashboardPage() {
     setLoadingLabs(false);
   }, [session]);
 
-  // Auto-refresh lab reports and reviews every 30 seconds
+  const handleUpdateReferralStatus = async (id: string, newStatus: string) => {
+    try {
+      const res = await fetch("/api/referrals", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
+      if (res.ok) {
+        setReferrals((prev) =>
+          prev.map((r) => (r._id === id ? { ...r, status: newStatus } : r))
+        );
+      }
+    } catch {
+      /* offline */
+    }
+  };
+
+  // Auto-refresh lab reports, referrals and reviews every 30 seconds
   useEffect(() => {
     fetchReviews();
+    fetchReferrals();
     const interval = setInterval(() => {
       fetchBloodTests();
       fetchReviews();
+      fetchReferrals();
     }, 30000);
     return () => clearInterval(interval);
-  }, [fetchBloodTests, fetchReviews]);
+  }, [fetchBloodTests, fetchReviews, fetchReferrals]);
 
   const handleReviewTest = async (testId: string) => {
     if (!reviewNote.trim()) return;
@@ -402,7 +441,8 @@ export default function DoctorDashboardPage() {
             }}
           >
             {[
-              { id: "queue", l: T("मरीज़ों की कतार", "Queue") },
+              { id: "queue", l: T("कतार", "Queue") },
+              { id: "referrals", l: T(`रेफरल/OPD (${referrals.length})`, `Referrals (${referrals.length})`) },
               { id: "lab-reports", l: T("लैब रिपोर्ट", "Lab Reports") },
               { id: "reviews", l: T(`रेटिंग (${reviewMetrics.totalReviews})`, `Reviews (${reviewMetrics.totalReviews})`) },
             ].map((tab) => (
@@ -806,6 +846,222 @@ export default function DoctorDashboardPage() {
                       </div>
                     ))
                   )}
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Referrals & In-Person Physical OPD Tab */}
+          {activeTab === "referrals" && (
+            <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px 20px" }}>
+              {/* Filter Pills */}
+              <div style={{ display: "flex", gap: 6, marginBottom: 12, overflowX: "auto", paddingBottom: 4 }}>
+                {[
+                  { id: "ALL", label: T("सभी", "All") },
+                  { id: "IN_PERSON_FOLLOWUP", label: T("📅 शारीरिक OPD", "📅 In-Person OPD") },
+                  { id: "SPECIALIST_FACILITY_TRANSFER", label: T("🏥 उच्च रेफरल", "🏥 Referrals") },
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    onClick={() => setReferralFilter(f.id as any)}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: 20,
+                      border: "none",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      background: referralFilter === f.id ? C.primary : "#E2E8F0",
+                      color: referralFilter === f.id ? "white" : C.text,
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+
+              {loadingReferrals ? (
+                <div style={{ textAlign: "center", padding: "30px 20px", color: C.muted }}>
+                  <div style={{ fontSize: 24, marginBottom: 8 }}>⏳</div>
+                  <div style={{ fontSize: 13 }}>{T("रेफरल लोड हो रहे हैं...", "Loading referrals...")}</div>
+                </div>
+              ) : (
+                <>
+                  {(() => {
+                    const filtered = referrals.filter((r) => {
+                      if (referralFilter === "ALL") return true;
+                      return r.referralType === referralFilter;
+                    });
+
+                    if (filtered.length === 0) {
+                      return (
+                        <div style={{ background: C.card, borderRadius: 16, padding: "36px 20px", textAlign: "center", border: `1px dashed ${C.border}` }}>
+                          <div style={{ fontSize: 36, marginBottom: 10 }}>📋</div>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>
+                            {T("कोई रेफरल या शारीरिक OPD नहीं", "No Active Referrals or OPD Visits")}
+                          </div>
+                          <div style={{ fontSize: 12, color: C.muted, marginTop: 6, lineHeight: 1.4 }}>
+                            {T("ऑनलाइन परामर्श के दौरान शारीरिक अस्पताल विज़िट या उच्च केंद्र रेफरल बुक करने पर यहाँ दिखाई देगा।", "Referrals or in-person visits booked during consultations will appear here.")}
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        {filtered.map((ref) => {
+                          const isInPerson = ref.referralType === "IN_PERSON_FOLLOWUP";
+                          const isPending = ref.status === "pending";
+                          const isArrived = ref.status === "arrived";
+                          const isCompleted = ref.status === "completed";
+
+                          return (
+                            <div
+                              key={ref._id}
+                              style={{
+                                background: C.card,
+                                borderRadius: 16,
+                                padding: 14,
+                                border: `1.5px solid ${isInPerson ? "#A7F3D0" : "#FED7AA"}`,
+                                borderLeft: `5px solid ${isInPerson ? "#10B981" : "#D97706"}`,
+                                boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+                              }}
+                            >
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                                <div>
+                                  <span
+                                    style={{
+                                      background: isInPerson ? "#ECFDF5" : "#FFF7ED",
+                                      color: isInPerson ? "#059669" : "#C2410C",
+                                      padding: "3px 8px",
+                                      borderRadius: 6,
+                                      fontSize: 10,
+                                      fontWeight: 800,
+                                      textTransform: "uppercase",
+                                    }}
+                                  >
+                                    {isInPerson ? "📅 Physical Hospital Follow-Up" : "🏥 Specialist Referral"}
+                                  </span>
+                                  <div style={{ fontWeight: 800, fontSize: 15, color: C.text, marginTop: 4 }}>
+                                    {ref.patientName}
+                                  </div>
+                                </div>
+
+                                <div style={{ textAlign: "right" }}>
+                                  {ref.opdToken && (
+                                    <div style={{ fontSize: 11, fontWeight: 800, color: C.primary, background: "#E0F2FE", padding: "2px 6px", borderRadius: 6 }}>
+                                      Token: {ref.opdToken}
+                                    </div>
+                                  )}
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      marginTop: 4,
+                                      fontSize: 10,
+                                      fontWeight: 800,
+                                      padding: "2px 8px",
+                                      borderRadius: 12,
+                                      background: isCompleted ? "#D1FAE5" : isArrived ? "#E0F2FE" : "#FEF3C7",
+                                      color: isCompleted ? "#065F46" : isArrived ? "#0369A1" : "#92400E",
+                                    }}
+                                  >
+                                    {isCompleted ? "✓ Completed" : isArrived ? "🏥 Arrived at Hospital" : "⏳ Pending"}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div style={{ background: "#F8FAFC", borderRadius: 10, padding: "8px 10px", fontSize: 12, marginBottom: 8, display: "flex", flexDirection: "column", gap: 3 }}>
+                                <div>
+                                  📍 <strong>{ref.targetFacility}</strong> {ref.targetDepartment ? `· ${ref.targetDepartment}` : ""}
+                                </div>
+                                {ref.scheduledDate && (
+                                  <div style={{ color: C.muted }}>
+                                    🗓️ Date: <strong>{ref.scheduledDate}</strong> ({ref.scheduledSlot || "OPD Slot"})
+                                  </div>
+                                )}
+                                <div style={{ color: "#475569", marginTop: 2 }}>
+                                  💬 <em>{ref.reasonForReferral}</em>
+                                </div>
+                              </div>
+
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6, flexWrap: "wrap", borderTop: `1px solid ${C.border}`, paddingTop: 8 }}>
+                                <div style={{ display: "flex", gap: 6 }}>
+                                  <button
+                                    onClick={() => window.open(`tel:${ref.patientPhone}`)}
+                                    style={{
+                                      background: "#F1F5F9",
+                                      border: "none",
+                                      borderRadius: 8,
+                                      padding: "5px 9px",
+                                      fontSize: 11,
+                                      fontWeight: 700,
+                                      color: C.text,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    📞 {ref.patientPhone}
+                                  </button>
+                                  <button
+                                    onClick={() => setCallPatient({ id: ref.patientPhone, name: ref.patientName })}
+                                    style={{
+                                      background: "#E0F2FE",
+                                      border: "none",
+                                      borderRadius: 8,
+                                      padding: "5px 9px",
+                                      fontSize: 11,
+                                      fontWeight: 700,
+                                      color: "#0369A1",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    💻 App Call
+                                  </button>
+                                </div>
+
+                                <div style={{ display: "flex", gap: 4 }}>
+                                  {!isArrived && !isCompleted && (
+                                    <button
+                                      onClick={() => handleUpdateReferralStatus(ref._id, "arrived")}
+                                      style={{
+                                        background: "#E0F2FE",
+                                        color: "#0284C7",
+                                        border: "none",
+                                        borderRadius: 8,
+                                        padding: "5px 9px",
+                                        fontSize: 11,
+                                        fontWeight: 800,
+                                        cursor: "pointer",
+                                      }}
+                                    >
+                                      Mark Arrived
+                                    </button>
+                                  )}
+                                  {!isCompleted && (
+                                    <button
+                                      onClick={() => handleUpdateReferralStatus(ref._id, "completed")}
+                                      style={{
+                                        background: "#10B981",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: 8,
+                                        padding: "5px 9px",
+                                        fontSize: 11,
+                                        fontWeight: 800,
+                                        cursor: "pointer",
+                                      }}
+                                    >
+                                      ✓ Complete
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                 </>
               )}
             </div>

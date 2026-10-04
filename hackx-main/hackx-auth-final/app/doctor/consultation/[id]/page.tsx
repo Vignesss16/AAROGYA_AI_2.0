@@ -97,8 +97,20 @@ export default function ConsultationDetailPage() {
   const [saving, setSaving] = useState(false);
   const [callOpen, setCallOpen] = useState(false);
   const [referModalOpen, setReferModalOpen] = useState(false);
-  const [referralTarget, setReferralTarget] = useState("District Hospital, Nabha");
+  const [referralTarget, setReferralTarget] = useState("Lokmanya Tilak Municipal General Hospital (SION Mumbai)");
+  const [referralDept, setReferralDept] = useState("Cardiology & Apex Trauma");
   const [referralReason, setReferralReason] = useState("");
+  const [referralUrgency, setReferralUrgency] = useState<"RED" | "YELLOW" | "GREEN">("YELLOW");
+
+  // In-Person Physical Hospital OPD Visit State
+  const [physicalVisitModalOpen, setPhysicalVisitModalOpen] = useState(false);
+  const [physicalFacility, setPhysicalFacility] = useState("Lokmanya Tilak Municipal General Hospital (SION Mumbai)");
+  const [physicalDept, setPhysicalDept] = useState("General Medicine OPD Room 14");
+  const [physicalDate, setPhysicalDate] = useState(
+    new Date(Date.now() + 86400000).toISOString().split("T")[0]
+  );
+  const [physicalSlot, setPhysicalSlot] = useState("Morning 10:00 AM - 12:00 PM");
+  const [physicalInstructions, setPhysicalInstructions] = useState("Bring prior medical reports, ECG, and fasting blood work.");
   const [exporting, setExporting] = useState(false);
 
   // Diagnostic Lab Order State
@@ -307,9 +319,66 @@ export default function ConsultationDetailPage() {
     setSaving(false);
   };
 
+  // Schedule In-Person Physical Hospital OPD Visit with the same doctor
+  const handleSchedulePhysicalVisit = async () => {
+    setSaving(true);
+    const prescriptionJson = JSON.stringify(rxRows.filter((r) => r.medicine.trim()));
+    const token = `OPD-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    try {
+      await fetch("/api/referrals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patientPhone: consultation?.patientPhone,
+          patientName: consultation?.patientName,
+          consultationId: id,
+          referredByDoctorId: session?.user?.email || "doctor",
+          referredByDoctorName: doctorName,
+          sourceFacility: "Online Telemedicine Consultation",
+          targetFacility: physicalFacility,
+          targetDepartment: physicalDept,
+          targetDoctorName: doctorName,
+          referralType: "IN_PERSON_FOLLOWUP",
+          scheduledDate: physicalDate,
+          scheduledSlot: physicalSlot,
+          opdToken: token,
+          reasonForReferral: `Physical Hospital Follow-up with ${doctorName}: ${physicalInstructions}`,
+          clinicalNotes: notes,
+          urgency: consultation?.urgency || "GREEN",
+        }),
+      });
+
+      const updatedNote = notes + `\n\n[IN-PERSON PHYSICAL OPD BOOKED]: ${physicalFacility} (${physicalDept})\nDate: ${physicalDate} (${physicalSlot})\nToken: ${token}\nInstructions: ${physicalInstructions}`;
+
+      await fetch("/api/consultations", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id,
+          status: "completed",
+          doctorNotes: updatedNote,
+          prescription: prescriptionJson,
+          doctorName,
+          urgency: consultation?.urgency,
+        }),
+      });
+
+      alert(`✅ In-Person Physical Hospital Visit Booked!\n\nHospital: ${physicalFacility}\nRoom: ${physicalDept}\nDate: ${physicalDate}\nOPD Slip Token: ${token}\n\nPatient notified via SMS and App.`);
+      router.push("/doctor/dashboard");
+    } catch {
+      alert("Failed to schedule in-person physical follow-up.");
+    } finally {
+      setSaving(false);
+      setPhysicalVisitModalOpen(false);
+    }
+  };
+
   const handleReferPatient = async () => {
     setSaving(true);
     const prescriptionJson = JSON.stringify(rxRows.filter((r) => r.medicine.trim()));
+    const token = `REF-${Math.floor(1000 + Math.random() * 9000)}`;
+
     try {
       await fetch("/api/referrals", {
         method: "POST",
@@ -322,8 +391,12 @@ export default function ConsultationDetailPage() {
           referredByDoctorName: doctorName,
           sourceFacility: "Telemedicine Platform",
           targetFacility: referralTarget,
-          reasonForReferral: referralReason || notes || "Requires advanced care",
-          urgency: consultation?.urgency,
+          targetDepartment: referralDept,
+          referralType: "SPECIALIST_FACILITY_TRANSFER",
+          reasonForReferral: referralReason || notes || "Requires advanced tertiary hospital examination",
+          clinicalNotes: notes,
+          opdToken: token,
+          urgency: referralUrgency || consultation?.urgency || "YELLOW",
         }),
       });
 
@@ -333,12 +406,13 @@ export default function ConsultationDetailPage() {
         body: JSON.stringify({
           id,
           status: "completed",
-          doctorNotes: notes + `\n\n[REFERRED TO ${referralTarget}]: ${referralReason}`,
+          doctorNotes: notes + `\n\n[REFERRED TO ${referralTarget} - ${referralDept}]: ${referralReason} (Token: ${token})`,
           prescription: prescriptionJson,
           doctorName,
-          urgency: consultation?.urgency,
+          urgency: referralUrgency || consultation?.urgency,
         }),
       });
+      alert(`✅ Referral Dispatched!\n\nTarget: ${referralTarget} (${referralDept})\nUrgency: ${referralUrgency}\nTracking Token: ${token}`);
       router.push("/doctor/dashboard");
     } catch {
       /* offline */
@@ -706,42 +780,52 @@ export default function ConsultationDetailPage() {
             </button>
           </div>
 
-          {/* Action Row 1 */}
-          <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+          {/* Action Row 1: Immediate Patient Engagement & In-Person Follow-up */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 10, marginBottom: 10 }}>
             <button
               onClick={() => setCallOpen(true)}
-              style={{ flex: 1, padding: 13, borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 14, background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, color: "white" }}
+              style={{ padding: 13, borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 13, background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, color: "white", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
             >
               📞 Call Patient
             </button>
             <button
-              onClick={() => setReferModalOpen(true)}
-              style={{ flex: 1, padding: 13, borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 14, background: `linear-gradient(135deg,#D35400,#E67E22)`, color: "white" }}
+              onClick={() => setPhysicalVisitModalOpen(true)}
+              style={{ padding: 13, borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 13, background: "linear-gradient(135deg, #059669, #10B981)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, boxShadow: "0 4px 12px rgba(16, 185, 129, 0.3)" }}
             >
-              🏥 Refer Patient
+              📅 In-Person OPD Follow-up
+            </button>
+          </div>
+
+          {/* Action Row 2: Referrals & Health Records */}
+          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 10, marginBottom: 10 }}>
+            <button
+              onClick={() => setReferModalOpen(true)}
+              style={{ padding: 13, borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 13, background: "linear-gradient(135deg,#D35400,#E67E22)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+            >
+              🏥 Refer to Higher Center
             </button>
             <button
               onClick={handleExportABDM}
               disabled={exporting}
-              style={{ flex: 1, padding: 13, borderRadius: 14, border: "none", cursor: exporting ? "wait" : "pointer", fontWeight: 700, fontSize: 14, background: `linear-gradient(135deg,#27AE60,#1E8449)`, color: "white", opacity: exporting ? 0.7 : 1 }}
+              style={{ padding: 13, borderRadius: 14, border: "none", cursor: exporting ? "wait" : "pointer", fontWeight: 700, fontSize: 13, background: "linear-gradient(135deg, #475569, #334155)", color: "white", opacity: exporting ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
             >
               {exporting ? "⏳ Syncing..." : "🌐 Sync ABDM"}
             </button>
           </div>
 
-          {/* Action Row 2 */}
+          {/* Action Row 3: Finalize Consultation */}
           <div style={{ display: "flex", gap: 10 }}>
             <button
               onClick={saveAndComplete}
               disabled={saving}
-              style={{ flex: 1, padding: 13, borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 14, background: `linear-gradient(135deg,#27AE60,#1E8449)`, color: "white", opacity: saving ? 0.7 : 1 }}
+              style={{ flex: 1.4, padding: 13, borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 800, fontSize: 14, background: `linear-gradient(135deg,#27AE60,#1E8449)`, color: "white", opacity: saving ? 0.7 : 1 }}
             >
-              {saving ? "Saving..." : "✓ Complete Consultation"}
+              {saving ? "Saving..." : "✓ Complete & Issue Rx"}
             </button>
             <button
               onClick={saveNotes}
               disabled={saving}
-              style={{ flex: 1, padding: 13, borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 14, background: `linear-gradient(135deg,${C.redLight},${C.red})`, color: "white", opacity: saving ? 0.7 : 1 }}
+              style={{ flex: 1, padding: 13, borderRadius: 14, border: `1.5px solid ${C.border}`, cursor: "pointer", fontWeight: 700, fontSize: 13, background: C.card, color: C.text, opacity: saving ? 0.7 : 1 }}
             >
               💾 Save Draft
             </button>
@@ -1009,36 +1093,176 @@ export default function ConsultationDetailPage() {
         </div>
       )}
 
-      {/* Refer Modal */}
-      {referModalOpen && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.6)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ background: C.card, width: 340, borderRadius: 20, padding: 24, boxShadow: "0 20px 25px -5px rgba(0,0,0,0.2)" }}>
-            <h3 style={{ margin: "0 0 16px", fontSize: 18, fontWeight: 800 }}>Refer Patient</h3>
-            <div style={{ marginBottom: 12 }}>
-              <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, display: "block", marginBottom: 6 }}>Target Facility</label>
-              <select
-                value={referralTarget}
-                onChange={(e) => setReferralTarget(e.target.value)}
-                style={{ width: "100%", padding: 12, borderRadius: 10, border: `1px solid ${C.border}`, outline: "none", fontSize: 14 }}
-              >
-                <option value="District Hospital, Nabha">District Hospital, Nabha</option>
-                <option value="Tertiary Care Center, Patiala">Tertiary Care Center, Patiala</option>
-                <option value="Govt Medical College, Chandigarh">Govt Medical College, Chandigarh</option>
-              </select>
+      {/* In-Person Physical Hospital OPD Visit Follow-up Modal */}
+      {physicalVisitModalOpen && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.65)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div style={{ background: C.card, width: "100%", maxWidth: 360, borderRadius: 20, padding: 24, boxShadow: "0 20px 25px -5px rgba(0,0,0,0.3)", border: `1px solid ${C.border}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 20 }}>📅</span>
+                <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: C.text }}>In-Person Physical Visit</h3>
+              </div>
+              <button onClick={() => setPhysicalVisitModalOpen(false)} style={{ background: C.bg, border: "none", borderRadius: 8, width: 28, height: 28, cursor: "pointer", fontSize: 13, color: C.muted }}>✕</button>
             </div>
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, display: "block", marginBottom: 6 }}>Reason for Referral</label>
-              <textarea
-                value={referralReason}
-                onChange={(e) => setReferralReason(e.target.value)}
-                placeholder="e.g. Needs immediate surgery"
-                rows={3}
-                style={{ width: "100%", padding: 12, borderRadius: 10, border: `1px solid ${C.border}`, outline: "none", fontSize: 14, fontFamily: "inherit" }}
-              />
+
+            <p style={{ fontSize: 12, color: C.muted, margin: "0 0 14px 0", lineHeight: 1.4 }}>
+              Schedule a physical OPD consultation slot at your affiliated hospital for clinical auscultation, palpitations, or in-person exam.
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 18 }}>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 800, color: C.muted, display: "block", marginBottom: 4, textTransform: "uppercase" }}>Hospital Facility</label>
+                <select
+                  value={physicalFacility}
+                  onChange={(e) => setPhysicalFacility(e.target.value)}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${C.border}`, outline: "none", fontSize: 13, background: C.bg, color: C.text }}
+                >
+                  <option value="Lokmanya Tilak Municipal General Hospital (SION Mumbai)">🏥 SION Hospital (LTMGH Mumbai)</option>
+                  <option value="Kalyan Sub-District & Rural Civil Hospital">🏥 Kalyan Sub-District Civil Hospital</option>
+                  <option value="Chhatrapati Shivaji Maharaj Hospital (CSMH), Kalwa">🏥 CSMH Kalwa Hospital, Thane</option>
+                  <option value="Palghar Rural & Tribal Sub-District Hospital">🏥 Palghar Rural Civil Hospital</option>
+                  <option value="Murbad Rural Sub-District Hospital">🏥 Murbad Rural Health Center</option>
+                  <option value="CityCare Hospital, Dombivli">🏥 CityCare Hospital Dombivli</option>
+                  <option value="Civil Hospital, Nabha">🏥 Civil Hospital, Nabha</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 800, color: C.muted, display: "block", marginBottom: 4, textTransform: "uppercase" }}>OPD Desk / Clinic Room</label>
+                <input
+                  type="text"
+                  value={physicalDept}
+                  onChange={(e) => setPhysicalDept(e.target.value)}
+                  placeholder="e.g. General OPD Room 14 / Cardiology Desk"
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${C.border}`, outline: "none", fontSize: 13, background: C.bg, color: C.text, boxSizing: "border-box" }}
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 800, color: C.muted, display: "block", marginBottom: 4, textTransform: "uppercase" }}>Visit Date</label>
+                  <input
+                    type="date"
+                    value={physicalDate}
+                    onChange={(e) => setPhysicalDate(e.target.value)}
+                    style={{ width: "100%", padding: "9px 10px", borderRadius: 10, border: `1.5px solid ${C.border}`, outline: "none", fontSize: 12, background: C.bg, color: C.text, boxSizing: "border-box" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 800, color: C.muted, display: "block", marginBottom: 4, textTransform: "uppercase" }}>Time Slot</label>
+                  <select
+                    value={physicalSlot}
+                    onChange={(e) => setPhysicalSlot(e.target.value)}
+                    style={{ width: "100%", padding: "9px 8px", borderRadius: 10, border: `1.5px solid ${C.border}`, outline: "none", fontSize: 12, background: C.bg, color: C.text }}
+                  >
+                    <option value="Morning 09:00 AM - 11:00 AM">09:00 AM - 11:00 AM</option>
+                    <option value="Morning 11:00 AM - 01:00 PM">11:00 AM - 01:00 PM</option>
+                    <option value="Afternoon 02:00 PM - 04:00 PM">02:00 PM - 04:00 PM</option>
+                    <option value="Evening 04:30 PM - 06:30 PM">04:30 PM - 06:30 PM</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 800, color: C.muted, display: "block", marginBottom: 4, textTransform: "uppercase" }}>Pre-Visit Instructions</label>
+                <textarea
+                  value={physicalInstructions}
+                  onChange={(e) => setPhysicalInstructions(e.target.value)}
+                  placeholder="e.g. Carry prior ECG & fasting blood report. Arrive 15 min prior."
+                  rows={2}
+                  style={{ width: "100%", padding: "9px 12px", borderRadius: 10, border: `1.5px solid ${C.border}`, outline: "none", fontSize: 12, background: C.bg, color: C.text, fontFamily: "inherit", boxSizing: "border-box" }}
+                />
+              </div>
             </div>
+
             <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setReferModalOpen(false)} style={{ flex: 1, padding: 12, background: C.bg, border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer" }}>Cancel</button>
-              <button onClick={handleReferPatient} disabled={saving} style={{ flex: 1, padding: 12, background: "#D35400", color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", opacity: saving ? 0.7 : 1 }}>{saving ? "..." : "Confirm"}</button>
+              <button onClick={() => setPhysicalVisitModalOpen(false)} style={{ flex: 1, padding: 12, background: C.bg, border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", color: C.muted }}>Cancel</button>
+              <button onClick={handleSchedulePhysicalVisit} disabled={saving} style={{ flex: 1.5, padding: 12, background: "linear-gradient(135deg, #059669, #10B981)", color: "white", border: "none", borderRadius: 10, fontWeight: 800, cursor: "pointer", opacity: saving ? 0.7 : 1 }}>
+                {saving ? "Booking..." : "✓ Confirm Slot"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Refer to Higher Specialist Facility Modal */}
+      {referModalOpen && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.65)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div style={{ background: C.card, width: "100%", maxWidth: 360, borderRadius: 20, padding: 24, boxShadow: "0 20px 25px -5px rgba(0,0,0,0.3)", border: `1px solid ${C.border}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 20 }}>🏥</span>
+                <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: C.text }}>Inter-Facility Referral</h3>
+              </div>
+              <button onClick={() => setReferModalOpen(false)} style={{ background: C.bg, border: "none", borderRadius: 8, width: 28, height: 28, cursor: "pointer", fontSize: 13, color: C.muted }}>✕</button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 18 }}>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 800, color: C.muted, display: "block", marginBottom: 4, textTransform: "uppercase" }}>Target Hospital Center</label>
+                <select
+                  value={referralTarget}
+                  onChange={(e) => setReferralTarget(e.target.value)}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${C.border}`, outline: "none", fontSize: 13, background: C.bg, color: C.text }}
+                >
+                  <option value="Lokmanya Tilak Municipal General Hospital (SION Mumbai)">🏥 SION Hospital (LTMGH Mumbai) - Apex Trauma</option>
+                  <option value="Kalyan Sub-District & Rural Civil Hospital">🏥 Kalyan Sub-District Civil Hospital</option>
+                  <option value="Chhatrapati Shivaji Maharaj Hospital (CSMH), Kalwa">🏥 CSMH Kalwa Hospital, Thane</option>
+                  <option value="Palghar Rural & Tribal Sub-District Hospital">🏥 Palghar Rural Civil Hospital</option>
+                  <option value="Murbad Rural Sub-District Hospital">🏥 Murbad Rural Health Center</option>
+                  <option value="Jawhar Tribal Sub-District Hospital">🏥 Jawhar Tribal Hospital</option>
+                  <option value="Civil Hospital, Nabha">🏥 Civil Hospital, Nabha (Punjab)</option>
+                  <option value="Rajindra Hospital & Medical College, Patiala">🏥 Rajindra Hospital Patiala</option>
+                </select>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 8 }}>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 800, color: C.muted, display: "block", marginBottom: 4, textTransform: "uppercase" }}>Department</label>
+                  <select
+                    value={referralDept}
+                    onChange={(e) => setReferralDept(e.target.value)}
+                    style={{ width: "100%", padding: "9px 8px", borderRadius: 10, border: `1.5px solid ${C.border}`, outline: "none", fontSize: 12, background: C.bg, color: C.text }}
+                  >
+                    <option value="Cardiology & Apex Trauma">Cardiology & Apex Trauma</option>
+                    <option value="Neurology & Stroke Unit">Neurology & Stroke</option>
+                    <option value="Orthopedic Surgery">Orthopedic Surgery</option>
+                    <option value="Pulmonology & Chest">Pulmonology & Chest</option>
+                    <option value="Pediatric Critical Care">Pediatric ICU</option>
+                    <option value="General Surgery">General Surgery</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 800, color: C.muted, display: "block", marginBottom: 4, textTransform: "uppercase" }}>Urgency</label>
+                  <select
+                    value={referralUrgency}
+                    onChange={(e) => setReferralUrgency(e.target.value as any)}
+                    style={{ width: "100%", padding: "9px 8px", borderRadius: 10, border: `1.5px solid ${C.border}`, outline: "none", fontSize: 12, background: C.bg, color: referralUrgency === "RED" ? C.red : C.text, fontWeight: 700 }}
+                  >
+                    <option value="RED">🚨 RED (Critical)</option>
+                    <option value="YELLOW">🟡 YELLOW (Urgent)</option>
+                    <option value="GREEN">🟢 GREEN (Routine)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 800, color: C.muted, display: "block", marginBottom: 4, textTransform: "uppercase" }}>Reason for Referral & Clinical Findings</label>
+                <textarea
+                  value={referralReason}
+                  onChange={(e) => setReferralReason(e.target.value)}
+                  placeholder="e.g. ST elevation noted on tele-ECG, requires urgent angiography and tertiary coronary care."
+                  rows={3}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${C.border}`, outline: "none", fontSize: 13, background: C.bg, color: C.text, fontFamily: "inherit", boxSizing: "border-box" }}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setReferModalOpen(false)} style={{ flex: 1, padding: 12, background: C.bg, border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", color: C.muted }}>Cancel</button>
+              <button onClick={handleReferPatient} disabled={saving} style={{ flex: 1.5, padding: 12, background: "linear-gradient(135deg, #D35400, #E67E22)", color: "white", border: "none", borderRadius: 10, fontWeight: 800, cursor: "pointer", opacity: saving ? 0.7 : 1 }}>
+                {saving ? "Dispatching..." : "🚀 Dispatch Referral"}
+              </button>
             </div>
           </div>
         </div>

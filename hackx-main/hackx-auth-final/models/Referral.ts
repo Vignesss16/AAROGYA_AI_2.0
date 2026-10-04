@@ -8,9 +8,16 @@ export interface IReferral extends Document {
   referredByDoctorName: string;
   sourceFacility: string;
   targetFacility: string;
+  targetDepartment?: string;
+  targetDoctorName?: string;
+  referralType?: "IN_PERSON_FOLLOWUP" | "SPECIALIST_FACILITY_TRANSFER";
+  scheduledDate?: string;
+  scheduledSlot?: string;
+  opdToken?: string;
   reasonForReferral: string;
+  clinicalNotes?: string;
   urgency: "RED" | "YELLOW" | "GREEN";
-  status: "pending" | "arrived" | "completed" | "no-show";
+  status: "pending" | "arrived" | "completed" | "no-show" | "accepted";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,11 +29,18 @@ const ReferralSchema = new Schema<IReferral>(
     consultationId: { type: String, required: true },
     referredByDoctorId: { type: String, required: true },
     referredByDoctorName: { type: String, required: true },
-    sourceFacility: { type: String, required: true }, // e.g., "Primary Health Centre, Village X"
-    targetFacility: { type: String, required: true }, // e.g., "District Hospital, City Y"
+    sourceFacility: { type: String, required: true },
+    targetFacility: { type: String, required: true },
+    targetDepartment: { type: String, default: "General Medicine" },
+    targetDoctorName: { type: String, default: "" },
+    referralType: { type: String, enum: ["IN_PERSON_FOLLOWUP", "SPECIALIST_FACILITY_TRANSFER"], default: "SPECIALIST_FACILITY_TRANSFER" },
+    scheduledDate: { type: String, default: "" },
+    scheduledSlot: { type: String, default: "" },
+    opdToken: { type: String, default: "" },
     reasonForReferral: { type: String, required: true },
+    clinicalNotes: { type: String, default: "" },
     urgency: { type: String, enum: ["RED", "YELLOW", "GREEN"], default: "YELLOW" },
-    status: { type: String, enum: ["pending", "arrived", "completed", "no-show"], default: "pending" },
+    status: { type: String, enum: ["pending", "accepted", "arrived", "completed", "no-show"], default: "pending" },
   },
   { timestamps: true }
 );

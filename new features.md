@@ -2709,3 +2709,39 @@ That gives you the "one patient, one clinical context" architecture we discussed
 
 
 --------------------------------------------------------------------
+
+16. Implemented Production Architecture & Feature Walkthrough
+
+### A. Dedicated Hospital Login Portal (`/hospital/login`)
+- Modeled alongside `/lab/login`, `/doctor/login`, and `/asha/login`.
+- Facility Network Selector: Supports Maharashtra (SION Hospital Mumbai, Kalyan Civil, CSMH Kalwa, Palghar Rural, Murbad Rural, Jawhar Tribal, CityCare Dombivli) and Punjab centers (Nabha Civil, Rajindra Hospital Patiala).
+- Role Selection: OPD Reception Desk, Emergency Casualty Chief, Medical Director / Superintendent.
+- Key Authentication: Master key (`aarogya123` / `hospital123` / `sion123`).
+- Session Persistence: Scopes all queue, bed count, and referral data to the selected facility.
+
+### B. In-Person Physical Hospital OPD Visit Follow-Up Scheduling
+- When concluding online telemedicine consultation (`/doctor/consultation/[id]`), the doctor can book a physical examination slot:
+  - Hospital Selection (doctor's facility)
+  - OPD Desk / Clinic Room (e.g. `General Medicine OPD Room 14`)
+  - Visit Date & Time Slot
+  - Pre-visit clinical instructions (e.g. `Bring fasting blood test & ECG reports`)
+  - Generates verified token (e.g. `OPD-8421`) and notifies patient via SMS & App.
+  - Automatically pushes to the Hospital Command Center Inbound OPD queue.
+
+### C. Inter-Hospital Specialist / Emergency Referral
+- When higher tertiary care or surgery is required (e.g. SION Hospital Cardiology / Apex Trauma):
+  - Doctor specifies target center, specialty department, priority level (`RED`/`YELLOW`/`GREEN`), and clinical notes.
+  - Issues tracking token (e.g. `REF-9124`).
+  - Synced to ABDM / FHIR standards and alerts target facility via Pusher.
+
+### D. Doctor Dashboard - Referrals & Physical OPD Tab
+- Dedicated `Referrals & OPD` tab on `/doctor/dashboard`:
+  - Outgoing referrals sent by the doctor with real-time status (`Pending`, `Arrived`, `Completed`).
+  - Scheduled physical hospital OPD follow-ups.
+  - 1-tap patient calling (`tel:`) and WebRTC in-app video consultation.
+  - Status updates (`Mark Arrived`, `✓ Complete Visit`).
+
+### E. Hospital Command Center - Referrals & Admission Desk
+- Dedicated `Referrals` tab on `/hospital`:
+  - Scoped view of incoming transfers & physical follow-ups for that facility.
+  - Receptionists can verify patients, accept slots, assign inpatient beds, and track patient arrivals.
