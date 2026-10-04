@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -9,15 +8,29 @@ export default function SplashPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [checking, setChecking] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
     // Seed offline DB on load
     seedOfflineData().catch(console.error);
 
-    // WhatsApp-like auto-login check:
     if (typeof window !== "undefined") {
+      setIsOffline(!navigator.onLine);
+      const handleOnline = () => setIsOffline(false);
+      const handleOffline = () => setIsOffline(true);
+      window.addEventListener("online", handleOnline);
+      window.addEventListener("offline", handleOffline);
+
+      // Preload routes
+      try {
+        router.prefetch("/home");
+        router.prefetch("/login");
+        router.prefetch("/asha/dashboard");
+      } catch {}
+
+      // WhatsApp-like auto-login check across all storage keys:
       // 1. Check ASHA worker cached session
-      const cachedAsha = localStorage.getItem("cachedAshaUser");
+      const cachedAsha = localStorage.getItem("cachedAshaUser") || localStorage.getItem("asha_user") || localStorage.getItem("ashaworker");
       if (cachedAsha) {
         try {
           const parsed = JSON.parse(cachedAsha);
@@ -29,14 +42,26 @@ export default function SplashPage() {
       }
 
       // 2. Check Patient cached session
-      const cachedPatient = localStorage.getItem("cachedPatientUser");
+      const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
       if (cachedPatient) {
         router.replace("/home");
         return;
       }
+
+      // 3. If device is currently OFFLINE:
+      // Go straight to /home to access offline medical services without network errors
+      if (!navigator.onLine) {
+        router.replace("/home");
+        return;
+      }
+
+      return () => {
+        window.removeEventListener("online", handleOnline);
+        window.removeEventListener("offline", handleOffline);
+      };
     }
 
-    // 3. Online NextAuth session check
+    // 4. Online NextAuth session check
     if (status === "authenticated" && session?.user) {
       if ((session.user as any).role === "ashaworker") {
         router.replace("/asha/dashboard");
@@ -50,6 +75,33 @@ export default function SplashPage() {
       setChecking(false);
     }
   }, [session, status, router]);
+
+  const handleSelectLanguage = (lang: string) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("lang", lang);
+
+      const cachedAsha = localStorage.getItem("cachedAshaUser") || localStorage.getItem("asha_user");
+      if (cachedAsha) {
+        router.push("/asha/dashboard");
+        return;
+      }
+
+      const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
+      if (cachedPatient) {
+        router.push("/home");
+        return;
+      }
+
+      // If offline: ALWAYS route to /home (100% offline enabled)
+      if (!navigator.onLine) {
+        router.push("/home");
+        return;
+      }
+
+      // If online and unauthenticated: route to /login
+      router.push("/login");
+    }
+  };
 
   if (checking) {
     return (
@@ -117,36 +169,69 @@ export default function SplashPage() {
         
         {/* BUTTONS */}
         <div style={{ display: "flex", gap: 14, width: "100%", zIndex: 1 }}>
-          <Link href="/login" onClick={() => localStorage.setItem("lang", "hi")} style={{ 
-            flex: 1, 
-            padding: "16px 0", 
-            borderRadius: 16, 
-            border: "none", 
-            fontSize: 18, 
-            fontWeight: 800, 
-            cursor: "pointer", 
-            background: "white", 
-            color: "#0F4C7A", 
-            fontFamily: "var(--font-hi)", 
-            textAlign: "center", 
-            textDecoration: "none",
-            boxShadow: "0 6px 20px rgba(0,0,0,0.15)"
-          }}>हिंदी</Link>
-          <Link href="/login" onClick={() => localStorage.setItem("lang", "en")} style={{ 
-            flex: 1, 
-            padding: "16px 0", 
-            borderRadius: 16, 
-            border: "2px solid rgba(255,255,255,.5)", 
-            fontSize: 17, 
-            fontWeight: 800, 
-            cursor: "pointer", 
-            background: "rgba(255,255,255,0.05)", 
-            color: "white", 
-            textAlign: "center", 
-            textDecoration: "none",
-            backdropFilter: "blur(5px)"
-          }}>English</Link>
+          <button 
+            type="button"
+            onClick={() => handleSelectLanguage("hi")} 
+            style={{ 
+              flex: 1, 
+              padding: "16px 0", 
+              borderRadius: 16, 
+              border: "none", 
+              fontSize: 18, 
+              fontWeight: 800, 
+              cursor: "pointer", 
+              background: "white", 
+              color: "#0F4C7A", 
+              fontFamily: "var(--font-hi)", 
+              textAlign: "center", 
+              boxShadow: "0 6px 20px rgba(0,0,0,0.15)"
+            }}
+          >
+            हिंदी
+          </button>
+          <button 
+            type="button"
+            onClick={() => handleSelectLanguage("en")} 
+            style={{ 
+              flex: 1, 
+              padding: "16px 0", 
+              borderRadius: 16, 
+              border: "2px solid rgba(255,255,255,.5)", 
+              fontSize: 17, 
+              fontWeight: 800, 
+              cursor: "pointer", 
+              background: "rgba(255,255,255,0.05)", 
+              color: "white", 
+              textAlign: "center", 
+              backdropFilter: "blur(5px)"
+            }}
+          >
+            English
+          </button>
         </div>
+
+        {/* DIRECT OFFLINE LAUNCH BUTTON IF OFFLINE */}
+        {isOffline && (
+          <button
+            type="button"
+            onClick={() => router.push("/home")}
+            style={{
+              width: "100%",
+              marginTop: 16,
+              padding: "14px",
+              borderRadius: 14,
+              border: "1px solid rgba(46,204,113,0.6)",
+              background: "rgba(46,204,113,0.15)",
+              color: "#2ecc71",
+              fontSize: 14,
+              fontWeight: 700,
+              cursor: "pointer",
+              zIndex: 1
+            }}
+          >
+            🚀 सीधे ऑफ़लाइन होम खोलें (Open Offline Home)
+          </button>
+        )}
         
         <div style={{ fontSize: 12, color: "rgba(255,255,255,.4)", textAlign: "center", marginTop: 24, zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
           <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#2ecc71", boxShadow: "0 0 6px #2ecc71" }} />

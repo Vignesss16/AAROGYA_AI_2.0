@@ -1,0 +1,65 @@
+// Custom Service Worker script bundled by next-pwa into sw.js
+// Handles offline navigation fallback and guarantees Chrome never displays "You're offline"
+
+self.addEventListener('fetch', (event) => {
+  // Only intercept top-level document navigation requests
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      (async () => {
+        try {
+          // 1. Try network with short timeout (1.5s)
+          const networkPromise = fetch(event.request);
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Network timeout')), 1500)
+          );
+          const response = await Promise.race([networkPromise, timeoutPromise]);
+          if (response && response.status === 200) {
+            return response;
+          }
+          throw new Error('Network response not 200');
+        } catch (err) {
+          // 2. Network failed or timed out — device is offline
+          // Attempt A: Match the requested URL from any cache
+          const exactMatch = await caches.match(event.request, { ignoreSearch: true });
+          if (exactMatch) return exactMatch;
+
+          // Attempt B: Match the pathname
+          const url = new URL(event.request.url);
+          const pathnameMatch = await caches.match(url.pathname, { ignoreSearch: true });
+          if (pathnameMatch) return pathnameMatch;
+
+          // Attempt C: Match /home
+          const homeMatch = await caches.match('/home', { ignoreSearch: true });
+          if (homeMatch) return homeMatch;
+
+          // Attempt D: Match root /
+          const rootMatch = await caches.match('/', { ignoreSearch: true });
+          if (rootMatch) return rootMatch;
+
+          // Attempt E: Match /~offline
+          const offlineMatch = await caches.match('/~offline', { ignoreSearch: true });
+          if (offlineMatch) return offlineMatch;
+
+          // Attempt F: Search inside all cache storages for any valid HTML page
+          const cacheNames = await caches.keys();
+          for (const name of cacheNames) {
+            const cache = await caches.open(name);
+            const keys = await cache.keys();
+            for (const key of keys) {
+              if (key.url.endsWith('/') || key.url.includes('/home') || key.url.includes('/asha/dashboard')) {
+                const res = await cache.match(key);
+                if (res) return res;
+              }
+            }
+          }
+
+          // Guaranteed Emergency Fallback: Valid 200 HTML that redirects to /
+          return new Response(
+            `<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AAROGYA.AI</title><script>window.location.replace('/');</script></head><body style="background:#0d1520;color:white;font-family:sans-serif;text-align:center;padding:40px"><h2>AAROGYA.AI</h2><p>लोड हो रहा है... (Loading offline mode)</p></body></html>`,
+            { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+          );
+        }
+      })()
+    );
+  }
+});

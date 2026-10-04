@@ -10,6 +10,14 @@ const withPWA = require("next-pwa")({
   fallbacks: {
     document: "/~offline",
   },
+  additionalManifestEntries: [
+    { url: "/home", revision: "v3" },
+    { url: "/login", revision: "v3" },
+    { url: "/asha/dashboard", revision: "v3" },
+    { url: "/records", revision: "v3" },
+    { url: "/symptoms", revision: "v3" },
+    { url: "/triage", revision: "v3" },
+  ],
   runtimeCaching: [
     // 1. Next.js 14 App Router RSC payload caching (?_rsc=...)
     {
