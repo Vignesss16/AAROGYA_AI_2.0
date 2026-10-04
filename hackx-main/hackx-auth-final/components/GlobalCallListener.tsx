@@ -10,6 +10,12 @@ export default function GlobalCallListener() {
   const { data: session } = useSession();
   const [callOpen, setCallOpen] = useState(false);
   const [incomingCallType, setIncomingCallType] = useState<"video" | "audio" | null>(null);
+  const [incomingCaller, setIncomingCaller] = useState<{
+    callerRole?: string;
+    callerTitle?: string;
+    facilityName?: string;
+    department?: string;
+  } | null>(null);
   const [showCallBanner, setShowCallBanner] = useState(false);
   
   const patientClientIdRef = useRef<string>(
@@ -44,22 +50,40 @@ export default function GlobalCallListener() {
       if (msg.fromClientId === cid) return;
 
       if (msg.type === "call-invite") {
-        const mode = (msg.data as { mode?: string })?.mode as "video" | "audio" ?? "video";
+        const inviteData = (msg.data as {
+          mode?: string;
+          callerRole?: string;
+          callerTitle?: string;
+          facilityName?: string;
+          department?: string;
+        }) || {};
+        const mode = (inviteData.mode as "video" | "audio") ?? "video";
+        const role = inviteData.callerRole || "doctor";
+        const title = inviteData.callerTitle || (role === "receptionist" ? "🏥 Hospital Reception Desk" : "👨‍⚕️ Doctor Consultation");
+        
         setIncomingCallType(mode);
+        setIncomingCaller({
+          callerRole: role,
+          callerTitle: title,
+          facilityName: inviteData.facilityName,
+          department: inviteData.department,
+        });
         setShowCallBanner(true);
         setCallOpen(true);
         
         if (typeof window !== "undefined" && "Notification" in window) {
+          const notifTitle = `Incoming ${mode.toUpperCase()} Call`;
+          const notifBody = `${title} is calling you on AarogyaAI`;
           if (Notification.permission === "granted") {
-            new Notification("Incoming Call 📞", {
-              body: `Doctor is calling you — ${mode} call`,
+            new Notification(notifTitle, {
+              body: notifBody,
               icon: "/favicon.ico",
             });
           } else if (Notification.permission !== "denied") {
             Notification.requestPermission().then((perm) => {
               if (perm === "granted") {
-                new Notification("Incoming Call 📞", {
-                  body: `Doctor is calling you — ${mode} call`,
+                new Notification(notifTitle, {
+                  body: notifBody,
                   icon: "/favicon.ico",
                 });
               }
@@ -84,36 +108,55 @@ export default function GlobalCallListener() {
 
   if (!session?.user || (session.user as any).role === "doctor") return null;
 
+  const callerIcon = incomingCaller?.callerRole === "receptionist" ? "🏥" : incomingCaller?.callerRole === "asha" ? "👩‍⚕️" : "🩺";
+  const callerLabel = incomingCaller?.callerTitle || (incomingCaller?.callerRole === "receptionist" ? "Hospital Reception Desk" : "Doctor Consultation");
+
   return (
     <>
       {showCallBanner && !callOpen && (
-        <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 9999 }}>
+        <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 9999, width: "92%", maxWidth: 460 }}>
           <div style={{
-            background: "#1A2332", borderRadius: 20, padding: "14px 24px",
-            display: "flex", alignItems: "center", gap: 14, boxShadow: "0 8px 32px rgba(0,0,0,.4)",
+            background: "linear-gradient(135deg, #0F172A, #1E293B)", borderRadius: 20, padding: "16px 20px",
+            display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14,
+            boxShadow: "0 12px 35px rgba(0,0,0,.6)", border: "1px solid rgba(255,255,255,0.15)",
             animation: "popIn .4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
           }}>
-            <span style={{ fontSize: 28, animation: "ring 1s infinite", display: "inline-block" }}>📲</span>
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: "white" }}>Incoming {incomingCallType} call</div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,.6)" }}>Doctor is calling</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+              <div style={{
+                width: 46, height: 46, borderRadius: "50%", background: "rgba(59, 130, 246, 0.2)",
+                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24,
+                animation: "ring 1.2s infinite ease-in-out", flexShrink: 0
+              }}>
+                {callerIcon}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: "#F8FAFC", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {callerLabel}
+                </div>
+                <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 2, display: "flex", alignItems: "center", gap: 6 }}>
+                  <span>{incomingCallType === "video" ? "📹 Video Call" : "🎙️ Audio Call"}</span>
+                  {incomingCaller?.facilityName && <span>• {incomingCaller.facilityName}</span>}
+                </div>
+              </div>
             </div>
-            <button onClick={() => { setCallOpen(true); setShowCallBanner(false); }}
-              style={{ padding: "8px 16px", borderRadius: 30, border: "none", background: "#1E8449", color: "white", fontWeight: 700, cursor: "pointer" }}>
-              Answer
-            </button>
-            <button onClick={() => {
-              setShowCallBanner(false);
-              const patientId = (session.user as any).phone || session.user.name || "patient-001";
-              fetch("/api/signal", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ roomId: `consultation-${patientId}`, fromClientId: patientClientIdRef.current, type: "call-rejected" }),
-              });
-            }}
-              style={{ padding: "8px 14px", borderRadius: 30, border: "none", background: "#C0392B", color: "white", fontWeight: 700, cursor: "pointer" }}>
-              Decline
-            </button>
+            <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+              <button onClick={() => { setCallOpen(true); setShowCallBanner(false); }}
+                style={{ padding: "8px 16px", borderRadius: 30, border: "none", background: "#10B981", color: "white", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                <span>📞</span> Accept
+              </button>
+              <button onClick={() => {
+                setShowCallBanner(false);
+                const patientId = (session.user as any).phone || session.user.name || "patient-001";
+                fetch("/api/signal", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ roomId: `consultation-${patientId}`, fromClientId: patientClientIdRef.current, type: "call-rejected" }),
+                });
+              }}
+                style={{ padding: "8px 14px", borderRadius: 30, border: "none", background: "#EF4444", color: "white", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                ✕
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -125,6 +168,10 @@ export default function GlobalCallListener() {
           patientName={session.user.name || "Patient"}
           patientId={(session.user as any).phone || session.user.name || "patient-001"}
           isDoctor={false}
+          callerRole={(incomingCaller?.callerRole as any) || "doctor"}
+          callerTitle={incomingCaller?.callerTitle}
+          facilityName={incomingCaller?.facilityName}
+          department={incomingCaller?.department}
           initialIncomingCallType={incomingCallType}
         />
       )}

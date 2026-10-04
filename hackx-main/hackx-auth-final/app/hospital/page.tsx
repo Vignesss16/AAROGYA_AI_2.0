@@ -342,7 +342,7 @@ export default function HospitalDesktopDashboard() {
   const T = (hi: string, en: string) => lang === "hi" ? hi : en;
 
   const [sosAlerts, setSosAlerts] = useState<any[]>([]);
-  const [callPatient, setCallPatient] = useState<{ id: string; name: string } | null>(null);
+  const [callPatient, setCallPatient] = useState<{ id: string; name: string; details?: any } | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -1158,7 +1158,18 @@ export default function HospitalDesktopDashboard() {
                                   📞 {T("फ़ोन कॉल सत्यापन", "Phone Verify")}
                                 </button>
                                 <button
-                                  onClick={() => setCallPatient({ id: p.patientPhone || p._id, name: p.patientName })}
+                                  onClick={() => setCallPatient({
+                                    id: p.patientPhone || p._id,
+                                    name: p.patientName,
+                                    details: {
+                                      department: p.department || "General OPD",
+                                      urgency: p.urgency || p.priority || (p.triageCategory === "RED" ? "RED CRITICAL" : "STANDARD"),
+                                      slotTime: p.slotTime || "Immediate Token",
+                                      doctorName: p.doctorName,
+                                      verificationNotes: p.verificationNotes,
+                                      symptoms: p.symptoms || p.triageReason,
+                                    }
+                                  })}
                                   title="App video/audio intercom to verify patient"
                                   style={{
                                     background: "#E0F2FE",
@@ -1517,7 +1528,18 @@ export default function HospitalDesktopDashboard() {
                             </td>
                             <td style={{ padding: "24px 32px" }}>
                               <div style={{ display: "flex", gap: 10 }}>
-                                <button onClick={() => setCallPatient({ id: p.patientPhone, name: p.patientName })} style={{ padding: "10px 16px", background: "#EBF4FD", color: C.accent, border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 10px rgba(0, 0, 0, 0.05)" }}>
+                                <button onClick={() => setCallPatient({
+                                  id: p.patientPhone || p._id,
+                                  name: p.patientName,
+                                  details: {
+                                    department: p.department || "General OPD",
+                                    urgency: p.urgency || p.priority || (p.triageCategory === "RED" ? "RED CRITICAL" : "STANDARD"),
+                                    slotTime: p.slotTime,
+                                    doctorName: p.doctorName,
+                                    verificationNotes: p.verificationNotes,
+                                    symptoms: p.symptoms || p.triageReason,
+                                  }
+                                })} style={{ padding: "10px 16px", background: "#EBF4FD", color: C.accent, border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 10px rgba(0, 0, 0, 0.05)" }}>
                                   💻 {T("ऐप कॉल", "App Call")}
                                 </button>
                                 <button onClick={() => window.open(`tel:${p.patientPhone}`)} style={{ padding: "10px 16px", background: C.red, color: "white", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 10px rgba(239, 68, 68, 0.3)" }}>
@@ -1799,7 +1821,16 @@ export default function HospitalDesktopDashboard() {
                                     </button>
                                     <button
                                       type="button"
-                                      onClick={() => setCallPatient({ id: r.patientPhone, name: r.patientName })}
+                                      onClick={() => setCallPatient({
+                                        id: r.patientPhone || r._id,
+                                        name: r.patientName,
+                                        details: {
+                                          department: r.targetDepartment || "Specialist OPD",
+                                          urgency: r.priority || "MEDIUM",
+                                          doctorName: r.referringDoctorName,
+                                          symptoms: r.clinicalSummary || r.reason,
+                                        }
+                                      })}
                                       style={{ background: "#E0F2FE", border: "none", borderRadius: 6, padding: "3px 8px", fontSize: 11, fontWeight: 700, cursor: "pointer", color: "#0369A1" }}
                                     >
                                       💻 App Call
@@ -2023,6 +2054,21 @@ export default function HospitalDesktopDashboard() {
           patientName={callPatient.name}
           patientId={callPatient.id}
           isDoctor={true}
+          callerRole="receptionist"
+          callerTitle={`${activeFacility?.shortName || activeFacility?.name || "Hospital"} Reception Desk`}
+          facilityName={activeFacility?.name || "Hospital Medical Center"}
+          department={callPatient.details?.department || "General OPD"}
+          patientDetails={callPatient.details}
+          onSaveNotes={async (notes, verifiedStatus) => {
+            try {
+              if (verifiedStatus === "Verified & Confirmed") {
+                await handleConfirmAppointment(callPatient.id);
+              } else if (verifiedStatus === "Flagged Suspicious") {
+                await handleFlagScamAppointment(callPatient.id);
+              }
+              fetchData();
+            } catch {}
+          }}
         />
       )}
     </div>

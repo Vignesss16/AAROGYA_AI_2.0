@@ -841,6 +841,16 @@ export default function ConsultationDetailPage() {
           patientName={consultation.patientName}
           patientId={consultation.patientPhone}
           isDoctor={true}
+          callerRole="doctor"
+          callerTitle={`Dr. ${session?.user?.name || consultation.doctorName || "Doctor"}`}
+          department={(consultation as any).department || "Consultation Room"}
+          facilityName="AarogyaAI Central Tele-Health"
+          patientDetails={{
+            department: (consultation as any).department,
+            urgency: consultation.urgency === "RED" ? "RED CRITICAL" : consultation.urgency === "YELLOW" ? "YELLOW URGENT" : "GREEN STABLE",
+            symptoms: Array.isArray(consultation.symptoms) ? consultation.symptoms.join(", ") : (consultation.symptoms || ""),
+            doctorName: consultation.doctorName,
+          }}
         />
       )}
 

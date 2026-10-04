@@ -56,7 +56,7 @@ export default function DoctorDashboardPage() {
   const [queue, setQueue] = useState<Consultation[]>([]);
   const [loadingQueue, setLoadingQueue] = useState(true);
   const [markingDone, setMarkingDone] = useState<string | null>(null);
-  const [callPatient, setCallPatient] = useState<{ id: string; name: string } | null>(null);
+  const [callPatient, setCallPatient] = useState<{ id: string; name: string; details?: any } | null>(null);
   const [sosAlerts, setSosAlerts] = useState<SOSAlert[]>([]);
   const [selectedSOS, setSelectedSOS] = useState<SOSAlert | null>(null);
   const [sosNote, setSosNote] = useState("");
@@ -637,7 +637,16 @@ export default function DoctorDashboardPage() {
                           {markingDone === p._id ? "..." : `✓ ${T("पूर्ण", "Done")}`}
                         </button>
                         <button
-                          onClick={() => setCallPatient({ id: p.patientPhone, name: p.patientName })}
+                          onClick={() => setCallPatient({
+                            id: p.patientPhone,
+                            name: p.patientName,
+                            details: {
+                              department: (p as any).department || "General OPD",
+                              urgency: p.urgency === "RED" ? "RED CRITICAL" : p.urgency === "YELLOW" ? "YELLOW URGENT" : "GREEN STABLE",
+                              symptoms: Array.isArray(p.symptoms) ? p.symptoms.join(", ") : (p.symptoms || ""),
+                              doctorName: session?.user?.name || "Dr. Consultation",
+                            }
+                          })}
                           style={{
                             padding: "7px 10px",
                             borderRadius: 8,
@@ -1003,7 +1012,16 @@ export default function DoctorDashboardPage() {
                                     📞 {ref.patientPhone}
                                   </button>
                                   <button
-                                    onClick={() => setCallPatient({ id: ref.patientPhone, name: ref.patientName })}
+                                    onClick={() => setCallPatient({
+                                      id: ref.patientPhone,
+                                      name: ref.patientName,
+                                      details: {
+                                        department: ref.targetDepartment || "Specialist OPD",
+                                        urgency: ref.priority,
+                                        symptoms: ref.clinicalSummary || ref.reason,
+                                        doctorName: ref.referringDoctorName,
+                                      }
+                                    })}
                                     style={{
                                       background: "#E0F2FE",
                                       border: "none",
@@ -1197,6 +1215,11 @@ export default function DoctorDashboardPage() {
           patientName={callPatient.name}
           patientId={callPatient.id}
           isDoctor={true}
+          callerRole="doctor"
+          callerTitle={`Dr. ${session?.user?.name || "Doctor"}`}
+          department={(session?.user as any)?.specialty || "Specialist OPD"}
+          facilityName="AarogyaAI Medical Command Center"
+          patientDetails={callPatient.details}
         />
       )}
 

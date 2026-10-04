@@ -5,6 +5,13 @@ import { getPusherClient, disconnectPusher } from "@/lib/pusher-client";
 export type CallMode = "video" | "audio" | "connecting" | "idle" | "ended" | "incoming";
 export type NetworkQuality = "good" | "poor" | "critical";
 
+export interface CallerMetadata {
+  callerRole?: "doctor" | "receptionist" | "asha" | "hospital";
+  callerTitle?: string;
+  facilityName?: string;
+  department?: string;
+}
+
 export interface WebRTCState {
   callMode: CallMode;
   networkQuality: NetworkQuality;
@@ -16,10 +23,11 @@ export interface WebRTCState {
   statusMessage: string;
   isVideoFallback: boolean;
   incomingCallType: "video" | "audio" | null;
+  incomingCaller?: CallerMetadata | null;
 }
 
 export interface WebRTCActions {
-  startCall: (mode: "video" | "audio") => Promise<void>;
+  startCall: (mode: "video" | "audio", metadata?: CallerMetadata) => Promise<void>;
   endCall: () => void;
   toggleMute: () => void;
   toggleCamera: () => void;
@@ -374,12 +382,26 @@ export function useWebRTC(
             .catch((err) => console.warn("[WebRTC] ICE restart failed:", err));
         }
       } else if (type === "call-invite") {
-        const callType = (data as { mode: string }).mode as "video" | "audio";
+        const inviteData = (data as {
+          mode: string;
+          callerRole?: "doctor" | "receptionist" | "asha" | "hospital";
+          callerTitle?: string;
+          facilityName?: string;
+          department?: string;
+        }) || { mode: "video" };
+        const callType = (inviteData.mode as "video" | "audio") || "video";
+        const title = inviteData.callerTitle || (inviteData.callerRole === "receptionist" ? "Hospital Reception Desk" : "Doctor");
         setState((s) => ({
           ...s,
           callMode: "incoming",
           incomingCallType: callType,
-          statusMessage: "Incoming call from Doctor...",
+          incomingCaller: {
+            callerRole: inviteData.callerRole || "doctor",
+            callerTitle: title,
+            facilityName: inviteData.facilityName,
+            department: inviteData.department,
+          },
+          statusMessage: `Incoming call from ${title}...`,
         }));
       } else if (type === "call-rejected") {
         cleanup();
@@ -455,14 +477,20 @@ export function useWebRTC(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, role]);
 
-  const startCall = useCallback(async (mode: "video" | "audio") => {
+  const startCall = useCallback(async (mode: "video" | "audio", metadata?: CallerMetadata) => {
     const cid = clientIdRef.current;
-    console.log(`[Doctor] Starting call to room: ${roomId}, mode: ${mode}`);
+    console.log(`[${role}] Starting call to room: ${roomId}, mode: ${mode}`, metadata);
     setState((s) => ({ ...s, callMode: "connecting", statusMessage: "Calling..." }));
 
     // Send call-invite first so the patient opens the modal & joins the Pusher channel
-    const inviteResult = await sendSignal(roomId, cid, "call-invite", { mode });
-    console.log(`[Doctor] Sent call-invite`);
+    await sendSignal(roomId, cid, "call-invite", {
+      mode,
+      callerRole: metadata?.callerRole || "doctor",
+      callerTitle: metadata?.callerTitle,
+      facilityName: metadata?.facilityName,
+      department: metadata?.department,
+    });
+    console.log(`[${role}] Sent call-invite with metadata`);
 
     const pc = createPeerConnection();
     try {
