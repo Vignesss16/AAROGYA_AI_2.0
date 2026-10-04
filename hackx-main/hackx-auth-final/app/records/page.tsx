@@ -85,12 +85,6 @@ export default function RecordsPage() {
     }
 
     // If online, fetch from server AND cache in IndexedDB
-    if (status !== "authenticated" || fetched) return;
-    const identifier = (session?.user as any)?.phone || session?.user?.name || "";
-    if (!identifier) return;
-
-    setFetched(true);
-    setFetching(true);
     setIsOfflineMode(false);
 
     fetch(`/api/consultations/my?identifier=${encodeURIComponent(identifier)}`)
@@ -164,7 +158,7 @@ export default function RecordsPage() {
     age: user?.age ? String(user.age) : "—",
     phone: user?.phone || "—",
     bloodGroup: user?.bloodGroup || "—",
-    condition: Array.isArray(user?.conditions) ? user.conditions[0] : (typeof user?.conditions === "string" ? user.conditions.split(",")[0] : "—"),
+    condition: Array.isArray(user?.conditions) ? (user.conditions[0] || "—") : (typeof (user as any)?.conditions === "string" ? (user as any).conditions.split(",")[0] : "—"),
   };
 
   const handleDownloadAll = () => {
@@ -233,7 +227,7 @@ export default function RecordsPage() {
               <div>
                 <div style={{ fontSize: 18, fontWeight: 800 }}>{patient.name}</div>
                 <div style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>
-                  {patient.gender} · {patient.age} {t("वर्ष", "years")} {user.phone ? `· 📱 ${user.phone}` : ""}
+                  {patient.gender} · {patient.age} {t("वर्ष", "years")} {patient.phone !== "—" ? `· 📱 ${patient.phone}` : ""}
                 </div>
               </div>
             </div>
