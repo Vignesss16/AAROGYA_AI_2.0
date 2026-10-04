@@ -24,6 +24,8 @@ export default function RecordsPage() {
   const { isOnline } = useOnlineStatus();
   const [lang, setLang] = useState("hi");
   const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [labOrders, setLabOrders] = useState<any[]>([]);
+  const [selectedReportOrder, setSelectedReportOrder] = useState<any | null>(null);
   const [fetching, setFetching] = useState(false);
   const [fetched, setFetched] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -86,6 +88,11 @@ export default function RecordsPage() {
 
     // If online, fetch from server AND cache in IndexedDB
     setIsOfflineMode(false);
+
+    fetch(`/api/lab-orders?patientPhone=${encodeURIComponent(identifier)}`)
+      .then((r) => r.json())
+      .then((d) => setLabOrders(d.orders || []))
+      .catch(() => {});
 
     fetch(`/api/consultations/my?identifier=${encodeURIComponent(identifier)}`)
       .then((res) => res.json())
@@ -231,6 +238,82 @@ export default function RecordsPage() {
               ))}
             </div>
           </div>
+
+          {/* Diagnostic Lab Orders Section */}
+          {labOrders.length > 0 && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                <span style={{ fontSize: 16 }}>🧪</span>
+                <span style={{ fontWeight: 700, fontSize: 14, color: C.text }}>
+                  {t("डायग्नोस्टिक लैब टेस्ट और रिपोर्ट्स", "Prescribed Lab Tests & Reports")}
+                </span>
+                <span style={{ background: "#0891B2", color: "white", borderRadius: 20, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>
+                  {labOrders.length}
+                </span>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {labOrders.map((lo) => {
+                  const statusMap: Record<string, { label: string; color: string; bg: string }> = {
+                    SENT_TO_LAB: { label: t("लैब को भेजा गया", "Sent to Lab"), color: "#0284C7", bg: "#E0F2FE" },
+                    LAB_ACCEPTED: { label: t("लैब ने स्वीकार किया", "Lab Accepted"), color: "#059669", bg: "#D1FAE5" },
+                    LAB_REJECTED: { label: t("अस्वीकृत", "Rejected"), color: "#DC2626", bg: "#FEE2E2" },
+                    APPOINTMENT_CONFIRMED: { label: t("स्लॉट बुक हुआ", "Slot Confirmed"), color: "#7C3AED", bg: "#EDE9FE" },
+                    SAMPLE_COLLECTED: { label: t("सैंपल एकत्र", "Sample Collected"), color: "#D97706", bg: "#FEF3C7" },
+                    PROCESSING: { label: t("जांच जारी", "Analyzing"), color: "#DB2777", bg: "#FCE7F3" },
+                    REPORT_UPLOADED: { label: t("रिपोर्ट तैयार", "Report Uploaded"), color: "#16A34A", bg: "#DCFCE7" },
+                    DOCTOR_REVIEWED: { label: t("डॉक्टर द्वारा समीक्षित", "Doctor Reviewed"), color: "#2563EB", bg: "#DBEAFE" },
+                  };
+                  const s = statusMap[lo.status] || { label: lo.status, color: C.muted, bg: C.bg };
+
+                  return (
+                    <div key={lo._id} style={{ background: C.card, borderRadius: 14, padding: 14, border: `1px solid ${C.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>🏥 {lo.labName}</div>
+                          <div style={{ fontSize: 11, color: C.muted }}>Dr. {lo.doctorName} · {lo.orderId}</div>
+                        </div>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: s.color, background: s.bg, padding: "3px 8px", borderRadius: 8 }}>
+                          {s.label}
+                        </span>
+                      </div>
+
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, margin: "6px 0 8px" }}>
+                        {(lo.tests || []).map((test: string, idx: number) => (
+                          <span key={idx} style={{ background: "#F1F5F9", color: "#334155", padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600 }}>
+                            🧪 {test}
+                          </span>
+                        ))}
+                      </div>
+
+                      {lo.appointmentSlot && (
+                        <div style={{ fontSize: 11, color: "#7C3AED", fontWeight: 600, marginBottom: 6 }}>
+                          📅 {t("अपॉइंटमेंट समय", "Slot")}: {lo.appointmentSlot}
+                        </div>
+                      )}
+
+                      {lo.doctorReviewNotes && (
+                        <div style={{ background: "#EFF6FF", borderRadius: 8, padding: "8px 10px", fontSize: 11, color: "#1E40AF", marginBottom: 8 }}>
+                          <strong>👨‍⚕️ {t("डॉक्टर रिव्यू", "Doctor Review")}:</strong> {lo.doctorReviewNotes}
+                        </div>
+                      )}
+
+                      {lo.reportUrl && (
+                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}>
+                          <button
+                            onClick={() => setSelectedReportOrder(lo)}
+                            style={{ background: "#0E7490", color: "white", border: "none", borderRadius: 8, padding: "6px 12px", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+                          >
+                            📄 {t("रिपोर्ट देखें", "View Diagnostic Report")}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
             <span style={{ fontSize: 14 }}>📋</span>
@@ -389,6 +472,46 @@ export default function RecordsPage() {
             })
           )}
         </div>
+
+        {/* Diagnostic Report Viewer Modal */}
+        {selectedReportOrder && (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(6px)", zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+            <div style={{ background: C.card, width: "100%", maxWidth: 360, borderRadius: 20, padding: 20, border: `1px solid ${C.border}`, maxHeight: "85vh", overflowY: "auto" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>📄 {t("डायग्नोस्टिक लैब रिपोर्ट", "Diagnostic Lab Report")}</h3>
+                  <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
+                    {selectedReportOrder.labName} · {selectedReportOrder.orderId}
+                  </div>
+                </div>
+                <button onClick={() => setSelectedReportOrder(null)} style={{ background: C.bg, border: "none", borderRadius: 8, width: 28, height: 28, cursor: "pointer", fontSize: 14 }}>✕</button>
+              </div>
+
+              {selectedReportOrder.reportUrl?.startsWith("data:image") ? (
+                <div style={{ textAlign: "center", marginBottom: 14 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={selectedReportOrder.reportUrl} alt="Diagnostic Report" style={{ width: "100%", borderRadius: 10, border: `1px solid ${C.border}` }} />
+                </div>
+              ) : (
+                <div style={{ background: "#0b1329", borderRadius: 10, padding: 14, marginBottom: 14, fontFamily: "monospace", fontSize: 11, color: "#93c5fd", whiteSpace: "pre-wrap", lineHeight: 1.6, border: `1px solid ${C.border}` }}>
+                  {decodeURIComponent(selectedReportOrder.reportUrl?.replace("data:text/plain;charset=utf-8,", "") || "Report text attached.")}
+                </div>
+              )}
+
+              {selectedReportOrder.doctorReviewNotes && (
+                <div style={{ background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 10, padding: 12, color: "#1E40AF", fontSize: 12, marginBottom: 14 }}>
+                  <strong>👨‍⚕️ {t("डॉक्टर का मूल्यांकन", "Doctor's Assessment")}:</strong> {selectedReportOrder.doctorReviewNotes}
+                </div>
+              )}
+
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <button onClick={() => setSelectedReportOrder(null)} style={{ background: C.primary, color: "white", border: "none", padding: "8px 18px", borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                  {t("बंद करें", "Close")}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

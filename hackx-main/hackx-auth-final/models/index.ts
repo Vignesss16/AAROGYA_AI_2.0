@@ -263,3 +263,8 @@ export const VitalSigns: Model<IVitalSigns> =
 
 // ── Referral Record ────────────────────────────────────────────────────────
 export { default as Referral, type IReferral } from "./Referral";
+
+// ── Diagnostic Lab & Lab Orders ───────────────────────────────────────────
+export { default as Lab, type ILab } from "./Lab";
+export { default as LabOrder, type ILabOrder, type LabOrderStatus } from "./LabOrder";
+
