@@ -82,7 +82,7 @@ export default function HomePage() {
 
   const t = (hi: string, en: string) => (lang === "hi" ? hi : en);
 
-  if (loading) {
+  if (loading && !user) {
     return (
       <div
         style={{
@@ -93,7 +93,7 @@ export default function HomePage() {
           alignItems: "center",
         }}
       >
-        <div style={{ fontSize: 20 }}>⏳ {t("लोड हो रहा है", "Loading...")}</div>
+        <div style={{ fontSize: 20, color: "white" }}>⏳ {t("लोड हो रहा है", "Loading...")}</div>
       </div>
     );
   }

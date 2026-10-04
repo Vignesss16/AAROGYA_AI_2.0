@@ -1,9 +1,29 @@
 /** @type {import('next').NextConfig} */
+const defaultRuntimeCaching = require("next-pwa/cache");
+
 const withPWA = require("next-pwa")({
   dest: "public",
-  disable: process.env.NODE_ENV === "development",
   register: true,
   skipWaiting: true,
+  disable: process.env.DISABLE_PWA === "true",
+  fallbacks: {
+    document: "/~offline",
+  },
+  runtimeCaching: [
+    {
+      urlPattern: ({ request }) => request.mode === "navigate",
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "pages-runtimes",
+        networkTimeoutSeconds: 2,
+        expiration: {
+          maxEntries: 64,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+        },
+      },
+    },
+    ...defaultRuntimeCaching,
+  ],
 });
 
 const nextConfig = {

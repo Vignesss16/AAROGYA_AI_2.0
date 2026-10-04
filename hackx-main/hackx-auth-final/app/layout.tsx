@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import OfflineBanner from "@/components/OfflineBanner";
+import CacheWarmer from "@/components/CacheWarmer";
 
 export const metadata: Metadata = {
   title: "AAROGYA.AI",
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthProvider>
           <OfflineBanner />
+          <CacheWarmer />
           {children}
         </AuthProvider>
       </body>

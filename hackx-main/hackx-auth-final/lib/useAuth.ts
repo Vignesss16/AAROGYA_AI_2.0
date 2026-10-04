@@ -63,8 +63,8 @@ export function useAuth() {
     }
   }, [liveUser]);
 
-  // Use live session when online, fall back to cached user when offline
-  const user: PatientUser | null = liveUser || (status !== "loading" ? cachedUser : null);
+  // Use live session when online, fall back to cached user immediately (even during loading)
+  const user: PatientUser | null = liveUser || cachedUser;
   const isAuthenticated = !!user;
   const loading = status === "loading" && !cachedUser;
 

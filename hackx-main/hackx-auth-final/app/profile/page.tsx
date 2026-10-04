@@ -51,10 +51,10 @@ export default function ProfilePage() {
     setShowOtp(false);
   };
 
-  if (loading) {
+  if (loading && !user) {
     return (
       <div style={{ background: "#0d1520", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <div style={{ fontSize: 20 }}>⏳ {t("लोड हो रहा है", "Loading...")}</div>
+        <div style={{ fontSize: 20, color: "white" }}>⏳ {t("लोड हो रहा है", "Loading...")}</div>
       </div>
     );
   }
