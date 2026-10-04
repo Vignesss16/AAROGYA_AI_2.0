@@ -52,7 +52,7 @@ export default function DoctorDashboardPage() {
   const { data: session } = useSession();
   const { lang, setLang, mounted } = useLang();
   const [tick, setTick] = useState(30);
-  const [activeTab, setActiveTab] = useState<"queue" | "lab-reports">("queue");
+  const [activeTab, setActiveTab] = useState<"queue" | "lab-reports" | "reviews">("queue");
   const [queue, setQueue] = useState<Consultation[]>([]);
   const [loadingQueue, setLoadingQueue] = useState(true);
   const [markingDone, setMarkingDone] = useState<string | null>(null);
@@ -68,6 +68,16 @@ export default function DoctorDashboardPage() {
   const [selectedTest, setSelectedTest] = useState<any>(null);
   const [reviewNote, setReviewNote] = useState("");
   const [savingReview, setSavingReview] = useState(false);
+
+  // Doctor Reviews & Rating State
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewMetrics, setReviewMetrics] = useState<any>({
+    totalReviews: 0,
+    averageRating: 5.0,
+    breakdown: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
+    percentageBreakdown: { 5: 100, 4: 0, 3: 0, 2: 0, 1: 0 },
+  });
+  const [loadingReviews, setLoadingReviews] = useState(true);
 
   const fetchQueue = useCallback(async () => {
     if (!session?.user?.id) return; // Wait for session to load
@@ -90,6 +100,25 @@ export default function DoctorDashboardPage() {
       setSosAlerts(data.alerts || []);
     } catch { }
   }, []);
+
+  const fetchReviews = useCallback(async () => {
+    if (!session?.user?.id && !session?.user?.name) return;
+    try {
+      const docQuery = session.user.id
+        ? `doctorId=${session.user.id}`
+        : `doctorName=${encodeURIComponent(session.user.name || "")}`;
+      const res = await fetch(`/api/reviews?${docQuery}`);
+      const data = await res.json();
+      setReviews(data.reviews || []);
+      if (data.metrics) {
+        setReviewMetrics(data.metrics);
+      }
+    } catch {
+      /* offline */
+    } finally {
+      setLoadingReviews(false);
+    }
+  }, [session]);
 
   const fetchBloodTests = useCallback(async () => {
     if (!session?.user?.id) return; // Wait for session to load
@@ -115,11 +144,15 @@ export default function DoctorDashboardPage() {
     setLoadingLabs(false);
   }, [session]);
 
-  // Auto-refresh lab reports every 30 seconds
+  // Auto-refresh lab reports and reviews every 30 seconds
   useEffect(() => {
-    const interval = setInterval(fetchBloodTests, 30000);
+    fetchReviews();
+    const interval = setInterval(() => {
+      fetchBloodTests();
+      fetchReviews();
+    }, 30000);
     return () => clearInterval(interval);
-  }, [fetchBloodTests]);
+  }, [fetchBloodTests, fetchReviews]);
 
   const handleReviewTest = async (testId: string) => {
     if (!reviewNote.trim()) return;
@@ -369,19 +402,20 @@ export default function DoctorDashboardPage() {
             }}
           >
             {[
-              { id: "queue", l: T("मरीज़ों की कतार", "Patient Queue") },
+              { id: "queue", l: T("मरीज़ों की कतार", "Queue") },
               { id: "lab-reports", l: T("लैब रिपोर्ट", "Lab Reports") },
+              { id: "reviews", l: T(`रेटिंग (${reviewMetrics.totalReviews})`, `Reviews (${reviewMetrics.totalReviews})`) },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as typeof activeTab)}
                 style={{
                   flex: 1,
-                  padding: "11px 8px",
+                  padding: "11px 6px",
                   border: "none",
                   background: "none",
                   cursor: "pointer",
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 700,
                   color: activeTab === tab.id ? C.primary : C.muted,
                   borderBottom:
@@ -771,6 +805,125 @@ export default function DoctorDashboardPage() {
                         )}
                       </div>
                     ))
+                  )}
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Reviews & Ratings Tab */}
+          {activeTab === "reviews" && (
+            <div style={{ flex: 1, overflowY: "auto", padding: "14px 16px 20px" }}>
+              {loadingReviews ? (
+                <div style={{ textAlign: "center", padding: "30px 20px", color: C.muted }}>
+                  <div style={{ fontSize: 24, marginBottom: 8 }}>⏳</div>
+                  <div style={{ fontSize: 13 }}>{T("समीक्षाएं लोड हो रही हैं...", "Loading patient reviews...")}</div>
+                </div>
+              ) : (
+                <>
+                  {/* Rating Summary Card */}
+                  <div
+                    style={{
+                      background: C.card,
+                      borderRadius: 16,
+                      padding: "18px 16px",
+                      marginBottom: 16,
+                      border: `1.5px solid ${C.border}`,
+                      boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 16, borderBottom: `1px solid ${C.border}`, paddingBottom: 14, marginBottom: 14 }}>
+                      <div style={{ textAlign: "center", minWidth: 90 }}>
+                        <div style={{ fontSize: 36, fontWeight: 900, color: "#1A2332", lineHeight: 1 }}>
+                          {reviewMetrics.averageRating}
+                        </div>
+                        <div style={{ color: "#F59E0B", fontSize: 14, marginTop: 4 }}>
+                          {"★".repeat(Math.round(reviewMetrics.averageRating))}
+                        </div>
+                        <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>
+                          {reviewMetrics.totalReviews} {T("समीक्षाएं", "reviews")}
+                        </div>
+                      </div>
+
+                      {/* Breakdown Bars */}
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+                        {[5, 4, 3, 2, 1].map((star) => {
+                          const pct = reviewMetrics.percentageBreakdown?.[star] || 0;
+                          return (
+                            <div key={star} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}>
+                              <span style={{ width: 18, color: C.muted, fontWeight: 700 }}>{star}★</span>
+                              <div style={{ flex: 1, height: 6, background: "#E2E8F0", borderRadius: 4, overflow: "hidden" }}>
+                                <div style={{ width: `${pct}%`, height: "100%", background: star >= 4 ? "#10B981" : star === 3 ? "#F59E0B" : "#EF4444", borderRadius: 4 }} />
+                              </div>
+                              <span style={{ width: 26, textAlign: "right", color: C.muted, fontSize: 10 }}>{pct}%</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div style={{ fontSize: 12, color: C.primary, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+                      </svg>
+                      {T("100% सत्यापित मरीज़ परामर्श प्रतिक्रिया", "100% Verified Patient Consultation Feedback")}
+                    </div>
+                  </div>
+
+                  {/* Reviews List */}
+                  <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 10 }}>
+                    {T("हाल की मरीज़ समीक्षाएं", "Recent Patient Reviews")} ({reviews.length})
+                  </div>
+
+                  {reviews.length === 0 ? (
+                    <div style={{ background: C.card, borderRadius: 14, padding: "32px 20px", textAlign: "center", border: `1px dashed ${C.border}` }}>
+                      <div style={{ fontSize: 32, marginBottom: 8 }}>★</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>
+                        {T("अभी तक कोई समीक्षा नहीं", "No Reviews Submitted Yet")}
+                      </div>
+                      <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>
+                        {T("परामर्श पूरा होने के बाद मरीज़ की रेटिंग यहाँ दिखाई देगी।", "Patient ratings will appear here once consultations are completed.")}
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      {reviews.map((rev) => (
+                        <div
+                          key={rev._id || rev.reviewId}
+                          style={{
+                            background: C.card,
+                            borderRadius: 14,
+                            padding: "14px 16px",
+                            border: `1px solid ${C.border}`,
+                            boxShadow: "0 2px 6px rgba(0,0,0,0.02)",
+                          }}
+                        >
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                            <div>
+                              <div style={{ fontWeight: 800, fontSize: 13, color: C.text }}>
+                                {rev.patientName}
+                              </div>
+                              <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>
+                                Consultation: <span style={{ fontFamily: "monospace" }}>{rev.consultationId?.slice(-6) || "ID"}</span> · {new Date(rev.createdAt).toLocaleDateString()}
+                              </div>
+                            </div>
+                            <div style={{ background: "#FEF3C7", color: "#D97706", padding: "2px 8px", borderRadius: 8, fontSize: 11, fontWeight: 800 }}>
+                              {"★".repeat(rev.rating)} {rev.rating}/5
+                            </div>
+                          </div>
+
+                          {rev.comment ? (
+                            <div style={{ fontSize: 13, color: "#334155", lineHeight: 1.5, background: "#F8FAFC", padding: "8px 12px", borderRadius: 8, marginTop: 6, fontStyle: "italic" }}>
+                              &ldquo;{rev.comment}&rdquo;
+                            </div>
+                          ) : (
+                            <div style={{ fontSize: 11, color: C.muted, fontStyle: "italic", marginTop: 4 }}>
+                              No written text provided (Star rating only)
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </>
               )}

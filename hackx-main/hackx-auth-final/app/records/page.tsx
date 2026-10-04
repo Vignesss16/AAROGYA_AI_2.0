@@ -26,6 +26,12 @@ export default function RecordsPage() {
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [labOrders, setLabOrders] = useState<any[]>([]);
   const [selectedReportOrder, setSelectedReportOrder] = useState<any | null>(null);
+  const [reviews, setReviews] = useState<Record<string, any>>({});
+  const [rateModalConsultation, setRateModalConsultation] = useState<Consultation | null>(null);
+  const [selectedRating, setSelectedRating] = useState<number>(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewSuccessMsg, setReviewSuccessMsg] = useState("");
   const [fetching, setFetching] = useState(false);
   const [fetched, setFetched] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -94,6 +100,17 @@ export default function RecordsPage() {
       .then((d) => setLabOrders(d.orders || []))
       .catch(() => {});
 
+    fetch(`/api/reviews?patientPhone=${encodeURIComponent(identifier)}`)
+      .then((r) => r.json())
+      .then((d) => {
+        const map: Record<string, any> = {};
+        (d.reviews || []).forEach((rev: any) => {
+          map[rev.consultationId] = rev;
+        });
+        setReviews(map);
+      })
+      .catch(() => {});
+
     fetch(`/api/consultations/my?identifier=${encodeURIComponent(identifier)}`)
       .then((res) => res.json())
       .then(async (data) => {
@@ -148,6 +165,48 @@ export default function RecordsPage() {
       })
       .finally(() => setFetching(false));
   }, [user, isOnline, fetched]);
+
+  const handleSubmitReview = async () => {
+    if (!rateModalConsultation) return;
+    setSubmittingReview(true);
+    try {
+      const identifier = user?.phone || user?.name || (user as any)?._id || "";
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          consultationId: rateModalConsultation._id,
+          patientPhone: identifier,
+          patientName: user?.name || "Patient",
+          doctorId: (rateModalConsultation as any).doctorId || "DOC-DEFAULT",
+          doctorName: rateModalConsultation.doctorName || "Doctor",
+          hospital: rateModalConsultation.hospital || "",
+          rating: selectedRating,
+          comment: reviewComment,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setReviews((prev) => ({
+          ...prev,
+          [rateModalConsultation._id]: data.review,
+        }));
+        setReviewSuccessMsg(t("समीक्षा सफलतापूर्वक दर्ज की गई!", "Review submitted successfully!"));
+        setTimeout(() => {
+          setRateModalConsultation(null);
+          setReviewSuccessMsg("");
+          setReviewComment("");
+          setSelectedRating(5);
+        }, 1200);
+      } else {
+        alert(data.error || "Failed to submit review");
+      }
+    } catch {
+      alert("Network error submitting review");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   if (authLoading && !user) {
     return (
@@ -462,6 +521,66 @@ export default function RecordsPage() {
                         </div>
                       )}
 
+                      {/* Doctor Review & Rating Section */}
+                      {c.status === "completed" && (
+                        reviews[c._id] ? (
+                          <div style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: 10, padding: "10px 14px", marginBottom: 14 }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                <span style={{ color: "#D97706", fontWeight: 800, fontSize: 13 }}>
+                                  {"★".repeat(reviews[c._id].rating)}{"☆".repeat(5 - reviews[c._id].rating)} {reviews[c._id].rating}/5
+                                </span>
+                                <span style={{ fontSize: 11, fontWeight: 700, color: "#92400E", textTransform: "uppercase" }}>
+                                  {t("आपकी समीक्षा", "Your Doctor Rating")}
+                                </span>
+                              </div>
+                              <span style={{ fontSize: 10, color: "#B45309" }}>
+                                {new Date(reviews[c._id].createdAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                            {reviews[c._id].comment && (
+                              <p style={{ margin: "6px 0 0", fontSize: 12, color: "#78350F", fontStyle: "italic" }}>
+                                &ldquo;{reviews[c._id].comment}&rdquo;
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <div style={{ background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 10, padding: "12px 14px", marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                            <div>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: "#1E40AF" }}>
+                                {t("डॉक्टर के साथ अपना परामर्श अनुभव रेट करें", "Rate your consultation experience with this doctor")}
+                              </div>
+                              <div style={{ fontSize: 11, color: "#3B82F6", marginTop: 2 }}>
+                                {t("आपकी प्रतिक्रिया हमें सेवा बेहतर बनाने में मदद करती है", "Your feedback helps improve our medical care")}
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setRateModalConsultation(c);
+                                setSelectedRating(5);
+                                setReviewComment("");
+                              }}
+                              style={{
+                                background: "linear-gradient(135deg, #0F766E, #14B8A6)",
+                                color: "white",
+                                border: "none",
+                                padding: "7px 14px",
+                                borderRadius: 8,
+                                fontSize: 12,
+                                fontWeight: 700,
+                                cursor: "pointer",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 4,
+                                boxShadow: "0 2px 6px rgba(15,118,110,0.2)",
+                              }}
+                            >
+                              ★ {t("डॉक्टर को रेट करें", "Rate Doctor")}
+                            </button>
+                          </div>
+                        )
+                      )}
+
                       <button className="rec-btn" onClick={() => generatePDF(patient, [c])} style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.color}40`, width: "100%", justifyContent: "center" }}>
                         📄 {t("PDF डाउनलोड करें", "Download PDF")}
                       </button>
@@ -472,6 +591,109 @@ export default function RecordsPage() {
             })
           )}
         </div>
+
+        {/* Doctor Rating & Feedback Modal */}
+        {rateModalConsultation && (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)", zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+            <div style={{ background: C.card, width: "100%", maxWidth: 400, borderRadius: 24, padding: 24, border: `1px solid ${C.border}`, boxShadow: "0 20px 40px rgba(0,0,0,0.25)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: C.text }}>
+                    ★ {t("डॉक्टर को रेट करें", "Rate Your Doctor")}
+                  </h3>
+                  <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
+                    Dr. {rateModalConsultation.doctorName ? rateModalConsultation.doctorName.replace(/^(Dr\.?\s*)/i, "").trim() : "Medical Consultant"}
+                  </div>
+                </div>
+                <button onClick={() => setRateModalConsultation(null)} style={{ background: C.bg, border: "none", borderRadius: 8, width: 28, height: 28, cursor: "pointer", fontSize: 14 }}>✕</button>
+              </div>
+
+              {reviewSuccessMsg ? (
+                <div style={{ background: "#ECFDF5", border: "1px solid #A7F3D0", borderRadius: 12, padding: "20px", textAlign: "center", color: "#065F46" }}>
+                  <div style={{ fontSize: 24, marginBottom: 6 }}>✓</div>
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>{reviewSuccessMsg}</div>
+                </div>
+              ) : (
+                <>
+                  {/* Star Rating Interactive Bar */}
+                  <div style={{ textAlign: "center", margin: "16px 0 20px" }}>
+                    <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 8 }}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setSelectedRating(star)}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            fontSize: 32,
+                            cursor: "pointer",
+                            color: star <= selectedRating ? "#F59E0B" : "#CBD5E1",
+                            padding: 0,
+                            transition: "transform 0.1s",
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.2)")}
+                          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
+                        >
+                          ★
+                        </button>
+                      ))}
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: selectedRating >= 4 ? "#059669" : selectedRating === 3 ? "#D97706" : "#DC2626" }}>
+                      {selectedRating === 5 && t("उत्कृष्ट (5/5) — बहुत मददगार!", "Excellent (5/5) — Extremely Helpful!")}
+                      {selectedRating === 4 && t("अच्छा (4/5) — अच्छी सलाह मिली", "Good (4/5) — Helpful Consultation")}
+                      {selectedRating === 3 && t("औसत (3/5) — ठीक ठाक", "Average (3/5) — Satisfactory")}
+                      {selectedRating === 2 && t("खराब (2/5) — सुधार की आवश्यकता", "Poor (2/5) — Needs Improvement")}
+                      {selectedRating === 1 && t("बहुत खराब (1/5) — असंतुष्ट", "Very Poor (1/5) — Dissatisfied")}
+                    </div>
+                  </div>
+
+                  {/* Feedback Textarea */}
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                      {t("आपकी प्रतिक्रिया (वैकल्पिक)", "Your Feedback (Optional)")}
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                      placeholder={t("उदा. डॉक्टर ने मेरी समस्या ध्यान से समझी और सही दवाई दी...", "e.g. Doctor explained the treatment clearly and answered all questions...")}
+                      style={{ width: "100%", padding: "12px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.bg, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                    />
+                  </div>
+
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <button
+                      type="button"
+                      onClick={() => setRateModalConsultation(null)}
+                      style={{ flex: 1, padding: 12, borderRadius: 12, border: `1px solid ${C.border}`, background: C.bg, color: C.muted, fontWeight: 700, cursor: "pointer" }}
+                    >
+                      {t("रद्द करें", "Cancel")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSubmitReview}
+                      disabled={submittingReview}
+                      style={{
+                        flex: 1.5,
+                        padding: 12,
+                        borderRadius: 12,
+                        border: "none",
+                        background: "linear-gradient(135deg, #0F766E, #14B8A6)",
+                        color: "white",
+                        fontWeight: 700,
+                        cursor: submittingReview ? "not-allowed" : "pointer",
+                        opacity: submittingReview ? 0.7 : 1,
+                      }}
+                    >
+                      {submittingReview ? t("दर्ज हो रहा है...", "Submitting...") : t("समीक्षा सबमिट करें →", "Submit Review →")}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Diagnostic Report Viewer Modal */}
         {selectedReportOrder && (

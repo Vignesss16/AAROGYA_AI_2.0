@@ -268,3 +268,6 @@ export { default as Referral, type IReferral } from "./Referral";
 export { default as Lab, type ILab } from "./Lab";
 export { default as LabOrder, type ILabOrder, type LabOrderStatus } from "./LabOrder";
 
+// ── Doctor Reviews & Patient Satisfaction ──────────────────────────────────
+export { default as Review, type IReview } from "./Review";
+
