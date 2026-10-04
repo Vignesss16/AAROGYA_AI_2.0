@@ -148,8 +148,8 @@
 
 1. **Never use `window.location.replace` or `window.location.reload` during React render passes**:
    - Always perform client navigation via `router.replace()` or `router.push()` inside `useEffect()` or event handlers.
-2. **Always keep `feature-v3` and `main` in sync**:
-   - When making changes, commit to `feature-v3`, push to origin, then checkout `main`, merge `feature-v3`, push to origin, and return to `feature-v3`.
+2. **Only push to `main` branch**:
+   - Do NOT push to feature branches. All commits and pushes must be made directly to `main` on origin (`git push origin main`).
 3. **PowerShell Statement Separator**:
    - In this environment (Windows PowerShell), chaining commands with `&&` fails. Always use `;` (semicolon) instead:
      ```powershell
