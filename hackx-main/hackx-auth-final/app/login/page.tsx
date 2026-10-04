@@ -97,12 +97,12 @@ export default function LoginPage() {
     const offlineUser = {
       _id: `offline-${activePhone}`,
       phone: activePhone,
-      name: "Patient",
-      age: 25,
-      gender: "other",
-      village: "Rural Area",
-      conditions: [],
-      bloodGroup: "—",
+      name: "Ramesh Kumar",
+      age: 32,
+      gender: "male",
+      village: "Rampur",
+      conditions: ["Hypertension"],
+      bloodGroup: "B+",
       role: "patient",
     };
     localStorage.setItem("cachedPatientUser", JSON.stringify(offlineUser));
@@ -170,17 +170,17 @@ export default function LoginPage() {
       sessionStorage.removeItem("user_explicitly_logged_out");
     }
 
-    // If offline: No password required! Phone is identity. Immediate local login!
+    // If offline: Phone is identity. Immediate local login!
     if (!navigator.onLine || !isOnline) {
       const offlineUser = {
         _id: `offline-${cleanPhone}`,
         phone: cleanPhone,
-        name: "Patient",
-        age: 25,
-        gender: "other",
-        village: "Rural Area",
-        conditions: [],
-        bloodGroup: "—",
+        name: "Ramesh Kumar",
+        age: 32,
+        gender: "male",
+        village: "Rampur",
+        conditions: ["Hypertension"],
+        bloodGroup: "B+",
         role: "patient",
       };
       localStorage.setItem("cachedPatientUser", JSON.stringify(offlineUser));
@@ -407,25 +407,22 @@ export default function LoginPage() {
   return (
     <div style={{ background: "#0d1520", minHeight: "100vh", display: "flex", justifyContent: "center" }}>
       <div style={{ width: 390, background: C.bg, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-        <div style={{ background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, padding: "44px 20px 22px" }}>
-          <div style={{ color: "white", marginBottom: 4 }}>
-            {step === "otp" ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            )}
+        <div style={{ background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, padding: "26px 20px 18px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+            <img src="/icon-192.png" alt="Aarogya AI" style={{ width: 32, height: 32, objectFit: "contain", borderRadius: 8 }} />
+            <span style={{ fontSize: 18, fontWeight: 900, color: "white", letterSpacing: 0.5 }}>AAROGYA.AI</span>
           </div>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: "white", lineHeight: 1.3, marginTop: 8 }}>
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: "white", lineHeight: 1.2, margin: "6px 0 2px" }}>
             {step === "otp"
               ? t("OTP सत्यापन", "OTP Verification")
               : step === "register"
                 ? t("नया खाता बनाएं", "Create Account")
-                : t("नमस्ते\nअपना नंबर दर्ज करें", "Hello\nEnter your mobile number")}
+                : t("मरीज़ लॉगिन", "Patient Sign In")}
           </h2>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,.7)", marginTop: 4 }}>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,.8)", margin: 0 }}>
             {step === "otp"
               ? t(`+91 ${phone} पर OTP भेजा गया`, `OTP sent to +91 ${phone}`)
-              : t("आपका फ़ोन नंबर ही आपकी पहचान है", "Your phone number is your identity")}
+              : t("आगे बढ़ने के लिए अपना फ़ोन नंबर दर्ज करें", "Enter your mobile number to continue")}
           </p>
         </div>
 
@@ -442,11 +439,11 @@ export default function LoginPage() {
             <>
               {/* Phone */}
               <div style={{ marginBottom: 14 }}>
-                <label style={{ fontSize: 13, fontWeight: 600, color: C.muted, marginBottom: 6, display: "block" }}>
-                  📱 {t("मोबाइल नंबर", "Mobile Number")}
+                <label style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 6, display: "block" }}>
+                  {t("मोबाइल नंबर", "Mobile Number")}
                 </label>
                 <div style={{ display: "flex", alignItems: "stretch", border: `2px solid ${C.border}`, borderRadius: 14, overflow: "hidden", background: C.card }}>
-                  <div style={{ display: "flex", alignItems: "center", background: C.bg, padding: "0 16px", fontSize: 16, fontWeight: 700, color: C.muted, borderRight: `2px solid ${C.border}` }}>+91</div>
+                  <div style={{ display: "flex", alignItems: "center", background: C.bg, padding: "0 16px", fontSize: 15, fontWeight: 700, color: C.muted, borderRight: `2px solid ${C.border}` }}>+91</div>
                   <input
                     style={{ flex: 1, border: "none", outline: "none", fontSize: 16, fontWeight: 700, padding: "14px 16px", background: "transparent", color: C.text, letterSpacing: 1 }}
                     type="tel" value={phone}
@@ -459,8 +456,8 @@ export default function LoginPage() {
               {/* Password */}
               <div style={{ marginBottom: 18 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: C.muted, display: "block" }}>
-                    🔐 {t("पासवर्ड", "Password")}
+                  <label style={{ fontSize: 13, fontWeight: 600, color: C.text, display: "block" }}>
+                    {t("पासवर्ड", "Password")}
                   </label>
                   <button type="button" onClick={() => { setStep("forgot_password"); setError(""); setOtpTimer(0); setDevOtp(""); }} style={{ background: "none", border: "none", padding: 0, color: C.primary, fontSize: 12, fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}>
                     {t("भूल गए?", "Forgot?")}
@@ -484,36 +481,11 @@ export default function LoginPage() {
               </div>
 
               <button onClick={handleLogin} disabled={loading} style={{ width: "100%", padding: "16px 24px", borderRadius: 14, border: "none", cursor: loading ? "not-allowed" : "pointer", fontWeight: 700, fontSize: 16, background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, color: "white", boxShadow: "0 4px 16px rgba(27,108,168,.4)", opacity: loading ? 0.6 : 1 }}>
-                {loading ? "..." : `▶ ${t("लॉगिन करें", "Login")}`}
+                {loading ? "..." : t("लॉगिन करें", "Sign In")}
               </button>
 
-              {/* Seamless Patient Entry Option */}
-              <button
-                type="button"
-                onClick={handleOfflineEnter}
-                style={{
-                  background: "transparent",
-                  border: `1.5px solid ${C.border}`,
-                  borderRadius: 12,
-                  color: C.primary,
-                  padding: "12px",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  marginTop: 12,
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 6,
-                }}
-              >
-                <span>🏥</span>
-                {t("मरीज़ के रूप में प्रवेश करें", "Continue to Patient Portal")}
-              </button>
-
-              <button onClick={() => { setStep("register"); setError(""); }} disabled={loading} style={{ background: "none", border: "none", color: C.muted, fontSize: 13, fontWeight: 600, cursor: "pointer", marginTop: 12, display: "block", width: "100%", textAlign: "center" }}>
-                {t("✨ नया खाता बनाएं", "✨ Create New Account")}
+              <button onClick={() => { setStep("register"); setError(""); }} disabled={loading} style={{ background: "none", border: "none", color: C.primary, fontSize: 13, fontWeight: 700, cursor: "pointer", marginTop: 14, display: "block", width: "100%", textAlign: "center" }}>
+                {t("नया खाता बनाएं", "Don't have an account? Sign Up")}
               </button>
             </>
           )}
@@ -761,13 +733,13 @@ export default function LoginPage() {
               <div style={{ height: 1, background: C.border, margin: "14px 0" }} />
 
               <p style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5, textAlign: "center", marginBottom: 12 }}>
-                {t("अन्य लॉगिन", "Other Logins")}
+                {t("अन्य पोर्टल", "Other Portals")}
               </p>
-              <button onClick={() => router.push("/doctor/login")} disabled={loading} style={{ width: "100%", padding: "14px", borderRadius: 14, border: `2px solid ${C.border}`, background: C.card, color: C.primary, fontWeight: 700, fontSize: 14, cursor: "pointer", marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                👨‍⚕️ {t("डॉक्टर लॉगिन", "Doctor Login")}
+              <button onClick={() => router.push("/doctor/login")} disabled={loading} style={{ width: "100%", padding: "12px", borderRadius: 12, border: `1.5px solid ${C.border}`, background: C.card, color: C.primary, fontWeight: 700, fontSize: 14, cursor: "pointer", marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                {t("डॉक्टर पोर्टल", "Doctor Portal")}
               </button>
-              <button onClick={() => router.push("/asha/login")} disabled={loading} style={{ width: "100%", padding: "14px", borderRadius: 14, border: `2px solid ${C.border}`, background: C.card, color: C.primary, fontWeight: 700, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                👩‍🌾 {t("ASHA कार्यकर्ता", "ASHA Worker")}
+              <button onClick={() => router.push("/asha/login")} disabled={loading} style={{ width: "100%", padding: "12px", borderRadius: 12, border: `1.5px solid ${C.border}`, background: C.card, color: C.primary, fontWeight: 700, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                {t("आशा कार्यकर्ता पोर्टल", "ASHA Worker Portal")}
               </button>
             </>
           )}

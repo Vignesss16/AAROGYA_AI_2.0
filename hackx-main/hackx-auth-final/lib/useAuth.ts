@@ -34,13 +34,13 @@ export function useAuth() {
       if (lastRole === "patient" || (!lastRole && lastPhone)) {
         return {
           _id: `offline-${lastPhone || "patient"}`,
-          phone: lastPhone || "",
-          name: "Patient",
-          age: 25,
-          gender: "other",
-          village: "Rural Area",
-          conditions: [],
-          bloodGroup: "—",
+          phone: lastPhone || "9876543210",
+          name: "Ramesh Kumar",
+          age: 32,
+          gender: "male",
+          village: "Rampur",
+          conditions: ["Hypertension"],
+          bloodGroup: "B+",
           role: "patient",
         };
       }
@@ -122,11 +122,12 @@ export function useAuth() {
         const fallbackUser: PatientUser = {
           _id: `offline-${phone}`,
           phone: phone,
-          name: "Patient",
-          age: 25,
-          gender: "other",
-          village: "Rural Area",
-          conditions: [],
+          name: "Ramesh Kumar",
+          age: 32,
+          gender: "male",
+          village: "Rampur",
+          conditions: ["Hypertension"],
+          bloodGroup: "B+",
           role: "patient",
         };
         localStorage.setItem("cachedPatientUser", JSON.stringify(fallbackUser));
@@ -184,11 +185,12 @@ export function useAuth() {
           const fallbackUser: PatientUser = {
             _id: `offline-${phone}`,
             phone: phone,
-            name: "Patient",
-            age: 25,
-            gender: "other",
-            village: "Rural Area",
-            conditions: [],
+            name: "Ramesh Kumar",
+            age: 32,
+            gender: "male",
+            village: "Rampur",
+            conditions: ["Hypertension"],
+            bloodGroup: "B+",
             role: "patient",
           };
           localStorage.setItem("cachedPatientUser", JSON.stringify(fallbackUser));

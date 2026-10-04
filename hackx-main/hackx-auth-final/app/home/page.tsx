@@ -47,12 +47,12 @@ export default function HomePage() {
   const currentUser = user || {
     _id: "offline-patient",
     phone: (typeof window !== "undefined" && localStorage.getItem("last_login_phone")) || "9876543210",
-    name: "Patient",
-    age: 25,
-    gender: "other",
-    village: "Rural Area",
-    conditions: [],
-    bloodGroup: "—",
+    name: "Ramesh Kumar",
+    age: 32,
+    gender: "male",
+    village: "Rampur",
+    conditions: ["Hypertension"],
+    bloodGroup: "B+",
     role: "patient",
   };
 
@@ -409,24 +409,26 @@ export default function HomePage() {
               ))}
             </div>
 
-            {/* Report / No checkup alert */}
+            {/* Report / Assessment Action */}
             {hasReport ? (
               <div
                 style={{
                   background: "#EBF4FD",
-                  borderRadius: 12,
-                  padding: 12,
+                  borderRadius: 14,
+                  padding: "14px 16px",
                   border: "1px solid #AED6F1",
                   display: "flex",
-                  alignItems: "flex-start",
-                  gap: 8,
+                  alignItems: "center",
+                  gap: 12,
                   marginTop: 14,
                   cursor: "pointer",
                 }}
                 onClick={() => router.push("/report")}
               >
-                <span style={{ fontSize: 20 }}>📋</span>
-                <div>
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D4E6F1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
+                  📋
+                </div>
+                <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: C.primary }}>
                     {t("रिपोर्ट तैयार है", "Report Ready")}
                   </div>
@@ -438,25 +440,29 @@ export default function HomePage() {
             ) : (
               <div
                 style={{
-                  background: "#FDEDED",
-                  borderRadius: 12,
-                  padding: 12,
-                  border: "1px solid #F1948A",
+                  background: "#F4F9FD",
+                  borderRadius: 14,
+                  padding: "14px 16px",
+                  border: "1px solid #D6EAF8",
                   display: "flex",
-                  alignItems: "flex-start",
-                  gap: 8,
+                  alignItems: "center",
+                  gap: 12,
                   marginTop: 14,
+                  cursor: "pointer",
                 }}
+                onClick={() => router.push("/symptoms")}
               >
-                <span style={{ fontSize: 20 }}>🔴</span>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: C.red }}>
-                    {t("कोई जाँच नहीं हुई", "No Checkup Done")}
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: "#E8F4F8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
+                  🩺
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: C.primary }}>
+                    {t("स्वास्थ्य जाँच शुरू करें", "Start Health Checkup")}
                   </div>
                   <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>
                     {t(
-                      "लक्षण जाँच करके रिपोर्ट बनाएं",
-                      "Run a symptom check to generate your report"
+                      "AI द्वारा प्राथमिक स्वास्थ्य सलाह लें →",
+                      "Instant AI symptom assessment & guidance →"
                     )}
                   </div>
                 </div>
