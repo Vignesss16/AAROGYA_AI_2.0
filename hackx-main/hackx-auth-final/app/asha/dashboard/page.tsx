@@ -6,6 +6,7 @@ import { useLang } from "@/lib/useLang";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { getDB, seedOfflineData } from "@/lib/db-offline";
 import AshaVoiceModal from "@/components/AshaVoiceModal";
+import { matchesBilingualQuery } from "@/lib/transliterate";
 
 const C = { primary: "#1B6CA8", green: "#1E8449", red: "#C0392B", yellow: "#F39C12", purple: "#7D3C98", bg: "#F0F4F8", card: "#FFFFFF", text: "#1A2332", muted: "#6B7C93", border: "#DDE3EC" };
 
@@ -226,8 +227,8 @@ export default function ASHADashboardPage() {
   if (!mounted) return null;
 
   const filtered = patients.filter(p =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (p.village || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    matchesBilingualQuery(p.name, searchQuery) ||
+    matchesBilingualQuery(p.village || "", searchQuery) ||
     (p.phone || "").includes(searchQuery)
   );
   const redCount    = visits.filter(v => v.notes.toLowerCase().includes("red")).length;
@@ -521,6 +522,7 @@ export default function ASHADashboardPage() {
         <AshaVoiceModal
           isOpen={showVoiceModal}
           onClose={() => setShowVoiceModal(false)}
+          currentLang={lang}
           onSearchPatient={(q) => {
             setSearchQuery(q);
             setActiveTab("patients");
