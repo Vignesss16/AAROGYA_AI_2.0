@@ -33,16 +33,32 @@ export default function HomePage() {
     setLang(storedLang);
 
     if (!loading && !user) {
-      router.push("/login");
+      const cached = typeof window !== "undefined" ? (localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient") || localStorage.getItem("last_login_phone")) : null;
+      if (!cached && navigator.onLine) {
+        router.push("/login");
+      }
     } else {
       setHasReport(!!localStorage.getItem("triageResult"));
     }
   }, [user, loading, router]);
 
 
+  // Resilient current user shape for offline & online
+  const currentUser = user || {
+    _id: "offline-patient",
+    phone: (typeof window !== "undefined" && localStorage.getItem("last_login_phone")) || "9876543210",
+    name: "Patient",
+    age: 25,
+    gender: "other",
+    village: "Rural Area",
+    conditions: [],
+    bloodGroup: "—",
+    role: "patient",
+  };
+
   // Fetch dynamic stats (consultations and doctors online) with offline caching
   useEffect(() => {
-    if (!user) return;
+    if (!currentUser) return;
 
     // Load cached counts first
     if (typeof window !== "undefined") {
@@ -61,7 +77,7 @@ export default function HomePage() {
       }
     }
     // Fetch personal consultations history
-    const identifier = (user as any).phone || (user as any)._id;
+    const identifier = (currentUser as any).phone || (currentUser as any)._id;
     if (identifier) {
       fetch(`/api/consultations/my?identifier=${encodeURIComponent(identifier)}`)
         .then(res => res.json())
@@ -84,11 +100,11 @@ export default function HomePage() {
         }
       })
       .catch(err => console.error("Error fetching doctors:", err));
-  }, [user, isOnline]);
+  }, [currentUser, isOnline]);
 
   const t = (hi: string, en: string) => (lang === "hi" ? hi : en);
 
-  if (loading && !user) {
+  if (loading && !user && (!isOnline ? false : true)) {
     return (
       <div
         style={{
@@ -104,17 +120,15 @@ export default function HomePage() {
     );
   }
 
-  if (!user) return null;
-
   const greeting =
     lang === "hi"
-      ? `नमस्ते ${user.name.split(" ")[0]} जी`
-      : `Hello ${user.name.split(" ")[0]}`;
+      ? `नमस्ते ${currentUser.name.split(" ")[0]} जी`
+      : `Hello ${currentUser.name.split(" ")[0]}`;
 
   const badges: string[] = [];
-  if (user.bloodGroup) badges.push(`🩸 ${user.bloodGroup}`);
-  if (user.conditions && user.conditions.length > 0) badges.push(`💊 ${user.conditions[0]}`);
-  if (user.age) badges.push(`${user.age} ${t("वर्ष", "years")}`);
+  if (currentUser.bloodGroup && currentUser.bloodGroup !== "—") badges.push(`🩸 ${currentUser.bloodGroup}`);
+  if (currentUser.conditions && currentUser.conditions.length > 0) badges.push(`💊 ${currentUser.conditions[0]}`);
+  if (currentUser.age) badges.push(`${currentUser.age} ${t("वर्ष", "years")}`);
 
   const pastVisits = hasReport ? 1 : 0;
 
@@ -234,7 +248,7 @@ export default function HomePage() {
             >
               <div style={{ fontSize: 24, fontWeight: 800, color: "white" }}>{greeting}</div>
               <div style={{ fontSize: 13, color: "rgba(255,255,255,.8)", marginTop: 4 }}>
-                {user.name} · {user.village}
+                {currentUser.name} · {currentUser.village}
               </div>
               {badges.length > 0 && (
                 <div

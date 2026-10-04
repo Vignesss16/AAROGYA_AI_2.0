@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/useAuth";
 import { signIn } from "next-auth/react";
 import { useLang } from "@/lib/useLang";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 const C = {
   primary: "#1B6CA8", primaryDark: "#0F4C7A", bg: "#F0F4F8",
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { login, register, isAuthenticated } = useAuth();
   const { lang, setLang, mounted } = useLang();
+  const { isOnline } = useOnlineStatus();
   const [step, setStep] = useState<Step>("credentials");
 
   // Credentials
@@ -43,32 +45,88 @@ export default function LoginPage() {
 
   const t = (hi: string, en: string) => lang === "hi" ? hi : en;
 
-  // Restore registration inputs from localStorage to prevent data loss on navigation/refresh
+  // Restore registration inputs from localStorage & WhatsApp-like auto-redirect
   useEffect(() => {
     const storedLang = localStorage.getItem("lang") || "hi";
     setLang(storedLang);
-    if (isAuthenticated) {
-      localStorage.removeItem("pending_reg");
-      router.push("/home");
-    } else {
-      const savedReg = localStorage.getItem("pending_reg");
-      if (savedReg) {
-        try {
-          const parsed = JSON.parse(savedReg);
-          if (parsed.reg) setReg(parsed.reg);
-          if (parsed.phone) setPhone(parsed.phone);
-          if (parsed.password) setPassword(parsed.password);
-          if (parsed.step) setStep(parsed.step);
-        } catch { }
-      }
+
+    // 1. WhatsApp-like Auto-redirect to previously logged-in role
+    const lastRole = localStorage.getItem("last_logged_role");
+
+    // ASHA Worker
+    const cachedAsha = localStorage.getItem("cachedAshaUser") || localStorage.getItem("asha_user") || localStorage.getItem("ashaworker");
+    if (cachedAsha || lastRole === "ashaworker" || lastRole === "asha") {
+      router.replace("/asha/dashboard");
+      return;
     }
-  }, [isAuthenticated, router]);
+
+    // Doctor
+    const cachedDoc = localStorage.getItem("cachedDoctorUser") || localStorage.getItem("doctor_user");
+    if (cachedDoc || lastRole === "doctor") {
+      router.replace("/doctor/dashboard");
+      return;
+    }
+
+    // Pharmacist
+    const cachedPharm = localStorage.getItem("pharmacist");
+    if (cachedPharm || lastRole === "pharmacist") {
+      router.replace("/pharmacist");
+      return;
+    }
+
+    // Patient
+    const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
+    const lastPhone = localStorage.getItem("last_login_phone");
+    if (cachedPatient || isAuthenticated || lastRole === "patient" || (lastPhone && (!navigator.onLine || !isOnline))) {
+      localStorage.removeItem("pending_reg");
+      router.replace("/home");
+      return;
+    }
+
+    // Prepopulate phone if previously saved
+    if (lastPhone && !phone) {
+      setPhone(lastPhone);
+    }
+
+    const savedReg = localStorage.getItem("pending_reg");
+    if (savedReg) {
+      try {
+        const parsed = JSON.parse(savedReg);
+        if (parsed.reg) setReg(parsed.reg);
+        if (parsed.phone) setPhone(parsed.phone);
+        if (parsed.password) setPassword(parsed.password);
+        if (parsed.step) setStep(parsed.step);
+      } catch { }
+    }
+  }, [isAuthenticated, router, isOnline]);
 
   useEffect(() => {
     if (!isAuthenticated) {
       localStorage.setItem("pending_reg", JSON.stringify({ reg, phone, password, step }));
     }
   }, [reg, phone, password, step, isAuthenticated]);
+
+  // Direct 1-tap offline entrance
+  const handleOfflineEnter = () => {
+    const activePhone = phone.trim().replace(/\D/g, "") || localStorage.getItem("last_login_phone") || "9876543210";
+    const offlineUser = {
+      _id: `offline-${activePhone}`,
+      phone: activePhone,
+      name: "Patient",
+      age: 25,
+      gender: "other",
+      village: "Rural Area",
+      conditions: [],
+      bloodGroup: "—",
+      role: "patient",
+    };
+    localStorage.setItem("cachedPatientUser", JSON.stringify(offlineUser));
+    localStorage.setItem("aarogya_user", JSON.stringify(offlineUser));
+    localStorage.setItem("patient", JSON.stringify(offlineUser));
+    localStorage.setItem("last_login_phone", activePhone);
+    localStorage.setItem("last_logged_role", "patient");
+    router.replace("/home");
+  };
 
   // Countdown timer for OTP resend
   useEffect(() => {
@@ -109,24 +167,86 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     setError("");
-    if (!phone || phone.length !== 10) {
+    const cleanPhone = phone.trim().replace(/\D/g, "");
+    if (!cleanPhone || cleanPhone.length !== 10) {
       setError(t("10 अंकों का फोन नंबर दर्ज करें", "Enter a valid 10-digit number"));
       return;
     }
-    if (!password) {
-      setError(t("पासवर्ड दर्ज करें", "Enter your password"));
+
+    // Always remember this phone
+    localStorage.setItem("last_login_phone", cleanPhone);
+    localStorage.setItem("last_logged_role", "patient");
+
+    // If offline: No password required! Phone is identity. Immediate local login!
+    if (!navigator.onLine || !isOnline) {
+      const offlineUser = {
+        _id: `offline-${cleanPhone}`,
+        phone: cleanPhone,
+        name: "Patient",
+        age: 25,
+        gender: "other",
+        village: "Rural Area",
+        conditions: [],
+        bloodGroup: "—",
+        role: "patient",
+      };
+      localStorage.setItem("cachedPatientUser", JSON.stringify(offlineUser));
+      localStorage.setItem("aarogya_user", JSON.stringify(offlineUser));
+      localStorage.setItem("patient", JSON.stringify(offlineUser));
+      router.replace("/home");
       return;
     }
+
+    // In online mode: if password is empty, notify user
+    if (!password) {
+      setError(t("पासवर्ड दर्ज करें या नीचे सीधे ऑफ़लाइन होम खोलें", "Enter password or tap Continue Offline below"));
+      return;
+    }
+
     setLoading(true);
     try {
-      const result = await login(phone, password);
+      const result = await login(cleanPhone, password);
       if (result.success) {
-        router.push("/home");
+        localStorage.setItem("last_login_phone", cleanPhone);
+        localStorage.setItem("last_logged_role", "patient");
+        router.replace("/home");
       } else {
+        if (result.error?.toLowerCase().includes("network") || result.error?.toLowerCase().includes("fetch")) {
+          const fallbackUser = {
+            _id: `offline-${cleanPhone}`,
+            phone: cleanPhone,
+            name: "Patient",
+            age: 25,
+            gender: "other",
+            village: "Rural Area",
+            conditions: [],
+            bloodGroup: "—",
+            role: "patient",
+          };
+          localStorage.setItem("cachedPatientUser", JSON.stringify(fallbackUser));
+          localStorage.setItem("aarogya_user", JSON.stringify(fallbackUser));
+          localStorage.setItem("patient", JSON.stringify(fallbackUser));
+          router.replace("/home");
+          return;
+        }
         setError(result.error || t("लॉगिन विफल", "Login failed"));
       }
     } catch {
-      setError(t("नेटवर्क त्रुटि", "Network error"));
+      const fallbackUser = {
+        _id: `offline-${cleanPhone}`,
+        phone: cleanPhone,
+        name: "Patient",
+        age: 25,
+        gender: "other",
+        village: "Rural Area",
+        conditions: [],
+        bloodGroup: "—",
+        role: "patient",
+      };
+      localStorage.setItem("cachedPatientUser", JSON.stringify(fallbackUser));
+      localStorage.setItem("aarogya_user", JSON.stringify(fallbackUser));
+      localStorage.setItem("patient", JSON.stringify(fallbackUser));
+      router.replace("/home");
     } finally {
       setLoading(false);
     }
@@ -315,6 +435,48 @@ export default function LoginPage() {
 
         <div style={{ flex: 1, overflowY: "auto", padding: "18px 16px" }}>
 
+          {/* Offline 1-Tap Direct Launch Card */}
+          {(!isOnline || (typeof navigator !== "undefined" && !navigator.onLine)) && (
+            <div style={{
+              background: "#E8F8EF",
+              border: "1.5px solid #27AE60",
+              borderRadius: 14,
+              padding: "14px",
+              marginBottom: 16,
+              boxShadow: "0 2px 8px rgba(39,174,96,0.15)"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, color: "#1E8449", fontSize: 13, marginBottom: 4 }}>
+                <span style={{ fontSize: 16 }}>📶</span>
+                {t("ऑफ़लाइन मोड सक्रिय है", "Offline Mode Active")}
+              </div>
+              <p style={{ fontSize: 12, color: "#2C3E50", margin: "0 0 10px", lineHeight: 1.4 }}>
+                {t("इंटरनेट नहीं है? आप सीधे होम पेज खोलकर रिकॉर्ड और लक्षण जाँच सकते हैं।", "No internet? Open home directly to view records and check symptoms.")}
+              </p>
+              <button
+                type="button"
+                onClick={handleOfflineEnter}
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  borderRadius: 10,
+                  border: "none",
+                  background: "linear-gradient(135deg, #27AE60, #1E8449)",
+                  color: "white",
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                }}
+              >
+                <span>🚀</span>
+                {t("सीधे होम पेज खोलें (ऑफलाइन)", "Go directly to Home (Offline)")}
+              </button>
+            </div>
+          )}
+
           {error && (
             <div style={{ background: "#FADBD8", borderRadius: 10, padding: "12px", marginBottom: 14, border: `1px solid ${C.red}`, fontSize: 13, color: C.red }}>
               {error}
@@ -344,7 +506,7 @@ export default function LoginPage() {
               <div style={{ marginBottom: 18 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
                   <label style={{ fontSize: 13, fontWeight: 600, color: C.muted, display: "block" }}>
-                    🔐 {t("पासवर्ड", "Password")}
+                    🔐 {t("पासवर्ड", "Password")} {!isOnline && <span style={{ fontSize: 11, color: C.green, fontWeight: 400 }}>({t("ऑफ़लाइन में वैकल्पिक", "Optional offline")})</span>}
                   </label>
                   <button type="button" onClick={() => { setStep("forgot_password"); setError(""); setOtpTimer(0); setDevOtp(""); }} style={{ background: "none", border: "none", padding: 0, color: C.primary, fontSize: 12, fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}>
                     {t("भूल गए?", "Forgot?")}
@@ -355,7 +517,7 @@ export default function LoginPage() {
                     style={{ width: "100%", padding: "14px 40px 14px 16px", border: `2px solid ${C.border}`, borderRadius: 14, fontSize: 15, fontFamily: "inherit", background: C.card, color: C.text, outline: "none", boxSizing: "border-box" }}
                     type={showPassword ? "text" : "password"} value={password}
                     onChange={e => setPassword(e.target.value)}
-                    disabled={loading} placeholder={t("अपना पासवर्ड दर्ज करें", "Enter your password")}
+                    disabled={loading} placeholder={!isOnline ? t("वैकल्पिक (ऑफलाइन में आवश्यक नहीं)", "Optional (not required offline)") : t("अपना पासवर्ड दर्ज करें", "Enter your password")}
                   />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: C.muted, cursor: "pointer", display: "flex", alignItems: "center" }}>
                     {showPassword ? (
@@ -368,7 +530,7 @@ export default function LoginPage() {
               </div>
 
               <button onClick={handleLogin} disabled={loading} style={{ width: "100%", padding: "16px 24px", borderRadius: 14, border: "none", cursor: loading ? "not-allowed" : "pointer", fontWeight: 700, fontSize: 16, background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, color: "white", boxShadow: "0 4px 16px rgba(27,108,168,.4)", opacity: loading ? 0.6 : 1 }}>
-                {loading ? "..." : `▶ ${t("लॉगिन करें", "Login")}`}
+                {loading ? "..." : (!isOnline ? `⚡ ${t("ऑफ़लाइन लॉगिन करें", "Login Offline")}` : `▶ ${t("लॉगिन करें", "Login")}`)}
               </button>
 
               <button onClick={() => { setStep("register"); setError(""); }} disabled={loading} style={{ background: "none", border: "none", color: C.primary, fontSize: 13, fontWeight: 600, cursor: "pointer", textDecoration: "underline", marginTop: 10, display: "block", width: "100%", textAlign: "center" }}>

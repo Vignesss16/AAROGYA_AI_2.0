@@ -40,6 +40,10 @@ export default function DoctorLoginPage() {
 
     setLoading(false);
     if (res?.ok) {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("last_logged_role", "doctor");
+        localStorage.setItem("cachedDoctorUser", JSON.stringify({ email }));
+      }
       router.push("/doctor/dashboard");
     } else {
       setError(res?.error ?? "Invalid email or password");

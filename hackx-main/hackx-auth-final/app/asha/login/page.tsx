@@ -58,6 +58,7 @@ export default function ASHALoginPage() {
           name: phone === "9876502001" ? "Priya Sharma" : "ASHA Worker",
           villages: "Kesri, Nabha Sector 4",
         }));
+        localStorage.setItem("last_logged_role", "ashaworker");
       }
       router.replace("/asha/dashboard");
     } else {

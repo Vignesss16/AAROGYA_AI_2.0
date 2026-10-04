@@ -29,26 +29,38 @@ export default function SplashPage() {
       } catch {}
 
       // WhatsApp-like auto-login check across all storage keys:
+      const lastRole = localStorage.getItem("last_logged_role");
+
       // 1. Check ASHA worker cached session
       const cachedAsha = localStorage.getItem("cachedAshaUser") || localStorage.getItem("asha_user") || localStorage.getItem("ashaworker");
-      if (cachedAsha) {
-        try {
-          const parsed = JSON.parse(cachedAsha);
-          if (parsed && (parsed.role === "ashaworker" || parsed.phone)) {
-            router.replace("/asha/dashboard");
-            return;
-          }
-        } catch {}
+      if (cachedAsha || lastRole === "ashaworker" || lastRole === "asha") {
+        router.replace("/asha/dashboard");
+        return;
       }
 
-      // 2. Check Patient cached session
+      // 2. Check Doctor cached session
+      const cachedDoc = localStorage.getItem("cachedDoctorUser") || localStorage.getItem("doctor_user");
+      if (cachedDoc || lastRole === "doctor") {
+        router.replace("/doctor/dashboard");
+        return;
+      }
+
+      // 3. Check Pharmacist cached session
+      const cachedPharm = localStorage.getItem("pharmacist");
+      if (cachedPharm || lastRole === "pharmacist") {
+        router.replace("/pharmacist");
+        return;
+      }
+
+      // 4. Check Patient cached session or previously logged in patient
       const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
-      if (cachedPatient) {
+      const lastPhone = localStorage.getItem("last_login_phone");
+      if (cachedPatient || lastRole === "patient" || lastPhone) {
         router.replace("/home");
         return;
       }
 
-      // 3. If device is currently OFFLINE:
+      // 5. If device is currently OFFLINE:
       // Go straight to /home to access offline medical services without network errors
       if (!navigator.onLine) {
         router.replace("/home");
@@ -61,10 +73,14 @@ export default function SplashPage() {
       };
     }
 
-    // 4. Online NextAuth session check
+    // 6. Online NextAuth session check
     if (status === "authenticated" && session?.user) {
       if ((session.user as any).role === "ashaworker") {
         router.replace("/asha/dashboard");
+        return;
+      }
+      if ((session.user as any).role === "doctor") {
+        router.replace("/doctor/dashboard");
         return;
       }
       router.replace("/home");
@@ -80,20 +96,29 @@ export default function SplashPage() {
     if (typeof window !== "undefined") {
       localStorage.setItem("lang", lang);
 
-      const cachedAsha = localStorage.getItem("cachedAshaUser") || localStorage.getItem("asha_user");
-      if (cachedAsha) {
+      const lastRole = localStorage.getItem("last_logged_role");
+
+      const cachedAsha = localStorage.getItem("cachedAshaUser") || localStorage.getItem("asha_user") || localStorage.getItem("ashaworker");
+      if (cachedAsha || lastRole === "ashaworker" || lastRole === "asha") {
         router.push("/asha/dashboard");
         return;
       }
 
-      const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
-      if (cachedPatient) {
-        router.push("/home");
+      const cachedDoc = localStorage.getItem("cachedDoctorUser") || localStorage.getItem("doctor_user");
+      if (cachedDoc || lastRole === "doctor") {
+        router.push("/doctor/dashboard");
         return;
       }
 
-      // If offline: ALWAYS route to /home (100% offline enabled)
-      if (!navigator.onLine) {
+      const cachedPharm = localStorage.getItem("pharmacist");
+      if (cachedPharm || lastRole === "pharmacist") {
+        router.push("/pharmacist");
+        return;
+      }
+
+      const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
+      const lastPhone = localStorage.getItem("last_login_phone");
+      if (cachedPatient || lastRole === "patient" || lastPhone || !navigator.onLine) {
         router.push("/home");
         return;
       }
