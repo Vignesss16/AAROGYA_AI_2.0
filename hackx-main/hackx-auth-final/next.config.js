@@ -1,23 +1,24 @@
 /** @type {import('next').NextConfig} */
 const defaultRuntimeCaching = require("next-pwa/cache");
 
+const buildRevision = Date.now().toString();
 const withPWA = require("next-pwa")({
   dest: "public",
   register: true,
   skipWaiting: true,
   disable: process.env.DISABLE_PWA === "true",
-  dynamicStartUrl: false,
-  fallbacks: {
-    document: "/~offline",
-  },
-  additionalManifestEntries: [
-    { url: "/home", revision: "v3" },
-    { url: "/login", revision: "v3" },
-    { url: "/asha/dashboard", revision: "v3" },
-    { url: "/records", revision: "v3" },
-    { url: "/symptoms", revision: "v3" },
-    { url: "/triage", revision: "v3" },
-  ],
+    dynamicStartUrl: false,
+    fallbacks: {
+      document: "/~offline",
+    },
+    additionalManifestEntries: [
+      { url: "/home", revision: buildRevision },
+      { url: "/login", revision: buildRevision },
+      { url: "/asha/dashboard", revision: buildRevision },
+      { url: "/records", revision: buildRevision },
+      { url: "/symptoms", revision: buildRevision },
+      { url: "/triage", revision: buildRevision },
+    ],
   runtimeCaching: [
     // 1. Next.js 14 App Router RSC payload caching (?_rsc=...)
     {

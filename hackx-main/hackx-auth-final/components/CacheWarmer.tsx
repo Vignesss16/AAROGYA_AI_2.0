@@ -32,8 +32,7 @@ export default function CacheWarmer() {
 
         for (const url of urls) {
           try {
-            const cached = await pagesCache.match(url);
-            if (!cached) {
+            if (navigator.onLine) {
               const res = await fetch(url, { cache: "no-store" });
               if (res.ok) {
                 const blob = await res.blob();

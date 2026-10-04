@@ -1,9 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { syncAllOfflineData, flushSyncQueue, getDB, seedOfflineData } from "@/lib/db-offline";
 
 export default function OfflineBanner() {
+  const pathname = usePathname();
+  const router = useRouter();
   const { isOnline, justCameOnline } = useOnlineStatus();
   const [visible, setVisible] = useState(false);
   const [queueCount, setQueueCount] = useState(0);
@@ -101,15 +104,40 @@ export default function OfflineBanner() {
         color: "white",
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "space-between",
         gap: 8,
         animation: "slideDown 0.3s ease-out",
       }}
     >
-      <span style={{ fontSize: 16 }}>⚠️</span>
-      <span>
-        You&apos;re offline — {queueCount > 0 ? `${queueCount} item(s) will sync when online` : "Some features limited"}
-      </span>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ fontSize: 16 }}>⚠️</span>
+        <span>
+          You&apos;re offline — {queueCount > 0 ? `${queueCount} item(s) will sync when online` : "Some features limited"}
+        </span>
+      </div>
+
+      {pathname !== "/home" && (
+        <button
+          type="button"
+          onClick={() => router.push("/home")}
+          style={{
+            background: "rgba(255,255,255,0.25)",
+            border: "1px solid rgba(255,255,255,0.5)",
+            borderRadius: 8,
+            color: "white",
+            padding: "4px 10px",
+            fontSize: 12,
+            fontWeight: 800,
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+            flexShrink: 0,
+          }}
+        >
+          🚀 Home
+        </button>
+      )}
       <style>{`@keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }`}</style>
     </div>
   );

@@ -6,7 +6,18 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key.includes('v3') || key.includes('-6B-A5N8KCaf10r-BY1upt') || key.includes('-DIPqPDbYZvQfzWI-6FqfQ')) {
+            console.log('[SW] Deleting stale cache:', key);
+            return caches.delete(key);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener('message', (event) => {
@@ -33,12 +44,19 @@ self.addEventListener('fetch', (event) => {
           throw new Error('Network response not 200');
         } catch (err) {
           // 2. Network failed or timed out — device is offline
+          const url = new URL(event.request.url);
+
+          // If offline and attempting to open /login, serve /home directly!
+          if (url.pathname === '/login' || url.pathname === '/') {
+            const homeMatch = await caches.match('/home', { ignoreSearch: true });
+            if (homeMatch) return homeMatch;
+          }
+
           // Attempt A: Match the requested URL from any cache
           const exactMatch = await caches.match(event.request, { ignoreSearch: true });
           if (exactMatch) return exactMatch;
 
           // Attempt B: Match the pathname
-          const url = new URL(event.request.url);
           const pathnameMatch = await caches.match(url.pathname, { ignoreSearch: true });
           if (pathnameMatch) return pathnameMatch;
 
