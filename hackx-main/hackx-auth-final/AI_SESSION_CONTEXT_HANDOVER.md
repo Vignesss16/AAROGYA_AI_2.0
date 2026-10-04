@@ -158,3 +158,29 @@
 4. **Validation Routine Before Every Commit**:
    - Run `npx tsc --noEmit` to verify type safety (must be 0 errors).
    - Run `npm run build` to verify Next.js static page generation and PWA worker compilation (must be 0 errors).
+
+---
+
+## 6. ASHA Worker Voice Commands & Dictation Architecture
+
+To assist rural health workers who find mobile typing cumbersome, a voice-first suite is built into the ASHA portal:
+
+1. **`hooks/useSpeechRecognition.ts`**:
+   - Native Web Speech API abstraction (`window.SpeechRecognition || window.webkitSpeechRecognition`).
+   - Supports Hindi (`hi-IN`) and Indian English (`en-IN`) out of the box on mobile Android Chrome & PWAs.
+   - Provides `isListening`, `transcript`, `interimTranscript`, `startListening(lang)`, `stopListening()`.
+
+2. **`components/AshaVoiceModal.tsx`**:
+   - Floating interactive voice assistant on `/asha/dashboard`.
+   - Natural language command parser for:
+     - **Visits**: e.g., *"विज़िट दर्ज करो"*, *"log visit"*, *"मरीज़ अनिता देवी से मिले"* -> routes to `/asha/log-visit` with pre-filled name and notes.
+     - **Vitals**: e.g., *"वाइटल भरें"*, *"बीपी 120 80 पल्स 72"* -> routes to `/asha/vital-signs`.
+     - **Blood Test**: e.g., *"खून की जांच"*, *"blood test"* -> routes to `/asha/blood-test-submit`.
+     - **Emergency SOS**: e.g., *"इमरजेंसी"*, *"खतरा"*, *"ambulance"* -> routes to `/asha/sos`.
+     - **Search Patient**: e.g., *"मरीज़ रमेश को ढूंढो"* -> searches patient table.
+   - Text-to-Speech audio feedback via `window.speechSynthesis`.
+
+3. **`app/asha/log-visit/page.tsx` & `app/asha/vital-signs/page.tsx`**:
+   - **Smart Voice Form Fill**: Auto-parses full spoken sentences into Patient Name, Phone, BP, Heart Rate, Temperature, SpO2, and Observations.
+   - **Inline Mic Buttons**: Individual mic icons beside input fields for discrete dictation in Hindi or English.
+
