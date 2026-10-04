@@ -4,28 +4,32 @@ import { useRouter } from "next/navigation";
 
 const DEMO_LABS = [
   {
+    id: "LAB-KLY-001",
     name: "ABC Diagnostic Center",
     location: "Kalyan, Thane",
-    id: "LAB-KLY-001",
     phone: "9876504001",
+    shortName: "ABC Diagnostics",
   },
   {
-    name: "CityCare Pathology & Diagnostic Lab",
-    location: "Dombivli, Thane",
     id: "LAB-DMB-002",
+    name: "CityCare Pathology & Lab",
+    location: "Dombivli, Thane",
     phone: "9876504002",
+    shortName: "CityCare Lab",
   },
   {
-    name: "Government Sub-District Diagnostic Centre",
-    location: "Civil Hospital, Nabha",
     id: "LAB-NBH-003",
+    name: "Govt Sub-District Diagnostic",
+    location: "Civil Hospital, Nabha",
     phone: "9876504003",
+    shortName: "Govt Lab Nabha",
   },
   {
-    name: "Apex Advanced Molecular Lab",
-    location: "Medical Square, Patiala / Thane",
     id: "LAB-APX-004",
+    name: "Apex Molecular Laboratory",
+    location: "Medical Square, Patiala",
     phone: "9876504004",
+    shortName: "Apex Molecular",
   },
 ];
 
@@ -46,10 +50,10 @@ export default function LabLoginPage() {
     }
   }, [router]);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!identifier.trim()) {
-      setError("Please enter your Lab ID or Registered Phone number.");
+      setError("Please enter your Lab ID or Phone number.");
       return;
     }
     setLoading(true);
@@ -80,10 +84,16 @@ export default function LabLoginPage() {
     }
   };
 
+  const selectDemoLab = (lab: typeof DEMO_LABS[0]) => {
+    setIdentifier(lab.id);
+    setPassword("lab123");
+    setError("");
+  };
+
   return (
     <div
       style={{
-        background: "radial-gradient(circle at 10% 20%, rgb(15, 118, 110) 0%, rgb(2, 132, 199) 90.2%)",
+        background: "radial-gradient(circle at 50% 0%, #1A2332 0%, #0F172A 100%)",
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
@@ -91,18 +101,18 @@ export default function LabLoginPage() {
         fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         position: "relative",
         overflow: "hidden",
-        padding: "24px 16px",
+        padding: "32px 16px",
       }}
     >
-      {/* Background Glow Elements */}
+      {/* Background Subtle Medical Glows */}
       <div
         style={{
           position: "absolute",
-          width: 550,
-          height: 550,
-          background: "radial-gradient(circle, rgba(20, 184, 166, 0.35) 0%, transparent 70%)",
-          top: -120,
-          left: -100,
+          width: 450,
+          height: 450,
+          background: "radial-gradient(circle, rgba(15, 118, 110, 0.2) 0%, transparent 70%)",
+          top: "-8%",
+          left: "25%",
           borderRadius: "50%",
           filter: "blur(50px)",
           pointerEvents: "none",
@@ -113,11 +123,11 @@ export default function LabLoginPage() {
           position: "absolute",
           width: 500,
           height: 500,
-          background: "radial-gradient(circle, rgba(2, 132, 199, 0.35) 0%, transparent 70%)",
-          bottom: -100,
-          right: -100,
+          background: "radial-gradient(circle, rgba(2, 132, 199, 0.18) 0%, transparent 70%)",
+          bottom: "-10%",
+          right: "20%",
           borderRadius: "50%",
-          filter: "blur(50px)",
+          filter: "blur(60px)",
           pointerEvents: "none",
         }}
       />
@@ -125,33 +135,33 @@ export default function LabLoginPage() {
       <div
         style={{
           width: "100%",
-          maxWidth: 480,
-          background: "rgba(255, 255, 255, 0.12)",
-          backdropFilter: "blur(28px)",
-          WebkitBackdropFilter: "blur(28px)",
-          borderRadius: 24,
-          padding: "36px 28px",
+          maxWidth: 440,
+          margin: "0 auto",
+          background: "rgba(255, 255, 255, 0.05)",
+          backdropFilter: "blur(24px)",
+          WebkitBackdropFilter: "blur(24px)",
+          borderRadius: 28,
+          padding: "40px 32px",
           boxSizing: "border-box",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.45)",
-          border: "1px solid rgba(255, 255, 255, 0.22)",
+          boxShadow: "0 25px 50px -12px rgba(0,0,0,0.6)",
+          border: "1px solid rgba(255,255,255,0.1)",
           zIndex: 10,
-          color: "white",
         }}
       >
-        {/* Header with SVG Icon */}
-        <div style={{ textAlign: "center", marginBottom: 28 }}>
+        {/* Brand Header */}
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div
             style={{
               width: 64,
               height: 64,
               borderRadius: 20,
-              background: "rgba(255, 255, 255, 0.2)",
+              background: "linear-gradient(135deg, rgba(15,118,110,0.9), rgba(2,132,199,0.9))",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              margin: "0 auto 16px",
-              boxShadow: "inset 0 0 20px rgba(255, 255, 255, 0.15)",
-              border: "1px solid rgba(255, 255, 255, 0.3)",
+              margin: "0 auto 18px",
+              boxShadow: "0 10px 20px -5px rgba(2, 132, 199, 0.5), inset 0 0 10px rgba(255,255,255,0.2)",
+              border: "1px solid rgba(255,255,255,0.15)",
             }}
           >
             <svg
@@ -160,7 +170,7 @@ export default function LabLoginPage() {
               viewBox="0 0 24 24"
               fill="none"
               stroke="white"
-              strokeWidth="2"
+              strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
@@ -172,28 +182,28 @@ export default function LabLoginPage() {
               <path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3" />
             </svg>
           </div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: "-0.5px", color: "white" }}>
-            AAROGYA.AI
-          </h1>
-          <p style={{ fontSize: 13, marginTop: 4, fontWeight: 600, color: "rgba(255, 255, 255, 0.85)" }}>
-            Diagnostic Pathology & Laboratory Portal
+          <h2 style={{ fontSize: 26, fontWeight: 800, color: "white", margin: 0, letterSpacing: "-0.5px" }}>
+            Diagnostic Portal
+          </h2>
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", marginTop: 6, fontWeight: 500 }}>
+            AarogyaAI Pathology & Laboratory Staff
           </p>
         </div>
 
         {error && (
           <div
             style={{
-              background: "rgba(239, 68, 68, 0.25)",
-              color: "#FECACA",
-              padding: "12px 14px",
+              background: "rgba(239, 68, 68, 0.15)",
               borderRadius: 12,
-              fontSize: 13,
-              fontWeight: 600,
+              padding: "12px 14px",
               marginBottom: 20,
+              fontSize: 13,
+              color: "#FECACA",
+              fontWeight: 600,
+              border: "1px solid rgba(239, 68, 68, 0.3)",
               display: "flex",
               alignItems: "center",
               gap: 8,
-              border: "1px solid rgba(239, 68, 68, 0.4)",
             }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -205,15 +215,75 @@ export default function LabLoginPage() {
           </div>
         )}
 
+        {/* 1-Click Fast Fill Selector Tabs (2x2 Grid) */}
+        <div style={{ marginBottom: 24 }}>
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              color: "rgba(255,255,255,0.7)",
+              textTransform: "uppercase",
+              letterSpacing: "0.8px",
+              marginBottom: 10,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <span>Select Registered Facility</span>
+            <span style={{ fontSize: 10, color: "#38BDF8", fontWeight: 600 }}>1-Click Demo</span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            {DEMO_LABS.map((lab) => {
+              const isSelected = identifier === lab.id || identifier === lab.phone;
+              return (
+                <button
+                  key={lab.id}
+                  type="button"
+                  onClick={() => selectDemoLab(lab)}
+                  style={{
+                    background: isSelected ? "rgba(15, 118, 110, 0.4)" : "rgba(255, 255, 255, 0.04)",
+                    border: `1.5px solid ${isSelected ? "#14B8A6" : "rgba(255,255,255,0.1)"}`,
+                    borderRadius: 12,
+                    padding: "10px 12px",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    color: "white",
+                    transition: "all 0.15s ease",
+                    boxShadow: isSelected ? "0 4px 12px rgba(20,184,166,0.2)" : "none",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 3 }}>
+                    <span style={{ fontSize: 10, fontFamily: "monospace", color: isSelected ? "#5EEAD4" : "rgba(255,255,255,0.5)", fontWeight: 700 }}>
+                      {lab.id.replace("LAB-", "")}
+                    </span>
+                    {isSelected && (
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#14B8A6" }} />
+                    )}
+                  </div>
+                  <div style={{ fontWeight: 700, fontSize: 12, color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {lab.shortName}
+                  </div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>
+                    {lab.location.split(",")[0]}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Credentials Form */}
         <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6, color: "rgba(255,255,255,0.9)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              Lab ID or Phone Number
+            <label style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.8)", display: "block", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              Lab ID or Registered Phone
             </label>
             <div style={{ position: "relative" }}>
               <input
                 type="text"
-                placeholder="e.g. LAB-KLY-001 or 9876504001"
+                placeholder="LAB-KLY-001 or 9876504001"
                 value={identifier}
                 onChange={(e) => {
                   setIdentifier(e.target.value);
@@ -222,20 +292,20 @@ export default function LabLoginPage() {
                 style={{
                   width: "100%",
                   padding: "14px 16px 14px 42px",
-                  border: "1px solid rgba(255,255,255,0.25)",
+                  border: "1px solid rgba(255,255,255,0.2)",
                   borderRadius: 14,
                   fontSize: 14,
                   fontFamily: "inherit",
-                  background: "rgba(0,0,0,0.2)",
+                  background: "rgba(0,0,0,0.25)",
                   color: "white",
                   outline: "none",
                   boxSizing: "border-box",
                   transition: "all 0.2s",
                 }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.7)")}
-                onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)")}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.7)")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)")}
               />
-              <div style={{ position: "absolute", left: 14, top: 15, color: "rgba(255,255,255,0.6)", pointerEvents: "none" }}>
+              <div style={{ position: "absolute", left: 14, top: 14, color: "rgba(255,255,255,0.45)", pointerEvents: "none" }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
@@ -245,13 +315,13 @@ export default function LabLoginPage() {
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6, color: "rgba(255,255,255,0.9)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              Password
+            <label style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.8)", display: "block", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              Secure Password
             </label>
             <div style={{ position: "relative" }}>
               <input
                 type={showPass ? "text" : "password"}
-                placeholder="Enter password"
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -260,20 +330,20 @@ export default function LabLoginPage() {
                 style={{
                   width: "100%",
                   padding: "14px 44px 14px 42px",
-                  border: "1px solid rgba(255,255,255,0.25)",
+                  border: "1px solid rgba(255,255,255,0.2)",
                   borderRadius: 14,
                   fontSize: 14,
                   fontFamily: "inherit",
-                  background: "rgba(0,0,0,0.2)",
+                  background: "rgba(0,0,0,0.25)",
                   color: "white",
                   outline: "none",
                   boxSizing: "border-box",
                   transition: "all 0.2s",
                 }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.7)")}
-                onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)")}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.7)")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)")}
               />
-              <div style={{ position: "absolute", left: 14, top: 15, color: "rgba(255,255,255,0.6)", pointerEvents: "none" }}>
+              <div style={{ position: "absolute", left: 14, top: 14, color: "rgba(255,255,255,0.45)", pointerEvents: "none" }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -288,7 +358,7 @@ export default function LabLoginPage() {
                   top: 14,
                   background: "transparent",
                   border: "none",
-                  color: "rgba(255,255,255,0.7)",
+                  color: "rgba(255,255,255,0.5)",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -314,16 +384,16 @@ export default function LabLoginPage() {
               cursor: loading ? "not-allowed" : "pointer",
               fontWeight: 800,
               fontSize: 15,
-              background: "#FFFFFF",
-              color: "#0F766E",
-              boxShadow: "0 6px 20px rgba(0, 0, 0, 0.25)",
+              background: "white",
+              color: "#0F172A",
+              boxShadow: "0 6px 20px rgba(0, 0, 0, 0.35)",
               transition: "all 0.2s",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               gap: 8,
-              marginTop: 4,
-              opacity: loading ? 0.75 : 1,
+              marginTop: 6,
+              opacity: loading ? 0.7 : 1,
             }}
           >
             <span>{loading ? "Authenticating..." : "Access Laboratory Portal"}</span>
@@ -336,88 +406,39 @@ export default function LabLoginPage() {
           </button>
         </form>
 
-        {/* 1-Click Fast Fill for all 4 registered labs */}
-        <div style={{ marginTop: 24, paddingTop: 18, borderTop: "1px solid rgba(255, 255, 255, 0.18)" }}>
-          <div
+        {/* Navigation & Role Switching */}
+        <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 10 }}>
+          <button
+            type="button"
+            onClick={() => router.push("/login")}
             style={{
-              fontSize: 11,
-              fontWeight: 800,
-              color: "rgba(255, 255, 255, 0.8)",
-              textTransform: "uppercase",
-              letterSpacing: "0.8px",
-              marginBottom: 10,
-              textAlign: "center",
+              width: "100%",
+              padding: "12px",
+              borderRadius: 12,
+              border: "1px solid rgba(255,255,255,0.12)",
+              background: "transparent",
+              color: "rgba(255,255,255,0.65)",
+              fontWeight: 600,
+              fontSize: 13,
+              cursor: "pointer",
+              transition: "all 0.15s",
             }}
           >
-            Registered Diagnostic Centres (1-Click Demo Select)
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-            {DEMO_LABS.map((demo) => {
-              const isSelected = identifier === demo.id || identifier === demo.phone;
-              return (
-                <button
-                  key={demo.id}
-                  type="button"
-                  onClick={() => {
-                    setIdentifier(demo.id);
-                    setPassword("lab123");
-                  }}
-                  style={{
-                    background: isSelected ? "rgba(255, 255, 255, 0.25)" : "rgba(0, 0, 0, 0.18)",
-                    border: `1.5px solid ${isSelected ? "rgba(255,255,255,0.85)" : "rgba(255, 255, 255, 0.12)"}`,
-                    borderRadius: 12,
-                    padding: "10px 14px",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    color: "white",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    transition: "all 0.15s ease",
-                  }}
-                >
-                  <div style={{ overflow: "hidden", paddingRight: 8 }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {demo.name}
-                    </div>
-                    <div style={{ fontSize: 11, color: "rgba(255, 255, 255, 0.7)", marginTop: 2 }}>
-                      {demo.location} · <span style={{ fontFamily: "monospace" }}>{demo.id}</span>
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      background: isSelected ? "white" : "rgba(255,255,255,0.15)",
-                      color: isSelected ? "#0F766E" : "white",
-                      padding: "4px 10px",
-                      borderRadius: 8,
-                      fontSize: 11,
-                      fontWeight: 700,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {isSelected ? "Active" : "Select"}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+            Switch to Patient Portal
+          </button>
 
-        {/* Back link */}
-        <div style={{ textAlign: "center", marginTop: 20 }}>
           <button
             type="button"
             onClick={() => router.push("/home")}
             style={{
               background: "none",
               border: "none",
-              color: "rgba(255, 255, 255, 0.75)",
+              color: "rgba(255, 255, 255, 0.45)",
               fontSize: 12,
-              fontWeight: 600,
+              fontWeight: 500,
               cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
+              textAlign: "center",
+              marginTop: 4,
             }}
           >
             ← Back to Aarogya.AI Home
