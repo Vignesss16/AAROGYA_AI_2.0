@@ -40,7 +40,8 @@ export default function ServiceWorkerRegister() {
       navigator.serviceWorker.addEventListener("controllerchange", () => {
         if (!refreshing) {
           refreshing = true;
-          console.log("[PWA] Service Worker controller changed.");
+          console.log("[PWA] Service Worker controller changed, reloading page.");
+          window.location.reload();
         }
       });
     }

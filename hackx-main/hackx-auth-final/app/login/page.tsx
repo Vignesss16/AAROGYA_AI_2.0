@@ -77,9 +77,15 @@ export default function LoginPage() {
     // Patient
     const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
     const lastPhone = localStorage.getItem("last_login_phone");
-    if (cachedPatient || isAuthenticated || lastRole === "patient" || (lastPhone && (!navigator.onLine || !isOnline))) {
+    if (cachedPatient || isAuthenticated || lastRole === "patient" || lastPhone) {
       localStorage.removeItem("pending_reg");
       router.replace("/home");
+      return;
+    }
+
+    // If completely offline: Never block user on login page, directly enter home dashboard!
+    if (!navigator.onLine || !isOnline) {
+      handleOfflineEnter();
       return;
     }
 
@@ -169,6 +175,11 @@ export default function LoginPage() {
     setError("");
     const cleanPhone = phone.trim().replace(/\D/g, "");
     if (!cleanPhone || cleanPhone.length !== 10) {
+      // In offline mode, don't show error: seamlessly open offline home!
+      if (!navigator.onLine || !isOnline) {
+        handleOfflineEnter();
+        return;
+      }
       setError(t("10 अंकों का फोन नंबर दर्ज करें", "Enter a valid 10-digit number"));
       return;
     }

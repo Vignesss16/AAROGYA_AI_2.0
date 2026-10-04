@@ -1,6 +1,20 @@
 // Custom Service Worker script bundled by next-pwa into sw.js
 // Handles offline navigation fallback and guarantees Chrome never displays "You're offline"
 
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('fetch', (event) => {
   // Only intercept top-level document navigation requests
   if (event.request.mode === 'navigate') {
