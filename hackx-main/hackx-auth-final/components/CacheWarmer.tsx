@@ -12,7 +12,9 @@ export default function CacheWarmer() {
 
     const warmCache = async () => {
       try {
-        const cache = await caches.open("pages-runtimes");
+        const pagesCache = await caches.open("pages-runtimes");
+        const startUrlCache = await caches.open("start-url");
+
         const urls = [
           "/",
           "/home",
@@ -30,27 +32,50 @@ export default function CacheWarmer() {
 
         for (const url of urls) {
           try {
-            const cached = await cache.match(url);
+            const cached = await pagesCache.match(url);
             if (!cached) {
               const res = await fetch(url, { cache: "no-store" });
               if (res.ok) {
-                await cache.put(url, res);
+                const blob = await res.blob();
+                const headers = new Headers(res.headers);
+                if (!headers.get("content-type")) {
+                  headers.set("content-type", "text/html; charset=utf-8");
+                }
+
+                await pagesCache.put(
+                  url,
+                  new Response(blob, {
+                    status: 200,
+                    statusText: "OK",
+                    headers,
+                  })
+                );
+
+                if (url === "/") {
+                  await startUrlCache.put(
+                    url,
+                    new Response(blob, {
+                      status: 200,
+                      statusText: "OK",
+                      headers,
+                    })
+                  );
+                }
               }
             }
           } catch {
             // Ignore individual fetch errors
           }
         }
+        console.log("[CacheWarmer] Offline pages successfully cached locally.");
       } catch (err) {
         console.warn("[CacheWarmer] Offline cache warming error:", err);
       }
     };
 
-    if ("requestIdleCallback" in window) {
-      (window as any).requestIdleCallback(() => warmCache());
-    } else {
-      setTimeout(warmCache, 2500);
-    }
+    // Warm cache quickly after mount (800ms) so user experience is smooth and offline storage is filled immediately
+    const timer = setTimeout(warmCache, 800);
+    return () => clearTimeout(timer);
   }, []);
 
   return null;

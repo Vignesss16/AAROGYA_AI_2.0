@@ -3,6 +3,7 @@ import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import OfflineBanner from "@/components/OfflineBanner";
 import CacheWarmer from "@/components/CacheWarmer";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 export const metadata: Metadata = {
   title: "AAROGYA.AI",
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <AuthProvider>
+          <ServiceWorkerRegister />
           <OfflineBanner />
           <CacheWarmer />
           {children}
