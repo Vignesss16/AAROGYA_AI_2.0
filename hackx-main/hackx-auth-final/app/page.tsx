@@ -35,35 +35,49 @@ export default function SplashPage() {
         return;
       }
 
-      // 1. Check ASHA worker cached session
+      const lastRole = localStorage.getItem("last_logged_role");
+      const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
       const cachedAsha = localStorage.getItem("cachedAshaUser") || localStorage.getItem("asha_user") || localStorage.getItem("ashaworker");
-      if (cachedAsha) {
+      const cachedDoc = localStorage.getItem("cachedDoctorUser") || localStorage.getItem("doctor_user");
+      const cachedPharm = localStorage.getItem("pharmacist");
+
+      // 1. Prioritize role user actively logged in with
+      if (lastRole === "patient" && cachedPatient) {
+        router.replace("/home");
+        return;
+      }
+      if ((lastRole === "ashaworker" || lastRole === "asha") && cachedAsha) {
         router.replace("/asha/dashboard");
         return;
       }
-
-      // 2. Check Doctor cached session
-      const cachedDoc = localStorage.getItem("cachedDoctorUser") || localStorage.getItem("doctor_user");
-      if (cachedDoc) {
+      if (lastRole === "doctor" && cachedDoc) {
         router.replace("/doctor/dashboard");
         return;
       }
-
-      // 3. Check Pharmacist cached session
-      const cachedPharm = localStorage.getItem("pharmacist");
-      if (cachedPharm) {
-        router.replace("/pharmacist");
+      if (lastRole === "pharmacist" && cachedPharm) {
+        router.replace("/pharmacist/dashboard");
         return;
       }
 
-      // 4. Check Patient cached session
-      const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
+      // 2. Fallbacks if lastRole is unassigned — check patient FIRST
       if (cachedPatient) {
         router.replace("/home");
         return;
       }
+      if (cachedAsha) {
+        router.replace("/asha/dashboard");
+        return;
+      }
+      if (cachedDoc) {
+        router.replace("/doctor/dashboard");
+        return;
+      }
+      if (cachedPharm && lastRole === "pharmacist") {
+        router.replace("/pharmacist/dashboard");
+        return;
+      }
 
-      // 5. If no active session exists (offline or online), go to /login
+      // 3. If unauthenticated, go to /login
       router.replace("/login");
       return;
     }
@@ -85,6 +99,10 @@ export default function SplashPage() {
     if (status !== "loading") {
       setChecking(false);
     }
+
+    // Safety timeout: never hang indefinitely on splash spinner
+    const timer = setTimeout(() => setChecking(false), 1200);
+    return () => clearTimeout(timer);
   }, [session, status, router]);
 
   const handleSelectLanguage = (lang: string) => {
@@ -97,31 +115,42 @@ export default function SplashPage() {
         return;
       }
 
+      const lastRole = localStorage.getItem("last_logged_role");
+      const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
       const cachedAsha = localStorage.getItem("cachedAshaUser") || localStorage.getItem("asha_user") || localStorage.getItem("ashaworker");
+      const cachedDoc = localStorage.getItem("cachedDoctorUser") || localStorage.getItem("doctor_user");
+      const cachedPharm = localStorage.getItem("pharmacist");
+
+      if (lastRole === "patient" && cachedPatient) {
+        router.push("/home");
+        return;
+      }
+      if ((lastRole === "ashaworker" || lastRole === "asha") && cachedAsha) {
+        router.push("/asha/dashboard");
+        return;
+      }
+      if (lastRole === "doctor" && cachedDoc) {
+        router.push("/doctor/dashboard");
+        return;
+      }
+      if (lastRole === "pharmacist" && cachedPharm) {
+        router.push("/pharmacist/dashboard");
+        return;
+      }
+
+      if (cachedPatient) {
+        router.push("/home");
+        return;
+      }
       if (cachedAsha) {
         router.push("/asha/dashboard");
         return;
       }
-
-      const cachedDoc = localStorage.getItem("cachedDoctorUser") || localStorage.getItem("doctor_user");
       if (cachedDoc) {
         router.push("/doctor/dashboard");
         return;
       }
 
-      const cachedPharm = localStorage.getItem("pharmacist");
-      if (cachedPharm) {
-        router.push("/pharmacist");
-        return;
-      }
-
-      const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
-      if (cachedPatient) {
-        router.push("/home");
-        return;
-      }
-
-      // If unauthenticated: route to /login
       router.push("/login");
     }
   };

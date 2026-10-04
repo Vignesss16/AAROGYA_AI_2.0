@@ -137,12 +137,17 @@ export function useAuth() {
 
     // ONLINE LOGIN
     try {
+      const controller = new AbortController();
+      const fetchTimer = setTimeout(() => controller.abort(), 4000);
+
       // 1. Direct verify with credentials API endpoint for instant authentication & real patient record
       const apiRes = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, password }),
+        signal: controller.signal,
       });
+      clearTimeout(fetchTimer);
 
       const apiData = await apiRes.json();
 
@@ -344,9 +349,13 @@ export function useAuth() {
       localStorage.removeItem("cachedPatientUser");
       localStorage.removeItem("aarogya_user");
       localStorage.removeItem("patient");
-      localStorage.removeItem("last_logged_role");
-      localStorage.removeItem("last_login_phone");
       localStorage.removeItem("token");
+      localStorage.removeItem("pharmacist");
+      localStorage.removeItem("cachedDoctorUser");
+      localStorage.removeItem("doctor_user");
+      localStorage.removeItem("cachedAshaUser");
+      localStorage.removeItem("asha_user");
+      localStorage.removeItem("ashaworker");
     }
     setCachedUser(null);
     try {

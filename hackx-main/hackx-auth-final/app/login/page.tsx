@@ -78,6 +78,9 @@ export default function LoginPage() {
         if (parsed.step) setStep(parsed.step);
       } catch { }
     }
+    try {
+      router.prefetch("/home");
+    } catch {}
   }, [router]);
 
   useEffect(() => {
@@ -215,6 +218,11 @@ export default function LoginPage() {
         localStorage.setItem("last_login_phone", cleanPhone);
         localStorage.setItem("last_logged_role", "patient");
         router.replace("/home");
+        setTimeout(() => {
+          if (typeof window !== "undefined" && window.location.pathname !== "/home") {
+            window.location.assign("/home");
+          }
+        }, 500);
         return;
       } else {
         setError(result.error || t("लॉगिन विफल", "Login failed"));
@@ -253,6 +261,11 @@ export default function LoginPage() {
           sessionStorage.removeItem("user_explicitly_logged_out");
         }
         router.replace("/home");
+        setTimeout(() => {
+          if (typeof window !== "undefined" && window.location.pathname !== "/home") {
+            window.location.assign("/home");
+          }
+        }, 500);
         return;
       } else {
         setError(result.error || t("लॉगिन विफल", "Login failed"));
@@ -317,6 +330,11 @@ export default function LoginPage() {
           sessionStorage.removeItem("user_explicitly_logged_out");
         }
         router.replace("/home");
+        setTimeout(() => {
+          if (typeof window !== "undefined" && window.location.pathname !== "/home") {
+            window.location.assign("/home");
+          }
+        }, 500);
         return;
       } else {
         setError(result.error || t("पंजीकरण विफल", "Registration failed"));
