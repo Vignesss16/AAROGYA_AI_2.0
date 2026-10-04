@@ -191,24 +191,11 @@ export default function RecordsPage() {
       `}</style>
 
       <div style={{ width: 420, background: C.bg, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-
-        {isOfflineMode ? (
-          <div style={{ background: "#FEF9E7", padding: "6px 16px", fontSize: 12, fontWeight: 700, color: "#B7770D", display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#F39C12" }} />
-            {t("ऑफलाइन — डिवाइस से रिकॉर्ड", "Offline — Records from device")}
-          </div>
-        ) : (
-          <div style={{ background: "#E8F8EF", padding: "6px 16px", fontSize: 12, fontWeight: 700, color: C.green, display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.green, boxShadow: `0 0 6px ${C.green}` }} />
-            {t("लाइव — सुरक्षित रूप से सिंक किया गया", "Live — Securely Synced")}
-          </div>
-        )}
-
-        <div style={{ display: "flex", alignItems: "center", padding: "10px 14px", gap: 10, background: C.card, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ display: "flex", alignItems: "center", padding: "12px 14px", gap: 10, background: C.card, borderBottom: `1px solid ${C.border}` }}>
           <button onClick={() => router.push("/home")} style={{ width: 36, height: 36, borderRadius: 10, background: C.bg, border: "none", fontSize: 18, cursor: "pointer" }}>←</button>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 15, fontWeight: 700 }}>{t("मेरे स्वास्थ्य रिकॉर्ड", "My Health Records")}</div>
-            <div style={{ fontSize: 11, color: C.muted }}>My Health Records</div>
+            <div style={{ fontSize: 11, color: C.muted }}>{isOfflineMode ? t("डिवाइस से सुरक्षित रिकॉर्ड", "Saved on device") : t("क्लाउड से सिंक", "Synced with cloud")}</div>
           </div>
           {consultations.length > 0 && (
             <button className="rec-btn" onClick={handleDownloadAll} disabled={downloading} style={{ background: C.primary, color: "#fff", fontSize: 12, padding: "7px 12px" }}>

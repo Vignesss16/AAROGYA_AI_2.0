@@ -1,17 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
-import { syncAllOfflineData, flushSyncQueue, getDB, seedOfflineData } from "@/lib/db-offline";
+import { syncAllOfflineData, seedOfflineData } from "@/lib/db-offline";
 
 export default function OfflineBanner() {
-  const pathname = usePathname();
-  const router = useRouter();
   const { isOnline, justCameOnline } = useOnlineStatus();
-  const [visible, setVisible] = useState(false);
-  const [queueCount, setQueueCount] = useState(0);
-  const [syncing, setSyncing] = useState(false);
-  const [syncedCount, setSyncedCount] = useState(0);
+  const [syncToast, setSyncToast] = useState<string | null>(null);
 
   // Auto-seed offline data on boot
   useEffect(() => {
@@ -20,125 +14,54 @@ export default function OfflineBanner() {
     }
   }, []);
 
-  // Check sync queue and run batch sync when coming back online
+  // WhatsApp-like silent background sync when connection restores
   useEffect(() => {
     if (justCameOnline && typeof window !== "undefined") {
-      setSyncing(true);
       syncAllOfflineData()
         .then((result) => {
-          setSyncedCount(result.synced);
-          // Update queue count after sync
-          if (typeof window !== "undefined") {
-            getDB().syncQueue.count().then(setQueueCount);
+          if (result && result.synced > 0) {
+            setSyncToast(`✓ ${result.synced} item${result.synced > 1 ? "s" : ""} synced to cloud`);
+            const timer = setTimeout(() => setSyncToast(null), 3000);
+            return () => clearTimeout(timer);
           }
         })
-        .finally(() => {
-          setSyncing(false);
-        });
+        .catch(console.error);
     }
   }, [justCameOnline]);
 
-  // Update queue count when offline
-  useEffect(() => {
-    if (!isOnline && typeof window !== "undefined") {
-      getDB().syncQueue.count().then(setQueueCount);
-    }
-  }, [isOnline]);
+  // When offline or idle, show nothing (WhatsApp-like calm experience)
+  if (!syncToast) return null;
 
-  // Show banner briefly when coming back online
-  useEffect(() => {
-    if (justCameOnline) {
-      setVisible(true);
-      const timer = setTimeout(() => setVisible(false), 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [justCameOnline]);
-
-  // Show banner persistently when offline
-  useEffect(() => {
-    setVisible(!isOnline);
-  }, [isOnline]);
-
-  if (!visible) return null;
-
-  // Online banner (temporary)
-  if (isOnline && justCameOnline) {
-    return (
-      <div
-        style={{
-          background: "linear-gradient(135deg, #1E8449, #27AE60)",
-          padding: "10px 16px",
-          fontSize: 13,
-          fontWeight: 700,
-          color: "white",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 8,
-          animation: "slideDown 0.3s ease-out",
-        }}
-      >
-        <span style={{ fontSize: 16 }}>✅</span>
-        <span>
-          {syncing
-            ? "Back online! Syncing your data..."
-            : syncedCount > 0
-            ? `Back online! ${syncedCount} item(s) synced successfully!`
-            : queueCount > 0
-            ? `Back online! ${queueCount} item(s) synced!`
-            : "Back online! All data is up to date!"}
-        </span>
-        <style>{`@keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }`}</style>
-      </div>
-    );
-  }
-
-  // Offline banner (persistent)
   return (
     <div
       style={{
-        background: "linear-gradient(135deg, #C0392B, #E74C3C)",
-        padding: "10px 16px",
+        position: "fixed",
+        bottom: 24,
+        left: "50%",
+        transform: "translateX(-50%)",
+        background: "rgba(26, 35, 50, 0.95)",
+        backdropFilter: "blur(12px)",
+        color: "#2ECC71",
+        padding: "10px 20px",
+        borderRadius: 24,
         fontSize: 13,
         fontWeight: 700,
-        color: "white",
+        boxShadow: "0 8px 30px rgba(0,0,0,0.35)",
+        zIndex: 9999,
         display: "flex",
         alignItems: "center",
-        justifyContent: "space-between",
         gap: 8,
-        animation: "slideDown 0.3s ease-out",
+        animation: "toastFade 0.3s ease-out",
+        border: "1px solid rgba(46, 204, 113, 0.3)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ fontSize: 16 }}>⚠️</span>
-        <span>
-          You&apos;re offline — {queueCount > 0 ? `${queueCount} item(s) will sync when online` : "Some features limited"}
-        </span>
-      </div>
-
-      {pathname !== "/home" && (
-        <button
-          type="button"
-          onClick={() => router.push("/home")}
-          style={{
-            background: "rgba(255,255,255,0.25)",
-            border: "1px solid rgba(255,255,255,0.5)",
-            borderRadius: 8,
-            color: "white",
-            padding: "4px 10px",
-            fontSize: 12,
-            fontWeight: 800,
-            cursor: "pointer",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 4,
-            flexShrink: 0,
-          }}
-        >
-          🚀 Home
-        </button>
-      )}
-      <style>{`@keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }`}</style>
+      <span>{syncToast}</span>
+      <style>{`
+        @keyframes toastFade {
+          from { opacity: 0; transform: translate(-50%, 15px); }
+          to { opacity: 1; transform: translate(-50%, 0); }
+        }
+      `}</style>
     </div>
   );
 }

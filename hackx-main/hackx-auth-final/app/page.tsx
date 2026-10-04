@@ -235,28 +235,7 @@ export default function SplashPage() {
           </button>
         </div>
 
-        {/* DIRECT OFFLINE LAUNCH BUTTON IF OFFLINE */}
-        {isOffline && (
-          <button
-            type="button"
-            onClick={() => router.push("/home")}
-            style={{
-              width: "100%",
-              marginTop: 16,
-              padding: "14px",
-              borderRadius: 14,
-              border: "1px solid rgba(46,204,113,0.6)",
-              background: "rgba(46,204,113,0.15)",
-              color: "#2ecc71",
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: "pointer",
-              zIndex: 1
-            }}
-          >
-            🚀 सीधे ऑफ़लाइन होम खोलें (Open Offline Home)
-          </button>
-        )}
+
         
         <div style={{ fontSize: 12, color: "rgba(255,255,255,.4)", textAlign: "center", marginTop: 24, zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
           <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#2ecc71", boxShadow: "0 0 6px #2ecc71" }} />

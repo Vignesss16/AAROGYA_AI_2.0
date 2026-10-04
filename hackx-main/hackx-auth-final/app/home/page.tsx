@@ -129,6 +129,7 @@ export default function HomePage() {
   if (currentUser.bloodGroup && currentUser.bloodGroup !== "—") badges.push(`🩸 ${currentUser.bloodGroup}`);
   if (currentUser.conditions && currentUser.conditions.length > 0) badges.push(`💊 ${currentUser.conditions[0]}`);
   if (currentUser.age) badges.push(`${currentUser.age} ${t("वर्ष", "years")}`);
+  if (!isOnline) badges.push(t("⚡ ऑफ़लाइन AI", "⚡ Offline AI"));
 
   const pastVisits = hasReport ? 1 : 0;
 
@@ -151,54 +152,6 @@ export default function HomePage() {
             flexDirection: "column",
           }}
         >
-          {/* Online/Offline status bar */}
-          <div
-            style={{
-              background: isOnline ? "#E8F8EF" : "#FEF3C7",
-              padding: "6px 16px",
-              fontSize: 12,
-              fontWeight: 700,
-              color: isOnline ? C.green : "#D97706",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  background: isOnline ? C.green : "#D97706",
-                  animation: "pulse 2s infinite",
-                }}
-              />
-              {isOnline
-                ? t("ऑनलाइन — AI सक्रिय है", "Online — AI Active")
-                : t("ऑफ़लाइन मोड — लोकल AI सक्रिय (0G)", "Offline Mode — Local AI Active (0G)")}
-            </div>
-            <button
-              onClick={() => {
-                const newLang = lang === "hi" ? "en" : "hi";
-                setLang(newLang);
-                localStorage.setItem("lang", newLang);
-              }}
-              style={{
-                background: C.primary,
-                border: "none",
-                borderRadius: 20,
-                padding: "4px 12px",
-                fontSize: 11,
-                fontWeight: 800,
-                color: "white",
-                cursor: "pointer",
-              }}
-            >
-              {lang === "hi" ? "EN" : "हिं"}
-            </button>
-          </div>
-
           {/* Hero */}
           <div
             style={{
@@ -221,30 +174,62 @@ export default function HomePage() {
               🏥
             </div>
 
-            <button
-              onClick={logout}
+            {/* Top Right Actions: Language Switch & Logout */}
+            <div
               style={{
                 position: "absolute",
                 top: 14,
                 right: 14,
-                background: "rgba(255,255,255,.15)",
-                border: "none",
-                borderRadius: 8,
-                color: "rgba(255,255,255,.9)",
-                fontSize: 12,
-                fontWeight: 700,
-                padding: "6px 12px",
-                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
                 zIndex: 10,
               }}
             >
-              {t("लॉग आउट", "Logout")}
-            </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const newLang = lang === "hi" ? "en" : "hi";
+                  setLang(newLang);
+                  localStorage.setItem("lang", newLang);
+                }}
+                style={{
+                  background: "rgba(255,255,255,.18)",
+                  backdropFilter: "blur(8px)",
+                  border: "1px solid rgba(255,255,255,.25)",
+                  borderRadius: 8,
+                  color: "white",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  padding: "6px 10px",
+                  cursor: "pointer",
+                }}
+              >
+                {lang === "hi" ? "EN" : "हिं"}
+              </button>
+              <button
+                type="button"
+                onClick={logout}
+                style={{
+                  background: "rgba(255,255,255,.18)",
+                  backdropFilter: "blur(8px)",
+                  border: "1px solid rgba(255,255,255,.25)",
+                  borderRadius: 8,
+                  color: "rgba(255,255,255,.9)",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  padding: "6px 12px",
+                  cursor: "pointer",
+                }}
+              >
+                {t("लॉग आउट", "Logout")}
+              </button>
+            </div>
 
             {/* Clickable Profile Area */}
             <div
               onClick={() => router.push("/profile")}
-              style={{ cursor: "pointer", position: "relative", zIndex: 1, paddingRight: 80 }}
+              style={{ cursor: "pointer", position: "relative", zIndex: 1, paddingRight: 125 }}
             >
               <div style={{ fontSize: 24, fontWeight: 800, color: "white" }}>{greeting}</div>
               <div style={{ fontSize: 13, color: "rgba(255,255,255,.8)", marginTop: 4 }}>

@@ -192,7 +192,7 @@ export default function LoginPage() {
 
     // In online mode: if password is empty, notify user
     if (!password) {
-      setError(t("पासवर्ड दर्ज करें या नीचे सीधे ऑफ़लाइन होम खोलें", "Enter password or tap Continue Offline below"));
+      setError(t("पासवर्ड दर्ज करें", "Enter your password"));
       return;
     }
 
@@ -431,48 +431,6 @@ export default function LoginPage() {
 
         <div style={{ flex: 1, overflowY: "auto", padding: "18px 16px" }}>
 
-          {/* Offline 1-Tap Direct Launch Card */}
-          {(!isOnline || (typeof navigator !== "undefined" && !navigator.onLine)) && (
-            <div style={{
-              background: "#E8F8EF",
-              border: "1.5px solid #27AE60",
-              borderRadius: 14,
-              padding: "14px",
-              marginBottom: 16,
-              boxShadow: "0 2px 8px rgba(39,174,96,0.15)"
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, color: "#1E8449", fontSize: 13, marginBottom: 4 }}>
-                <span style={{ fontSize: 16 }}>📶</span>
-                {t("ऑफ़लाइन मोड सक्रिय है", "Offline Mode Active")}
-              </div>
-              <p style={{ fontSize: 12, color: "#2C3E50", margin: "0 0 10px", lineHeight: 1.4 }}>
-                {t("इंटरनेट नहीं है? आप सीधे होम पेज खोलकर रिकॉर्ड और लक्षण जाँच सकते हैं।", "No internet? Open home directly to view records and check symptoms.")}
-              </p>
-              <button
-                type="button"
-                onClick={handleOfflineEnter}
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  borderRadius: 10,
-                  border: "none",
-                  background: "linear-gradient(135deg, #27AE60, #1E8449)",
-                  color: "white",
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                }}
-              >
-                <span>🚀</span>
-                {t("सीधे होम पेज खोलें (ऑफलाइन)", "Go directly to Home (Offline)")}
-              </button>
-            </div>
-          )}
-
           {error && (
             <div style={{ background: "#FADBD8", borderRadius: 10, padding: "12px", marginBottom: 14, border: `1px solid ${C.red}`, fontSize: 13, color: C.red }}>
               {error}
@@ -502,7 +460,7 @@ export default function LoginPage() {
               <div style={{ marginBottom: 18 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
                   <label style={{ fontSize: 13, fontWeight: 600, color: C.muted, display: "block" }}>
-                    🔐 {t("पासवर्ड", "Password")} {!isOnline && <span style={{ fontSize: 11, color: C.green, fontWeight: 400 }}>({t("ऑफ़लाइन में वैकल्पिक", "Optional offline")})</span>}
+                    🔐 {t("पासवर्ड", "Password")}
                   </label>
                   <button type="button" onClick={() => { setStep("forgot_password"); setError(""); setOtpTimer(0); setDevOtp(""); }} style={{ background: "none", border: "none", padding: 0, color: C.primary, fontSize: 12, fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}>
                     {t("भूल गए?", "Forgot?")}
@@ -513,7 +471,7 @@ export default function LoginPage() {
                     style={{ width: "100%", padding: "14px 40px 14px 16px", border: `2px solid ${C.border}`, borderRadius: 14, fontSize: 15, fontFamily: "inherit", background: C.card, color: C.text, outline: "none", boxSizing: "border-box" }}
                     type={showPassword ? "text" : "password"} value={password}
                     onChange={e => setPassword(e.target.value)}
-                    disabled={loading} placeholder={!isOnline ? t("वैकल्पिक (ऑफलाइन में आवश्यक नहीं)", "Optional (not required offline)") : t("अपना पासवर्ड दर्ज करें", "Enter your password")}
+                    disabled={loading} placeholder={t("अपना पासवर्ड दर्ज करें", "Enter your password")}
                   />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: C.muted, cursor: "pointer", display: "flex", alignItems: "center" }}>
                     {showPassword ? (
@@ -526,10 +484,35 @@ export default function LoginPage() {
               </div>
 
               <button onClick={handleLogin} disabled={loading} style={{ width: "100%", padding: "16px 24px", borderRadius: 14, border: "none", cursor: loading ? "not-allowed" : "pointer", fontWeight: 700, fontSize: 16, background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, color: "white", boxShadow: "0 4px 16px rgba(27,108,168,.4)", opacity: loading ? 0.6 : 1 }}>
-                {loading ? "..." : (!isOnline ? `⚡ ${t("ऑफ़लाइन लॉगिन करें", "Login Offline")}` : `▶ ${t("लॉगिन करें", "Login")}`)}
+                {loading ? "..." : `▶ ${t("लॉगिन करें", "Login")}`}
               </button>
 
-              <button onClick={() => { setStep("register"); setError(""); }} disabled={loading} style={{ background: "none", border: "none", color: C.primary, fontSize: 13, fontWeight: 600, cursor: "pointer", textDecoration: "underline", marginTop: 10, display: "block", width: "100%", textAlign: "center" }}>
+              {/* Seamless Patient Entry Option */}
+              <button
+                type="button"
+                onClick={handleOfflineEnter}
+                style={{
+                  background: "transparent",
+                  border: `1.5px solid ${C.border}`,
+                  borderRadius: 12,
+                  color: C.primary,
+                  padding: "12px",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  marginTop: 12,
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6,
+                }}
+              >
+                <span>🏥</span>
+                {t("मरीज़ के रूप में प्रवेश करें", "Continue to Patient Portal")}
+              </button>
+
+              <button onClick={() => { setStep("register"); setError(""); }} disabled={loading} style={{ background: "none", border: "none", color: C.muted, fontSize: 13, fontWeight: 600, cursor: "pointer", marginTop: 12, display: "block", width: "100%", textAlign: "center" }}>
                 {t("✨ नया खाता बनाएं", "✨ Create New Account")}
               </button>
             </>

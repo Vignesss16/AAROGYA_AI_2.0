@@ -378,24 +378,12 @@ export default function MedicinePage() {
   return (
     <div style={{ background: "#0d1520", minHeight: "100vh", display: "flex", justifyContent: "center" }}>
       <div style={{ width: 390, background: C.bg, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-        {/* Status bar */}
-        {isOfflineMode ? (
-          <div style={{ background: "#FEF9E7", padding: "6px 16px", fontSize: 12, fontWeight: 700, color: "#B7770D", display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#F39C12" }} />
-            {T("ऑफलाइन — डिवाइस से डेटा", "Offline — Data from device")}
-          </div>
-        ) : (
-          <div style={{ background: "#E8F8EF", padding: "6px 16px", fontSize: 12, fontWeight: 700, color: C.green, display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.green, boxShadow: `0 0 6px ${C.green}` }} />
-            {T("लाइव डेटा — असली मेडिकल स्टोर्स", "Live Data — Real Medical Stores")}
-          </div>
-        )}
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", padding: "10px 14px", gap: 10, background: C.card, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ display: "flex", alignItems: "center", padding: "12px 14px", gap: 10, background: C.card, borderBottom: `1px solid ${C.border}` }}>
           <button onClick={() => router.push("/home")} style={{ width: 36, height: 36, borderRadius: 10, background: C.bg, border: "none", fontSize: 18, cursor: "pointer" }}>←</button>
           <div>
             <div style={{ fontSize: 15, fontWeight: 700 }}>{T("दवाई खोजें", "Find Medicine")}</div>
-            <div style={{ fontSize: 11, color: C.muted }}>{T("पास की फार्मेसी में उपलब्धता", "Availability at nearby pharmacies")}</div>
+            <div style={{ fontSize: 11, color: C.muted }}>{isOfflineMode ? T("स्थानीय मेडिकल स्टोर डेटा", "Local pharmacy database") : T("पास की फार्मेसी में उपलब्धता", "Availability at nearby pharmacies")}</div>
           </div>
         </div>
         {/* Prescribed banner */}
