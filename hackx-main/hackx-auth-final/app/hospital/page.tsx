@@ -122,6 +122,45 @@ export default function HospitalDesktopDashboard() {
     }
   };
 
+  const handleConfirmAppointment = async (consultationId: string) => {
+    try {
+      const res = await fetch("/api/consultations", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: consultationId,
+          receptionistStatus: "CONFIRMED",
+          status: "confirmed",
+        }),
+      });
+      if (res.ok) {
+        fetchData();
+      }
+    } catch {
+      // offline
+    }
+  };
+
+  const handleDeclineAppointment = async (consultationId: string) => {
+    if (!window.confirm("Are you sure you want to decline this appointment request?")) return;
+    try {
+      const res = await fetch("/api/consultations", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: consultationId,
+          receptionistStatus: "REJECTED",
+          status: "cancelled",
+        }),
+      });
+      if (res.ok) {
+        fetchData();
+      }
+    } catch {
+      // offline
+    }
+  };
+
   if (!mounted) return null;
 
   if (!auth) {
@@ -264,6 +303,7 @@ export default function HospitalDesktopDashboard() {
             <div style={{ display: "flex", gap: 8 }}>
               {[
                 { id: "dashboard", label: T("डैशबोर्ड", "Dashboard") },
+                { id: "appointments", label: T("अपॉइंटमेंट & रिसेप्शन", "Appointments & Reception") },
                 { id: "emergencies", label: T("आपात स्थिति", "Emergencies") },
                 { id: "referrals", label: T("रेफ़रल", "Referrals") },
                 { id: "diagnostics", label: T("लैब रिपोर्ट", "Lab Diagnostics") },
@@ -271,7 +311,7 @@ export default function HospitalDesktopDashboard() {
                 { id: "analytics", label: T("एनालिटिक्स", "Analytics") },
               ].map(nav => (
                 <button key={nav.id} onClick={() => { setActiveTab(nav.id); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                  style={{ padding: "10px 20px", borderRadius: 12, border: "none", background: activeTab === nav.id ? "rgba(15, 118, 110, 0.08)" : "transparent", color: activeTab === nav.id ? C.primary : C.muted, fontWeight: activeTab === nav.id ? 700 : 600, fontSize: 15, cursor: "pointer", transition: "all 0.2s" }}
+                  style={{ padding: "10px 18px", borderRadius: 12, border: "none", background: activeTab === nav.id ? "rgba(15, 118, 110, 0.08)" : "transparent", color: activeTab === nav.id ? C.primary : C.muted, fontWeight: activeTab === nav.id ? 700 : 600, fontSize: 14, cursor: "pointer", transition: "all 0.2s" }}
                 >
                   {nav.label}
                 </button>
@@ -602,6 +642,119 @@ export default function HospitalDesktopDashboard() {
 
 {/* Main Column */}
           <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+
+            {/* Appointments & Receptionist Desk */}
+            {(activeTab === "dashboard" || activeTab === "appointments") && (
+              <div style={{ background: C.card, borderRadius: 24, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)" }}>
+                <div style={{ padding: "24px 32px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: "#F0FDF4" }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#166534", display: "flex", alignItems: "center", gap: 8 }}>
+                      <span>🎟️</span>
+                      <span>{T("रिसेप्शनिस्ट अपॉइंटमेंट डेस्क", "Receptionist & Appointment Booking Desk")}</span>
+                    </h3>
+                    <div style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>
+                      {T("बुकमायशो शैली में अस्पताल स्लॉट व रिसेप्शनिस्ट असिस्टेड बुकिंग्स", "BookMyShow-style hospital slot & receptionist-assisted bookings")}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 14, color: "#166534", fontWeight: 700, background: "rgba(22, 101, 52, 0.15)", padding: "6px 16px", borderRadius: 20 }}>
+                    {pendingQueue.length} Active Bookings
+                  </div>
+                </div>
+
+                <div style={{ padding: 0 }}>
+                  {pendingQueue.length === 0 ? (
+                    <div style={{ padding: 40, textAlign: "center", color: C.muted }}>
+                      <div style={{ fontSize: 32, marginBottom: 8 }}>📋</div>
+                      <div style={{ fontSize: 15, fontWeight: 700 }}>{T("कोई लंबित अपॉइंटमेंट नहीं", "No Pending Appointment Requests")}</div>
+                    </div>
+                  ) : (
+                    <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                      <thead>
+                        <tr style={{ background: "#F8FAFC", fontSize: 13, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Patient Identity</th>
+                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Booking Type / Department</th>
+                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Requested Slot</th>
+                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Doctor / Facility</th>
+                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Receptionist Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {pendingQueue.map((p) => {
+                          const isAssisted = p.bookingType === "HOSPITAL_RECEPTIONIST_ASSISTED";
+                          const isPendingConf = p.receptionistStatus === "PENDING_CONFIRMATION";
+                          return (
+                            <tr key={p._id} style={{ borderTop: `1px solid ${C.border}`, transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#F8FAFC"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                              <td style={{ padding: "20px 32px" }}>
+                                <div style={{ fontWeight: 800, color: C.text, fontSize: 15 }}>{p.patientName}</div>
+                                <div style={{ fontSize: 13, color: C.muted, marginTop: 2 }}>📱 {p.patientPhone} {p.queueNo ? `· #${p.queueNo}` : ""}</div>
+                              </td>
+                              <td style={{ padding: "20px 32px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                                  <span style={{ background: isAssisted ? "#E0F2FE" : "#F1F5F9", color: isAssisted ? "#0284C7" : "#475569", padding: "4px 10px", borderRadius: 8, fontSize: 11, fontWeight: 800 }}>
+                                    {isAssisted ? "🏥 Receptionist-Assisted" : "⚡ Direct Doctor OPD"}
+                                  </span>
+                                  {p.department && (
+                                    <span style={{ background: "#F3E8FF", color: "#7E22CE", padding: "4px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700 }}>
+                                      {p.department}
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              <td style={{ padding: "20px 32px" }}>
+                                <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>
+                                  🕐 {p.slot || "Next Available"}
+                                </div>
+                                <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>
+                                  {p.urgency === "RED" ? "🔴 Emergency" : p.urgency === "YELLOW" ? "🟡 Urgent" : "🟢 Standard"}
+                                </div>
+                              </td>
+                              <td style={{ padding: "20px 32px" }}>
+                                <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>
+                                  {p.doctorName ? `Dr. ${p.doctorName.replace(/^(Dr\.?\s*)/i, "").trim()}` : "Duty Doctor"}
+                                </div>
+                                <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
+                                  {p.hospital || "Civil Hospital"}
+                                </div>
+                              </td>
+                              <td style={{ padding: "20px 32px" }}>
+                                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                                  {isPendingConf ? (
+                                    <>
+                                      <button
+                                        onClick={() => handleConfirmAppointment(p._id)}
+                                        style={{ background: C.green, color: "white", border: "none", borderRadius: 8, padding: "7px 14px", fontSize: 12, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}
+                                      >
+                                        ✓ Approve Slot
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeclineAppointment(p._id)}
+                                        style={{ background: "#FEE2E2", color: C.red, border: "none", borderRadius: 8, padding: "7px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                                      >
+                                        ✕ Decline
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <span style={{ background: "#DCFCE7", color: "#15803D", padding: "4px 10px", borderRadius: 8, fontSize: 12, fontWeight: 800 }}>
+                                      ✓ Confirmed
+                                    </span>
+                                  )}
+                                  <button
+                                    onClick={() => setCallPatient({ id: p.patientPhone, name: p.patientName })}
+                                    style={{ background: "#EBF4FD", color: C.primary, border: "none", borderRadius: 8, padding: "7px 10px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                                  >
+                                    📞 Call
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Standard Wards */}
             {(activeTab === "dashboard" || activeTab === "wards") && (

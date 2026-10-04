@@ -271,3 +271,7 @@ export { default as LabOrder, type ILabOrder, type LabOrderStatus } from "./LabO
 // ── Doctor Reviews & Patient Satisfaction ──────────────────────────────────
 export { default as Review, type IReview } from "./Review";
 
+// ── Hospitals & Healthcare Facilities ──────────────────────────────────────
+export { default as Facility, type IFacility } from "./Facility";
+
+

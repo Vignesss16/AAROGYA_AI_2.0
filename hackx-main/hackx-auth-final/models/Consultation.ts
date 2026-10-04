@@ -13,11 +13,16 @@ export interface IConsultation extends Document {
   doctorId?: string;
   doctorName?: string;
   hospital?: string;
+  facilityId?: string;
+  department?: string;
+  bookingType?: "DIRECT_DOCTOR" | "HOSPITAL_RECEPTIONIST_ASSISTED";
+  receptionistStatus?: "PENDING_CONFIRMATION" | "CONFIRMED" | "REJECTED";
+  estimatedConfirmationTime?: string;
   slot?: string;
   queueNo?: string;
   doctorNotes?: string;
   prescription?: string;
-  status: "pending" | "in-review" | "completed";
+  status: "pending" | "in-review" | "confirmed" | "completed" | "cancelled";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,11 +41,29 @@ const ConsultationSchema = new Schema<IConsultation>(
     doctorId:     { type: String },
     doctorName:   { type: String },
     hospital:     { type: String },
+    facilityId:   { type: String },
+    department:   { type: String },
+    bookingType:  {
+      type: String,
+      enum: ["DIRECT_DOCTOR", "HOSPITAL_RECEPTIONIST_ASSISTED"],
+      default: "DIRECT_DOCTOR",
+    },
+    receptionistStatus: {
+      type: String,
+      enum: ["PENDING_CONFIRMATION", "CONFIRMED", "REJECTED"],
+      default: "CONFIRMED",
+    },
+    estimatedConfirmationTime: { type: String },
     slot:         { type: String },
     queueNo:      { type: String },
     doctorNotes:  { type: String },
     prescription: { type: String },
-    status:       { type: String, enum: ["pending", "in-review", "completed"], default: "pending" },
+    status:       {
+      type: String,
+      enum: ["pending", "in-review", "confirmed", "completed", "cancelled"],
+      default: "pending",
+      index: true,
+    },
   },
   { timestamps: true }
 );
@@ -48,7 +71,7 @@ const ConsultationSchema = new Schema<IConsultation>(
 // Sort RED first by default
 ConsultationSchema.index({ urgency: 1, createdAt: -1 });
 
-const Consultation: Model<IConsultation> =
+export const Consultation: Model<IConsultation> =
   mongoose.models.Consultation ||
   mongoose.model<IConsultation>("Consultation", ConsultationSchema);
 
