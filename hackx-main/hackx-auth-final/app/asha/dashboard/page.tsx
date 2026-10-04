@@ -5,6 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useLang } from "@/lib/useLang";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { getDB, seedOfflineData } from "@/lib/db-offline";
+import AshaVoiceModal from "@/components/AshaVoiceModal";
 
 const C = { primary: "#1B6CA8", green: "#1E8449", red: "#C0392B", yellow: "#F39C12", purple: "#7D3C98", bg: "#F0F4F8", card: "#FFFFFF", text: "#1A2332", muted: "#6B7C93", border: "#DDE3EC" };
 
@@ -30,6 +31,7 @@ export default function ASHADashboardPage() {
   const [visits, setVisits]           = useState<Visit[]>([]);
   const [loadingPt, setLoadingPt]     = useState(true);
   const [loadingVt, setLoadingVt]     = useState(true);
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
 
   // Read cached ASHA credentials for WhatsApp-style instant offline login
   const [cachedAsha, setCachedAsha] = useState<any>(() => {
@@ -294,6 +296,9 @@ export default function ASHADashboardPage() {
               <p style={{ fontSize: 11, color: "rgba(255,255,255,.65)", marginTop: 3 }}>{ashaName} · {ashaVillages}</p>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={() => setShowVoiceModal(true)} style={{ background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 10, padding: "8px 12px", fontWeight: 800, fontSize: 12, color: "white", cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
+                🎙️ {T("वॉइस", "Voice")}
+              </button>
               <button onClick={() => { router.push("/asha/sos"); }} style={{ background: C.red, color: "white", border: "none", borderRadius: 10, padding: "8px 10px", fontWeight: 800, fontSize: 12, cursor: "pointer" }}>
                 🚨 SOS
               </button>
@@ -335,6 +340,9 @@ export default function ASHADashboardPage() {
               <span style={{ padding: "10px 12px", fontSize: 16 }}>🔍</span>
               <input style={{ flex: 1, border: "none", outline: "none", fontSize: 14, padding: "10px 0", background: "transparent" }}
                 placeholder={T("मरीज़, फ़ोन या गाँव खोजें...", "Search name, phone or village...")} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+              <button type="button" onClick={() => setShowVoiceModal(true)} title={T("बोलकर खोजें", "Search by voice")} style={{ border: "none", background: "none", padding: "0 12px", cursor: "pointer", fontSize: 18, color: C.purple }}>
+                🎙️
+              </button>
             </div>
             {loadingPt ? (
               <div style={{ textAlign: "center", padding: "30px 20px", color: C.muted }}>
@@ -482,6 +490,44 @@ export default function ASHADashboardPage() {
             </button>
           </div>
         )}
+
+        {/* Floating Voice Assistant Action Button */}
+        <button
+          onClick={() => setShowVoiceModal(true)}
+          style={{
+            position: "fixed",
+            bottom: 20,
+            right: 20,
+            background: `linear-gradient(135deg, ${C.purple}, #9B59B6)`,
+            color: "white",
+            border: "none",
+            borderRadius: 30,
+            padding: "12px 18px",
+            boxShadow: "0 6px 20px rgba(125,60,152,0.45)",
+            fontWeight: 800,
+            fontSize: 13,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            cursor: "pointer",
+            zIndex: 100,
+          }}
+        >
+          <span style={{ fontSize: 16 }}>🎙️</span>
+          <span>{T("वॉइस असिस्टेंट", "Voice Assistant")}</span>
+        </button>
+
+        {/* Interactive ASHA Voice Modal */}
+        <AshaVoiceModal
+          isOpen={showVoiceModal}
+          onClose={() => setShowVoiceModal(false)}
+          onSearchPatient={(q) => {
+            setSearchQuery(q);
+            setActiveTab("patients");
+          }}
+          onSelectTab={(t) => setActiveTab(t)}
+        />
+
         <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style>
       </div>
     </div>
