@@ -28,33 +28,57 @@ export default function HomePage() {
   const [doctorsCount, setDoctorsCount] = useState(2);
   const [showVoiceModal, setShowVoiceModal] = useState(false);
 
+  const isLoggedOut = typeof window !== "undefined" && localStorage.getItem("user_is_logged_out") === "true";
+  const cachedPatientStr = typeof window !== "undefined"
+    ? (localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient"))
+    : null;
+
   useEffect(() => {
     const storedLang = localStorage.getItem("lang") || "hi";
     setLang(storedLang);
 
-    if (!loading && !user) {
-      const cached = typeof window !== "undefined" ? (localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient") || localStorage.getItem("last_login_phone")) : null;
-      if (!cached && navigator.onLine) {
-        router.push("/login");
-      }
-    } else {
-      setHasReport(!!localStorage.getItem("triageResult"));
+    // If logged out or unauthenticated with no cached patient session, immediately redirect to /login
+    if (isLoggedOut || (!loading && !user && !cachedPatientStr)) {
+      window.location.replace("/login");
+      return;
     }
-  }, [user, loading, router]);
 
+    setHasReport(!!localStorage.getItem("triageResult"));
+  }, [user, loading, isLoggedOut, cachedPatientStr]);
 
-  // Resilient current user shape for offline & online
-  const currentUser = user || {
-    _id: "offline-patient",
-    phone: (typeof window !== "undefined" && localStorage.getItem("last_login_phone")) || "9876543210",
-    name: "Ramesh Kumar",
-    age: 32,
-    gender: "male",
-    village: "Rampur",
-    conditions: ["Hypertension"],
-    bloodGroup: "B+",
+  let cachedUserParsed: any = null;
+  if (cachedPatientStr) {
+    try { cachedUserParsed = JSON.parse(cachedPatientStr); } catch {}
+  }
+
+  // Resilient current user shape for offline & online — uses real patient data
+  const currentUser = user || cachedUserParsed || {
+    _id: "patient",
+    phone: (typeof window !== "undefined" && localStorage.getItem("last_login_phone")) || "",
+    name: "Patient",
+    age: 28,
+    gender: "other",
+    village: "Local Area",
+    conditions: [],
+    bloodGroup: "—",
     role: "patient",
   };
+
+  // If user is logged out or unauthenticated, show a clean splash loader while redirecting
+  if (isLoggedOut || (!loading && !user && !cachedPatientStr)) {
+    return (
+      <div style={{
+        background: "linear-gradient(145deg, #0f3d61 0%, #1B6CA8 100%)",
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
+      }}>
+        <div style={{ width: 38, height: 38, border: "4px solid rgba(255,255,255,.3)", borderTop: "4px solid white", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      </div>
+    );
+  }
 
   // Fetch dynamic stats (consultations and doctors online) with offline caching
   useEffect(() => {

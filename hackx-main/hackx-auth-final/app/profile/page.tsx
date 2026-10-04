@@ -18,24 +18,24 @@ export default function ProfilePage() {
   const { user: authUser, loading } = useAuth();
   
   const [profile, setProfile] = useState<PatientUser>({
-    _id: "offline-patient",
-    name: "Ramesh Kumar",
-    phone: "9876543210",
-    age: 32,
-    gender: "male",
-    village: "Rampur",
-    conditions: ["Hypertension"],
-    bloodGroup: "B+",
+    _id: "patient",
+    name: "Patient",
+    phone: "",
+    age: 28,
+    gender: "other",
+    village: "Local Area",
+    conditions: [],
+    bloodGroup: "—",
     role: "patient",
   });
 
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     name: "",
-    age: 32,
-    gender: "male",
+    age: 28,
+    gender: "other",
     village: "",
-    bloodGroup: "B+",
+    bloodGroup: "—",
     phone: "",
     conditions: "",
   });
@@ -51,6 +51,10 @@ export default function ProfilePage() {
   // Initialize profile from authUser or localStorage
   useEffect(() => {
     if (typeof window !== "undefined") {
+      if (localStorage.getItem("user_is_logged_out") === "true") {
+        window.location.replace("/login");
+        return;
+      }
       const stored = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
       if (stored) {
         try {
@@ -60,21 +64,24 @@ export default function ProfilePage() {
             return;
           }
         } catch {}
+      } else if (!authUser && !loading) {
+        window.location.replace("/login");
+        return;
       }
     }
     if (authUser) {
       setProfile(authUser);
     }
-  }, [authUser]);
+  }, [authUser, loading]);
 
   const handleStartEdit = () => {
     setEditForm({
-      name: profile.name || "Ramesh Kumar",
-      age: profile.age || 32,
-      gender: profile.gender || "male",
-      village: profile.village || "Rampur",
-      bloodGroup: profile.bloodGroup || "B+",
-      phone: profile.phone || "9876543210",
+      name: profile.name || "Patient",
+      age: profile.age || 28,
+      gender: profile.gender || "other",
+      village: profile.village || "Local Area",
+      bloodGroup: profile.bloodGroup || "—",
+      phone: profile.phone || "",
       conditions: Array.isArray(profile.conditions) ? profile.conditions.join(", ") : (profile.conditions || ""),
     });
     setIsEditing(true);
@@ -83,10 +90,10 @@ export default function ProfilePage() {
   const handleSaveEdit = async () => {
     const updatedUser: PatientUser = {
       ...profile,
-      name: editForm.name.trim() || "Ramesh Kumar",
-      age: Number(editForm.age) || 32,
+      name: editForm.name.trim() || profile.name,
+      age: Number(editForm.age) || profile.age,
       gender: editForm.gender,
-      village: editForm.village.trim() || "Rampur",
+      village: editForm.village.trim() || profile.village,
       bloodGroup: editForm.bloodGroup,
       phone: editForm.phone.trim() || profile.phone,
       conditions: editForm.conditions.split(",").map(c => c.trim()).filter(Boolean),

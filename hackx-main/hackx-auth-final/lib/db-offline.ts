@@ -144,6 +144,16 @@ export async function seedOfflineData() {
   if (ptCount === 0) {
     await db.patients.bulkAdd([
       {
+        name: "Arya",
+        phone: "8591292159",
+        village: "Kesri",
+        age: 24,
+        gender: "female",
+        conditions: "",
+        bloodGroup: "B+",
+        needsSync: false,
+      },
+      {
         name: "arya",
         phone: "8591292959",
         village: "Kesri",

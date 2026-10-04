@@ -46,8 +46,12 @@ self.addEventListener('fetch', (event) => {
           // 2. Network failed or timed out — device is offline
           const url = new URL(event.request.url);
 
-          // If offline and attempting to open root '/', serve /home if cached!
+          // If offline and requesting root '/', match cached root '/' first so client router evaluates auth state
           if (url.pathname === '/') {
+            const rootMatch = await caches.match('/', { ignoreSearch: true });
+            if (rootMatch) return rootMatch;
+            const loginMatch = await caches.match('/login', { ignoreSearch: true });
+            if (loginMatch) return loginMatch;
             const homeMatch = await caches.match('/home', { ignoreSearch: true });
             if (homeMatch) return homeMatch;
           }
@@ -60,17 +64,17 @@ self.addEventListener('fetch', (event) => {
           const pathnameMatch = await caches.match(url.pathname, { ignoreSearch: true });
           if (pathnameMatch) return pathnameMatch;
 
-          // Attempt C: Match /home
-          const homeMatch = await caches.match('/home', { ignoreSearch: true });
-          if (homeMatch) return homeMatch;
-
-          // Attempt D: Match root /
+          // Attempt C: Match root /
           const rootMatch = await caches.match('/', { ignoreSearch: true });
           if (rootMatch) return rootMatch;
 
-          // Attempt E: Match /~offline
-          const offlineMatch = await caches.match('/~offline', { ignoreSearch: true });
-          if (offlineMatch) return offlineMatch;
+          // Attempt D: Match /login
+          const loginMatch = await caches.match('/login', { ignoreSearch: true });
+          if (loginMatch) return loginMatch;
+
+          // Attempt E: Match /home
+          const homeMatch = await caches.match('/home', { ignoreSearch: true });
+          if (homeMatch) return homeMatch;
 
           // Attempt F: Search inside all cache storages for any valid HTML page
           const cacheNames = await caches.keys();

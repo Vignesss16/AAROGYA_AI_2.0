@@ -51,16 +51,21 @@ export default function LoginPage() {
     setLang(storedLang);
 
     // If user explicitly clicked Logout, respect their decision and remain on login screen
-    if (typeof window !== "undefined" && sessionStorage.getItem("user_explicitly_logged_out")) {
+    if (typeof window !== "undefined" && (sessionStorage.getItem("user_explicitly_logged_out") || localStorage.getItem("user_is_logged_out") === "true")) {
       return;
     }
 
-    // Patient WhatsApp-like auto-redirect: ONLY redirect to /home if a patient session exists!
+    // Patient WhatsApp-like auto-redirect: ONLY redirect to /home if a patient session exists AND not logged out!
+    const isLoggedOut = typeof window !== "undefined" && localStorage.getItem("user_is_logged_out") === "true";
+    if (isLoggedOut) {
+      return;
+    }
+
     const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
     const lastRole = localStorage.getItem("last_logged_role");
     if (cachedPatient || (isAuthenticated && lastRole === "patient")) {
       localStorage.removeItem("pending_reg");
-      router.replace("/home");
+      window.location.replace("/home");
       return;
     }
 
@@ -89,20 +94,42 @@ export default function LoginPage() {
   }, [reg, phone, password, step, isAuthenticated]);
 
   // Direct 1-tap offline entrance
-  const handleOfflineEnter = () => {
+  const handleOfflineEnter = async () => {
     if (typeof window !== "undefined") {
       sessionStorage.removeItem("user_explicitly_logged_out");
+      localStorage.removeItem("user_is_logged_out");
     }
-    const activePhone = phone.trim().replace(/\D/g, "") || localStorage.getItem("last_login_phone") || "9876543210";
+    const activePhone = phone.trim().replace(/\D/g, "") || localStorage.getItem("last_login_phone") || "8591292159";
+    let name = "Patient";
+    let age = 28;
+    let gender = "other";
+    let village = "Local Area";
+    let conditions: string[] = [];
+    let bloodGroup = "—";
+
+    try {
+      const { getDB } = await import("@/lib/db-offline");
+      const db = getDB();
+      const local = await db.patients.where("phone").equals(activePhone).first();
+      if (local) {
+        name = local.name || name;
+        age = local.age || age;
+        gender = local.gender || gender;
+        village = local.village || village;
+        conditions = local.conditions ? local.conditions.split(",").map(c => c.trim()).filter(Boolean) : [];
+        bloodGroup = local.bloodGroup || bloodGroup;
+      }
+    } catch {}
+
     const offlineUser = {
       _id: `offline-${activePhone}`,
       phone: activePhone,
-      name: "Ramesh Kumar",
-      age: 32,
-      gender: "male",
-      village: "Rampur",
-      conditions: ["Hypertension"],
-      bloodGroup: "B+",
+      name,
+      age,
+      gender,
+      village,
+      conditions,
+      bloodGroup,
       role: "patient",
     };
     localStorage.setItem("cachedPatientUser", JSON.stringify(offlineUser));
@@ -110,7 +137,7 @@ export default function LoginPage() {
     localStorage.setItem("patient", JSON.stringify(offlineUser));
     localStorage.setItem("last_login_phone", activePhone);
     localStorage.setItem("last_logged_role", "patient");
-    router.replace("/home");
+    window.location.replace("/home");
   };
 
   // Countdown timer for OTP resend
@@ -154,7 +181,7 @@ export default function LoginPage() {
     setError("");
     const cleanPhone = phone.trim().replace(/\D/g, "");
     if (!cleanPhone || cleanPhone.length !== 10) {
-      // In offline mode, don't show error: seamlessly open offline home!
+      // In offline mode, seamlessly open offline home
       if (!navigator.onLine || !isOnline) {
         handleOfflineEnter();
         return;
@@ -168,25 +195,12 @@ export default function LoginPage() {
     localStorage.setItem("last_logged_role", "patient");
     if (typeof window !== "undefined") {
       sessionStorage.removeItem("user_explicitly_logged_out");
+      localStorage.removeItem("user_is_logged_out");
     }
 
-    // If offline: Phone is identity. Immediate local login!
+    // If offline: Direct local login with Dexie / local storage
     if (!navigator.onLine || !isOnline) {
-      const offlineUser = {
-        _id: `offline-${cleanPhone}`,
-        phone: cleanPhone,
-        name: "Ramesh Kumar",
-        age: 32,
-        gender: "male",
-        village: "Rampur",
-        conditions: ["Hypertension"],
-        bloodGroup: "B+",
-        role: "patient",
-      };
-      localStorage.setItem("cachedPatientUser", JSON.stringify(offlineUser));
-      localStorage.setItem("aarogya_user", JSON.stringify(offlineUser));
-      localStorage.setItem("patient", JSON.stringify(offlineUser));
-      router.replace("/home");
+      await handleOfflineEnter();
       return;
     }
 
@@ -202,48 +216,19 @@ export default function LoginPage() {
       if (result.success) {
         if (typeof window !== "undefined") {
           sessionStorage.removeItem("user_explicitly_logged_out");
+          localStorage.removeItem("user_is_logged_out");
         }
         localStorage.setItem("last_login_phone", cleanPhone);
         localStorage.setItem("last_logged_role", "patient");
-        router.replace("/home");
+        // Instant hard navigation — 1-click redirect without router delay
+        window.location.replace("/home");
+        return;
       } else {
-        if (result.error?.toLowerCase().includes("network") || result.error?.toLowerCase().includes("fetch")) {
-          const fallbackUser = {
-            _id: `offline-${cleanPhone}`,
-            phone: cleanPhone,
-            name: "Patient",
-            age: 25,
-            gender: "other",
-            village: "Rural Area",
-            conditions: [],
-            bloodGroup: "—",
-            role: "patient",
-          };
-          localStorage.setItem("cachedPatientUser", JSON.stringify(fallbackUser));
-          localStorage.setItem("aarogya_user", JSON.stringify(fallbackUser));
-          localStorage.setItem("patient", JSON.stringify(fallbackUser));
-          router.replace("/home");
-          return;
-        }
         setError(result.error || t("लॉगिन विफल", "Login failed"));
+        setLoading(false);
       }
     } catch {
-      const fallbackUser = {
-        _id: `offline-${cleanPhone}`,
-        phone: cleanPhone,
-        name: "Patient",
-        age: 25,
-        gender: "other",
-        village: "Rural Area",
-        conditions: [],
-        bloodGroup: "—",
-        role: "patient",
-      };
-      localStorage.setItem("cachedPatientUser", JSON.stringify(fallbackUser));
-      localStorage.setItem("aarogya_user", JSON.stringify(fallbackUser));
-      localStorage.setItem("patient", JSON.stringify(fallbackUser));
-      router.replace("/home");
-    } finally {
+      setError(t("नेटवर्क त्रुटि", "Network error"));
       setLoading(false);
     }
   };
@@ -270,13 +255,18 @@ export default function LoginPage() {
       // 2. Login with NextAuth
       const result = await login(phone, password);
       if (result.success) {
-        router.push("/home");
+        localStorage.removeItem("user_is_logged_out");
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("user_explicitly_logged_out");
+        }
+        window.location.replace("/home");
+        return;
       } else {
         setError(result.error || t("लॉगिन विफल", "Login failed"));
+        setLoading(false);
       }
     } catch {
       setError(t("नेटवर्क त्रुटि", "Network error"));
-    } finally {
       setLoading(false);
     }
   };
@@ -329,13 +319,18 @@ export default function LoginPage() {
         reg.village, reg.conditions, reg.bloodGroup
       );
       if (result.success) {
-        router.push("/home");
+        localStorage.removeItem("user_is_logged_out");
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("user_explicitly_logged_out");
+        }
+        window.location.replace("/home");
+        return;
       } else {
         setError(result.error || t("पंजीकरण विफल", "Registration failed"));
+        setLoading(false);
       }
     } catch {
       setError(t("नेटवर्क त्रुटि", "Network error"));
-    } finally {
       setLoading(false);
     }
   };
@@ -480,8 +475,36 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <button onClick={handleLogin} disabled={loading} style={{ width: "100%", padding: "16px 24px", borderRadius: 14, border: "none", cursor: loading ? "not-allowed" : "pointer", fontWeight: 700, fontSize: 16, background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, color: "white", boxShadow: "0 4px 16px rgba(27,108,168,.4)", opacity: loading ? 0.6 : 1 }}>
-                {loading ? "..." : t("लॉगिन करें", "Sign In")}
+              <button
+                type="button"
+                onClick={handleLogin}
+                disabled={loading}
+                style={{
+                  width: "100%",
+                  padding: "16px 24px",
+                  borderRadius: 14,
+                  border: "none",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  fontWeight: 700,
+                  fontSize: 16,
+                  background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`,
+                  color: "white",
+                  boxShadow: "0 4px 16px rgba(27,108,168,.4)",
+                  opacity: loading ? 0.75 : 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                }}
+              >
+                {loading ? (
+                  <>
+                    <div style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.4)", borderTop: "2.5px solid white", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                    <span>{t("लॉगिन हो रहा है...", "Signing in...")}</span>
+                  </>
+                ) : (
+                  t("लॉगिन करें", "Sign In")
+                )}
               </button>
 
               <button onClick={() => { setStep("register"); setError(""); }} disabled={loading} style={{ background: "none", border: "none", color: C.primary, fontSize: 13, fontWeight: 700, cursor: "pointer", marginTop: 14, display: "block", width: "100%", textAlign: "center" }}>

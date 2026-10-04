@@ -28,6 +28,13 @@ export default function SplashPage() {
         router.prefetch("/asha/dashboard");
       } catch {}
 
+      // 0. If user has explicitly logged out, respect it and go directly to /login
+      const isLoggedOut = localStorage.getItem("user_is_logged_out") === "true";
+      if (isLoggedOut) {
+        window.location.replace("/login");
+        return;
+      }
+
       // WhatsApp-like auto-login check across all storage keys:
       const lastRole = localStorage.getItem("last_logged_role");
 
@@ -52,20 +59,16 @@ export default function SplashPage() {
         return;
       }
 
-      // 4. Check Patient cached session or previously logged in patient
+      // 4. Check Patient cached session
       const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
-      const lastPhone = localStorage.getItem("last_login_phone");
-      if (cachedPatient || lastRole === "patient" || lastPhone) {
+      if (cachedPatient || lastRole === "patient") {
         router.replace("/home");
         return;
       }
 
-      // 5. If device is currently OFFLINE:
-      // Go straight to /home to access offline medical services without network errors
-      if (!navigator.onLine) {
-        router.replace("/home");
-        return;
-      }
+      // 5. If no active session exists (offline or online), go to /login
+      router.replace("/login");
+      return;
 
       return () => {
         window.removeEventListener("online", handleOnline);
@@ -96,6 +99,12 @@ export default function SplashPage() {
     if (typeof window !== "undefined") {
       localStorage.setItem("lang", lang);
 
+      const isLoggedOut = localStorage.getItem("user_is_logged_out") === "true";
+      if (isLoggedOut) {
+        router.push("/login");
+        return;
+      }
+
       const lastRole = localStorage.getItem("last_logged_role");
 
       const cachedAsha = localStorage.getItem("cachedAshaUser") || localStorage.getItem("asha_user") || localStorage.getItem("ashaworker");
@@ -117,13 +126,12 @@ export default function SplashPage() {
       }
 
       const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
-      const lastPhone = localStorage.getItem("last_login_phone");
-      if (cachedPatient || lastRole === "patient" || lastPhone || !navigator.onLine) {
+      if (cachedPatient || lastRole === "patient") {
         router.push("/home");
         return;
       }
 
-      // If online and unauthenticated: route to /login
+      // If unauthenticated: route to /login
       router.push("/login");
     }
   };

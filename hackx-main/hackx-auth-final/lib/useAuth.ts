@@ -25,22 +25,26 @@ export function useAuth() {
 
   const [cachedUser, setCachedUser] = useState<PatientUser | null>(() => {
     if (typeof window !== "undefined") {
+      // If user explicitly logged out, respect this decision across app restarts
+      if (localStorage.getItem("user_is_logged_out") === "true") {
+        return null;
+      }
       const stored = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
       if (stored) {
         try { return JSON.parse(stored); } catch {}
       }
       const lastPhone = localStorage.getItem("last_login_phone");
       const lastRole = localStorage.getItem("last_logged_role");
-      if (lastRole === "patient" || (!lastRole && lastPhone)) {
+      if (lastRole === "patient" && lastPhone) {
         return {
-          _id: `offline-${lastPhone || "patient"}`,
-          phone: lastPhone || "9876543210",
-          name: "Ramesh Kumar",
-          age: 32,
-          gender: "male",
-          village: "Rampur",
-          conditions: ["Hypertension"],
-          bloodGroup: "B+",
+          _id: `offline-${lastPhone}`,
+          phone: lastPhone,
+          name: "Patient",
+          age: 28,
+          gender: "other",
+          village: "Local Area",
+          conditions: [],
+          bloodGroup: "—",
           role: "patient",
         };
       }
@@ -78,6 +82,7 @@ export function useAuth() {
       localStorage.setItem("patient", JSON.stringify(liveUser));
       localStorage.setItem("last_logged_role", "patient");
       if (liveUser.phone) localStorage.setItem("last_login_phone", liveUser.phone);
+      localStorage.removeItem("user_is_logged_out");
       setCachedUser(liveUser);
     }
   }, [liveUser]);
@@ -87,26 +92,26 @@ export function useAuth() {
   const isAuthenticated = !!user;
   const loading = status === "loading" && !cachedUser;
 
-  /** Login a patient with phone + password via NextAuth CredentialsProvider with offline fallback */
+  /** Login a patient with phone + password with instant backend verification and offline fallback */
   const login = async (phone: string, password: string) => {
     console.log(`[useAuth.login] Attempting login for phone: ${phone}`);
 
-    // OFFLINE LOGIN FALLBACK
+    // OFFLINE LOGIN (No internet connection)
     if (typeof window !== "undefined" && (!navigator.onLine || !window.navigator.onLine)) {
-      console.log(`[useAuth.login] Device is offline, granting local access for phone: ${phone}`);
+      console.log(`[useAuth.login] Device is offline, checking offline database for phone: ${phone}`);
       try {
         const { getDB } = await import("@/lib/db-offline");
         const db = getDB();
         const localPatient = await db.patients.where("phone").equals(phone).first();
 
         const offlinePatientUser: PatientUser = {
-          _id: localPatient ? `offline-${localPatient.id}` : `offline-${phone}`,
+          _id: localPatient?.id ? `offline-${localPatient.id}` : `offline-${phone}`,
           phone: phone,
           name: localPatient?.name || "Patient",
-          age: localPatient?.age || 25,
+          age: localPatient?.age || 28,
           gender: localPatient?.gender || "other",
-          village: localPatient?.village || "Rural Area",
-          conditions: localPatient?.conditions ? localPatient.conditions.split(",").filter(Boolean) : [],
+          village: localPatient?.village || "Local Area",
+          conditions: localPatient?.conditions ? localPatient.conditions.split(",").map(c => c.trim()).filter(Boolean) : [],
           bloodGroup: localPatient?.bloodGroup || "—",
           role: "patient",
         };
@@ -116,18 +121,20 @@ export function useAuth() {
         localStorage.setItem("patient", JSON.stringify(offlinePatientUser));
         localStorage.setItem("last_logged_role", "patient");
         localStorage.setItem("last_login_phone", phone);
+        localStorage.removeItem("user_is_logged_out");
+        sessionStorage.removeItem("user_explicitly_logged_out");
         setCachedUser(offlinePatientUser);
         return { success: true };
       } catch {
         const fallbackUser: PatientUser = {
           _id: `offline-${phone}`,
           phone: phone,
-          name: "Ramesh Kumar",
-          age: 32,
-          gender: "male",
-          village: "Rampur",
-          conditions: ["Hypertension"],
-          bloodGroup: "B+",
+          name: "Patient",
+          age: 28,
+          gender: "other",
+          village: "Local Area",
+          conditions: [],
+          bloodGroup: "—",
           role: "patient",
         };
         localStorage.setItem("cachedPatientUser", JSON.stringify(fallbackUser));
@@ -135,79 +142,145 @@ export function useAuth() {
         localStorage.setItem("patient", JSON.stringify(fallbackUser));
         localStorage.setItem("last_logged_role", "patient");
         localStorage.setItem("last_login_phone", phone);
+        localStorage.removeItem("user_is_logged_out");
+        sessionStorage.removeItem("user_explicitly_logged_out");
         setCachedUser(fallbackUser);
         return { success: true };
       }
     }
 
-    // Try up to 2 times (handles transient DB connection issues)
-    for (let attempt = 1; attempt <= 2; attempt++) {
+    // ONLINE LOGIN
+    try {
+      // 1. Direct verify with credentials API endpoint for instant authentication & real patient record
+      const apiRes = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, password }),
+      });
+
+      const apiData = await apiRes.json();
+
+      if (!apiRes.ok) {
+        return { success: false, error: apiData.error || "Login failed" };
+      }
+
+      const p = apiData.patient;
+      const verifiedUser: PatientUser = {
+        _id: p._id || `patient-${phone}`,
+        phone: p.phone || phone,
+        name: p.name || "Patient",
+        age: Number(p.age || 28),
+        gender: p.gender || "other",
+        village: p.village || "Local Area",
+        conditions: Array.isArray(p.conditions) ? p.conditions : (p.conditions ? String(p.conditions).split(",").map((c: string) => c.trim()) : []),
+        bloodGroup: p.bloodGroup || "—",
+        role: p.role || "patient",
+      };
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("cachedPatientUser", JSON.stringify(verifiedUser));
+        localStorage.setItem("aarogya_user", JSON.stringify(verifiedUser));
+        localStorage.setItem("patient", JSON.stringify(verifiedUser));
+        localStorage.setItem("last_logged_role", "patient");
+        localStorage.setItem("last_login_phone", phone);
+        localStorage.removeItem("user_is_logged_out");
+        sessionStorage.removeItem("user_explicitly_logged_out");
+      }
+      setCachedUser(verifiedUser);
+
+      // Cache into Dexie offline DB for seamless offline operation
       try {
-        const res = await signIn("patient-credentials", {
-          phone,
-          password,
-          redirect: false,
-        });
+        const { getDB } = await import("@/lib/db-offline");
+        const db = getDB();
+        const existing = await db.patients.where("phone").equals(phone).first();
+        if (!existing) {
+          await db.patients.add({
+            name: verifiedUser.name,
+            phone: verifiedUser.phone,
+            village: verifiedUser.village,
+            age: verifiedUser.age,
+            gender: verifiedUser.gender,
+            conditions: verifiedUser.conditions.join(", "),
+            bloodGroup: verifiedUser.bloodGroup,
+            needsSync: false,
+          });
+        } else {
+          await db.patients.update(existing.id!, {
+            name: verifiedUser.name,
+            village: verifiedUser.village,
+            age: verifiedUser.age,
+            gender: verifiedUser.gender,
+            conditions: verifiedUser.conditions.join(", "),
+            bloodGroup: verifiedUser.bloodGroup,
+          });
+        }
+      } catch (dexErr) {
+        console.warn("Dexie sync error:", dexErr);
+      }
 
-        console.log(`[useAuth.login] Attempt ${attempt} result:`, res);
+      // 2. Background session sync via NextAuth signIn
+      signIn("patient-credentials", {
+        phone,
+        password,
+        redirect: false,
+      }).catch(err => console.warn("NextAuth session background sync:", err));
 
-        if (res?.ok) {
-          console.log(`[useAuth.login] Success on attempt ${attempt}`);
-          const activeUser: PatientUser = {
-            _id: `online-${phone}`,
+      return { success: true };
+    } catch (err: any) {
+      console.error("[useAuth.login] Online attempt threw error, attempting offline fallback:", err);
+      // Fall back to offline mode if phone is valid
+      if (phone.length === 10) {
+        try {
+          const { getDB } = await import("@/lib/db-offline");
+          const db = getDB();
+          const localPatient = await db.patients.where("phone").equals(phone).first();
+
+          const offlinePatientUser: PatientUser = {
+            _id: localPatient?.id ? `offline-${localPatient.id}` : `offline-${phone}`,
             phone: phone,
-            name: "Patient",
-            age: 25,
-            gender: "other",
-            village: "Rural Area",
-            conditions: [],
+            name: localPatient?.name || "Patient",
+            age: localPatient?.age || 28,
+            gender: localPatient?.gender || "other",
+            village: localPatient?.village || "Local Area",
+            conditions: localPatient?.conditions ? localPatient.conditions.split(",").map(c => c.trim()).filter(Boolean) : [],
+            bloodGroup: localPatient?.bloodGroup || "—",
             role: "patient",
           };
-          localStorage.setItem("cachedPatientUser", JSON.stringify(activeUser));
-          localStorage.setItem("aarogya_user", JSON.stringify(activeUser));
+
+          localStorage.setItem("cachedPatientUser", JSON.stringify(offlinePatientUser));
+          localStorage.setItem("aarogya_user", JSON.stringify(offlinePatientUser));
+          localStorage.setItem("patient", JSON.stringify(offlinePatientUser));
           localStorage.setItem("last_logged_role", "patient");
           localStorage.setItem("last_login_phone", phone);
-          setCachedUser(activeUser);
+          localStorage.removeItem("user_is_logged_out");
+          sessionStorage.removeItem("user_explicitly_logged_out");
+          setCachedUser(offlinePatientUser);
           return { success: true };
-        }
-        
-        console.warn(`[useAuth.login] Attempt ${attempt} failed:`, res?.error);
-        if (attempt === 2) {
-          return { success: false, error: res?.error ?? "Login failed. Please try again." };
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      } catch (err) {
-        console.error(`[useAuth.login] Attempt ${attempt} threw:`, err);
-        // If network error during submission, fall back to offline login if valid 10-digit phone
-        if (phone.length === 10) {
-          console.log("[useAuth.login] Network threw, granting offline access");
+        } catch {
           const fallbackUser: PatientUser = {
             _id: `offline-${phone}`,
             phone: phone,
-            name: "Ramesh Kumar",
-            age: 32,
-            gender: "male",
-            village: "Rampur",
-            conditions: ["Hypertension"],
-            bloodGroup: "B+",
+            name: "Patient",
+            age: 28,
+            gender: "other",
+            village: "Local Area",
+            conditions: [],
+            bloodGroup: "—",
             role: "patient",
           };
           localStorage.setItem("cachedPatientUser", JSON.stringify(fallbackUser));
           localStorage.setItem("aarogya_user", JSON.stringify(fallbackUser));
+          localStorage.setItem("patient", JSON.stringify(fallbackUser));
           localStorage.setItem("last_logged_role", "patient");
           localStorage.setItem("last_login_phone", phone);
+          localStorage.removeItem("user_is_logged_out");
+          sessionStorage.removeItem("user_explicitly_logged_out");
           setCachedUser(fallbackUser);
           return { success: true };
         }
-        if (attempt === 2) {
-          return { success: false, error: "Network error. Please check your connection." };
-        }
-        await new Promise(resolve => setTimeout(resolve, 1000));
       }
+      return { success: false, error: "Network error. Please check your connection." };
     }
-
-    return { success: false, error: "Login failed" };
   };
 
   /** Register a new patient via the existing REST endpoint, then sign in */
@@ -236,31 +309,57 @@ export function useAuth() {
       return { success: false, error: data.error ?? "Registration failed" };
     }
 
-    // 2. Sign in via NextAuth so a proper session is created
-    const res = await signIn("patient-credentials", {
+    const regData = await regRes.json();
+    const p = regData.patient;
+    const verifiedUser: PatientUser = {
+      _id: p?._id || `patient-${phone}`,
+      phone: p?.phone || phone,
+      name: p?.name || name,
+      age: Number(p?.age || age),
+      gender: p?.gender || gender,
+      village: p?.village || village,
+      conditions: p?.conditions || (conditions ? conditions.split(",").map(c => c.trim()) : []),
+      bloodGroup: p?.bloodGroup || bloodGroup || "—",
+      role: "patient",
+    };
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cachedPatientUser", JSON.stringify(verifiedUser));
+      localStorage.setItem("aarogya_user", JSON.stringify(verifiedUser));
+      localStorage.setItem("patient", JSON.stringify(verifiedUser));
+      localStorage.setItem("last_logged_role", "patient");
+      localStorage.setItem("last_login_phone", phone);
+      localStorage.removeItem("user_is_logged_out");
+      sessionStorage.removeItem("user_explicitly_logged_out");
+    }
+    setCachedUser(verifiedUser);
+
+    // 2. Sign in via NextAuth so cookie session is created
+    signIn("patient-credentials", {
       phone,
       password,
       redirect: false,
-    });
+    }).catch(err => console.warn("NextAuth session registration sync:", err));
 
-    if (res?.ok) return { success: true };
-    return { success: false, error: res?.error ?? "Sign-in after registration failed" };
+    return { success: true };
   };
 
   const logout = async () => {
     if (typeof window !== "undefined") {
+      localStorage.setItem("user_is_logged_out", "true");
+      sessionStorage.setItem("user_explicitly_logged_out", "true");
       localStorage.removeItem("cachedPatientUser");
       localStorage.removeItem("aarogya_user");
       localStorage.removeItem("patient");
       localStorage.removeItem("last_logged_role");
       localStorage.removeItem("last_login_phone");
-      sessionStorage.setItem("user_explicitly_logged_out", "true");
+      localStorage.removeItem("token");
     }
     setCachedUser(null);
     try {
       await signOut({ redirect: false });
     } catch {}
-    router.replace("/login");
+    window.location.replace("/login");
   };
 
   return {
