@@ -41,10 +41,39 @@ export async function GET(req: NextRequest) {
     const breakdown = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     let ratingSum = 0;
 
+    // Also build a per-doctor summary map
+    const doctorRatingsMap: Record<string, { totalReviews: number; averageRating: number; doctorName: string }> = {};
+
     reviews.forEach((r) => {
       const star = Math.min(5, Math.max(1, Math.round(r.rating))) as 1 | 2 | 3 | 4 | 5;
       breakdown[star] = (breakdown[star] || 0) + 1;
       ratingSum += r.rating;
+
+      // Group per doctor
+      const docKey = r.doctorId || r.doctorName?.toLowerCase().replace(/^(dr\.?\s*)/i, "").trim() || "unknown";
+      if (!doctorRatingsMap[docKey]) {
+        doctorRatingsMap[docKey] = { totalReviews: 0, averageRating: 0, doctorName: r.doctorName };
+      }
+      doctorRatingsMap[docKey].totalReviews += 1;
+      doctorRatingsMap[docKey].averageRating += r.rating;
+
+      // Also index by normalized name for easy fuzzy matching
+      const nameKey = r.doctorName?.toLowerCase().replace(/^(dr\.?\s*)/i, "").trim();
+      if (nameKey && nameKey !== docKey) {
+        if (!doctorRatingsMap[nameKey]) {
+          doctorRatingsMap[nameKey] = { totalReviews: 0, averageRating: 0, doctorName: r.doctorName };
+        }
+        doctorRatingsMap[nameKey].totalReviews += 1;
+        doctorRatingsMap[nameKey].averageRating += r.rating;
+      }
+    });
+
+    Object.keys(doctorRatingsMap).forEach((k) => {
+      if (doctorRatingsMap[k].totalReviews > 0) {
+        doctorRatingsMap[k].averageRating = Number(
+          (doctorRatingsMap[k].averageRating / doctorRatingsMap[k].totalReviews).toFixed(1)
+        );
+      }
     });
 
     const averageRating = totalReviews > 0 ? Number((ratingSum / totalReviews).toFixed(1)) : 5.0;
@@ -65,6 +94,7 @@ export async function GET(req: NextRequest) {
         breakdown,
         percentageBreakdown,
       },
+      doctorRatingsMap,
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to fetch reviews" }, { status: 500 });

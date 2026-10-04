@@ -115,6 +115,7 @@ export default function ConsultationDetailPage() {
   const [reviewModalOrder, setReviewModalOrder] = useState<any | null>(null);
   const [doctorReviewText, setDoctorReviewText] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [fullScreenImagePreview, setFullScreenImagePreview] = useState<string | null>(null);
 
   const fetchLabOrders = useCallback(async () => {
     if (!id) return;
@@ -911,22 +912,35 @@ export default function ConsultationDetailPage() {
                   <img
                     src={reviewModalOrder.reportUrl}
                     alt="Diagnostic Lab Report"
-                    style={{ width: "100%", maxHeight: 360, objectFit: "contain", borderRadius: 10, display: "block", margin: "0 auto" }}
+                    onClick={() => setFullScreenImagePreview(reviewModalOrder.reportUrl)}
+                    style={{ width: "100%", maxHeight: 360, objectFit: "contain", borderRadius: 10, display: "block", margin: "0 auto", cursor: "zoom-in" }}
                   />
-                  <div style={{ marginTop: 8, display: "flex", justifyContent: "flex-end" }}>
+                  <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
                     <a
                       href={reviewModalOrder.reportUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ fontSize: 12, color: C.primary, fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}
+                      download={`${reviewModalOrder.orderId}_diagnostic_report.png`}
+                      style={{ fontSize: 12, color: C.muted, fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}
                     >
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                      Download Image
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => setFullScreenImagePreview(reviewModalOrder.reportUrl)}
+                      style={{ background: "rgba(27,108,168,0.1)", border: "none", borderRadius: 8, padding: "6px 12px", fontSize: 12, color: C.primary, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="15 3 21 3 21 9" />
-                        <line x1="10" y1="14" x2="21" y2="3" />
+                        <polyline points="9 21 3 21 3 15" />
+                        <line x1="21" y1="3" x2="14" y2="10" />
+                        <line x1="3" y1="21" x2="10" y2="14" />
                       </svg>
                       Open Full Size
-                    </a>
+                    </button>
                   </div>
                 </div>
               ) : reviewModalOrder.reportUrl?.startsWith("data:application/pdf") || reviewModalOrder.reportUrl?.endsWith(".pdf") ? (
@@ -1026,6 +1040,107 @@ export default function ConsultationDetailPage() {
               <button onClick={() => setReferModalOpen(false)} style={{ flex: 1, padding: 12, background: C.bg, border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer" }}>Cancel</button>
               <button onClick={handleReferPatient} disabled={saving} style={{ flex: 1, padding: 12, background: "#D35400", color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", opacity: saving ? 0.7 : 1 }}>{saving ? "..." : "Confirm"}</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full-Screen Lightbox Modal for Diagnostic Report */}
+      {fullScreenImagePreview && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.92)",
+            backdropFilter: "blur(10px)",
+            zIndex: 999999,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 16,
+          }}
+          onClick={() => setFullScreenImagePreview(null)}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: 16,
+              right: 16,
+              display: "flex",
+              gap: 12,
+              alignItems: "center",
+              zIndex: 10,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <a
+              href={fullScreenImagePreview}
+              download="diagnostic_report_hd.png"
+              style={{
+                background: "rgba(255,255,255,0.2)",
+                color: "white",
+                textDecoration: "none",
+                padding: "8px 14px",
+                borderRadius: 10,
+                fontSize: 13,
+                fontWeight: 700,
+                backdropFilter: "blur(6px)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Save Report
+            </a>
+            <button
+              onClick={() => setFullScreenImagePreview(null)}
+              style={{
+                background: "rgba(255,255,255,0.25)",
+                color: "white",
+                border: "none",
+                borderRadius: "50%",
+                width: 38,
+                height: 38,
+                fontSize: 18,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              ✕
+            </button>
+          </div>
+
+          <div
+            style={{
+              maxWidth: "95vw",
+              maxHeight: "88vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              overflow: "auto",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={fullScreenImagePreview}
+              alt="High Definition Diagnostic Report"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "86vh",
+                objectFit: "contain",
+                borderRadius: 12,
+                boxShadow: "0 25px 50px -12px rgba(0,0,0,0.8)",
+                background: "#0d1520",
+              }}
+            />
           </div>
         </div>
       )}
