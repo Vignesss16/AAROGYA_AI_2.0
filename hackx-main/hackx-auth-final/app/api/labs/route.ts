@@ -107,14 +107,17 @@ const DEFAULT_LABS = [
 export async function GET(req: NextRequest) {
   try {
     await dbConnect();
-    let labs = await Lab.find({ status: "ACTIVE" }).sort({ name: 1 });
-
-    // Auto-seed if collection is empty
-    if (!labs || labs.length === 0) {
-      await Lab.insertMany(DEFAULT_LABS);
-      labs = await Lab.find({ status: "ACTIVE" }).sort({ name: 1 });
+    
+    // Ensure all 4 default labs exist in the database (upsert by labId)
+    for (const defLab of DEFAULT_LABS) {
+      await Lab.updateOne(
+        { labId: defLab.labId },
+        { $setOnInsert: defLab },
+        { upsert: true }
+      );
     }
 
+    const labs = await Lab.find({ status: "ACTIVE" }).sort({ name: 1 });
     return NextResponse.json({ labs });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to fetch labs" }, { status: 500 });

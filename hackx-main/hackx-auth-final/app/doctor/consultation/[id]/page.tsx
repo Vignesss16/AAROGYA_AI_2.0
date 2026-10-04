@@ -535,11 +535,21 @@ export default function ConsultationDetailPage() {
           {/* FEATURE 1: DIAGNOSTIC LAB ORDERS */}
           <div style={{ marginBottom: 16 }}>
             <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span>🧪 DIAGNOSTIC LAB ORDERS ({labOrders.length})</span>
+              <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 18h8" />
+                  <path d="M3 22h18" />
+                  <path d="M14 22a7 7 0 1 0-4 0" />
+                  <path d="M9 14h2" />
+                  <path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z" />
+                  <path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3" />
+                </svg>
+                DIAGNOSTIC LAB ORDERS ({labOrders.length})
+              </span>
               <button
                 type="button"
                 onClick={() => setLabModalOpen(true)}
-                style={{ background: "linear-gradient(135deg, #06B6D4, #0E7490)", color: "white", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+                style={{ background: "linear-gradient(135deg, #0F766E, #14B8A6)", color: "white", border: "none", borderRadius: 8, padding: "6px 12px", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
               >
                 + Prescribe Lab Test
               </button>
@@ -551,7 +561,7 @@ export default function ConsultationDetailPage() {
                 <button
                   type="button"
                   onClick={() => setLabModalOpen(true)}
-                  style={{ marginTop: 8, background: "none", border: "none", color: C.cyan, fontSize: 12, fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}
+                  style={{ marginTop: 8, background: "none", border: "none", color: C.primary, fontSize: 12, fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}
                 >
                   Select Test & Registered Lab →
                 </button>
@@ -561,14 +571,14 @@ export default function ConsultationDetailPage() {
                 {labOrders.map((order) => {
                   const cfg = STATUS_LABELS[order.status] || { label: order.status, color: C.muted, bg: C.bg };
                   return (
-                    <div key={order._id} style={{ background: C.card, borderRadius: 14, padding: 14, border: `1px solid ${C.border}` }}>
+                    <div key={order._id} style={{ background: C.card, borderRadius: 14, padding: 14, border: `1px solid ${C.border}`, borderLeft: `4px solid ${cfg.color}` }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 800, color: C.text }}>
-                            🏥 {order.labName}
+                            {order.labName}
                           </div>
-                          <div style={{ fontSize: 11, color: C.muted }}>
-                            Order: <code>{order.orderId}</code> · Priority: <strong style={{ color: order.priority === "URGENT" ? C.red : C.primary }}>{order.priority}</strong>
+                          <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>
+                            Order: <span style={{ fontFamily: "monospace" }}>{order.orderId}</span> · Priority: <strong style={{ color: order.priority === "URGENT" ? C.red : C.primary }}>{order.priority}</strong>
                           </div>
                         </div>
                         <span style={{ fontSize: 10, fontWeight: 700, color: cfg.color, background: cfg.bg, padding: "3px 8px", borderRadius: 8 }}>
@@ -586,8 +596,8 @@ export default function ConsultationDetailPage() {
                       </div>
 
                       {order.appointmentSlot && (
-                        <div style={{ fontSize: 11, color: C.purple, marginBottom: 6, fontWeight: 600 }}>
-                          📅 Appointment Slot: {order.appointmentSlot}
+                        <div style={{ fontSize: 11, color: "#7C3AED", marginBottom: 6, fontWeight: 600 }}>
+                          Appointment Slot: {order.appointmentSlot}
                         </div>
                       )}
 
@@ -606,17 +616,24 @@ export default function ConsultationDetailPage() {
                               setDoctorReviewText(order.doctorReviewNotes || "");
                             }}
                             style={{
-                              background: order.status === "REPORT_UPLOADED" ? "linear-gradient(135deg, #10B981, #059669)" : C.bg,
+                              background: order.status === "REPORT_UPLOADED" ? "linear-gradient(135deg, #0F766E, #14B8A6)" : C.bg,
                               color: order.status === "REPORT_UPLOADED" ? "white" : C.primary,
                               border: `1px solid ${order.status === "REPORT_UPLOADED" ? "transparent" : C.border}`,
                               borderRadius: 8,
-                              padding: "6px 12px",
+                              padding: "6px 14px",
                               fontSize: 11,
                               fontWeight: 700,
                               cursor: "pointer",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 6,
                             }}
                           >
-                            {order.status === "REPORT_UPLOADED" ? "📄 Review Uploaded Report" : "👁️ View Final Report"}
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            {order.status === "REPORT_UPLOADED" ? "Review Uploaded Report" : "View Final Report"}
                           </button>
                         </div>
                       )}
@@ -745,18 +762,28 @@ export default function ConsultationDetailPage() {
       {/* Modal 1: Prescribe Diagnostic Lab Test */}
       {labModalOpen && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)", backdropFilter: "blur(6px)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ background: C.card, width: "100%", maxWidth: 440, borderRadius: 24, padding: 22, boxShadow: "0 20px 40px rgba(0,0,0,0.3)", maxHeight: "90vh", overflowY: "auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <div style={{ background: C.card, width: "100%", maxWidth: 460, borderRadius: 24, padding: 24, boxShadow: "0 20px 40px rgba(0,0,0,0.25)", maxHeight: "90vh", overflowY: "auto", border: `1px solid ${C.border}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>🧪 Prescribe Diagnostic Lab Test</h3>
-                <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>Patient: {consultation.patientName}</div>
+                <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: C.text, display: "flex", alignItems: "center", gap: 8 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F766E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 18h8" />
+                    <path d="M3 22h18" />
+                    <path d="M14 22a7 7 0 1 0-4 0" />
+                    <path d="M9 14h2" />
+                    <path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z" />
+                    <path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3" />
+                  </svg>
+                  Prescribe Diagnostic Lab Test
+                </h3>
+                <div style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>Patient: <strong>{consultation.patientName}</strong></div>
               </div>
-              <button onClick={() => setLabModalOpen(false)} style={{ background: C.bg, border: "none", borderRadius: 8, width: 30, height: 30, cursor: "pointer", fontSize: 14 }}>✕</button>
+              <button onClick={() => setLabModalOpen(false)} style={{ background: C.bg, border: "none", borderRadius: 8, width: 30, height: 30, cursor: "pointer", fontSize: 14, color: C.muted }}>✕</button>
             </div>
 
             {/* Step 1: Select Tests */}
             <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, display: "block", marginBottom: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, display: "block", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>
                 1. Select Required Diagnostic Tests ({selectedTests.length} chosen)
               </label>
               <div style={{ maxHeight: 150, overflowY: "auto", border: `1px solid ${C.border}`, borderRadius: 12, padding: 8, background: C.bg }}>
@@ -766,10 +793,10 @@ export default function ConsultationDetailPage() {
                     <div
                       key={idx}
                       onClick={() => toggleTestSelection(test)}
-                      style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", borderRadius: 8, cursor: "pointer", background: isChecked ? "rgba(6,182,212,0.12)" : "transparent" }}
+                      style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", borderRadius: 8, cursor: "pointer", background: isChecked ? "#E0F2FE" : "transparent" }}
                     >
-                      <input type="checkbox" checked={isChecked} onChange={() => {}} style={{ accentColor: C.primary, cursor: "pointer" }} />
-                      <span style={{ fontSize: 12, fontWeight: isChecked ? 700 : 500, color: isChecked ? C.cyan : C.text }}>{test}</span>
+                      <input type="checkbox" checked={isChecked} onChange={() => {}} style={{ accentColor: "#0F766E", cursor: "pointer" }} />
+                      <span style={{ fontSize: 12, fontWeight: isChecked ? 700 : 500, color: isChecked ? "#0369A1" : C.text }}>{test}</span>
                     </div>
                   );
                 })}
@@ -778,7 +805,7 @@ export default function ConsultationDetailPage() {
 
             {/* Step 2: Select Registered Lab */}
             <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, display: "block", marginBottom: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, display: "block", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>
                 2. Select Diagnostic Laboratory (Doctor Choice)
               </label>
               <select
@@ -796,30 +823,30 @@ export default function ConsultationDetailPage() {
 
             {/* Step 3: Priority */}
             <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, display: "block", marginBottom: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, display: "block", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>
                 3. Clinical Priority
               </label>
               <div style={{ display: "flex", gap: 10 }}>
                 <button
                   type="button"
                   onClick={() => setLabPriority("NORMAL")}
-                  style={{ flex: 1, padding: "10px", borderRadius: 10, border: `1.5px solid ${labPriority === "NORMAL" ? C.primary : C.border}`, background: labPriority === "NORMAL" ? "#EBF4FD" : C.bg, color: labPriority === "NORMAL" ? C.primary : C.text, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                  style={{ flex: 1, padding: "10px", borderRadius: 10, border: `1.5px solid ${labPriority === "NORMAL" ? "#0F766E" : C.border}`, background: labPriority === "NORMAL" ? "#E0F2FE" : C.bg, color: labPriority === "NORMAL" ? "#0F766E" : C.text, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                 >
-                  🟢 Normal Priority
+                  Normal Priority
                 </button>
                 <button
                   type="button"
                   onClick={() => setLabPriority("URGENT")}
-                  style={{ flex: 1, padding: "10px", borderRadius: 10, border: `1.5px solid ${labPriority === "URGENT" ? C.red : C.border}`, background: labPriority === "URGENT" ? "#FDEDED" : C.bg, color: labPriority === "URGENT" ? C.red : C.text, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                  style={{ flex: 1, padding: "10px", borderRadius: 10, border: `1.5px solid ${labPriority === "URGENT" ? C.red : C.border}`, background: labPriority === "URGENT" ? "#FEF2F2" : C.bg, color: labPriority === "URGENT" ? C.red : C.text, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                 >
-                  🔴 Urgent Priority
+                  Urgent Priority
                 </button>
               </div>
             </div>
 
             {/* Step 4: Clinical Instructions */}
             <div style={{ marginBottom: 18 }}>
-              <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, display: "block", marginBottom: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, display: "block", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>
                 4. Instructions for Lab Staff / Patient
               </label>
               <textarea
@@ -844,7 +871,7 @@ export default function ConsultationDetailPage() {
                 type="button"
                 onClick={handleCreateLabOrder}
                 disabled={submittingLab}
-                style={{ flex: 1.5, padding: 12, borderRadius: 12, border: "none", background: "linear-gradient(135deg, #06B6D4, #0E7490)", color: "white", fontWeight: 700, cursor: submittingLab ? "not-allowed" : "pointer", opacity: submittingLab ? 0.7 : 1 }}
+                style={{ flex: 1.5, padding: 12, borderRadius: 12, border: "none", background: "linear-gradient(135deg, #0F766E, #14B8A6)", color: "white", fontWeight: 700, cursor: submittingLab ? "not-allowed" : "pointer", opacity: submittingLab ? 0.7 : 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}
               >
                 {submittingLab ? "Dispatching..." : "Send Lab Request →"}
               </button>
@@ -855,34 +882,88 @@ export default function ConsultationDetailPage() {
 
       {/* Modal 2: Doctor Review Report Modal */}
       {reviewModalOrder && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ background: C.card, width: "100%", maxWidth: 460, borderRadius: 24, padding: 22, boxShadow: "0 20px 40px rgba(0,0,0,0.3)", maxHeight: "90vh", overflowY: "auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)", backdropFilter: "blur(6px)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div style={{ background: C.card, width: "100%", maxWidth: 520, borderRadius: 24, padding: 24, boxShadow: "0 20px 40px rgba(0,0,0,0.25)", maxHeight: "90vh", overflowY: "auto", border: `1px solid ${C.border}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>👨‍⚕️ Review Diagnostic Report</h3>
-                <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
-                  Lab: {reviewModalOrder.labName} · Order ID: <code>{reviewModalOrder.orderId}</code>
+                <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: C.text, display: "flex", alignItems: "center", gap: 8 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F766E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                  </svg>
+                  Review Diagnostic Report
+                </h3>
+                <div style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>
+                  Facility: <strong>{reviewModalOrder.labName}</strong> · Order ID: <code style={{ background: C.bg, padding: "2px 6px", borderRadius: 4 }}>{reviewModalOrder.orderId}</code>
                 </div>
               </div>
-              <button onClick={() => setReviewModalOrder(null)} style={{ background: C.bg, border: "none", borderRadius: 8, width: 30, height: 30, cursor: "pointer", fontSize: 14 }}>✕</button>
+              <button onClick={() => setReviewModalOrder(null)} style={{ background: C.bg, border: "none", borderRadius: 8, width: 30, height: 30, cursor: "pointer", fontSize: 14, color: C.muted }}>✕</button>
             </div>
 
-            {/* Report Content */}
-            <div style={{ background: "#0b1329", borderRadius: 14, padding: 14, marginBottom: 14, color: "#93c5fd", fontFamily: "monospace", fontSize: 12, whiteSpace: "pre-wrap", lineHeight: 1.6, maxHeight: 180, overflowY: "auto" }}>
-              {decodeURIComponent(reviewModalOrder.reportUrl?.replace("data:text/plain;charset=utf-8,", "") || "Report data attached.")}
+            {/* Report Media / Document Display */}
+            <div style={{ marginBottom: 18 }}>
+              {reviewModalOrder.reportUrl?.startsWith("data:image") || reviewModalOrder.reportUrl?.match(/\.(jpeg|jpg|png|webp)($|\?)/i) ? (
+                <div style={{ textAlign: "center", background: "#F8FAFC", borderRadius: 14, padding: 10, border: `1px solid ${C.border}` }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={reviewModalOrder.reportUrl}
+                    alt="Diagnostic Lab Report"
+                    style={{ width: "100%", maxHeight: 360, objectFit: "contain", borderRadius: 10, display: "block", margin: "0 auto" }}
+                  />
+                  <div style={{ marginTop: 8, display: "flex", justifyContent: "flex-end" }}>
+                    <a
+                      href={reviewModalOrder.reportUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ fontSize: 12, color: C.primary, fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </svg>
+                      Open Full Size
+                    </a>
+                  </div>
+                </div>
+              ) : reviewModalOrder.reportUrl?.startsWith("data:application/pdf") || reviewModalOrder.reportUrl?.endsWith(".pdf") ? (
+                <div style={{ background: "#F8FAFC", borderRadius: 14, padding: 16, border: `1px solid ${C.border}`, textAlign: "center" }}>
+                  <iframe
+                    src={reviewModalOrder.reportUrl}
+                    title="PDF Diagnostic Report"
+                    style={{ width: "100%", height: 320, borderRadius: 10, border: "none" }}
+                  />
+                  <div style={{ marginTop: 8 }}>
+                    <a
+                      href={reviewModalOrder.reportUrl}
+                      download={`${reviewModalOrder.orderId}_report.pdf`}
+                      style={{ fontSize: 12, color: C.primary, fontWeight: 700, textDecoration: "none" }}
+                    >
+                      Download PDF Report Document
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ background: "#F8FAFC", borderRadius: 14, padding: 14, color: "#334155", fontFamily: "monospace", fontSize: 12, whiteSpace: "pre-wrap", lineHeight: 1.6, maxHeight: 200, overflowY: "auto", border: `1px solid ${C.border}` }}>
+                  {decodeURIComponent(reviewModalOrder.reportUrl?.replace("data:text/plain;charset=utf-8,", "") || "Diagnostic findings successfully uploaded by pathology laboratory.")}
+                </div>
+              )}
             </div>
 
             {/* Doctor Clinical Assessment */}
             <div style={{ marginBottom: 18 }}>
-              <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, display: "block", marginBottom: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, display: "block", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>
                 Doctor&apos;s Clinical Assessment & Next Steps
               </label>
               <textarea
                 rows={3}
                 value={doctorReviewText}
                 onChange={(e) => setDoctorReviewText(e.target.value)}
-                placeholder="e.g. Findings evaluated: Hb normal, Fasting sugar normal. Continue prescribed treatment."
-                style={{ width: "100%", padding: "10px 12px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.bg, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                placeholder="e.g. Findings evaluated: Hb normal (13.2 g/dL), Fasting blood sugar normal (94 mg/dL). Continue prescribed lifestyle measures."
+                style={{ width: "100%", padding: "12px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.bg, fontSize: 13, outline: "none", boxSizing: "border-box" }}
               />
             </div>
 
@@ -898,9 +979,16 @@ export default function ConsultationDetailPage() {
                 type="button"
                 onClick={handleSubmitDoctorReview}
                 disabled={submittingReview}
-                style={{ flex: 1.5, padding: 12, borderRadius: 12, border: "none", background: "linear-gradient(135deg, #10B981, #059669)", color: "white", fontWeight: 700, cursor: submittingReview ? "not-allowed" : "pointer" }}
+                style={{ flex: 1.5, padding: 12, borderRadius: 12, border: "none", background: "linear-gradient(135deg, #0F766E, #14B8A6)", color: "white", fontWeight: 700, cursor: submittingReview ? "not-allowed" : "pointer", opacity: submittingReview ? 0.7 : 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}
               >
-                {submittingReview ? "Submitting..." : "✓ Confirm Review & Save"}
+                {submittingReview ? "Saving..." : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Confirm Review & Save
+                  </>
+                )}
               </button>
             </div>
           </div>
