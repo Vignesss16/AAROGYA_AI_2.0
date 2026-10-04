@@ -55,33 +55,10 @@ export default function LoginPage() {
       return;
     }
 
-    // 1. WhatsApp-like Auto-redirect to previously logged-in role
-    const lastRole = localStorage.getItem("last_logged_role");
-
-    // ASHA Worker
-    const cachedAsha = localStorage.getItem("cachedAshaUser") || localStorage.getItem("asha_user") || localStorage.getItem("ashaworker");
-    if (cachedAsha || lastRole === "ashaworker" || lastRole === "asha") {
-      router.replace("/asha/dashboard");
-      return;
-    }
-
-    // Doctor
-    const cachedDoc = localStorage.getItem("cachedDoctorUser") || localStorage.getItem("doctor_user");
-    if (cachedDoc || lastRole === "doctor") {
-      router.replace("/doctor/dashboard");
-      return;
-    }
-
-    // Pharmacist
-    const cachedPharm = localStorage.getItem("pharmacist");
-    if (cachedPharm || lastRole === "pharmacist") {
-      router.replace("/pharmacist");
-      return;
-    }
-
-    // Patient
+    // Patient WhatsApp-like auto-redirect: ONLY redirect to /home if a patient session exists!
     const cachedPatient = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
-    if (cachedPatient || isAuthenticated || lastRole === "patient") {
+    const lastRole = localStorage.getItem("last_logged_role");
+    if (cachedPatient || (isAuthenticated && lastRole === "patient")) {
       localStorage.removeItem("pending_reg");
       router.replace("/home");
       return;

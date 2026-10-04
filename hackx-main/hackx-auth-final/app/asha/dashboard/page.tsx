@@ -255,17 +255,33 @@ export default function ASHADashboardPage() {
             }} />
             {isOnline ? T("ऑनलाइन", "Online") : T("ऑफ़लाइन मोड (लोकल डेटा)", "Offline Mode (0G)")}
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <button onClick={() => { const newLang = lang === "hi" ? "en" : "hi"; setLang(newLang); }} style={{ background: C.primary, border: "none", borderRadius: 12, padding: "4px 12px", fontSize: 11, fontWeight: 800, color: "white", cursor: "pointer" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button onClick={() => { const newLang = lang === "hi" ? "en" : "hi"; setLang(newLang); }} style={{ background: C.primary, border: "none", borderRadius: 12, padding: "4px 10px", fontSize: 11, fontWeight: 800, color: "white", cursor: "pointer" }}>
               {lang === "hi" ? "EN" : "हिं"}
+            </button>
+            <button onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("cachedAshaUser");
+                localStorage.removeItem("asha_user");
+                localStorage.removeItem("ashaworker");
+                localStorage.setItem("last_logged_role", "patient");
+                sessionStorage.removeItem("user_explicitly_logged_out");
+              }
+              window.location.href = "/login";
+            }} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 10, padding: "4px 8px", fontSize: 11, fontWeight: 700, color: "white", cursor: "pointer" }}>
+              👤 {T("मरीज़ पोर्टल", "Patient Portal")}
             </button>
             <button onClick={async () => {
               if (typeof window !== "undefined") {
                 localStorage.removeItem("cachedAshaUser");
+                localStorage.removeItem("asha_user");
+                localStorage.removeItem("ashaworker");
+                localStorage.removeItem("last_logged_role");
+                sessionStorage.setItem("user_explicitly_logged_out", "true");
               }
               try { await signOut({ redirect: false }); } catch {}
               window.location.href = "/asha/login";
-            }} style={{ background: "rgba(0,0,0,0.05)", border: "none", borderRadius: 12, padding: "4px 10px", fontSize: 11, fontWeight: 700, color: C.muted, cursor: "pointer" }}>
+            }} style={{ background: "rgba(0,0,0,0.08)", border: "none", borderRadius: 10, padding: "4px 8px", fontSize: 11, fontWeight: 700, color: C.muted, cursor: "pointer" }}>
               {T("लॉग आउट", "Logout")}
             </button>
           </div>

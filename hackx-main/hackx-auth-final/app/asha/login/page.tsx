@@ -138,7 +138,16 @@ export default function ASHALoginPage() {
           <div style={{ height: 1, background: C.border, margin: "24px 0" }} />
 
           <button
-            onClick={() => router.push("/login")}
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("cachedAshaUser");
+                localStorage.removeItem("asha_user");
+                localStorage.removeItem("ashaworker");
+                localStorage.setItem("last_logged_role", "patient");
+                sessionStorage.removeItem("user_explicitly_logged_out");
+              }
+              router.push("/login");
+            }}
             style={{ width: "100%", padding: 14, borderRadius: 14, border: `2px solid ${C.border}`, background: C.card, color: C.muted, fontWeight: 600, fontSize: 14, cursor: "pointer" }}
           >
             ← {T("मरीज़ लॉगिन पर जाएं", "Go to Patient Login")}
