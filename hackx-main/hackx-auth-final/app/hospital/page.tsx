@@ -4,6 +4,55 @@ import { useEffect, useState, useCallback } from "react";
 import { useLang } from "@/lib/useLang";
 import { useCall } from "@/context/CallContext";
 import DoctorCallQRModal from "@/components/DoctorCallQRModal";
+import {
+  Building2,
+  Users,
+  AlertTriangle,
+  Calendar,
+  Clock,
+  CheckCircle2,
+  Phone,
+  PhoneCall,
+  Video,
+  Search,
+  BedDouble,
+  Activity,
+  FileText,
+  Stethoscope,
+  ArrowRight,
+  Shield,
+  ShieldCheck,
+  ShieldAlert,
+  LogOut,
+  QrCode,
+  Globe,
+  User,
+  UserPlus,
+  Printer,
+  ChevronRight,
+  Sparkles,
+  RefreshCw,
+  FlaskConical,
+  HeartPulse,
+  Share2,
+  SlidersHorizontal,
+  Plus,
+  X,
+  Radio,
+  ClipboardList,
+  Check,
+  XCircle,
+  HelpCircle,
+  TrendingUp,
+  MapPin,
+  Lock,
+  Zap,
+  Layers,
+  Network,
+  Download,
+  Upload,
+  AlertCircle
+} from "lucide-react";
 
 const C = {
   primary: "#0F766E", // Deep Teal
@@ -13,22 +62,25 @@ const C = {
   green: "#10B981",
   red: "#EF4444",
   yellow: "#F59E0B",
-  bg: "#F4F7F6", // Very soft mint/gray
+  bg: "#F8FAFC", // Ultra clean clinical slate
   card: "#FFFFFF",
-  text: "#1E293B",
+  text: "#0F172A",
   muted: "#64748B",
   border: "#E2E8F0",
 };
 
 const InfoButton = ({ text }: { text: string }) => (
-  <div style={{ position: "relative", display: "inline-flex", marginLeft: 8, verticalAlign: "middle" }} className="info-btn">
-    <span style={{ display: "inline-flex", width: 20, height: 20, background: "rgba(0,0,0,0.05)", borderRadius: "50%", alignItems: "center", justifyContent: "center", fontSize: 12, color: C.muted, cursor: "help", fontWeight: 800 }}>i</span>
-    <div className="tooltip" style={{ position: "absolute", bottom: "100%", left: "50%", transform: "translateX(-50%)", width: 200, padding: 10, background: "#1E293B", color: "white", fontSize: 12, fontWeight: 500, borderRadius: 8, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)", zIndex: 100, visibility: "hidden", opacity: 0, transition: "0.2s", marginBottom: 8, lineHeight: 1.4, pointerEvents: "none" }}>
+  <div style={{ position: "relative", display: "inline-flex", marginLeft: 6, verticalAlign: "middle" }} className="info-btn">
+    <span style={{ display: "inline-flex", width: 18, height: 18, background: "rgba(100, 116, 139, 0.12)", borderRadius: "50%", alignItems: "center", justifyContent: "center", fontSize: 11, color: C.muted, cursor: "help", fontWeight: 700 }}>
+      <HelpCircle size={12} />
+    </span>
+    <div className="tooltip" style={{ position: "absolute", bottom: "100%", left: "50%", transform: "translateX(-50%)", width: 220, padding: "10px 12px", background: "#0F172A", color: "white", fontSize: 12, fontWeight: 500, borderRadius: 8, boxShadow: "0 10px 25px -5px rgba(0,0,0,0.25)", zIndex: 100, visibility: "hidden", opacity: 0, transition: "0.2s", marginBottom: 8, lineHeight: 1.4, pointerEvents: "none" }}>
       {text}
-      <div style={{ position: "absolute", bottom: -5, left: "50%", transform: "translateX(-50%)", borderLeft: "6px solid transparent", borderRight: "6px solid transparent", borderTop: "6px solid #1E293B" }} />
+      <div style={{ position: "absolute", bottom: -5, left: "50%", transform: "translateX(-50%)", borderLeft: "6px solid transparent", borderRight: "6px solid transparent", borderTop: "6px solid #0F172A" }} />
     </div>
   </div>
 );
+
 const DEFAULT_FACILITIES = [
   {
     facilityId: "HOSP-SION-001",
@@ -224,10 +276,10 @@ const DEFAULT_FACILITIES = [
 const MOCK_STAFF_MAP: Record<string, { doctors: any[]; ashaWorkers: any[] }> = {
   "HOSP-SION-001": {
     doctors: [
-      { id: "D_SION_1", name: "Dr. S. Kulkarni", role: "Head of Emergency & Trauma", dept: "Emergency & Trauma", experience: "18 yrs", onDuty: true, rating: 4.9 },
-      { id: "D_SION_2", name: "Dr. Aniruddh Joshi", role: "Senior Cardiologist", dept: "Cardiology", experience: "14 yrs", onDuty: true, rating: 5.0 },
-      { id: "D_SION_3", name: "Dr. Priya Nair", role: "Consultant Pediatrician", dept: "Pediatrics", experience: "11 yrs", onDuty: false, rating: 4.8 },
-      { id: "D_SION_4", name: "Dr. Vilas Patil", role: "General Physician", dept: "General Medicine", experience: "9 yrs", onDuty: true, rating: 4.7 },
+      { id: "D_SION_1", name: "Dr. S. Kulkarni", role: "Head of Emergency & Trauma", dept: "Emergency & Trauma", room: "Room 101 (Casualty)", experience: "18 yrs", onDuty: true, rating: 4.9 },
+      { id: "D_SION_2", name: "Dr. Aniruddh Joshi", role: "Senior Cardiologist", dept: "Cardiology", room: "Room 104 (Cardiac OPD)", experience: "14 yrs", onDuty: true, rating: 5.0 },
+      { id: "D_SION_3", name: "Dr. Priya Nair", role: "Consultant Pediatrician", dept: "Pediatrics", room: "Room 201 (Child Health)", experience: "11 yrs", onDuty: false, rating: 4.8 },
+      { id: "D_SION_4", name: "Dr. Vilas Patil", role: "General Physician", dept: "General Medicine", room: "Room 102 (General OPD)", experience: "9 yrs", onDuty: true, rating: 4.7 },
     ],
     ashaWorkers: [
       { id: "ASHA_SION_1", name: "Sunita Kamble", area: "Dharavi Health Ward 9", phone: "+91 98765 11001", visitsThisMonth: 84, activeAlerts: 1 },
@@ -237,9 +289,9 @@ const MOCK_STAFF_MAP: Record<string, { doctors: any[]; ashaWorkers: any[] }> = {
   },
   "HOSP-KLY-002": {
     doctors: [
-      { id: "D_KLY_1", name: "Dr. Ramesh Sharma", role: "Chief Medical Officer", dept: "General Medicine", experience: "16 yrs", onDuty: true, rating: 4.7 },
-      { id: "D_KLY_2", name: "Dr. Sneha Gokhale", role: "Consultant Gynecologist", dept: "Gynecology & Maternal", experience: "12 yrs", onDuty: true, rating: 4.9 },
-      { id: "D_KLY_3", name: "Dr. Amit Vernekar", role: "Orthopedic Surgeon", dept: "Orthopedics", experience: "10 yrs", onDuty: false, rating: 4.6 },
+      { id: "D_KLY_1", name: "Dr. Ramesh Sharma", role: "Chief Medical Officer", dept: "General Medicine", room: "Room 102 (General OPD)", experience: "16 yrs", onDuty: true, rating: 4.7 },
+      { id: "D_KLY_2", name: "Dr. Sneha Gokhale", role: "Consultant Gynecologist", dept: "Gynecology & Maternal", room: "Room 105 (Maternity)", experience: "12 yrs", onDuty: true, rating: 4.9 },
+      { id: "D_KLY_3", name: "Dr. Amit Vernekar", role: "Orthopedic Surgeon", dept: "Orthopedics", room: "Room 108 (Bone & Joint)", experience: "10 yrs", onDuty: false, rating: 4.6 },
     ],
     ashaWorkers: [
       { id: "ASHA_KLY_1", name: "Vandana More", area: "Titwala Rural", phone: "+91 98765 12001", visitsThisMonth: 71, activeAlerts: 1 },
@@ -248,8 +300,8 @@ const MOCK_STAFF_MAP: Record<string, { doctors: any[]; ashaWorkers: any[] }> = {
   },
   "HOSP-PLG-004": {
     doctors: [
-      { id: "D_PLG_1", name: "Dr. Anjali Deshmukh", role: "Rural Maternal & Child Specialist", dept: "Pediatrics", experience: "13 yrs", onDuty: true, rating: 4.8 },
-      { id: "D_PLG_2", name: "Dr. Deepak Vaze", role: "Malaria & Communicable Diseases Lead", dept: "General Medicine", experience: "8 yrs", onDuty: true, rating: 4.7 },
+      { id: "D_PLG_1", name: "Dr. Anjali Deshmukh", role: "Rural Maternal & Child Specialist", dept: "Pediatrics", room: "Room 101 (Maternal Care)", experience: "13 yrs", onDuty: true, rating: 4.8 },
+      { id: "D_PLG_2", name: "Dr. Deepak Vaze", role: "Malaria & Communicable Diseases Lead", dept: "General Medicine", room: "Room 103 (Fever Clinic)", experience: "8 yrs", onDuty: true, rating: 4.7 },
     ],
     ashaWorkers: [
       { id: "ASHA_PLG_1", name: "Parvati Bhoye", area: "Manor Tribal Pada", phone: "+91 98765 14001", visitsThisMonth: 104, activeAlerts: 3 },
@@ -258,7 +310,7 @@ const MOCK_STAFF_MAP: Record<string, { doctors: any[]; ashaWorkers: any[] }> = {
   },
   "HOSP-MRB-005": {
     doctors: [
-      { id: "D_MRB_1", name: "Dr. Sanjay Raut", role: "Rural Emergency & Toxicology Lead", dept: "Emergency & Snakebite Unit", experience: "15 yrs", onDuty: true, rating: 4.9 },
+      { id: "D_MRB_1", name: "Dr. Sanjay Raut", role: "Rural Emergency & Toxicology Lead", dept: "Emergency & Snakebite Unit", room: "Casualty Ward 1", experience: "15 yrs", onDuty: true, rating: 4.9 },
     ],
     ashaWorkers: [
       { id: "ASHA_MRB_1", name: "Shobha Telam", area: "Tokawade Tribal Belt", phone: "+91 98765 15001", visitsThisMonth: 69, activeAlerts: 1 },
@@ -267,7 +319,7 @@ const MOCK_STAFF_MAP: Record<string, { doctors: any[]; ashaWorkers: any[] }> = {
   },
   "HOSP-JWH-006": {
     doctors: [
-      { id: "D_JWH_1", name: "Dr. Hemant Mukne", role: "Tribal Malnutrition & Primary Health Lead", dept: "Pediatrics & NRC", experience: "11 yrs", onDuty: true, rating: 4.8 },
+      { id: "D_JWH_1", name: "Dr. Hemant Mukne", role: "Tribal Malnutrition & Primary Health Lead", dept: "Pediatrics & NRC", room: "Room 102 (NRC Unit)", experience: "11 yrs", onDuty: true, rating: 4.8 },
     ],
     ashaWorkers: [
       { id: "ASHA_JWH_1", name: "Kalpana Gavit", area: "Jawhar Hill Pada", phone: "+91 98765 16001", visitsThisMonth: 112, activeAlerts: 4 },
@@ -276,8 +328,8 @@ const MOCK_STAFF_MAP: Record<string, { doctors: any[]; ashaWorkers: any[] }> = {
   },
   "HOSP-NBH-008": {
     doctors: [
-      { id: "D_NBH_1", name: "Dr. Arvind Kumar", role: "Civil Surgeon", dept: "General Medicine", experience: "20 yrs", onDuty: true, rating: 4.9 },
-      { id: "D_NBH_2", name: "Dr. Vasanth", role: "Medical Officer", dept: "General Medicine", experience: "7 yrs", onDuty: true, rating: 5.0 },
+      { id: "D_NBH_1", name: "Dr. Arvind Kumar", role: "Civil Surgeon", dept: "General Medicine", room: "Room 101 (OPD)", experience: "20 yrs", onDuty: true, rating: 4.9 },
+      { id: "D_NBH_2", name: "Dr. Vasanth", role: "Medical Officer", dept: "General Medicine", room: "Room 104 (OPD)", experience: "7 yrs", onDuty: true, rating: 5.0 },
     ],
     ashaWorkers: [
       { id: "ASHA_NBH_1", name: "Gurpreet Kaur", area: "Alhoran Village", phone: "+91 98765 17001", visitsThisMonth: 64, activeAlerts: 0 },
@@ -291,6 +343,25 @@ export default function HospitalDesktopDashboard() {
   const { lang, setLang, mounted } = useLang();
   const { startCallSession } = useCall();
   const [selectedQRDoctor, setSelectedQRDoctor] = useState<any | null>(null);
+
+  // Operational Receptionist Modals
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [activeTokenSlip, setActiveTokenSlip] = useState<any | null>(null);
+  const [assignDoctorPatient, setAssignDoctorPatient] = useState<any | null>(null);
+
+  // Quick Walk-in Form State
+  const [walkinForm, setWalkinForm] = useState({
+    patientName: "",
+    patientPhone: "",
+    age: "",
+    gender: "M",
+    department: "General Medicine",
+    urgency: "GREEN",
+    doctorName: "",
+    symptoms: "",
+  });
+  const [walkinSubmitting, setWalkinSubmitting] = useState(false);
+
   const [auth, setAuth] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("hospitalAuth") === "true" || !!localStorage.getItem("hospital_command_user");
@@ -329,7 +400,6 @@ export default function HospitalDesktopDashboard() {
   // HMIS & EMR Integration Bridge State
   const [hmisSyncing, setHmisSyncing] = useState(false);
   const [hmisLastSynced, setHmisLastSynced] = useState<string>("Just now");
-  const [hmisAutoSync, setHmisAutoSync] = useState(true);
   const [hmisEndpoint, setHmisEndpoint] = useState("https://e-hospital.nic.in/api/v2/opd-exchange");
   const [hmisApiKey, setHmisApiKey] = useState("NIC-HFR-MH-KLY-48201");
   const [endpointTesting, setEndpointTesting] = useState(false);
@@ -374,7 +444,6 @@ export default function HospitalDesktopDashboard() {
   const T = (hi: string, en: string) => lang === "hi" ? hi : en;
 
   const [sosAlerts, setSosAlerts] = useState<any[]>([]);
-  const [callPatient, setCallPatient] = useState<{ id: string; name: string; details?: any } | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -437,9 +506,7 @@ export default function HospitalDesktopDashboard() {
       if (res.ok) {
         setSosAlerts((prev) => prev.filter((a) => a._id !== id));
       }
-    } catch {
-      // offline
-    }
+    } catch {}
   };
 
   const handleConfirmAppointment = async (consultationId: string) => {
@@ -456,9 +523,44 @@ export default function HospitalDesktopDashboard() {
       if (res.ok) {
         fetchData();
       }
-    } catch {
-      // offline
-    }
+    } catch {}
+  };
+
+  const handleCheckInPatient = async (consultationId: string) => {
+    try {
+      const res = await fetch("/api/consultations", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: consultationId,
+          checkInStatus: "ARRIVED",
+          arrivedAt: new Date().toISOString(),
+        }),
+      });
+      if (res.ok) {
+        fetchData();
+      }
+    } catch {}
+  };
+
+  const handleAssignDoctor = async (consultationId: string, doctorName: string, room: string) => {
+    try {
+      const res = await fetch("/api/consultations", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: consultationId,
+          doctorName,
+          consultationRoom: room,
+          receptionistStatus: "CONFIRMED",
+          status: "confirmed",
+        }),
+      });
+      if (res.ok) {
+        setAssignDoctorPatient(null);
+        fetchData();
+      }
+    } catch {}
   };
 
   const handleDeclineAppointment = async (consultationId: string) => {
@@ -476,9 +578,7 @@ export default function HospitalDesktopDashboard() {
       if (res.ok) {
         fetchData();
       }
-    } catch {
-      // offline
-    }
+    } catch {}
   };
 
   const handleFlagScamAppointment = async (consultationId: string) => {
@@ -497,9 +597,7 @@ export default function HospitalDesktopDashboard() {
       if (res.ok) {
         fetchData();
       }
-    } catch {
-      // offline
-    }
+    } catch {}
   };
 
   const handleForceSyncHmis = () => {
@@ -516,9 +614,68 @@ export default function HospitalDesktopDashboard() {
     setEndpointStatus(null);
     setTimeout(() => {
       setEndpointTesting(false);
-      setEndpointStatus(`🟢 Connected to ${activeFacility?.name || "Hospital"} HMIS Gateway (Latency: 42ms • Status: 200 OK)`);
+      setEndpointStatus(`Connected to ${activeFacility?.name || "Hospital"} HMIS Gateway (Latency: 42ms • Status: 200 OK)`);
       setTimeout(() => setEndpointStatus(null), 6000);
     }, 800);
+  };
+
+  const handleCreateWalkin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!walkinForm.patientName || !walkinForm.patientPhone) {
+      alert("Please provide at least Patient Name and Mobile Number.");
+      return;
+    }
+
+    setWalkinSubmitting(true);
+    const tokenNum = `OPD-${activeFacility?.facilityId?.split("-")[1] || "DESK"}-${Math.floor(100 + Math.random() * 900)}`;
+
+    const newRecord = {
+      patientName: walkinForm.patientName,
+      patientPhone: walkinForm.patientPhone,
+      age: walkinForm.age || "35",
+      gender: walkinForm.gender,
+      symptoms: walkinForm.symptoms ? walkinForm.symptoms.split(",").map(s => s.trim()) : ["Walk-in OPD consultation"],
+      urgency: walkinForm.urgency,
+      department: walkinForm.department,
+      doctorName: walkinForm.doctorName || "Awaiting Room Call",
+      slotTime: "Immediate Token Check-in",
+      hospital: activeFacility?.name || "Hospital Medical Center",
+      facilityId: activeFacility?.facilityId || selectedFacilityId,
+      source: "Reception Desk Walk-In",
+      receptionistStatus: "CONFIRMED",
+      status: "confirmed",
+      tokenNumber: tokenNum,
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      const res = await fetch("/api/consultations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newRecord),
+      });
+
+      if (res.ok) {
+        setIsRegisterModalOpen(false);
+        setActiveTokenSlip(newRecord);
+        setWalkinForm({
+          patientName: "",
+          patientPhone: "",
+          age: "",
+          gender: "M",
+          department: "General Medicine",
+          urgency: "GREEN",
+          doctorName: "",
+          symptoms: "",
+        });
+        fetchData();
+      }
+    } catch {
+      alert("Offline fallback: registered in active queue.");
+      setActiveTokenSlip(newRecord);
+    } finally {
+      setWalkinSubmitting(false);
+    }
   };
 
   const handleImportLegacyOPD = async (recordsToImport?: any[]) => {
@@ -531,39 +688,45 @@ export default function HospitalDesktopDashboard() {
           patientPhone: "+91 98201 54321",
           age: "48",
           gender: "M",
-          symptoms: "Chest heaviness and shortness of breath since 2 hours",
+          symptoms: ["Chest heaviness", "shortness of breath"],
           urgency: "RED",
           department: "Cardiology",
           slotTime: "Immediate Priority",
-          hospital: activeFacility?.name || "Kalyan Civil Hospital",
+          hospital: activeFacility?.name || "Civil Hospital",
           facilityId: activeFacility?.facilityId || selectedFacilityId,
           source: "Legacy HMIS Bridge",
+          receptionistStatus: "CONFIRMED",
+          status: "confirmed",
         },
         {
           patientName: "Meenakshi Kadam",
           patientPhone: "+91 98192 65432",
           age: "34",
           gender: "F",
-          symptoms: "High fever 103F with severe body pain and chills (Dengue Suspected)",
+          symptoms: ["High fever 103F", "severe body pain"],
           urgency: "YELLOW",
           department: "General Medicine",
           slotTime: "10:30 AM",
-          hospital: activeFacility?.name || "Kalyan Civil Hospital",
+          hospital: activeFacility?.name || "Civil Hospital",
           facilityId: activeFacility?.facilityId || selectedFacilityId,
           source: "Legacy HMIS Bridge",
+          receptionistStatus: "CONFIRMED",
+          status: "confirmed",
         },
         {
           patientName: "Santosh Yadav",
           patientPhone: "+91 98670 12345",
           age: "55",
           gender: "M",
-          symptoms: "Diabetes routine checkup and insulin refill",
+          symptoms: ["Diabetes routine checkup", "insulin refill"],
           urgency: "GREEN",
           department: "General Medicine",
           slotTime: "11:15 AM",
-          hospital: activeFacility?.name || "Kalyan Civil Hospital",
+          hospital: activeFacility?.name || "Civil Hospital",
           facilityId: activeFacility?.facilityId || selectedFacilityId,
           source: "Legacy HMIS Bridge",
+          receptionistStatus: "CONFIRMED",
+          status: "confirmed",
         },
       ];
 
@@ -574,11 +737,11 @@ export default function HospitalDesktopDashboard() {
           body: JSON.stringify(rec),
         });
       }
-      setImportStatusMessage(`✓ Successfully merged ${demoOrCustomRecords.length} records into ${activeFacility?.shortName || "Hospital"} Live Triage!`);
+      setImportStatusMessage(`Successfully merged ${demoOrCustomRecords.length} records into ${activeFacility?.shortName || "Hospital"} Live Triage!`);
       fetchData();
       setTimeout(() => setImportStatusMessage(null), 5000);
     } catch {
-      setImportStatusMessage("⚠️ Merge completed with local queue.");
+      setImportStatusMessage("Merge completed with local queue.");
       setTimeout(() => setImportStatusMessage(null), 5000);
     } finally {
       setBulkImporting(false);
@@ -589,24 +752,22 @@ export default function HospitalDesktopDashboard() {
 
   if (!auth) {
     return (
-      <div style={{ background: "radial-gradient(circle at 10% 20%, rgb(15, 118, 110) 0%, rgb(2, 132, 199) 90.2%)", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", fontFamily: "Inter, sans-serif", position: "relative", overflow: "hidden", padding: 20 }}>
-        {/* Animated Mesh Background Elements */}
-        <div style={{ position: "absolute", width: 600, height: 600, background: "radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, transparent 70%)", top: -100, left: -100, borderRadius: "50%", filter: "blur(40px)" }} />
-        <div style={{ position: "absolute", width: 500, height: 500, background: "radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%)", bottom: -50, right: -100, borderRadius: "50%", filter: "blur(50px)" }} />
-
-        <div style={{ width: "100%", maxWidth: 440, background: "rgba(255, 255, 255, 0.1)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", borderRadius: 24, padding: "40px 24px", boxSizing: "border-box", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)", border: `1px solid rgba(255,255,255,0.2)`, zIndex: 10, color: "white" }}>
-          <div style={{ textAlign: "center", marginBottom: 30 }}>
-            <div style={{ width: 72, height: 72, borderRadius: 22, background: "rgba(255, 255, 255, 0.2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px", fontSize: 36, boxShadow: "inset 0 0 20px rgba(255,255,255,0.1)" }}>🏥</div>
-            <h1 style={{ fontSize: 28, fontWeight: 800, margin: 0, letterSpacing: "-1px", color: "white" }}>AarogyaAI</h1>
-            <p style={{ fontSize: 15, marginTop: 6, fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>Hospital Command Center</p>
+      <div style={{ background: "linear-gradient(135deg, #0F766E 0%, #0369A1 100%)", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", fontFamily: "Inter, sans-serif", position: "relative", overflow: "hidden", padding: 20 }}>
+        <div style={{ width: "100%", maxWidth: 420, background: "rgba(255, 255, 255, 0.12)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderRadius: 20, padding: "36px 28px", boxSizing: "border-box", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)", border: `1px solid rgba(255,255,255,0.22)`, zIndex: 10, color: "white" }}>
+          <div style={{ textAlign: "center", marginBottom: 28 }}>
+            <div style={{ width: 64, height: 64, borderRadius: 18, background: "rgba(255, 255, 255, 0.2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", color: "white", boxShadow: "inset 0 0 20px rgba(255,255,255,0.15)" }}>
+              <Building2 size={32} />
+            </div>
+            <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: "-0.5px", color: "white" }}>AarogyaAI</h1>
+            <p style={{ fontSize: 14, marginTop: 4, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>Hospital Receptionist & Command Desk</p>
           </div>
-          {error && <div style={{ background: "rgba(239, 68, 68, 0.2)", color: "#FECACA", padding: "14px", borderRadius: 12, fontSize: 13, fontWeight: 600, marginBottom: 20, textAlign: "center", border: "1px solid rgba(239, 68, 68, 0.4)" }}>{error}</div>}
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {error && <div style={{ background: "rgba(239, 68, 68, 0.2)", color: "#FECACA", padding: "12px", borderRadius: 10, fontSize: 13, fontWeight: 600, marginBottom: 18, textAlign: "center", border: "1px solid rgba(239, 68, 68, 0.4)" }}>{error}</div>}
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div style={{ position: "relative" }}>
-              <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8, color: "rgba(255,255,255,0.9)" }}>Hospital Master Key</label>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6, color: "rgba(255,255,255,0.9)" }}>Hospital Master Key</label>
               <input
                 type={showPass ? "text" : "password"}
-                placeholder="Enter master password..."
+                placeholder="Enter facility access key..."
                 value={pass}
                 onChange={(e) => { setPass(e.target.value); setError(""); }}
                 onKeyDown={(e) => {
@@ -617,12 +778,12 @@ export default function HospitalDesktopDashboard() {
                     } else setError("Invalid Credentials. Master key: aarogya123");
                   }
                 }}
-                style={{ width: "100%", padding: "14px 44px 14px 16px", border: `1px solid rgba(255,255,255,0.2)`, borderRadius: 14, fontSize: 15, fontFamily: "inherit", background: "rgba(0,0,0,0.2)", color: "white", outline: "none", boxSizing: "border-box" }}
+                style={{ width: "100%", padding: "12px 42px 12px 14px", border: `1px solid rgba(255,255,255,0.25)`, borderRadius: 12, fontSize: 14, fontFamily: "inherit", background: "rgba(0,0,0,0.25)", color: "white", outline: "none", boxSizing: "border-box" }}
               />
               <button
                 type="button"
                 onClick={() => setShowPass(!showPass)}
-                style={{ position: "absolute", right: 14, top: 38, background: "transparent", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", display: "flex", alignItems: "center" }}
+                style={{ position: "absolute", right: 12, top: 34, background: "transparent", border: "none", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: 12 }}
               >
                 {showPass ? "Hide" : "Show"}
               </button>
@@ -635,18 +796,18 @@ export default function HospitalDesktopDashboard() {
                   localStorage.setItem("hospitalAuth", "true");
                 } else setError("Invalid Credentials. Master key: aarogya123");
               }}
-              style={{ width: "100%", padding: "16px", borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 800, fontSize: 15, background: "white", color: C.primary, boxShadow: "0 4px 14px rgba(0, 0, 0, 0.2)" }}
+              style={{ width: "100%", padding: "14px", borderRadius: 12, border: "none", cursor: "pointer", fontWeight: 800, fontSize: 14, background: "white", color: C.primary, boxShadow: "0 4px 14px rgba(0, 0, 0, 0.2)" }}
             >
-              Access Command Center
+              Access Reception Desk
             </button>
 
-            <div style={{ textAlign: "center", marginTop: 8 }}>
+            <div style={{ textAlign: "center", marginTop: 6 }}>
               <button
                 type="button"
                 onClick={() => router.push("/hospital/login")}
-                style={{ background: "rgba(255, 255, 255, 0.12)", border: "1px solid rgba(255, 255, 255, 0.2)", borderRadius: 12, padding: "10px 16px", color: "white", fontSize: 13, fontWeight: 700, cursor: "pointer", width: "100%" }}
+                style={{ background: "rgba(255, 255, 255, 0.12)", border: "1px solid rgba(255, 255, 255, 0.2)", borderRadius: 10, padding: "10px 14px", color: "white", fontSize: 12.5, fontWeight: 700, cursor: "pointer", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
               >
-                🏥 Select Facility Portal (/hospital/login) →
+                <Building2 size={15} /> Select Facility Tenant Login
               </button>
             </div>
           </div>
@@ -658,19 +819,15 @@ export default function HospitalDesktopDashboard() {
   if (loading && auth) {
     return (
       <div style={{ background: C.bg, minHeight: "100vh", display: "flex", flexDirection: "column", fontFamily: "Inter, sans-serif" }}>
-        <nav style={{ background: "rgba(255, 255, 255, 0.75)", height: 80, margin: "20px 40px", borderRadius: 24, display: "flex", alignItems: "center", padding: "0 40px" }}>
-          <div style={{ width: 150, height: 40, background: "#E2E8F0", borderRadius: 12, animation: "pulse 1.5s infinite" }} />
-          <div style={{ display: "flex", gap: 20, marginLeft: 40 }}>
-            {[1,2,3,4].map(i => <div key={i} style={{ width: 80, height: 20, background: "#E2E8F0", borderRadius: 8, animation: "pulse 1.5s infinite" }} />)}
+        <nav style={{ background: "white", height: 72, margin: "16px 24px", borderRadius: 18, display: "flex", alignItems: "center", padding: "0 24px", border: `1px solid ${C.border}` }}>
+          <div style={{ width: 140, height: 36, background: "#E2E8F0", borderRadius: 10, animation: "pulse 1.5s infinite" }} />
+          <div style={{ display: "flex", gap: 16, marginLeft: 32 }}>
+            {[1,2,3,4,5].map(i => <div key={i} style={{ width: 90, height: 28, background: "#E2E8F0", borderRadius: 8, animation: "pulse 1.5s infinite" }} />)}
           </div>
         </nav>
-        <main style={{ flex: 1, padding: "40px", maxWidth: 1600, margin: "0 auto", width: "100%", display: "flex", flexDirection: "column", gap: 40 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24 }}>
-            {[1,2,3,4].map(i => <div key={i} style={{ height: 140, background: "white", borderRadius: 24, animation: "pulse 1.5s infinite" }} />)}
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-            <div style={{ height: 200, background: "white", borderRadius: 24, animation: "pulse 1.5s infinite" }} />
-            <div style={{ height: 300, background: "white", borderRadius: 24, animation: "pulse 1.5s infinite" }} />
+        <main style={{ flex: 1, padding: "20px 24px", maxWidth: 1600, margin: "0 auto", width: "100%", display: "flex", flexDirection: "column", gap: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}>
+            {[1,2,3,4].map(i => <div key={i} style={{ height: 120, background: "white", borderRadius: 18, animation: "pulse 1.5s infinite", border: `1px solid ${C.border}` }} />)}
           </div>
         </main>
       </div>
@@ -711,6 +868,8 @@ export default function HospitalDesktopDashboard() {
     filteredQueue = filteredQueue.filter(
       (q) =>
         (q.patientName || "").toLowerCase().includes(ql) ||
+        (q.patientPhone || "").toLowerCase().includes(ql) ||
+        (q.tokenNumber || "").toLowerCase().includes(ql) ||
         (q.doctorName || "").toLowerCase().includes(ql) ||
         (q.symptoms || []).some((s: string) => s.toLowerCase().includes(ql))
     );
@@ -730,11 +889,12 @@ export default function HospitalDesktopDashboard() {
       : {
           doctors:
             doctors.length > 0
-              ? doctors.map((d) => ({
+              ? doctors.map((d, idx) => ({
                   id: d._id || d.id,
                   name: d.name.startsWith("Dr.") ? d.name : `Dr. ${d.name}`,
                   role: "Consultant Medical Officer",
                   dept: d.specialization || "General Medicine",
+                  room: `Room ${101 + idx} (OPD)`,
                   experience: "8 yrs",
                   onDuty: true,
                   rating: 4.8,
@@ -817,38 +977,40 @@ export default function HospitalDesktopDashboard() {
   ];
 
   const navItems = [
-    { id: "dashboard", label: T("डैशबोर्ड", "Overview"), icon: "📊" },
-    { id: "appointments", label: T("रिसेप्शन व स्लॉट", "Reception & Triage"), icon: "📋", badge: facilityScopedQueue.length },
-    { id: "emergencies", label: T("आपात स्थिति", "Emergencies"), icon: "🚨", badge: redPatients.length, badgeColor: C.red },
-    { id: "wards", label: T("वार्ड व बेड", "Wards & Beds"), icon: "🛏️" },
-    { id: "staff", label: T("स्टाफ व आशा", "Medical Roster"), icon: "👥", badge: onDutyDoctorsCount },
-    { id: "referrals", label: T("रेफ़रल डेस्क", "Referrals"), icon: "🏥", badge: referrals.filter(r => r.status === "pending").length },
-    { id: "diagnostics", label: T("लैब रिपोर्ट", "Lab Diagnostics"), icon: "🧪", badge: labTests.filter(t => t.isCritical && !t.assignedDoctorId).length, badgeColor: C.red },
-    { id: "hmis-bridge", label: T("HMIS एकीकरण", "HMIS Bridge"), icon: "🔗" },
-    { id: "analytics", label: T("एनालिटिक्स", "Analytics"), icon: "📈" },
+    { id: "dashboard", label: T("ओवरव्यू", "Overview"), icon: <Activity size={15} /> },
+    { id: "appointments", label: T("रिसेप्शन व टोकन डेस्क", "OPD Queue & Check-In"), icon: <ClipboardList size={15} />, badge: facilityScopedQueue.length },
+    { id: "staff", label: T("डॉक्टर व ओपीडी कक्ष", "Doctor & Room Roster"), icon: <Stethoscope size={15} />, badge: onDutyDoctorsCount },
+    { id: "emergencies", label: T("आपातकालीन ट्राइएज", "Emergency & Casualty"), icon: <AlertTriangle size={15} />, badge: redPatients.length, badgeColor: C.red },
+    { id: "wards", label: T("वार्ड व बेड क्षमता", "Wards & Bed Status"), icon: <BedDouble size={15} /> },
+    { id: "referrals", label: T("इनबाउंड रेफरल डेस्क", "Inbound Referrals"), icon: <Share2 size={15} />, badge: referrals.filter(r => r.status === "pending").length },
+    { id: "diagnostics", label: T("लैब डायग्नोस्टिक्स", "Lab Diagnostics"), icon: <FlaskConical size={15} />, badge: labTests.filter(t => t.isCritical && !t.assignedDoctorId).length, badgeColor: C.red },
+    { id: "hmis-bridge", label: T("HMIS / e-Hospital", "HMIS Gateway"), icon: <Network size={15} /> },
+    { id: "analytics", label: T("एनालिटिक्स", "Clinical Analytics"), icon: <TrendingUp size={15} /> },
   ];
 
   return (
     <div style={{ background: C.bg, minHeight: "100vh", display: "flex", flexDirection: "column", fontFamily: "Inter, sans-serif", color: C.text }}>
 
       {/* Modern High-Tier Medical Command Top Navigation */}
-      <nav style={{ background: "rgba(255, 255, 255, 0.88)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: `1px solid ${C.border}`, padding: "10px 24px", position: "sticky", top: 12, margin: "12px 24px 20px", borderRadius: 20, zIndex: 50, boxShadow: "0 8px 30px rgba(15, 118, 110, 0.08)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16 }}>
+      <nav style={{ background: "rgba(255, 255, 255, 0.92)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: `1px solid ${C.border}`, padding: "8px 20px", position: "sticky", top: 12, margin: "10px 20px 16px", borderRadius: 16, zIndex: 50, boxShadow: "0 6px 24px rgba(15, 118, 110, 0.06)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 14 }}>
 
           {/* Left Brand Identity */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-            <div style={{ background: "linear-gradient(135deg, #0F766E 0%, #14B8A6 100%)", width: 42, height: 42, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, color: "white", boxShadow: "0 4px 12px rgba(20, 184, 166, 0.35)" }}>🏥</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+            <div style={{ background: "linear-gradient(135deg, #0F766E 0%, #14B8A6 100%)", width: 38, height: 38, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", color: "white", boxShadow: "0 4px 10px rgba(20, 184, 166, 0.35)" }}>
+              <Building2 size={20} />
+            </div>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <h1 style={{ fontSize: 19, fontWeight: 800, margin: 0, letterSpacing: "-0.5px", color: C.primary, lineHeight: 1 }}>AarogyaAI</h1>
-                <span style={{ background: "rgba(15, 118, 110, 0.12)", color: C.primary, fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>Command</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <h1 style={{ fontSize: 18, fontWeight: 800, margin: 0, letterSpacing: "-0.5px", color: C.primary, lineHeight: 1 }}>AarogyaAI</h1>
+                <span style={{ background: "rgba(15, 118, 110, 0.1)", color: C.primary, fontSize: 9.5, fontWeight: 800, padding: "2px 6px", borderRadius: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>Reception Desk</span>
               </div>
-              <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, marginTop: 2 }}>{activeFacility?.shortName || "Hospital Operations"}</div>
+              <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, marginTop: 1 }}>{activeFacility?.shortName || "Hospital Command Center"}</div>
             </div>
           </div>
 
           {/* Center Segmented Navigation Pills */}
-          <div style={{ display: "flex", alignItems: "center", gap: 4, background: "#F1F5F9", padding: "4px 6px", borderRadius: 14, overflowX: "auto", maxWidth: "100%", scrollbarWidth: "none" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4, background: "#F1F5F9", padding: "4px", borderRadius: 12, overflowX: "auto", maxWidth: "100%", scrollbarWidth: "none" }}>
             {navItems.map((nav) => {
               const isActive = activeTab === nav.id;
               return (
@@ -862,21 +1024,21 @@ export default function HospitalDesktopDashboard() {
                     display: "inline-flex",
                     alignItems: "center",
                     gap: 6,
-                    padding: "7px 12px",
-                    borderRadius: 10,
+                    padding: "6px 11px",
+                    borderRadius: 8,
                     border: "none",
                     background: isActive ? "white" : "transparent",
                     color: isActive ? C.primary : "#475569",
                     fontWeight: isActive ? 800 : 600,
-                    fontSize: 12.5,
+                    fontSize: 12,
                     cursor: "pointer",
-                    transition: "all 0.18s cubic-bezier(0.4, 0, 0.2, 1)",
-                    boxShadow: isActive ? "0 2px 8px rgba(0, 0, 0, 0.08)" : "none",
+                    transition: "all 0.15s ease",
+                    boxShadow: isActive ? "0 2px 6px rgba(0, 0, 0, 0.06)" : "none",
                     whiteSpace: "nowrap",
                     flexShrink: 0,
                   }}
                 >
-                  <span style={{ fontSize: 14 }}>{nav.icon}</span>
+                  <span style={{ display: "flex", alignItems: "center" }}>{nav.icon}</span>
                   <span>{nav.label}</span>
                   {typeof nav.badge === "number" && nav.badge > 0 && (
                     <span
@@ -885,9 +1047,9 @@ export default function HospitalDesktopDashboard() {
                         color: "white",
                         fontSize: 10,
                         fontWeight: 800,
-                        padding: "1px 6px",
+                        padding: "1px 5px",
                         borderRadius: 10,
-                        lineHeight: "14px",
+                        lineHeight: "13px",
                       }}
                     >
                       {nav.badge}
@@ -899,12 +1061,33 @@ export default function HospitalDesktopDashboard() {
           </div>
 
           {/* Right Action Tools & Profile */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            {/* Quick Walk-In Patient Registration Button */}
+            <button
+              onClick={() => setIsRegisterModalOpen(true)}
+              style={{
+                padding: "7px 12px",
+                borderRadius: 9,
+                border: "none",
+                background: "linear-gradient(135deg, #0F766E, #14B8A6)",
+                color: "white",
+                fontWeight: 800,
+                fontSize: 12,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                boxShadow: "0 2px 8px rgba(15, 118, 110, 0.3)",
+              }}
+            >
+              <UserPlus size={14} /> {T("वॉक-इन मरीज जोड़ें", "+ Walk-in Token")}
+            </button>
+
             <button
               onClick={() => router.push("/admin")}
               style={{
-                padding: "6px 11px",
-                borderRadius: 10,
+                padding: "6px 10px",
+                borderRadius: 8,
                 border: `1px solid ${C.border}`,
                 background: "white",
                 color: "#475569",
@@ -914,11 +1097,10 @@ export default function HospitalDesktopDashboard() {
                 display: "flex",
                 alignItems: "center",
                 gap: 4,
-                boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
               }}
               title="Open Global System Admin Portal"
             >
-              <span>⚡</span> {T("एडमिन", "Admin Portal")} ↗
+              <Zap size={13} /> {T("एडमिन", "Admin")}
             </button>
 
             <button
@@ -926,33 +1108,33 @@ export default function HospitalDesktopDashboard() {
               style={{
                 background: "#F8FAFC",
                 border: `1px solid ${C.border}`,
-                borderRadius: 10,
-                padding: "6px 10px",
+                borderRadius: 8,
+                padding: "6px 9px",
                 fontSize: 11.5,
                 fontWeight: 700,
                 color: C.text,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: 5,
+                gap: 4,
               }}
             >
-              🌐 {lang === "hi" ? "EN" : "हिं"}
+              <Globe size={13} /> {lang === "hi" ? "EN" : "हिं"}
             </button>
 
-            <div style={{ height: 24, width: 1, background: C.border }} />
+            <div style={{ height: 20, width: 1, background: C.border }} />
 
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: C.text, lineHeight: 1.2 }}>
+                <div style={{ fontSize: 11.5, fontWeight: 800, color: C.text, lineHeight: 1.2 }}>
                   {hospitalUser?.staffRole === "director" ? "Medical Director" : "OPD Desk"}
                 </div>
-                <div style={{ fontSize: 10, color: C.primary, fontWeight: 700 }}>
-                  {hospitalUser?.facilityName ? hospitalUser.facilityName.split(" ")[0] : "Active Session"}
+                <div style={{ fontSize: 9.5, color: C.primary, fontWeight: 700 }}>
+                  {hospitalUser?.facilityName ? hospitalUser.facilityName.split(" ")[0] : "Desk 1"}
                 </div>
               </div>
-              <div style={{ width: 34, height: 34, borderRadius: "50%", border: `1.5px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", background: "#F1F5F9", fontSize: 16 }}>
-                {hospitalUser?.staffRole === "director" ? "👨‍⚕️" : "💁‍♀️"}
+              <div style={{ width: 32, height: 32, borderRadius: "50%", border: `1.5px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", background: "#F1F5F9", color: C.primary }}>
+                <User size={16} />
               </div>
               <button
                 type="button"
@@ -968,14 +1150,18 @@ export default function HospitalDesktopDashboard() {
                   background: "#FEE2E2",
                   color: "#991B1B",
                   border: "none",
-                  borderRadius: 8,
-                  padding: "6px 10px",
+                  borderRadius: 7,
+                  padding: "5px 8px",
                   fontSize: 11,
                   fontWeight: 800,
                   cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 3,
                 }}
+                title="Sign Out"
               >
-                {T("लॉग आउट", "Sign Out")}
+                <LogOut size={12} />
               </button>
             </div>
           </div>
@@ -983,99 +1169,104 @@ export default function HospitalDesktopDashboard() {
         </div>
       </nav>
 
-      <main style={{ flex: 1, padding: "10px 24px 60px", maxWidth: 1600, margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
+      <main style={{ flex: 1, padding: "4px 20px 60px", maxWidth: 1600, margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
 
         {/* Multi-Hospital Command Center Switcher Banner */}
         <div
           style={{
             background: "white",
-            borderRadius: 20,
-            padding: "16px 24px",
+            borderRadius: 16,
+            padding: "14px 20px",
             border: `1px solid ${C.border}`,
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 24,
-            boxShadow: "0 6px 20px rgba(0, 0, 0, 0.03)",
+            marginBottom: 20,
+            boxShadow: "0 4px 16px rgba(0, 0, 0, 0.02)",
             flexWrap: "wrap",
-            gap: 16,
+            gap: 14,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <div
               style={{
-                width: 48,
-                height: 48,
-                borderRadius: 14,
+                width: 44,
+                height: 44,
+                borderRadius: 12,
                 background: "linear-gradient(135deg, #0F766E, #0D5E58)",
                 color: "white",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 24,
-                boxShadow: "0 4px 12px rgba(15, 118, 110, 0.25)",
+                boxShadow: "0 4px 10px rgba(15, 118, 110, 0.2)",
               }}
             >
-              🏥
+              <Building2 size={22} />
             </div>
             <div>
-              <div style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", color: C.muted, letterSpacing: 0.6 }}>
-                {T("सक्रिय अस्पताल कमांड सेंटर", "Active Hospital Command Center")}
+              <div style={{ fontSize: 9.5, fontWeight: 800, textTransform: "uppercase", color: C.muted, letterSpacing: 0.6 }}>
+                {T("सक्रिय अस्पताल कमांड सेंटर", "Active Hospital Facility Desk")}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2, flexWrap: "wrap" }}>
-                <h2 style={{ margin: 0, fontSize: 19, fontWeight: 800, color: C.primary }}>
+                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.primary }}>
                   {activeFacility?.shortName || activeFacility?.name || "State Health Authority Network"}
                 </h2>
                 <span
                   style={{
                     background: "#E0F2FE",
                     color: "#0369A1",
-                    fontSize: 10.5,
+                    fontSize: 10,
                     fontWeight: 800,
-                    padding: "2px 8px",
-                    borderRadius: 6,
+                    padding: "2px 7px",
+                    borderRadius: 5,
                   }}
                 >
                   {activeFacility?.type || "Network View"}
                 </span>
                 {activeFacility?.emergencyAvailable && (
-                  <span style={{ background: "#FEE2E2", color: "#B91C1C", fontSize: 10.5, fontWeight: 800, padding: "2px 8px", borderRadius: 6 }}>
-                    🚨 24/7 Casualty Active
+                  <span style={{ background: "#FEE2E2", color: "#B91C1C", fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 5, display: "flex", alignItems: "center", gap: 4 }}>
+                    <AlertTriangle size={11} /> 24/7 Casualty Active
                   </span>
                 )}
               </div>
-              <div style={{ fontSize: 11.5, color: C.muted, marginTop: 3 }}>
-                📍 {activeFacility?.address || activeFacility?.location || "Maharashtra & Regional Network"} · 📞 {activeFacility?.phone || "+91 22 24076381"}
+              <div style={{ fontSize: 11, color: C.muted, marginTop: 2, display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                  <MapPin size={12} /> {activeFacility?.address || activeFacility?.location || "Maharashtra & Regional Network"}
+                </span>
+                <span>•</span>
+                <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                  <Phone size={12} /> {activeFacility?.phone || "+91 22 24076381"}
+                </span>
               </div>
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
             {/* Live Beds & Occupancy Widget - Calculated Dynamically */}
-            <div style={{ display: "flex", gap: 12, background: "#F8FAFC", padding: "8px 16px", borderRadius: 14, border: `1px solid ${C.border}` }}>
+            <div style={{ display: "flex", gap: 12, background: "#F8FAFC", padding: "6px 14px", borderRadius: 12, border: `1px solid ${C.border}` }}>
               <div>
-                <div style={{ fontSize: 9.5, color: C.muted, fontWeight: 700, textTransform: "uppercase" }}>{T("कुल बेड", "Total Beds")}</div>
-                <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>
-                  {dynamicOccupiedBeds} / {totalFacilityBeds} <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>({bedOccupancyRate}%)</span>
+                <div style={{ fontSize: 9, color: C.muted, fontWeight: 700, textTransform: "uppercase" }}>{T("कुल बेड", "Total Beds")}</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>
+                  {dynamicOccupiedBeds} / {totalFacilityBeds} <span style={{ fontSize: 10.5, color: C.muted, fontWeight: 600 }}>({bedOccupancyRate}%)</span>
                 </div>
               </div>
-              <div style={{ width: 1, height: 24, background: C.border, alignSelf: "center" }} />
+              <div style={{ width: 1, height: 22, background: C.border, alignSelf: "center" }} />
               <div>
-                <div style={{ fontSize: 9.5, color: C.muted, fontWeight: 700, textTransform: "uppercase" }}>{T("आईसीयू क्षमता", "ICU Beds")}</div>
-                <div style={{ fontSize: 15, fontWeight: 800, color: C.red }}>
+                <div style={{ fontSize: 9, color: C.muted, fontWeight: 700, textTransform: "uppercase" }}>{T("आईसीयू क्षमता", "ICU Beds")}</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: C.red }}>
                   {dynamicIcuOccupied} / {totalIcuBeds}
                 </div>
               </div>
             </div>
 
             {/* Isolated Tenant Security & Session Card */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{ background: "#F0FDFA", border: "1.5px solid #99F6E4", borderRadius: 12, padding: "6px 12px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11.5, fontWeight: 800, color: "#0F766E" }}>
-                  <span style={{ fontSize: 13 }}>🔒</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ background: "#F0FDFA", border: "1.5px solid #99F6E4", borderRadius: 10, padding: "5px 10px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#0F766E" }}>
+                  <Lock size={12} />
                   <span>{activeFacility?.facilityId || selectedFacilityId}</span>
                 </div>
-                <div style={{ fontSize: 9.5, color: "#0D9488", fontWeight: 700 }}>
+                <div style={{ fontSize: 9, color: "#0D9488", fontWeight: 700 }}>
                   Isolated Facility Tenant
                 </div>
               </div>
@@ -1092,53 +1283,52 @@ export default function HospitalDesktopDashboard() {
                   router.push("/hospital/login");
                 }}
                 style={{
-                  padding: "8px 12px",
-                  borderRadius: 10,
+                  padding: "7px 11px",
+                  borderRadius: 9,
                   border: "1px solid #CBD5E1",
                   background: "#F8FAFC",
                   color: "#475569",
-                  fontSize: 11.5,
+                  fontSize: 11,
                   fontWeight: 700,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: 5,
-                  transition: "all 0.15s ease",
+                  gap: 4,
                   boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
                 }}
                 title="Sign out and switch to another hospital portal"
               >
-                <span>🔄</span> {T("अस्पताल बदलें", "Switch Facility")}
+                <RefreshCw size={12} /> {T("अस्पताल बदलें", "Switch Facility")}
               </button>
             </div>
           </div>
         </div>
 
         {/* Page Subheader */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 20 }}>
           <div>
-            <h2 style={{ fontSize: 24, fontWeight: 800, margin: "0 0 4px 0", letterSpacing: "-0.5px" }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 3px 0", letterSpacing: "-0.5px" }}>
               {activeTab === "staff"
-                ? T("अस्पताल स्टाफ एवं आशा नेटवर्क", "Hospital Staff & ASHA Network")
+                ? T("अस्पताल डॉक्टर व ओपीडी कक्ष रोस्टर", "Doctor & Room OPD Roster")
                 : activeTab === "appointments"
-                ? T("रिसेप्शनिस्ट अपॉइंटमेंट व स्लॉट डेस्क", "Receptionist Appointment & Slot Desk")
+                ? T("लाइव ओपीडी टोकन व रिसेप्शन डेस्क", "Live OPD Queue & Patient Check-In Desk")
                 : activeTab === "emergencies"
-                ? T("आपातकालीन ट्राइएज कमांड", "Emergency Triage & SOS Command")
+                ? T("आपातकालीन ट्राइएज व कैजुअल्टी कमांड", "Emergency Triage & Casualty Desk")
                 : activeTab === "wards"
                 ? T("वार्ड व बेड क्षमता मॉनिटरिंग", "Inpatient Wards & Bed Occupancy")
                 : activeTab === "referrals"
-                ? T("इनबाउंड रेफरल एवं शारीरिक OPD", "Inbound Referrals & Physical OPD")
+                ? T("इनबाउंड रेफरल डेस्क", "Inbound Referrals Desk")
                 : activeTab === "diagnostics"
                 ? T("डायग्नोस्टिक्स व लैब रिपोर्ट सुरक्षा जाल", "Diagnostics & Lab Reports Safety Net")
                 : activeTab === "hmis-bridge"
                 ? T("ABDM एवं ई-हॉस्पिटल एकीकरण गेटवे", "ABDM & NIC e-Hospital Integration Bridge")
                 : activeTab === "analytics"
                 ? T("अस्पताल मेट्रिक्स व एनालिटिक्स", "Clinical Metrics & Operational Analytics")
-                : T("कमांड सेंटर ओवरव्यू", "Command Center Overview")}
+                : T("कमांड सेंटर ओवरव्यू", "Hospital Operational Overview")}
             </h2>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: C.muted, fontWeight: 500 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 5, color: C.green, fontWeight: 700, background: "rgba(16, 185, 129, 0.1)", padding: "3px 8px", borderRadius: 16 }}>
-                <div style={{ width: 7, height: 7, borderRadius: "50%", background: C.green, animation: "pulse 2s infinite" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: C.muted, fontWeight: 500 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 4, color: C.green, fontWeight: 700, background: "rgba(16, 185, 129, 0.1)", padding: "2px 8px", borderRadius: 14 }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.green, animation: "pulse 2s infinite" }} />
                 {T("सिस्टम लाइव", "System Live")}
               </span>
               <span>•</span>
@@ -1148,28 +1338,30 @@ export default function HospitalDesktopDashboard() {
             </div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: C.muted, marginBottom: 2 }}>{new Date().toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>{new Date().toLocaleTimeString(lang === 'hi' ? 'hi-IN' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</div>
+            <div style={{ fontSize: 11.5, fontWeight: 600, color: C.muted, marginBottom: 1 }}>{new Date().toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>{new Date().toLocaleTimeString(lang === 'hi' ? 'hi-IN' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</div>
           </div>
         </div>
 
         {/* SOS banner — live from DB */}
         {sosAlerts.length > 0 && sosAlerts.map(alert => (
           <div key={alert._id}
-            style={{ background: `linear-gradient(135deg,${C.red},#991B1B)`, padding: "14px 20px", display: "flex", alignItems: "center", gap: 14, borderRadius: 16, marginBottom: 28, boxShadow: "0 8px 20px rgba(239, 68, 68, 0.3)" }}
+            style={{ background: `linear-gradient(135deg,${C.red},#991B1B)`, padding: "12px 18px", display: "flex", alignItems: "center", gap: 12, borderRadius: 14, marginBottom: 24, boxShadow: "0 6px 18px rgba(239, 68, 68, 0.25)" }}
           >
-            <span style={{ fontSize: 26, animation: "shake .6s infinite", display: "inline-block" }}>🚨</span>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}>
+              <AlertTriangle size={20} />
+            </div>
             <div style={{ flex: 1 }}>
-              <h4 style={{ fontSize: 16, fontWeight: 800, color: "white", margin: 0 }}>
+              <h4 style={{ fontSize: 15, fontWeight: 800, color: "white", margin: 0 }}>
                 SOS EMERGENCY: {alert.village}
               </h4>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,.95)", margin: 0, marginTop: 3 }}>
-                {alert.ashaWorkerName} (ASHA) reports <span style={{ background: "rgba(255,255,255,0.25)", padding: "2px 8px", borderRadius: 6, fontWeight: 800, color: "white", margin: "0 4px" }}>🧑‍🤝‍🧑 {alert.affectedCount} Affected</span> — {alert.description || "Immediate response required."}
+              <p style={{ fontSize: 12.5, color: "rgba(255,255,255,.95)", margin: 0, marginTop: 2 }}>
+                {alert.ashaWorkerName} (ASHA) reports <span style={{ background: "rgba(255,255,255,0.25)", padding: "1px 6px", borderRadius: 4, fontWeight: 800, color: "white", margin: "0 4px" }}>{alert.affectedCount} Affected</span> — {alert.description || "Immediate response required."}
               </p>
             </div>
             <button 
               onClick={() => handleResolveSOS(alert._id)}
-              style={{ background: "white", color: "#991B1B", padding: "7px 16px", borderRadius: 8, fontWeight: 700, fontSize: 13, border: "none", cursor: "pointer", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
+              style={{ background: "white", color: "#991B1B", padding: "6px 14px", borderRadius: 7, fontWeight: 700, fontSize: 12, border: "none", cursor: "pointer", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
             >
               {alert.status === "resolved" ? "Resolved" : "Resolve Alert"}
             </button>
@@ -1177,34 +1369,34 @@ export default function HospitalDesktopDashboard() {
         ))}
 
         {/* Advanced Search & Filter Bar */}
-        <div style={{ background: C.card, borderRadius: 18, padding: "16px 24px", display: "flex", alignItems: "center", gap: 20, marginBottom: 28, boxShadow: "0 6px 16px rgba(0, 0, 0, 0.03)", border: `1px solid ${C.border}` }}>
+        <div style={{ background: C.card, borderRadius: 14, padding: "14px 20px", display: "flex", alignItems: "center", gap: 16, marginBottom: 24, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.02)", border: `1px solid ${C.border}` }}>
 
           <div style={{ flex: 1, position: "relative" }}>
-            <svg style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: C.muted }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+            <Search style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.muted }} size={16} />
             <input
               type="text"
-              placeholder={T("मरीज, डॉक्टर, या बीमारी खोजें...", "Search patient, doctor, or disease...")}
+              placeholder={T("मरीज, फोन, टोकन या लक्षण खोजें...", "Search by patient name, mobile, token number, doctor, or symptom...")}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              style={{ width: "100%", padding: "11px 14px 11px 42px", borderRadius: 10, border: `1px solid ${C.border}`, background: "#F8FAFC", fontSize: 14, fontWeight: 500, outline: "none", boxSizing: "border-box", transition: "all 0.2s" }}
+              style={{ width: "100%", padding: "9px 12px 9px 36px", borderRadius: 8, border: `1px solid ${C.border}`, background: "#F8FAFC", fontSize: 13, fontWeight: 500, outline: "none", boxSizing: "border-box", transition: "all 0.2s" }}
               onFocus={e => e.currentTarget.style.borderColor = C.primary}
               onBlur={e => e.currentTarget.style.borderColor = C.border}
             />
           </div>
 
-          <div style={{ width: 1, height: 32, background: C.border }} />
+          <div style={{ width: 1, height: 28, background: C.border }} />
 
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <svg style={{ color: C.muted }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2v4" /><path d="M16 2v4" /><rect width="18" height="18" x="3" y="4" rx="2" /><path d="M3 10h18" /><path d="M8 14h.01" /><path d="M12 14h.01" /><path d="M16 14h.01" /><path d="M8 18h.01" /><path d="M12 18h.01" /><path d="M16 18h.01" /></svg>
-            <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} style={{ border: "none", outline: "none", fontSize: 13.5, fontWeight: 600, color: C.text, cursor: "pointer", background: "transparent", fontFamily: "inherit" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Calendar size={15} style={{ color: C.muted }} />
+            <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} style={{ border: "none", outline: "none", fontSize: 12.5, fontWeight: 600, color: C.text, cursor: "pointer", background: "transparent", fontFamily: "inherit" }} />
           </div>
 
-          <div style={{ width: 1, height: 32, background: C.border }} />
+          <div style={{ width: 1, height: 28, background: C.border }} />
 
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <svg style={{ color: C.muted }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
-            <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ border: "none", outline: "none", fontSize: 13.5, fontWeight: 600, color: C.text, cursor: "pointer", background: "transparent", fontFamily: "inherit" }}>
-              <option value="ALL">{T("सभी स्थितियां", "All Statuses")}</option>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <SlidersHorizontal size={15} style={{ color: C.muted }} />
+            <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ border: "none", outline: "none", fontSize: 12.5, fontWeight: 600, color: C.text, cursor: "pointer", background: "transparent", fontFamily: "inherit" }}>
+              <option value="ALL">{T("सभी स्थितियां", "All Triage Urgencies")}</option>
               <option value="RED">{T("गंभीर", "Critical (RED)")}</option>
               <option value="YELLOW">{T("तत्काल", "Urgent (YELLOW)")}</option>
               <option value="GREEN">{T("सामान्य", "Standard (GREEN)")}</option>
@@ -1215,22 +1407,22 @@ export default function HospitalDesktopDashboard() {
 
         {/* Dynamic KPIs Calculation */}
         {(activeTab === "dashboard" || activeTab === "analytics") && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20, marginBottom: 32 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 28 }}>
             {[
               {
-                label: T("कुल सक्रिय मरीज़", "Total Active Patients"),
+                label: T("कुल सक्रिय मरीज़", "Total Active Queue"),
                 value: totalPatients,
                 trend: redPatients.length > 0 ? `${redPatients.length} Urgent Action` : `${totalPatients} In Queue`,
-                icon: "👥",
+                icon: <Users size={20} />,
                 color: C.primary,
-                info: T("सभी मरीज़ जिनका इलाज अभी चल रहा है", "All patients currently under active hospital triage and care")
+                info: T("सभी मरीज़ जिनका इलाज अभी चल रहा है", "All patients currently in the live reception & consultation queue")
               },
               {
                 label: T("गंभीर आपात स्थिति", "Critical Emergencies"),
                 id: "emergency",
                 value: redPatients.length,
-                trend: redPatients.length > 0 ? "Action Required" : "✓ All Clear",
-                icon: "🚨",
+                trend: redPatients.length > 0 ? "Action Required" : "All Clear",
+                icon: <AlertTriangle size={20} />,
                 color: C.red,
                 alert: redPatients.length > 0,
                 info: T("RED प्राथमिकता वाले मरीज़ जिन्हें तुरंत इलाज की आवश्यकता है", "Patients marked with RED priority requiring immediate attention")
@@ -1239,7 +1431,7 @@ export default function HospitalDesktopDashboard() {
                 label: T("ठीक हुए मरीज़", "Cured & Discharged"),
                 value: curedPatientsCount,
                 trend: `${Math.round((curedPatientsCount / (totalPatients + curedPatientsCount || 1)) * 100)}% Resolved`,
-                icon: "✅",
+                icon: <CheckCircle2 size={20} />,
                 color: C.green,
                 info: T("वे मरीज़ जिन्हें ठीक घोषित कर दिया गया है", "Patients whose treatment has concluded successfully")
               },
@@ -1247,57 +1439,57 @@ export default function HospitalDesktopDashboard() {
                 label: T("ड्यूटी पर डॉक्टर", "Doctors on Duty"),
                 value: onDutyDoctorsCount,
                 trend: `${onDutyDoctorsCount}/${activeFacilityDoctors.length} On Duty`,
-                icon: "👩‍⚕️",
+                icon: <Stethoscope size={20} />,
                 color: C.primaryLight,
-                info: T("वर्तमान में उपलब्ध डॉक्टरों की संख्या", "Total medical officers currently active and on roster")
+                info: T("वर्तमान में उपलब्ध डॉक्टरों की संख्या", "Total medical officers currently active in their OPD rooms")
               },
               {
-                label: T("भर्ती मरीज़", "Admitted / Critical"),
+                label: T("भर्ती मरीज़", "Inpatient / Admitted"),
                 value: admittedPatients.length,
                 trend: `${bedOccupancyRate}% Total Capacity`,
-                icon: "🏥",
+                icon: <BedDouble size={20} />,
                 color: C.red,
                 info: T("100% RED और 50% YELLOW मरीज़ जिन्हें भर्ती माना गया है", "Calculated from RED priority cases and inpatient admissions")
               },
               {
-                label: T("क्लीनिक विजिट", "Outpatient Clinic"),
+                label: T("ओपीडी क्लीनिक", "Outpatient Clinic"),
                 value: outpatientClinic.length,
                 trend: `${totalPatients > 0 ? Math.round((outpatientClinic.length / totalPatients) * 100) : 0}% Active Influx`,
-                icon: "👨‍⚕️",
+                icon: <ClipboardList size={20} />,
                 color: C.primaryLight,
-                info: T("ओपीडी में मौजूद मरीज", "Standard in-person outpatient walk-ins and referrals")
+                info: T("ओपीडी में मौजूद मरीज", "Standard in-person outpatient walk-ins and consultations")
               },
               {
                 label: T("टेलीमेडिसिन", "Telemedicine Calls"),
                 value: telemedicineVisits.length,
                 trend: telemedicineVisits.length > 0 ? "Virtual Stream" : "Standby",
-                icon: "📱",
+                icon: <Video size={20} />,
                 color: C.accent,
                 info: T("परामर्श जिनका ऑनलाइन इलाज चल रहा है", "Virtual telemedicine consultations connected to medical officers")
               },
               {
-                label: T("आशा विजिट", "ASHA Field Visits"),
+                label: T("आशा कार्यकर्ता विजिट", "ASHA Field Visits"),
                 value: fieldVisits,
-                trend: `${activeFacilityStaff.ashaWorkers.length} Active Workers`,
-                icon: "🏘️",
+                trend: `${activeFacilityStaff.ashaWorkers.length} Field Units`,
+                icon: <Activity size={20} />,
                 color: C.yellow,
                 info: T("आशा कार्यकर्ताओं द्वारा दर्ज किए गए कुल घर-घर विजिट", "Total door-to-door community visits logged by affiliated ASHA staff")
               },
             ].map((kpi, i) => (
-              <div key={i} onClick={() => kpi.id === "emergency" && document.getElementById("emergency-triage")?.scrollIntoView({ behavior: "smooth", block: "center" })} style={{ background: C.card, borderRadius: 20, padding: 24, border: `1px solid ${C.border}`, position: "relative", overflow: "hidden", boxShadow: "0 6px 16px rgba(0, 0, 0, 0.03)", cursor: kpi.id === "emergency" ? "pointer" : "default", animation: kpi.id === "emergency" && kpi.alert ? "alertGlow 1.5s infinite" : "none", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                {kpi.alert && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: C.red, animation: "pulse 1.5s infinite" }} />}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 14, background: `${kpi.color}15`, color: kpi.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>
+              <div key={i} onClick={() => kpi.id === "emergency" && document.getElementById("emergency-triage")?.scrollIntoView({ behavior: "smooth", block: "center" })} style={{ background: C.card, borderRadius: 16, padding: "18px 20px", border: `1px solid ${C.border}`, position: "relative", overflow: "hidden", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.02)", cursor: kpi.id === "emergency" ? "pointer" : "default", animation: kpi.id === "emergency" && kpi.alert ? "alertGlow 1.5s infinite" : "none", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                {kpi.alert && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: C.red, animation: "pulse 1.5s infinite" }} />}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: `${kpi.color}15`, color: kpi.color, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {kpi.icon}
                   </div>
-                  <div style={{ background: `${kpi.color}15`, color: kpi.color, padding: "4px 10px", borderRadius: 14, fontSize: 11.5, fontWeight: 800 }}>
+                  <div style={{ background: `${kpi.color}15`, color: kpi.color, padding: "3px 8px", borderRadius: 10, fontSize: 11, fontWeight: 800 }}>
                     {kpi.trend}
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 34, fontWeight: 800, color: kpi.alert ? C.red : C.text, lineHeight: 1, marginBottom: 8 }}>{kpi.value}</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <div style={{ fontSize: 13.5, color: C.muted, fontWeight: 600 }}>{kpi.label}</div>
+                  <div style={{ fontSize: 28, fontWeight: 800, color: kpi.alert ? C.red : C.text, lineHeight: 1, marginBottom: 6 }}>{kpi.value}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                    <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 600 }}>{kpi.label}</div>
                     <InfoButton text={kpi.info} />
                   </div>
                 </div>
@@ -1306,137 +1498,217 @@ export default function HospitalDesktopDashboard() {
           </div>
         )}
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
           {/* Receptionist-Assisted Booking & Slot Desk */}
           {(activeTab === "dashboard" || activeTab === "appointments") && (
-            <div style={{ background: C.card, borderRadius: 24, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)" }}>
-              <div style={{ padding: "24px 32px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: "#F0FDFA" }}>
+            <div style={{ background: C.card, borderRadius: 16, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 6px 16px rgba(0, 0, 0, 0.03)" }}>
+              <div style={{ padding: "18px 24px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: "#F0FDFA", flexWrap: "wrap", gap: 12 }}>
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span style={{ fontSize: 22 }}>📋</span>
-                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.primary }}>
-                      {T("रिसेप्शनिस्ट अपॉइंटमेंट व स्लॉट डेस्क", "Receptionist Appointment & Slot Desk")}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(15, 118, 110, 0.12)", display: "flex", alignItems: "center", justifyContent: "center", color: C.primary }}>
+                      <ClipboardList size={18} />
+                    </div>
+                    <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: C.primary }}>
+                      {T("लाइव ओपीडी टोकन व रिसेप्शन डेस्क", "Live OPD Token & Patient Check-In Desk")}
                     </h3>
                   </div>
-                  <p style={{ margin: "4px 0 0 0", fontSize: 13, color: C.muted, fontWeight: 500 }}>
-                    {T("ग्रामीण व वॉक-इन मरीजों के लिए एआई सहायता प्राप्त स्लॉट आवंटन और एसएमएस सूचना प्रणाली", "AI-assisted slot allocation and SMS notification workflow for rural and walk-in patients")}
+                  <p style={{ margin: "2px 0 0 0", fontSize: 12, color: C.muted, fontWeight: 500 }}>
+                    {T("मरीजों का चेक-इन, डॉक्टर व रूम आवंटन, और प्रिंटेड टोकन पर्ची जारी करें", "Manage patient check-ins, doctor & OPD room assignment, and print token slips")}
                   </p>
                 </div>
-                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                  <div style={{ background: "white", border: `1px solid ${C.border}`, padding: "6px 14px", borderRadius: 12, fontSize: 12, fontWeight: 700, color: C.primary }}>
-                    🏥 {activeFacility?.shortName || activeFacility?.name || "Command Center"}
-                  </div>
-                  <div style={{ fontSize: 13, color: "#0F766E", fontWeight: 800, background: "rgba(15, 118, 110, 0.15)", padding: "6px 16px", borderRadius: 20 }}>
-                    {facilityScopedQueue.length} {T("कुल स्लॉट अनुरोध", "Total Slot Requests")}
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <button
+                    onClick={() => setIsRegisterModalOpen(true)}
+                    style={{
+                      background: "white",
+                      border: `1.5px solid ${C.primary}`,
+                      color: C.primary,
+                      padding: "6px 12px",
+                      borderRadius: 8,
+                      fontSize: 12,
+                      fontWeight: 800,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 5,
+                    }}
+                  >
+                    <UserPlus size={14} /> + New Walk-In
+                  </button>
+
+                  <div style={{ fontSize: 12, color: "#0F766E", fontWeight: 800, background: "rgba(15, 118, 110, 0.15)", padding: "5px 12px", borderRadius: 16 }}>
+                    {facilityScopedQueue.length} {T("कुल स्लॉट", "Active Tokens")}
                   </div>
                 </div>
               </div>
 
-              <div style={{ padding: 0 }}>
+              <div style={{ padding: 0, overflowX: "auto" }}>
                 {facilityScopedQueue.length === 0 ? (
-                  <div style={{ padding: 60, textAlign: "center", color: C.muted }}>
-                    <div style={{ fontSize: 40, marginBottom: 12 }}>📭</div>
-                    <div style={{ fontSize: 16, fontWeight: 700 }}>{T("कोई नया अपॉइंटमेंट स्लॉट अनुरोध नहीं है", "No Pending Appointment Slot Requests")}</div>
-                    <div style={{ fontSize: 13, marginTop: 6 }}>{T("मरीजों द्वारा बुक किए गए सभी स्लॉट वर्तमान में संसाधित हैं।", "All patient slot requests for this facility have been acknowledged.")}</div>
+                  <div style={{ padding: 48, textAlign: "center", color: C.muted }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px", color: C.muted }}>
+                      <ClipboardList size={24} />
+                    </div>
+                    <div style={{ fontSize: 15, fontWeight: 700 }}>{T("कोई नया अपॉइंटमेंट स्लॉट अनुरोध नहीं है", "No Active OPD Patients in Queue")}</div>
+                    <div style={{ fontSize: 12.5, marginTop: 4 }}>{T("मरीजों द्वारा बुक किए गए सभी स्लॉट वर्तमान में संसाधित हैं।", "All patient slot requests for this facility have been acknowledged.")}</div>
                   </div>
                 ) : (
                   <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                     <thead>
-                      <tr style={{ background: "#F8FAFC", fontSize: 13, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                        <th style={{ padding: "18px 28px", fontWeight: 700 }}>{T("मरीज व संपर्क", "Patient & Contact")}</th>
-                        <th style={{ padding: "18px 28px", fontWeight: 700 }}>{T("विभाग व चयनित स्लॉट", "Dept & Slot Time")}</th>
-                        <th style={{ padding: "18px 28px", fontWeight: 700 }}>{T("एआई ट्राइएज लक्षण", "AI Triage & Urgency")}</th>
-                        <th style={{ padding: "18px 28px", fontWeight: 700 }}>{T("सत्यापन स्थिति", "Verification & Status")}</th>
-                        <th style={{ padding: "18px 28px", fontWeight: 700 }}>{T("रोगी सत्यापन व कार्रवाई", "Patient Verification & Action")}</th>
+                      <tr style={{ background: "#F8FAFC", fontSize: 11.5, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Token & Patient</th>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Department & Room</th>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Assigned Doctor</th>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Triage & Symptoms</th>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Status</th>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Receptionist Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {facilityScopedQueue.slice(0, 15).map((p) => {
+                      {facilityScopedQueue.slice(0, 20).map((p) => {
                         const isConfirmed = p.receptionistStatus === "CONFIRMED" || p.status === "confirmed";
                         const isSpam = p.receptionistStatus === "SPAM_FLAGGED";
+                        const isArrived = p.checkInStatus === "ARRIVED";
+
                         return (
-                          <tr key={p._id} style={{ borderTop: `1px solid ${C.border}`, transition: "background 0.2s", background: isSpam ? "#FEF2F2" : "transparent" }} onMouseEnter={(e) => (e.currentTarget.style.background = isSpam ? "#FEE2E2" : "#F8FAFC")} onMouseLeave={(e) => (e.currentTarget.style.background = isSpam ? "#FEF2F2" : "transparent")}>
-                            <td style={{ padding: "18px 28px" }}>
-                              <div style={{ fontWeight: 800, color: C.text, fontSize: 15 }}>{p.patientName || "Walk-in Patient"}</div>
-                              <div style={{ fontSize: 13, color: C.muted, marginTop: 4, display: "flex", alignItems: "center", gap: 6 }}>
-                                <span>📱 {p.patientPhone || "No Phone"}</span>
-                                {p.hospital && <span style={{ background: "#F1F5F9", padding: "2px 6px", borderRadius: 6, fontSize: 11, fontWeight: 700 }}>{p.hospital}</span>}
+                          <tr key={p._id} style={{ borderTop: `1px solid ${C.border}`, transition: "background 0.15s", background: isSpam ? "#FEF2F2" : "transparent" }}>
+                            <td style={{ padding: "14px 20px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                <span style={{ background: "#E0F2FE", color: "#0369A1", fontSize: 11, fontWeight: 800, padding: "2px 6px", borderRadius: 4 }}>
+                                  {p.tokenNumber || `OPD-${p._id?.slice(-4).toUpperCase()}`}
+                                </span>
+                                {isArrived && (
+                                  <span style={{ background: "#D1FAE5", color: "#059669", fontSize: 10, fontWeight: 800, padding: "2px 6px", borderRadius: 4 }}>
+                                    Checked-in
+                                  </span>
+                                )}
+                              </div>
+                              <div style={{ fontWeight: 800, color: C.text, fontSize: 14, marginTop: 4 }}>{p.patientName || "Walk-in Patient"}</div>
+                              <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
+                                <Phone size={11} /> {p.patientPhone || "No Phone"} {p.age ? `• ${p.age}y/${p.gender || "M"}` : ""}
                               </div>
                             </td>
-                            <td style={{ padding: "18px 28px" }}>
-                              <div style={{ fontSize: 14, fontWeight: 800, color: C.primaryDark }}>
-                                🩺 {p.department || "General OPD"}
+
+                            <td style={{ padding: "14px 20px" }}>
+                              <div style={{ fontSize: 13, fontWeight: 800, color: C.primaryDark, display: "flex", alignItems: "center", gap: 4 }}>
+                                <Stethoscope size={13} /> {p.department || "General OPD"}
                               </div>
-                              <div style={{ fontSize: 13, color: C.muted, marginTop: 4, fontWeight: 600 }}>
-                                ⏰ {p.slotTime || p.preferredSlot || "Immediate Token / Regular OPD"}
+                              <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                                <Clock size={11} /> {p.consultationRoom || "Room 102 (General)"}
                               </div>
-                              {p.doctorName && (
-                                <div style={{ fontSize: 12, color: C.primaryLight, marginTop: 2, fontWeight: 600 }}>
-                                  👨‍⚕️ {p.doctorName}
-                                </div>
-                              )}
                             </td>
-                            <td style={{ padding: "18px 28px" }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+
+                            <td style={{ padding: "14px 20px" }}>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
+                                {p.doctorName || "Awaiting Assignment"}
+                              </div>
+                              <button
+                                onClick={() => setAssignDoctorPatient(p)}
+                                style={{
+                                  background: "#F1F5F9",
+                                  border: `1px solid ${C.border}`,
+                                  borderRadius: 5,
+                                  padding: "2px 6px",
+                                  fontSize: 10.5,
+                                  fontWeight: 700,
+                                  color: C.primary,
+                                  cursor: "pointer",
+                                  marginTop: 4,
+                                }}
+                              >
+                                Change / Assign Doctor
+                              </button>
+                            </td>
+
+                            <td style={{ padding: "14px 20px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
                                 <span
                                   style={{
                                     background: p.urgency === "RED" ? "#FEE2E2" : p.urgency === "YELLOW" ? "#FEF3C7" : "#D1FAE5",
                                     color: p.urgency === "RED" ? "#B91C1C" : p.urgency === "YELLOW" ? "#D97706" : "#059669",
-                                    padding: "3px 10px",
-                                    borderRadius: 12,
-                                    fontSize: 11,
+                                    padding: "2px 8px",
+                                    borderRadius: 8,
+                                    fontSize: 10.5,
                                     fontWeight: 800,
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 3,
                                   }}
                                 >
-                                  {p.urgency === "RED" ? "🚨 RED CRITICAL" : p.urgency === "YELLOW" ? "🟡 YELLOW URGENT" : "🟢 GREEN ROUTINE"}
+                                  {p.urgency === "RED" ? <AlertTriangle size={10} /> : p.urgency === "YELLOW" ? <Clock size={10} /> : <CheckCircle2 size={10} />}
+                                  {p.urgency === "RED" ? "RED CRITICAL" : p.urgency === "YELLOW" ? "YELLOW URGENT" : "GREEN ROUTINE"}
                                 </span>
                               </div>
-                              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
                                 {(p.symptoms || []).slice(0, 2).map((s: string, idx: number) => (
-                                  <span key={idx} style={{ background: "#F1F5F9", color: C.text, padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600 }}>
+                                  <span key={idx} style={{ background: "#F1F5F9", color: C.text, padding: "1px 6px", borderRadius: 4, fontSize: 10.5, fontWeight: 600 }}>
                                     {s}
                                   </span>
                                 ))}
                               </div>
                             </td>
-                            <td style={{ padding: "18px 28px" }}>
+
+                            <td style={{ padding: "14px 20px" }}>
                               {isSpam ? (
-                                <span style={{ background: "#FEE2E2", color: "#B91C1C", padding: "6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                                  🚫 {T("फर्जी/स्कैम फ्लैग", "Flagged Fake/Spam")}
+                                <span style={{ background: "#FEE2E2", color: "#B91C1C", padding: "4px 10px", borderRadius: 12, fontSize: 11, fontWeight: 800, display: "inline-flex", alignItems: "center", gap: 3 }}>
+                                  <ShieldAlert size={12} /> Flagged Scam
                                 </span>
                               ) : isConfirmed ? (
-                                <span style={{ background: "#D1FAE5", color: "#059669", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                                  🛡️ {T("सत्यापित व पुष्टीकृत", "Verified & Confirmed")}
+                                <span style={{ background: "#D1FAE5", color: "#059669", padding: "4px 10px", borderRadius: 12, fontSize: 11, fontWeight: 800, display: "inline-flex", alignItems: "center", gap: 3 }}>
+                                  <ShieldCheck size={12} /> Confirmed
                                 </span>
                               ) : (
-                                <span style={{ background: "#FEF3C7", color: "#D97706", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                                  ⚠️ {T("सत्यापन प्रतीक्षारत", "Pending Verification")}
+                                <span style={{ background: "#FEF3C7", color: "#D97706", padding: "4px 10px", borderRadius: 12, fontSize: 11, fontWeight: 800, display: "inline-flex", alignItems: "center", gap: 3 }}>
+                                  <Clock size={12} /> Pending Check
                                 </span>
                               )}
                             </td>
-                            <td style={{ padding: "18px 28px" }}>
-                              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                                {/* Patient Authenticity Verification Calls */}
+
+                            <td style={{ padding: "14px 20px" }}>
+                              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                                {/* Print Token Slip Button */}
                                 <button
-                                  onClick={() => window.open(`tel:${p.patientPhone}`)}
-                                  title="Direct phone call to verify real identity"
+                                  onClick={() => setActiveTokenSlip(p)}
+                                  title="Print OPD Token Slip for Patient"
                                   style={{
                                     background: "#F8FAFC",
                                     border: `1.5px solid ${C.border}`,
                                     color: C.text,
-                                    padding: "7px 11px",
-                                    borderRadius: 10,
-                                    fontSize: 12,
+                                    padding: "5px 9px",
+                                    borderRadius: 7,
+                                    fontSize: 11,
                                     fontWeight: 700,
                                     cursor: "pointer",
                                     display: "inline-flex",
                                     alignItems: "center",
-                                    gap: 4,
+                                    gap: 3,
                                   }}
                                 >
-                                  📞 {T("फ़ोन कॉल सत्यापन", "Phone Verify")}
+                                  <Printer size={12} /> Print Slip
                                 </button>
+
+                                {/* Direct Phone Call */}
+                                <button
+                                  onClick={() => window.open(`tel:${p.patientPhone}`)}
+                                  title="Direct Phone Call"
+                                  style={{
+                                    background: "#F8FAFC",
+                                    border: `1.5px solid ${C.border}`,
+                                    color: C.text,
+                                    padding: "5px 8px",
+                                    borderRadius: 7,
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    cursor: "pointer",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 3,
+                                  }}
+                                >
+                                  <PhoneCall size={12} /> Call
+                                </button>
+
+                                {/* Intercom Video Call */}
                                 <button
                                   onClick={() => startCallSession({
                                     patientId: p.patientPhone || p._id,
@@ -1465,23 +1737,42 @@ export default function HospitalDesktopDashboard() {
                                       } catch {}
                                     }
                                   })}
-                                  title="App video/audio intercom to verify patient"
+                                  title="App video intercom"
                                   style={{
                                     background: "#E0F2FE",
                                     color: "#0369A1",
                                     border: "none",
-                                    padding: "7px 11px",
-                                    borderRadius: 10,
-                                    fontSize: 12,
+                                    padding: "5px 8px",
+                                    borderRadius: 7,
+                                    fontSize: 11,
                                     fontWeight: 700,
                                     cursor: "pointer",
                                     display: "inline-flex",
                                     alignItems: "center",
-                                    gap: 4,
+                                    gap: 3,
                                   }}
                                 >
-                                  💻 {T("ऐप इंटरकॉम", "App Call")}
+                                  <Video size={12} /> Intercom
                                 </button>
+
+                                {!isArrived && (
+                                  <button
+                                    onClick={() => handleCheckInPatient(p._id)}
+                                    title="Mark patient as arrived physically at hospital"
+                                    style={{
+                                      background: "#ECFDF5",
+                                      color: "#059669",
+                                      border: "1px solid #A7F3D0",
+                                      padding: "5px 8px",
+                                      borderRadius: 7,
+                                      fontSize: 11,
+                                      fontWeight: 700,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    Mark Arrived
+                                  </button>
+                                )}
 
                                 {!isConfirmed && !isSpam && (
                                   <>
@@ -1491,15 +1782,14 @@ export default function HospitalDesktopDashboard() {
                                         background: C.green,
                                         color: "white",
                                         border: "none",
-                                        padding: "8px 14px",
-                                        borderRadius: 10,
-                                        fontSize: 12,
+                                        padding: "6px 10px",
+                                        borderRadius: 7,
+                                        fontSize: 11,
                                         fontWeight: 800,
                                         cursor: "pointer",
-                                        boxShadow: "0 2px 6px rgba(16, 185, 129, 0.3)",
                                       }}
                                     >
-                                      ✓ {T("पुष्टि व एसएमएस", "Confirm & SMS")}
+                                      Confirm
                                     </button>
                                     <button
                                       onClick={() => handleFlagScamAppointment(p._id)}
@@ -1508,14 +1798,14 @@ export default function HospitalDesktopDashboard() {
                                         background: "#FEE2E2",
                                         color: "#991B1B",
                                         border: "1px solid #FCA5A5",
-                                        padding: "7px 10px",
-                                        borderRadius: 10,
-                                        fontSize: 11,
+                                        padding: "5px 8px",
+                                        borderRadius: 7,
+                                        fontSize: 10.5,
                                         fontWeight: 800,
                                         cursor: "pointer",
                                       }}
                                     >
-                                      🚫 {T("स्कैम फ्लैग", "Flag Scam")}
+                                      Flag Scam
                                     </button>
                                     <button
                                       onClick={() => handleDeclineAppointment(p._id)}
@@ -1523,34 +1813,16 @@ export default function HospitalDesktopDashboard() {
                                         background: "#F1F5F9",
                                         color: C.muted,
                                         border: "none",
-                                        padding: "7px 10px",
-                                        borderRadius: 10,
-                                        fontSize: 11,
+                                        padding: "5px 8px",
+                                        borderRadius: 7,
+                                        fontSize: 10.5,
                                         fontWeight: 700,
                                         cursor: "pointer",
                                       }}
                                     >
-                                      ✕ {T("अस्वीकार", "Decline")}
+                                      Decline
                                     </button>
                                   </>
-                                )}
-
-                                {isConfirmed && (
-                                  <button
-                                    onClick={() => alert(`Resent SMS confirmation reminder to patient mobile: ${p.patientPhone}`)}
-                                    style={{
-                                      background: "#F0FDFA",
-                                      color: C.primary,
-                                      border: `1px solid ${C.primary}`,
-                                      padding: "6px 12px",
-                                      borderRadius: 8,
-                                      fontSize: 12,
-                                      fontWeight: 700,
-                                      cursor: "pointer",
-                                    }}
-                                  >
-                                    📲 {T("दोबारा एसएमएस भेजें", "Resend SMS")}
-                                  </button>
                                 )}
                               </div>
                             </td>
@@ -1566,103 +1838,98 @@ export default function HospitalDesktopDashboard() {
 
           {/* Hospital Staff & Dedicated ASHA Network */}
           {(activeTab === "dashboard" || activeTab === "staff") && (
-            <div style={{ background: C.card, borderRadius: 24, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)" }}>
-              <div style={{ padding: "24px 32px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: "#F8FAFC" }}>
+            <div style={{ background: C.card, borderRadius: 16, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 6px 16px rgba(0, 0, 0, 0.03)" }}>
+              <div style={{ padding: "18px 24px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: "#F8FAFC", flexWrap: "wrap", gap: 12 }}>
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span style={{ fontSize: 22 }}>👨‍⚕️</span>
-                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.text }}>
-                      {T("अस्पताल स्टाफ एवं आशा फील्ड कार्यकर्ता रोस्टर", "Hospital Staff & ASHA Field Roster")}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(15, 118, 110, 0.12)", display: "flex", alignItems: "center", justifyContent: "center", color: C.primary }}>
+                      <Stethoscope size={18} />
+                    </div>
+                    <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: C.text }}>
+                      {T("अस्पताल डॉक्टर व ओपीडी कक्ष रोस्टर", "Doctor & Room OPD Roster")}
                     </h3>
                   </div>
-                  <p style={{ margin: "4px 0 0 0", fontSize: 13, color: C.muted, fontWeight: 500 }}>
-                    {activeFacility?.name || "Facility Command"} — {T("संबद्ध मेडिकल ऑफिसर, विशेषज्ञ और आशा कार्यकर्ता", "Affiliated Medical Officers, Specialists, and Field ASHA Workers")}
+                  <p style={{ margin: "2px 0 0 0", fontSize: 12, color: C.muted, fontWeight: 500 }}>
+                    {activeFacility?.name || "Facility Command"} — Consultation room assignments & real-time doctor availability
                   </p>
                 </div>
-                <div style={{ display: "flex", gap: 10 }}>
-                  <div style={{ background: "rgba(15, 118, 110, 0.1)", color: C.primary, padding: "6px 14px", borderRadius: 12, fontSize: 12, fontWeight: 800 }}>
-                    👨‍⚕️ {activeFacilityStaff.doctors.length} {T("डॉक्टर ऑन-ड्यूटी", "Doctors On-Duty")}
+                <div style={{ display: "flex", gap: 8 }}>
+                  <div style={{ background: "rgba(15, 118, 110, 0.1)", color: C.primary, padding: "4px 10px", borderRadius: 8, fontSize: 11.5, fontWeight: 800, display: "flex", alignItems: "center", gap: 4 }}>
+                    <Stethoscope size={13} /> {activeFacilityStaff.doctors.length} Doctors Registered
                   </div>
-                  <div style={{ background: "rgba(245, 158, 11, 0.15)", color: "#B45309", padding: "6px 14px", borderRadius: 12, fontSize: 12, fontWeight: 800 }}>
-                    🏘️ {activeFacilityStaff.ashaWorkers.length} {T("आशा कार्यकर्ता", "ASHA Field Workers")}
+                  <div style={{ background: "rgba(245, 158, 11, 0.15)", color: "#B45309", padding: "4px 10px", borderRadius: 8, fontSize: 11.5, fontWeight: 800, display: "flex", alignItems: "center", gap: 4 }}>
+                    <Activity size={13} /> {activeFacilityStaff.ashaWorkers.length} ASHA Workers
                   </div>
                 </div>
               </div>
 
-              <div style={{ padding: "28px 32px" }}>
+              <div style={{ padding: "20px 24px" }}>
                 {/* Doctors Roster Grid */}
-                <div style={{ marginBottom: 28 }}>
-                  <h4 style={{ fontSize: 14, fontWeight: 800, textTransform: "uppercase", color: C.muted, letterSpacing: 0.6, marginBottom: 16 }}>
-                    🩺 {T("संबद्ध मेडिकल ऑफिसर एवं विशेषज्ञ", "Affiliated Medical Officers & Specialists")}
+                <div style={{ marginBottom: 24 }}>
+                  <h4 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", color: C.muted, letterSpacing: 0.6, marginBottom: 12, display: "flex", alignItems: "center", gap: 5 }}>
+                    <Stethoscope size={14} /> {T("संबद्ध मेडिकल ऑफिसर एवं ओपीडी कक्ष", "Affiliated Medical Officers & OPD Room Status")}
                   </h4>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(290px, 1fr))", gap: 16 }}>
                     {activeFacilityStaff.doctors.map((doc: any) => (
                       <div
                         key={doc.id}
                         style={{
                           background: "#FFFFFF",
                           border: `1.5px solid ${C.border}`,
-                          borderRadius: 18,
-                          padding: "20px",
+                          borderRadius: 14,
+                          padding: "16px",
                           display: "flex",
                           flexDirection: "column",
                           justifyContent: "space-between",
-                          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.03)",
+                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)",
                         }}
                       >
                         <div>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                               <div
                                 style={{
-                                  width: 44,
-                                  height: 44,
-                                  borderRadius: 14,
+                                  width: 38,
+                                  height: 38,
+                                  borderRadius: 10,
                                   background: "linear-gradient(135deg, #0F766E, #14B8A6)",
                                   color: "white",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
-                                  fontSize: 20,
-                                  fontWeight: 800,
                                 }}
                               >
-                                👨‍⚕️
+                                <Stethoscope size={18} />
                               </div>
                               <div>
-                                <div style={{ fontSize: 16, fontWeight: 800, color: C.text }}>{doc.name}</div>
-                                <div style={{ fontSize: 12, color: C.primary, fontWeight: 700 }}>{doc.dept}</div>
+                                <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text }}>{doc.name}</div>
+                                <div style={{ fontSize: 11.5, color: C.primary, fontWeight: 700 }}>{doc.dept}</div>
                               </div>
                             </div>
                             <span
                               style={{
                                 background: doc.onDuty ? "#D1FAE5" : "#F1F5F9",
                                 color: doc.onDuty ? "#059669" : C.muted,
-                                padding: "4px 10px",
-                                borderRadius: 12,
-                                fontSize: 11,
+                                padding: "2px 8px",
+                                borderRadius: 8,
+                                fontSize: 10.5,
                                 fontWeight: 800,
                               }}
                             >
-                              {doc.onDuty ? "🟢 On Duty" : "⚪ Off Duty"}
+                              {doc.onDuty ? "On Duty" : "Off Duty"}
                             </span>
                           </div>
 
-                          <div style={{ fontSize: 13, color: C.muted, marginBottom: 8 }}>
-                            💼 {doc.role} · <span style={{ fontWeight: 700, color: C.text }}>{doc.experience}</span> exp
-                          </div>
-
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "#D97706" }}>
-                            <span>⭐ {doc.rating || 4.9}</span>
-                            <span style={{ fontSize: 11, color: C.muted, fontWeight: 500 }}>({T("सत्यापित समीक्षाएं", "Verified Reviews")})</span>
+                          <div style={{ fontSize: 12, color: C.muted, marginBottom: 4 }}>
+                            {doc.room || "Room 102 (OPD)"} · <span style={{ fontWeight: 700, color: C.text }}>{doc.experience}</span> exp
                           </div>
                         </div>
 
-                        <div style={{ marginTop: 16, paddingTop: 12, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <span style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>
-                            🏥 {activeFacility?.shortName || "Hospital Unit"}
+                        <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>
+                            {activeFacility?.shortName || "Hospital Unit"}
                           </span>
-                          <div style={{ display: "flex", gap: 8 }}>
+                          <div style={{ display: "flex", gap: 6 }}>
                             <button
                               onClick={() => setSelectedQRDoctor({
                                 name: doc.name,
@@ -1675,32 +1942,35 @@ export default function HospitalDesktopDashboard() {
                                 background: "rgba(56, 189, 248, 0.12)",
                                 border: "1px solid rgba(56, 189, 248, 0.35)",
                                 color: "#0284C7",
-                                borderRadius: 8,
-                                padding: "6px 10px",
-                                fontSize: 12,
+                                borderRadius: 6,
+                                padding: "5px 8px",
+                                fontSize: 11,
                                 fontWeight: 800,
                                 cursor: "pointer",
                                 display: "flex",
                                 alignItems: "center",
-                                gap: 4,
+                                gap: 3,
                               }}
                             >
-                              <span>📱</span> {T("QR कॉल", "QR Call")}
+                              <QrCode size={12} /> QR Call
                             </button>
                             <button
-                              onClick={() => alert(`Calling ${doc.name} intercom...`)}
+                              onClick={() => window.open(`tel:${doc.phone || "+91 98765 01002"}`)}
                               style={{
                                 background: "#F0FDFA",
                                 border: `1px solid ${C.primary}`,
                                 color: C.primary,
-                                borderRadius: 8,
-                                padding: "6px 12px",
-                                fontSize: 12,
+                                borderRadius: 6,
+                                padding: "5px 9px",
+                                fontSize: 11,
                                 fontWeight: 700,
                                 cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 3,
                               }}
                             >
-                              📞 Intercom
+                              <PhoneCall size={12} /> Call Desk
                             </button>
                           </div>
                         </div>
@@ -1711,69 +1981,66 @@ export default function HospitalDesktopDashboard() {
 
                 {/* ASHA Field Workers Network */}
                 <div>
-                  <h4 style={{ fontSize: 14, fontWeight: 800, textTransform: "uppercase", color: C.muted, letterSpacing: 0.6, marginBottom: 16 }}>
-                    🏘️ {T("संबद्ध आशा कार्यकर्ता एवं पाड़ा क्लस्टर", "Affiliated ASHA Field Workers & Pada Clusters")}
+                  <h4 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", color: C.muted, letterSpacing: 0.6, marginBottom: 12, display: "flex", alignItems: "center", gap: 5 }}>
+                    <Activity size={14} /> {T("संबद्ध आशा कार्यकर्ता एवं पाड़ा क्लस्टर", "Affiliated ASHA Field Workers & Pada Clusters")}
                   </h4>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(290px, 1fr))", gap: 16 }}>
                     {activeFacilityStaff.ashaWorkers.map((asha: any) => (
                       <div
                         key={asha.id}
                         style={{
                           background: "#FFFBEB",
                           border: `1.5px solid #FDE68A`,
-                          borderRadius: 18,
-                          padding: "20px",
+                          borderRadius: 14,
+                          padding: "16px",
                           display: "flex",
                           flexDirection: "column",
                           justifyContent: "space-between",
-                          boxShadow: "0 4px 12px rgba(245, 158, 11, 0.05)",
                         }}
                       >
                         <div>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                               <div
                                 style={{
-                                  width: 44,
-                                  height: 44,
-                                  borderRadius: 14,
+                                  width: 38,
+                                  height: 38,
+                                  borderRadius: 10,
                                   background: "linear-gradient(135deg, #D97706, #F59E0B)",
                                   color: "white",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
-                                  fontSize: 20,
-                                  fontWeight: 800,
                                 }}
                               >
-                                👩‍🌾
+                                <Users size={18} />
                               </div>
                               <div>
-                                <div style={{ fontSize: 16, fontWeight: 800, color: C.text }}>{asha.name}</div>
-                                <div style={{ fontSize: 12, color: "#B45309", fontWeight: 700 }}>
-                                  📍 {asha.area || asha.village || "Catchment Area"}
+                                <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text }}>{asha.name}</div>
+                                <div style={{ fontSize: 11.5, color: "#B45309", fontWeight: 700 }}>
+                                  {asha.area || asha.village || "Catchment Area"}
                                 </div>
                               </div>
                             </div>
                             {asha.activeAlerts > 0 ? (
-                              <span style={{ background: "#FEE2E2", color: "#B91C1C", padding: "4px 8px", borderRadius: 10, fontSize: 11, fontWeight: 800 }}>
-                                🚨 {asha.activeAlerts} {T("अलर्ट", "Alerts")}
+                              <span style={{ background: "#FEE2E2", color: "#B91C1C", padding: "2px 6px", borderRadius: 8, fontSize: 10.5, fontWeight: 800 }}>
+                                {asha.activeAlerts} Alerts
                               </span>
                             ) : (
-                              <span style={{ background: "#D1FAE5", color: "#059669", padding: "4px 8px", borderRadius: 10, fontSize: 11, fontWeight: 800 }}>
-                                ✓ Normal
+                              <span style={{ background: "#D1FAE5", color: "#059669", padding: "2px 6px", borderRadius: 8, fontSize: 10.5, fontWeight: 800 }}>
+                                Normal
                               </span>
                             )}
                           </div>
 
-                          <div style={{ fontSize: 13, color: C.muted, marginBottom: 6 }}>
-                            📱 {asha.phone} · <span style={{ fontWeight: 700, color: C.text }}>{asha.visitsThisMonth || 48}</span> {T("विजिट इस माह", "visits this month")}
+                          <div style={{ fontSize: 12, color: C.muted, marginBottom: 4 }}>
+                            {asha.phone} · <span style={{ fontWeight: 700, color: C.text }}>{asha.visitsThisMonth || 48}</span> visits this month
                           </div>
                         </div>
 
-                        <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid #FDE68A", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <span style={{ fontSize: 12, color: "#92400E", fontWeight: 700 }}>
-                            🌿 Field Community Lead
+                        <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px solid #FDE68A", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontSize: 11, color: "#92400E", fontWeight: 700 }}>
+                            Field Community Lead
                           </span>
                           <button
                             onClick={() => window.open(`tel:${asha.phone}`)}
@@ -1781,14 +2048,17 @@ export default function HospitalDesktopDashboard() {
                               background: "#D97706",
                               border: "none",
                               color: "white",
-                              borderRadius: 8,
-                              padding: "6px 14px",
-                              fontSize: 12,
+                              borderRadius: 6,
+                              padding: "5px 10px",
+                              fontSize: 11,
                               fontWeight: 800,
                               cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 3,
                             }}
                           >
-                            📞 Direct Call
+                            <PhoneCall size={12} /> Call
                           </button>
                         </div>
                       </div>
@@ -1800,145 +2070,131 @@ export default function HospitalDesktopDashboard() {
           )}
 
           {/* Emergencies */}
-            {(activeTab === "dashboard" || activeTab === "emergencies") && (
-              <div id="emergency-triage" style={{ background: C.card, borderRadius: 24, border: redPatients.length > 0 ? `2px solid ${C.red}` : `1px solid ${C.border}`, overflow: "hidden", boxShadow: redPatients.length > 0 ? "0 0 20px rgba(239, 68, 68, 0.6)" : "0 10px 15px -3px rgba(0, 0, 0, 0.05)", animation: redPatients.length > 0 ? "alertGlow 1.5s infinite" : "none" }}>
-                <div style={{ padding: "24px 32px", borderBottom: redPatients.length > 0 ? `2px solid ${C.red}` : `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: redPatients.length > 0 ? "#FEF2F2" : "transparent" }}>
-                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: redPatients.length > 0 ? C.red : C.text, display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ width: 12, height: 12, borderRadius: "50%", background: redPatients.length > 0 ? C.red : C.muted, animation: redPatients.length > 0 ? "pulse 0.5s infinite" : "none" }} />
-                    {T("आपातकालीन ट्राइएज", "Emergency Triage (RED)")}
-                  </h3>
-                </div>
-                <div style={{ padding: 0 }}>
-                  {redPatients.length === 0 ? (
-                    <div style={{ padding: 60, textAlign: "center", color: C.muted }}>
-                      <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
-                      <div style={{ fontSize: 18, fontWeight: 700 }}>{T("कोई आपात स्थिति नहीं", "No Critical Emergencies")}</div>
-                      <div style={{ fontSize: 15, marginTop: 8 }}>{T("सभी गंभीर मामले हल हो गए हैं।", "All critical cases have been resolved.")}</div>
-                    </div>
-                  ) : (
-                    <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                      <thead>
-                        <tr style={{ background: "#F8FAFC", fontSize: 13, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Patient Identity</th>
-                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Clinical Symptoms</th>
-                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Assigned Unit</th>
-                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Time</th>
-                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {redPatients.map((p, i) => (
-                          <tr key={p._id} style={{ borderTop: `1px solid ${C.border}`, transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#FEF2F2"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-                            <td style={{ padding: "24px 32px" }}>
-                              <div style={{ fontWeight: 800, color: C.text, fontSize: 16 }}>{p.patientName === "Unknown" ? "Anonymous SOS Alert" : p.patientName}</div>
-                              <div style={{ fontSize: 14, color: C.muted, marginTop: 6, fontWeight: 500 }}>📱 {p.patientPhone === "unknown" ? "Location Pinged" : p.patientPhone}</div>
-                            </td>
-                            <td style={{ padding: "24px 32px" }}>
-                              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                                {p.symptoms.slice(0, 3).map((s: string, idx: number) => (
-                                  <span key={idx} style={{ background: "rgba(239, 68, 68, 0.1)", color: C.red, padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700 }}>{s}</span>
-                                ))}
-                                {p.symptoms.length > 3 && <span style={{ fontSize: 12, color: C.muted, fontWeight: 700, alignSelf: "center" }}>+{p.symptoms.length - 3}</span>}
-                              </div>
-                            </td>
-                            <td style={{ padding: "24px 32px" }}>
-                              <div style={{ fontSize: 15, fontWeight: 700 }}>{p.doctorName || "Pending Assignment"}</div>
-                            </td>
-                            <td style={{ padding: "24px 32px", fontSize: 14, fontWeight: 600, color: C.muted }}>
-                              {p.createdAt ? new Date(p.createdAt).toLocaleTimeString(lang === 'hi' ? 'hi-IN' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : "Just now"}
-                            </td>
-                            <td style={{ padding: "24px 32px" }}>
-                              <div style={{ display: "flex", gap: 10 }}>
-                                <button onClick={() => setCallPatient({
-                                  id: p.patientPhone || p._id,
-                                  name: p.patientName,
-                                  details: {
-                                    department: p.department || "General OPD",
-                                    urgency: p.urgency || p.priority || (p.triageCategory === "RED" ? "RED CRITICAL" : "STANDARD"),
-                                    slotTime: p.slotTime,
-                                    doctorName: p.doctorName,
-                                    verificationNotes: p.verificationNotes,
-                                    symptoms: p.symptoms || p.triageReason,
-                                  }
-                                })} style={{ padding: "10px 16px", background: "#EBF4FD", color: C.accent, border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 10px rgba(0, 0, 0, 0.05)" }}>
-                                  💻 {T("ऐप कॉल", "App Call")}
-                                </button>
-                                <button onClick={() => window.open(`tel:${p.patientPhone}`)} style={{ padding: "10px 16px", background: C.red, color: "white", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 10px rgba(239, 68, 68, 0.3)" }}>
-                                  📱 {T("फ़ोन", "Phone")}
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
+          {(activeTab === "dashboard" || activeTab === "emergencies") && (
+            <div id="emergency-triage" style={{ background: C.card, borderRadius: 16, border: redPatients.length > 0 ? `2px solid ${C.red}` : `1px solid ${C.border}`, overflow: "hidden", boxShadow: redPatients.length > 0 ? "0 0 20px rgba(239, 68, 68, 0.4)" : "0 6px 16px rgba(0, 0, 0, 0.03)" }}>
+              <div style={{ padding: "18px 24px", borderBottom: redPatients.length > 0 ? `2px solid ${C.red}` : `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: redPatients.length > 0 ? "#FEF2F2" : "transparent" }}>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: redPatients.length > 0 ? C.red : C.text, display: "flex", alignItems: "center", gap: 8 }}>
+                  <AlertTriangle size={18} />
+                  {T("आपातकालीन ट्राइएज (RED)", "Emergency Triage (RED Priority)")}
+                </h3>
               </div>
-            )}
+              <div style={{ padding: 0 }}>
+                {redPatients.length === 0 ? (
+                  <div style={{ padding: 40, textAlign: "center", color: C.muted }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: "#ECFDF5", color: C.green, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 10px" }}>
+                      <CheckCircle2 size={24} />
+                    </div>
+                    <div style={{ fontSize: 15, fontWeight: 700 }}>{T("कोई आपात स्थिति नहीं", "No Critical Emergencies")}</div>
+                    <div style={{ fontSize: 12.5, marginTop: 4 }}>{T("सभी गंभीर मामले हल हो गए हैं।", "All critical cases have been stabilized and assigned to trauma units.")}</div>
+                  </div>
+                ) : (
+                  <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                    <thead>
+                      <tr style={{ background: "#F8FAFC", fontSize: 11.5, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Patient Identity</th>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Clinical Symptoms</th>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Assigned Unit</th>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Time</th>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {redPatients.map((p) => (
+                        <tr key={p._id} style={{ borderTop: `1px solid ${C.border}`, transition: "background 0.2s" }}>
+                          <td style={{ padding: "14px 20px" }}>
+                            <div style={{ fontWeight: 800, color: C.text, fontSize: 14 }}>{p.patientName === "Unknown" ? "Anonymous SOS Alert" : p.patientName}</div>
+                            <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>Phone: {p.patientPhone === "unknown" ? "Location Pinged" : p.patientPhone}</div>
+                          </td>
+                          <td style={{ padding: "14px 20px" }}>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                              {(p.symptoms || []).slice(0, 3).map((s: string, idx: number) => (
+                                <span key={idx} style={{ background: "rgba(239, 68, 68, 0.1)", color: C.red, padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700 }}>{s}</span>
+                              ))}
+                            </div>
+                          </td>
+                          <td style={{ padding: "14px 20px", fontSize: 13, fontWeight: 700 }}>
+                            {p.doctorName || "Emergency Trauma Team"}
+                          </td>
+                          <td style={{ padding: "14px 20px", fontSize: 12, fontWeight: 600, color: C.muted }}>
+                            {p.createdAt ? new Date(p.createdAt).toLocaleTimeString(lang === 'hi' ? 'hi-IN' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : "Just now"}
+                          </td>
+                          <td style={{ padding: "14px 20px" }}>
+                            <div style={{ display: "flex", gap: 6 }}>
+                              <button onClick={() => window.open(`tel:${p.patientPhone}`)} style={{ padding: "6px 12px", background: C.red, color: "white", border: "none", borderRadius: 6, fontSize: 11.5, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                                <PhoneCall size={12} /> Call
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          )}
 
-            
           {/* Right Column / Analytics */}
           {(activeTab === "dashboard" || activeTab === "analytics") && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
 
               {/* Triage Distribution */}
-              <div style={{ background: C.card, borderRadius: 24, padding: "24px 32px", border: `1px solid ${C.border}`, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)" }}>
-                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 24 }}>
-                  {T("ट्राइएज वितरण", "Triage Distribution")}
-                  <InfoButton text={T("गंभीरता के आधार पर रोगियों का अनुपात दर्शाता है। लाल (RED) का अर्थ है तत्काल जीवन रक्षक देखभाल की आवश्यकता है।", "Shows the proportion of patients classified by severity. RED means immediate life-saving care is required.")} />
+              <div style={{ background: C.card, borderRadius: 16, padding: "20px 24px", border: `1px solid ${C.border}`, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.02)" }}>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
+                  <Activity size={16} /> {T("ट्राइएज वितरण", "Triage Severity Distribution")}
+                  <InfoButton text={T("गंभीरता के आधार पर रोगियों का अनुपात दर्शाता है।", "Proportion of patients classified by clinical triage severity.")} />
                 </h3>
-                <div style={{ display: "flex", height: 32, borderRadius: 16, overflow: "hidden", marginBottom: 24 }}>
-                  <div style={{ width: `${totalPatients ? (redPatients.length / totalPatients) * 100 : 0}%`, background: C.red, transition: "width 1s ease" }} />
-                  <div style={{ width: `${totalPatients ? (yellowPatients.length / totalPatients) * 100 : 0}%`, background: C.yellow, transition: "width 1s ease" }} />
-                  <div style={{ width: `${totalPatients ? (greenPatients.length / totalPatients) * 100 : 100}%`, background: totalPatients ? C.green : C.border, transition: "width 1s ease" }} />
+                <div style={{ display: "flex", height: 20, borderRadius: 10, overflow: "hidden", marginBottom: 16 }}>
+                  <div style={{ width: `${totalPatients ? (redPatients.length / totalPatients) * 100 : 0}%`, background: C.red, transition: "width 0.5s ease" }} />
+                  <div style={{ width: `${totalPatients ? (yellowPatients.length / totalPatients) * 100 : 0}%`, background: C.yellow, transition: "width 0.5s ease" }} />
+                  <div style={{ width: `${totalPatients ? (greenPatients.length / totalPatients) * 100 : 100}%`, background: totalPatients ? C.green : C.border, transition: "width 0.5s ease" }} />
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px", background: "#FEF2F2", borderRadius: 12 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 15, fontWeight: 700, color: C.red }}><div style={{ width: 12, height: 12, borderRadius: "50%", background: C.red }} /> Critical (RED)</div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: C.red }}>{redPatients.length}</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#FEF2F2", borderRadius: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: C.red }}><div style={{ width: 8, height: 8, borderRadius: "50%", background: C.red }} /> Critical (RED)</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: C.red }}>{redPatients.length}</div>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px", background: "#FFFBEB", borderRadius: 12 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 15, fontWeight: 700, color: C.yellow }}><div style={{ width: 12, height: 12, borderRadius: "50%", background: C.yellow }} /> Urgent (YELLOW)</div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: C.yellow }}>{yellowPatients.length}</div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#FFFBEB", borderRadius: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: C.yellow }}><div style={{ width: 8, height: 8, borderRadius: "50%", background: C.yellow }} /> Urgent (YELLOW)</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: C.yellow }}>{yellowPatients.length}</div>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px", background: "#ECFDF5", borderRadius: 12 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 15, fontWeight: 700, color: C.green }}><div style={{ width: 12, height: 12, borderRadius: "50%", background: C.green }} /> Standard (GREEN)</div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: C.green }}>{greenPatients.length}</div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#ECFDF5", borderRadius: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: C.green }}><div style={{ width: 8, height: 8, borderRadius: "50%", background: C.green }} /> Standard (GREEN)</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: C.green }}>{greenPatients.length}</div>
                   </div>
                 </div>
               </div>
 
               {/* Patient Influx Chart */}
-              <div style={{ background: C.card, borderRadius: 24, padding: "24px 32px", border: `1px solid ${C.border}`, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)", display: "flex", flexDirection: "column" }}>
-                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 24 }}>
-                  {T("रोगी की आमद (12 घंटे)", "Patient Influx (12h)")}
-                  <InfoButton text={T("पिछले 12 घंटों में हर घंटे भर्ती होने वाले नए मरीजों की संख्या। भीड़ का अनुमान लगाने के लिए उपयोग किया जाता है।", "Displays the volume of new patients admitted every hour over the last 12 hours. Used to predict crowding.")} />
+              <div style={{ background: C.card, borderRadius: 16, padding: "20px 24px", border: `1px solid ${C.border}`, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.02)", display: "flex", flexDirection: "column" }}>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
+                  <TrendingUp size={16} /> {T("रोगी की आमद (12 घंटे)", "Patient Influx (12h Trend)")}
+                  <InfoButton text={T("पिछले 12 घंटों में नए मरीजों की संख्या।", "Hourly volume of new patient admissions over the last 12 hours.")} />
                 </h3>
-                <div style={{ flex: 1, display: "flex", alignItems: "flex-end", gap: 10, minHeight: 120 }}>
+                <div style={{ flex: 1, display: "flex", alignItems: "flex-end", gap: 8, minHeight: 100 }}>
                   {hourlyData.map((val, i) => (
-                    <div key={i} style={{ flex: 1, background: i === hourlyData.length - 1 ? C.primary : "#E2E8F0", height: `${(val / maxHourly) * 100}%`, borderRadius: "6px 6px 0 0", position: "relative", transition: "height 0.5s ease" }}>
-                      <div style={{ position: "absolute", top: -24, width: "100%", textAlign: "center", fontSize: 12, fontWeight: 800, color: C.muted, opacity: i % 2 === 0 || i === hourlyData.length - 1 ? 1 : 0 }}>{val}</div>
+                    <div key={i} style={{ flex: 1, background: i === hourlyData.length - 1 ? C.primary : "#E2E8F0", height: `${(val / maxHourly) * 100}%`, borderRadius: "4px 4px 0 0", position: "relative" }}>
+                      <div style={{ position: "absolute", top: -18, width: "100%", textAlign: "center", fontSize: 10, fontWeight: 800, color: C.muted, opacity: i % 2 === 0 || i === hourlyData.length - 1 ? 1 : 0 }}>{val}</div>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Department Load Chart */}
-              <div style={{ background: C.card, borderRadius: 24, padding: "24px 32px", border: `1px solid ${C.border}`, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)", display: "flex", flexDirection: "column" }}>
-                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 24 }}>
-                  {T("विभागों का भार", "Department Load")}
-                  <InfoButton text={T("कर्मचारियों के प्रबंधन में सहायता के लिए चिकित्सा विभागों में मरीजों का वास्तविक समय का अनुमानित आवंटन।", "Real-time estimated allocation of patients across medical departments to help manage staffing.")} />
+              <div style={{ background: C.card, borderRadius: 16, padding: "20px 24px", border: `1px solid ${C.border}`, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.02)", display: "flex", flexDirection: "column" }}>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
+                  <Stethoscope size={16} /> {T("विभागों का भार", "Department OPD Load")}
+                  <InfoButton text={T("चिकित्सा विभागों में मरीजों का वास्तविक समय का आवंटन।", "Real-time patient distribution across clinical departments.")} />
                 </h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {dynamicDepts.map((dept, i) => (
                     <div key={i}>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 700, marginBottom: 8, color: C.text }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, fontWeight: 700, marginBottom: 4, color: C.text }}>
                         <span>{dept.label}</span>
                         <span>{dept.value} cases</span>
                       </div>
-                      <div style={{ height: 8, background: "#E2E8F0", borderRadius: 4, overflow: "hidden" }}>
-                        <div style={{ width: `${totalPatients ? Math.min(100, Math.round((dept.value / totalPatients) * 100)) : 0}%`, height: "100%", background: dept.color, transition: "width 1s ease" }} />
+                      <div style={{ height: 6, background: "#E2E8F0", borderRadius: 3, overflow: "hidden" }}>
+                        <div style={{ width: `${totalPatients ? Math.min(100, Math.round((dept.value / totalPatients) * 100)) : 0}%`, height: "100%", background: dept.color, transition: "width 0.5s ease" }} />
                       </div>
                     </div>
                   ))}
@@ -1946,639 +2202,850 @@ export default function HospitalDesktopDashboard() {
               </div>
 
               {/* Treatment Success Overview */}
-              <div style={{ background: C.card, borderRadius: 24, padding: "24px 32px", border: `1px solid ${C.border}`, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)", display: "flex", flexDirection: "column" }}>
-                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 24 }}>
-                  {T("उपचार की दर", "Treatment Success Overview")}
-                  <InfoButton text={T("सफलतापूर्वक ठीक हुए मरीजों और इलाज की प्रतीक्षा कर रहे मरीजों की संख्या की तुलना करता है।", "Compares the number of successfully cured patients vs patients still waiting/pending treatment.")} />
+              <div style={{ background: C.card, borderRadius: 16, padding: "20px 24px", border: `1px solid ${C.border}`, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.02)", display: "flex", flexDirection: "column" }}>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
+                  <CheckCircle2 size={16} /> {T("उपचार की दर", "Discharge & Resolution Rate")}
                 </h3>
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 20 }}>
-
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 14 }}>
                   <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, fontWeight: 700, marginBottom: 8, color: C.green }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 700, marginBottom: 4, color: C.green }}>
                       <span>Cured & Discharged</span>
                       <span>{curedPatientsCount} Patients</span>
                     </div>
-                    <div style={{ height: 16, background: "#E2E8F0", borderRadius: 8, overflow: "hidden" }}>
-                      <div style={{ width: `${totalPatients + curedPatientsCount ? (curedPatientsCount / (totalPatients + curedPatientsCount)) * 100 : 0}%`, height: "100%", background: C.green, transition: "width 1s ease" }} />
+                    <div style={{ height: 10, background: "#E2E8F0", borderRadius: 5, overflow: "hidden" }}>
+                      <div style={{ width: `${totalPatients + curedPatientsCount ? (curedPatientsCount / (totalPatients + curedPatientsCount)) * 100 : 0}%`, height: "100%", background: C.green }} />
                     </div>
                   </div>
 
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, fontWeight: 700, marginBottom: 8, color: C.accent }}>
-                      <span>Pending Treatment</span>
-                      <span>{totalPatients} Patients</span>
-                    </div>
-                    <div style={{ height: 16, background: "#E2E8F0", borderRadius: 8, overflow: "hidden" }}>
-                      <div style={{ width: `${totalPatients + curedPatientsCount ? (totalPatients / (totalPatients + curedPatientsCount)) * 100 : 0}%`, height: "100%", background: C.accent, transition: "width 1s ease" }} />
-                    </div>
-                  </div>
-
-                  <div style={{ textAlign: "center", marginTop: 10 }}>
-                    <div style={{ fontSize: 32, fontWeight: 800, color: C.text }}>
+                  <div style={{ textAlign: "center", marginTop: 4 }}>
+                    <div style={{ fontSize: 26, fontWeight: 800, color: C.text }}>
                       {totalPatients + curedPatientsCount > 0 ? Math.round((curedPatientsCount / (totalPatients + curedPatientsCount)) * 100) : 0}%
                     </div>
-                    <div style={{ fontSize: 14, color: C.muted, fontWeight: 600 }}>Overall Resolution Rate</div>
+                    <div style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>Overall Resolution Rate</div>
                   </div>
-
                 </div>
               </div>
 
             </div>
           )}
 
-{/* Main Column */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-
-
-
-            {/* Standard Wards */}
-            {(activeTab === "dashboard" || activeTab === "wards") && (
-              <div style={{ background: C.card, borderRadius: 24, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)" }}>
-                <div style={{ padding: "24px 32px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.text }}>{T("मानक वार्ड (पीला/हरा)", "Standard Wards (Yellow/Green)")}</h3>
-                  <div style={{ fontSize: 14, color: C.primaryLight, fontWeight: 700, background: `${C.primaryLight}15`, padding: "6px 16px", borderRadius: 20 }}>
-                    {yellowPatients.length + greenPatients.length} Active Cases
-                  </div>
-                </div>
-                <div style={{ padding: 0 }}>
-                  {yellowPatients.length === 0 && greenPatients.length === 0 ? (
-                    <div style={{ padding: 40, textAlign: "center", color: C.muted }}>No patients in standard ward.</div>
-                  ) : (
-                    <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                      <thead>
-                        <tr style={{ background: "#F8FAFC", fontSize: 13, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Patient</th>
-                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Priority Status</th>
-                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Assigned Doctor</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[...yellowPatients, ...greenPatients].map((p, i) => (
-                          <tr key={p._id} style={{ borderTop: `1px solid ${C.border}`, transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#F8FAFC"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-                            <td style={{ padding: "20px 32px" }}>
-                              <div style={{ fontWeight: 700, color: C.text, fontSize: 15 }}>{p.patientName}</div>
-                            </td>
-                            <td style={{ padding: "20px 32px" }}>
-                              <span style={{ background: p.urgency === "YELLOW" ? "#FEF3C7" : "#D1FAE5", color: p.urgency === "YELLOW" ? "#D97706" : "#059669", padding: "6px 14px", borderRadius: 20, fontSize: 13, fontWeight: 800 }}>
-                                {p.urgency === "YELLOW" ? "🟡 YELLOW" : "🟢 GREEN"}
-                              </span>
-                            </td>
-                            <td style={{ padding: "20px 32px" }}>
-                              <div style={{ fontSize: 15, fontWeight: 600 }}>{p.doctorName || "Unassigned"}</div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
+          {/* Standard Wards */}
+          {(activeTab === "dashboard" || activeTab === "wards") && (
+            <div style={{ background: C.card, borderRadius: 16, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 6px 16px rgba(0, 0, 0, 0.03)" }}>
+              <div style={{ padding: "18px 24px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: C.text, display: "flex", alignItems: "center", gap: 6 }}>
+                  <BedDouble size={18} /> {T("मानक वार्ड एवं बेड स्थिति", "Inpatient Wards & Bed Status")}
+                </h3>
+                <div style={{ fontSize: 12, color: C.primaryLight, fontWeight: 700, background: `${C.primaryLight}15`, padding: "4px 12px", borderRadius: 14 }}>
+                  {yellowPatients.length + greenPatients.length} Active Inpatients
                 </div>
               </div>
-            )}
-
-            {/* Referrals & In-Person Physical OPD Queue */}
-            {(activeTab === "dashboard" || activeTab === "referrals") && (
-              <div style={{ background: C.card, borderRadius: 24, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)" }}>
-                <div style={{ padding: "24px 32px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
-                  <div>
-                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.text }}>
-                      {T("इनबाउंड रेफरल एवं शारीरिक अस्पताल OPD डेस्क", "Inbound Referrals & Physical Hospital OPD Desk")}
-                    </h3>
-                    <p style={{ margin: "4px 0 0 0", fontSize: 13, color: C.muted }}>
-                      {T("ऑनलाइन परामर्श से शारीरिक विज़िट और तृतीयक केंद्र रेफरल", "Direct physical visits & tertiary hospital transfers scheduled from telemedicine")}
-                    </p>
-                  </div>
-
-                  {/* Filter Pills */}
-                  <div style={{ display: "flex", gap: 8 }}>
-                    {[
-                      { id: "ALL", label: "All Cases" },
-                      { id: "IN_PERSON_FOLLOWUP", label: "📅 Physical OPD Visits" },
-                      { id: "SPECIALIST_FACILITY_TRANSFER", label: "🏥 Specialist Transfers" },
-                    ].map((f) => (
-                      <button
-                        key={f.id}
-                        type="button"
-                        onClick={() => setReferralFilter(f.id as any)}
-                        style={{
-                          padding: "6px 14px",
-                          borderRadius: 20,
-                          border: "none",
-                          fontSize: 12,
-                          fontWeight: 700,
-                          background: referralFilter === f.id ? C.primary : "#F1F5F9",
-                          color: referralFilter === f.id ? "white" : C.muted,
-                          cursor: "pointer",
-                        }}
-                      >
-                        {f.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ padding: 0 }}>
-                  {(() => {
-                    const scopedRefs = referrals.filter((r) => {
-                      if (referralFilter !== "ALL" && r.referralType !== referralFilter) return false;
-                      if (selectedFacilityId === "ALL") return true;
-                      const fac = facilities.find((f) => f.facilityId === selectedFacilityId);
-                      if (!fac) return true;
-                      return (
-                        r.targetFacility?.toLowerCase().includes(fac.shortName?.toLowerCase() || "") ||
-                        r.targetFacility?.toLowerCase().includes(fac.city?.toLowerCase() || "") ||
-                        r.targetFacility?.toLowerCase().includes(fac.name?.toLowerCase() || "")
-                      );
-                    });
-
-                    if (scopedRefs.length === 0) {
-                      return (
-                        <div style={{ padding: 48, textAlign: "center", color: C.muted }}>
-                          <div style={{ fontSize: 36, marginBottom: 8 }}>📋</div>
-                          <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>No inbound referrals or physical OPD appointments for this facility.</div>
-                          <div style={{ fontSize: 13, marginTop: 4 }}>Appointments booked by telemedicine doctors will appear in real-time.</div>
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                        <thead>
-                          <tr style={{ background: "#F8FAFC", fontSize: 12, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                            <th style={{ padding: "18px 28px", fontWeight: 800 }}>Patient Identity</th>
-                            <th style={{ padding: "18px 28px", fontWeight: 800 }}>Type & Token</th>
-                            <th style={{ padding: "18px 28px", fontWeight: 800 }}>Referring Doctor / Source</th>
-                            <th style={{ padding: "18px 28px", fontWeight: 800 }}>Scheduled Slot & Reason</th>
-                            <th style={{ padding: "18px 28px", fontWeight: 800 }}>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {scopedRefs.map((r) => {
-                            const isInPerson = r.referralType === "IN_PERSON_FOLLOWUP";
-                            const isPending = r.status === "pending";
-                            const isArrived = r.status === "arrived";
-                            const isCompleted = r.status === "completed";
-
-                            return (
-                              <tr
-                                key={r._id}
-                                style={{ borderTop: `1px solid ${C.border}`, transition: "background 0.2s" }}
-                                onMouseEnter={(e) => (e.currentTarget.style.background = "#F8FAFC")}
-                                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                              >
-                                <td style={{ padding: "18px 28px" }}>
-                                  <div style={{ fontWeight: 800, color: C.text, fontSize: 15 }}>{r.patientName}</div>
-                                  <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
-                                    <button
-                                      type="button"
-                                      onClick={() => window.open(`tel:${r.patientPhone}`)}
-                                      style={{ background: "#F1F5F9", border: "none", borderRadius: 6, padding: "3px 8px", fontSize: 11, fontWeight: 700, cursor: "pointer", color: C.text }}
-                                    >
-                                      📞 {r.patientPhone}
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => startCallSession({
-                                        patientId: r.patientPhone || r._id,
-                                        patientName: r.patientName,
-                                        isDoctor: true,
-                                        callerRole: "receptionist",
-                                        callerTitle: `${activeFacility?.shortName || activeFacility?.name || "Hospital"} Reception Desk`,
-                                        facilityName: activeFacility?.name || "Hospital Medical Center",
-                                        department: r.targetDepartment || "Specialist OPD",
-                                        patientDetails: {
-                                          department: r.targetDepartment || "Specialist OPD",
-                                          urgency: r.priority || "MEDIUM",
-                                          doctorName: r.referringDoctorName,
-                                          symptoms: r.clinicalSummary || r.reason,
-                                        }
-                                      })}
-                                      style={{ background: "#E0F2FE", border: "none", borderRadius: 6, padding: "3px 8px", fontSize: 11, fontWeight: 700, cursor: "pointer", color: "#0369A1" }}
-                                    >
-                                      💻 App Call
-                                    </button>
-                                  </div>
-                                </td>
-
-                                <td style={{ padding: "18px 28px" }}>
-                                  <span
-                                    style={{
-                                      background: isInPerson ? "#ECFDF5" : "#FFF7ED",
-                                      color: isInPerson ? "#059669" : "#C2410C",
-                                      padding: "4px 10px",
-                                      borderRadius: 8,
-                                      fontSize: 11,
-                                      fontWeight: 800,
-                                      display: "inline-block",
-                                    }}
-                                  >
-                                    {isInPerson ? "📅 In-Person Physical OPD" : "🏥 Specialist Referral"}
-                                  </span>
-                                  {r.opdToken && (
-                                    <div style={{ fontSize: 12, fontWeight: 800, color: C.primary, marginTop: 4 }}>
-                                      Token: <code style={{ background: "#F0FDFA", padding: "2px 6px", borderRadius: 4 }}>{r.opdToken}</code>
-                                    </div>
-                                  )}
-                                </td>
-
-                                <td style={{ padding: "18px 28px" }}>
-                                  <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Dr. {r.referredByDoctorName}</div>
-                                  <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{r.sourceFacility}</div>
-                                </td>
-
-                                <td style={{ padding: "18px 28px" }}>
-                                  <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
-                                    🗓️ {r.scheduledDate || "Today"} · {r.scheduledSlot || "OPD Hours"}
-                                  </div>
-                                  <div style={{ fontSize: 12, color: C.muted, marginTop: 4, maxWidth: 300, lineHeight: 1.4 }}>
-                                    {r.reasonForReferral}
-                                  </div>
-                                  <span
-                                    style={{
-                                      background: r.urgency === "RED" ? "#FEE2E2" : r.urgency === "YELLOW" ? "#FEF3C7" : "#D1FAE5",
-                                      color: r.urgency === "RED" ? "#B91C1C" : r.urgency === "YELLOW" ? "#D97706" : "#059669",
-                                      padding: "2px 8px",
-                                      borderRadius: 12,
-                                      fontSize: 10,
-                                      fontWeight: 800,
-                                      marginTop: 6,
-                                      display: "inline-block",
-                                    }}
-                                  >
-                                    {r.urgency} PRIORITY
-                                  </span>
-                                </td>
-
-                                <td style={{ padding: "18px 28px" }}>
-                                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                                    {isPending && (
-                                      <button
-                                        type="button"
-                                        onClick={async () => {
-                                          await fetch("/api/referrals", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: r._id, status: "arrived" }) });
-                                          fetchData();
-                                        }}
-                                        style={{ padding: "7px 14px", background: "#0284C7", color: "white", border: "none", borderRadius: 10, fontSize: 12, fontWeight: 800, cursor: "pointer" }}
-                                      >
-                                        🏥 Mark Arrived
-                                      </button>
-                                    )}
-                                    {isArrived && (
-                                      <button
-                                        type="button"
-                                        onClick={async () => {
-                                          await fetch("/api/referrals", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: r._id, status: "completed" }) });
-                                          fetchData();
-                                        }}
-                                        style={{ padding: "7px 14px", background: C.green, color: "white", border: "none", borderRadius: 10, fontSize: 12, fontWeight: 800, cursor: "pointer" }}
-                                      >
-                                        ✓ Complete Visit
-                                      </button>
-                                    )}
-                                    {isCompleted && (
-                                      <span style={{ fontSize: 12, fontWeight: 800, color: C.green, background: "#D1FAE5", padding: "6px 12px", borderRadius: 12 }}>
-                                        ✓ Finished
-                                      </span>
-                                    )}
-                                  </div>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    );
-                  })()}
-                </div>
-              </div>
-            )}
-
-            {/* Lab Diagnostics Safety Net */}
-            {(activeTab === "dashboard" || activeTab === "diagnostics") && (
-              <div style={{ background: C.card, borderRadius: 24, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)" }}>
-                <div style={{ padding: "24px 32px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.text }}>{T("ग्लोबल लैब रिपोर्ट (सेफ्टी नेट)", "Global Lab Reports (Diagnostics Safety Net)")}</h3>
-                  <div style={{ fontSize: 14, color: C.accent, fontWeight: 700, background: `${C.accent}15`, padding: "6px 16px", borderRadius: 20 }}>
-                    {labTests.length} Total Reports
-                  </div>
-                </div>
-                <div style={{ padding: 0 }}>
-                  {labTests.length === 0 ? (
-                    <div style={{ padding: 40, textAlign: "center", color: C.muted }}>No lab reports found.</div>
-                  ) : (
-                    <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                      <thead>
-                        <tr style={{ background: "#F8FAFC", fontSize: 13, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Patient</th>
-                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Test Result</th>
-                          <th style={{ padding: "20px 32px", fontWeight: 700 }}>Status / Assignment</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {labTests.slice(0, 20).map((t, i) => (
-                          <tr key={t._id} style={{ borderTop: `1px solid ${C.border}`, transition: "background 0.2s", background: t.isCritical && !t.assignedDoctorId ? "#FEF2F2" : "transparent" }} onMouseEnter={e => e.currentTarget.style.background = t.isCritical ? "#FEE2E2" : "#F8FAFC"} onMouseLeave={e => e.currentTarget.style.background = t.isCritical && !t.assignedDoctorId ? "#FEF2F2" : "transparent"}>
-                            <td style={{ padding: "20px 32px" }}>
-                              <div style={{ fontWeight: 700, color: C.text, fontSize: 15 }}>{t.patientName}</div>
-                              <div style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>📱 {t.patientPhone}</div>
-                            </td>
-                            <td style={{ padding: "20px 32px" }}>
-                              <div style={{ fontSize: 15, fontWeight: 800, color: t.isCritical ? C.red : C.text }}>{t.testType}: {t.result}</div>
-                              <div style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>📅 {new Date(t.testDate).toLocaleDateString()}</div>
-                              {t.imageDataUrl && <div style={{ fontSize: 12, color: C.primary, marginTop: 4 }}>📎 Attachment Available</div>}
-                            </td>
-                            <td style={{ padding: "20px 32px" }}>
-                              {t.assignedDoctorId ? (
-                                <span style={{ background: "#D1FAE5", color: "#059669", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 800 }}>✅ Assigned to Doctor</span>
-                              ) : (
-                                <span style={{ background: t.isCritical ? C.red : "#FEF3C7", color: t.isCritical ? "white" : "#D97706", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 800 }}>⚠️ Unassigned {t.isCritical && "(CRITICAL)"}</span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Cured Patients */}
-            {(activeTab === "dashboard" || activeTab === "wards" || activeTab === "analytics") && curedQueue.length > 0 && (
-              <div style={{ background: C.card, borderRadius: 24, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)" }}>
-                <div style={{ padding: "24px 32px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: "#ECFDF5" }}>
-                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.green }}>{T("डिस्चार्ज किए गए मरीज़", "Discharged / Cured Patients")}</h3>
-                  <div style={{ fontSize: 14, color: C.green, fontWeight: 700, background: "rgba(16, 185, 129, 0.15)", padding: "6px 16px", borderRadius: 20 }}>
-                    {curedPatientsCount} Successfully Treated
-                  </div>
-                </div>
-                <div style={{ padding: 0 }}>
+              <div style={{ padding: 0 }}>
+                {yellowPatients.length === 0 && greenPatients.length === 0 ? (
+                  <div style={{ padding: 32, textAlign: "center", color: C.muted }}>No patients in standard ward.</div>
+                ) : (
                   <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                     <thead>
-                      <tr style={{ background: "#F8FAFC", fontSize: 13, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                        <th style={{ padding: "20px 32px", fontWeight: 700 }}>Patient</th>
-                        <th style={{ padding: "20px 32px", fontWeight: 700 }}>Treated By</th>
-                        <th style={{ padding: "20px 32px", fontWeight: 700 }}>Status</th>
+                      <tr style={{ background: "#F8FAFC", fontSize: 11.5, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Patient</th>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Priority Status</th>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Assigned Doctor</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {curedQueue.map((p, i) => (
+                      {[...yellowPatients, ...greenPatients].map((p) => (
                         <tr key={p._id} style={{ borderTop: `1px solid ${C.border}` }}>
-                          <td style={{ padding: "20px 32px" }}>
-                            <div style={{ fontWeight: 700, color: C.text, fontSize: 15 }}>{p.patientName}</div>
+                          <td style={{ padding: "14px 20px" }}>
+                            <div style={{ fontWeight: 700, color: C.text, fontSize: 14 }}>{p.patientName}</div>
                           </td>
-                          <td style={{ padding: "20px 32px" }}>
-                            <div style={{ fontSize: 15, fontWeight: 600 }}>{p.doctorName || "Unknown Doctor"}</div>
-                          </td>
-                          <td style={{ padding: "20px 32px" }}>
-                            <span style={{ background: "#D1FAE5", color: "#059669", padding: "6px 14px", borderRadius: 20, fontSize: 13, fontWeight: 800 }}>
-                              ✅ CURED
+                          <td style={{ padding: "14px 20px" }}>
+                            <span style={{ background: p.urgency === "YELLOW" ? "#FEF3C7" : "#D1FAE5", color: p.urgency === "YELLOW" ? "#D97706" : "#059669", padding: "4px 10px", borderRadius: 12, fontSize: 11, fontWeight: 800 }}>
+                              {p.urgency === "YELLOW" ? "YELLOW URGENT" : "GREEN ROUTINE"}
                             </span>
+                          </td>
+                          <td style={{ padding: "14px 20px" }}>
+                            <div style={{ fontSize: 13, fontWeight: 600 }}>{p.doctorName || "Unassigned"}</div>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                </div>
+                )}
               </div>
-            )}
+            </div>
+          )}
 
-            {/* ═══════════════════════════════════════════════════════════════════════ */}
-            {/* ── HMIS / EMR INTEGRATION BRIDGE & MERGE GATEWAY ── */}
-            {/* ═══════════════════════════════════════════════════════════════════════ */}
-            {activeTab === "hmis-bridge" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-                {/* 1. Live ABDM & NIC e-Hospital Cloud Gateway Status */}
-                <div style={{ background: C.card, borderRadius: 24, padding: "28px 32px", border: `1px solid ${C.border}`, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16, marginBottom: 20 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                      <div style={{ width: 48, height: 48, borderRadius: 14, background: "#E0F2FE", color: "#0284C7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>
-                        🔗
-                      </div>
-                      <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.text }}>
-                            {T("आयुष्मान भारत (ABDM) व ई-हॉस्पिटल गेटवे", "ABDM & NIC e-Hospital Integration Bridge")}
-                          </h3>
-                          <span style={{ background: "#D1FAE5", color: "#059669", fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 20, display: "flex", alignItems: "center", gap: 4 }}>
-                            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#059669", animation: "pulse 1.5s infinite" }} />
-                            Live Sync Active
-                          </span>
-                        </div>
-                        <div style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>
-                          Bi-directional FHIR M3 / HL7 v2.4 protocol connecting <strong>{activeFacility?.name}</strong> to the National Health Grid.
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", gap: 10 }}>
-                      <button
-                        type="button"
-                        onClick={handleForceSyncHmis}
-                        disabled={hmisSyncing}
-                        style={{
-                          padding: "10px 18px", borderRadius: 12, border: "none",
-                          background: "linear-gradient(135deg, #0D9488, #0F766E)", color: "white",
-                          fontSize: 13, fontWeight: 800, cursor: hmisSyncing ? "not-allowed" : "pointer",
-                          display: "flex", alignItems: "center", gap: 6, boxShadow: "0 4px 12px rgba(13, 148, 136, 0.3)"
-                        }}
-                      >
-                        <span>🔄</span> {hmisSyncing ? "Synchronizing Records..." : "Force Sync Now"}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Gateway Metrics Grid */}
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginTop: 16 }}>
-                    <div style={{ background: "#F8FAFC", padding: "16px 20px", borderRadius: 16, border: `1px solid ${C.border}` }}>
-                      <div style={{ fontSize: 11, color: C.muted, fontWeight: 700, textTransform: "uppercase" }}>OPD Tokens Synced</div>
-                      <div style={{ fontSize: 22, fontWeight: 800, color: C.primary, marginTop: 4 }}>{facilityScopedQueue.length} Active</div>
-                      <div style={{ fontSize: 11, color: "#10B981", marginTop: 2 }}>✓ Auto-synced with NIC e-Hospital</div>
-                    </div>
-
-                    <div style={{ background: "#F8FAFC", padding: "16px 20px", borderRadius: 16, border: `1px solid ${C.border}` }}>
-                      <div style={{ fontSize: 11, color: C.muted, fontWeight: 700, textTransform: "uppercase" }}>ABHA Health IDs Linked</div>
-                      <div style={{ fontSize: 22, fontWeight: 800, color: "#7C3AED", marginTop: 4 }}>{new Set(facilityScopedQueue.map(q => q.patientPhone || q.patientName)).size} Patients</div>
-                      <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>FHIR Milestone 2 Verified</div>
-                    </div>
-
-                    <div style={{ background: "#F8FAFC", padding: "16px 20px", borderRadius: 16, border: `1px solid ${C.border}` }}>
-                      <div style={{ fontSize: 11, color: C.muted, fontWeight: 700, textTransform: "uppercase" }}>Lab Orders Pushed</div>
-                      <div style={{ fontSize: 22, fontWeight: 800, color: "#D97706", marginTop: 4 }}>{labTests.length} Reports</div>
-                      <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>LOINC Standardized</div>
-                    </div>
-
-                    <div style={{ background: "#F8FAFC", padding: "16px 20px", borderRadius: 16, border: `1px solid ${C.border}` }}>
-                      <div style={{ fontSize: 11, color: C.muted, fontWeight: 700, textTransform: "uppercase" }}>HFR Registry Code</div>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginTop: 6 }}>{activeFacility?.facilityId}</div>
-                      <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>NIN: 270014022 (Approved)</div>
-                    </div>
-                  </div>
+          {/* Referrals & In-Person Physical OPD Queue */}
+          {(activeTab === "dashboard" || activeTab === "referrals") && (
+            <div style={{ background: C.card, borderRadius: 16, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 6px 16px rgba(0, 0, 0, 0.03)" }}>
+              <div style={{ padding: "18px 24px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: C.text, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Share2 size={18} /> {T("इनबाउंड रेफरल एवं शारीरिक OPD डेस्क", "Inbound Referrals & Physical OPD Desk")}
+                  </h3>
+                  <p style={{ margin: "2px 0 0 0", fontSize: 12, color: C.muted }}>
+                    {T("ऑनलाइन परामर्श से शारीरिक विज़िट और विशेषज्ञ अस्पताल रेफरल", "Physical OPD visits & transfers scheduled from telemedicine")}
+                  </p>
                 </div>
 
-                {/* 2. 1-Click Legacy HMIS Data Ingestion & Live Merge */}
-                <div style={{ background: C.card, borderRadius: 24, padding: "28px 32px", border: `1px solid ${C.border}`, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                    <div>
-                      <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.text, display: "flex", alignItems: "center", gap: 8 }}>
-                        <span>📥</span> {T("मौजूदा अस्पताल HMIS डेटा मर्ज करें", "Merge Existing Hospital Walk-ins & Offline OPD")}
-                      </h3>
-                      <p style={{ margin: "4px 0 0", fontSize: 13, color: C.muted }}>
-                        Easily merge walk-in patients from your existing hospital software, Excel/CSV sheets, or offline registers into AarogyaAI Live Triage without double entry.
-                      </p>
-                    </div>
-
+                {/* Filter Pills */}
+                <div style={{ display: "flex", gap: 6 }}>
+                  {[
+                    { id: "ALL", label: "All Cases" },
+                    { id: "IN_PERSON_FOLLOWUP", label: "Physical Visits" },
+                    { id: "SPECIALIST_FACILITY_TRANSFER", label: "Specialist Transfers" },
+                  ].map((f) => (
                     <button
+                      key={f.id}
                       type="button"
-                      disabled={bulkImporting}
-                      onClick={() => handleImportLegacyOPD()}
+                      onClick={() => setReferralFilter(f.id as any)}
                       style={{
-                        padding: "10px 18px", borderRadius: 12, border: "none",
-                        background: "linear-gradient(135deg, #2563EB, #1D4ED8)", color: "white",
-                        fontSize: 13, fontWeight: 800, cursor: bulkImporting ? "not-allowed" : "pointer",
-                        display: "flex", alignItems: "center", gap: 6, boxShadow: "0 4px 12px rgba(37, 99, 235, 0.3)"
+                        padding: "4px 10px",
+                        borderRadius: 14,
+                        border: "none",
+                        fontSize: 11,
+                        fontWeight: 700,
+                        background: referralFilter === f.id ? C.primary : "#F1F5F9",
+                        color: referralFilter === f.id ? "white" : C.muted,
+                        cursor: "pointer",
                       }}
                     >
-                      <span>⚡</span> {bulkImporting ? "Merging..." : "1-Click Merge 3 Walk-in Records"}
+                      {f.label}
                     </button>
-                  </div>
-
-                  {importStatusMessage && (
-                    <div style={{ background: "#ECFDF5", border: "1px solid #A7F3D0", color: "#065F46", padding: "12px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700, marginBottom: 16 }}>
-                      {importStatusMessage}
-                    </div>
-                  )}
-
-                  {/* CSV Input Box */}
-                  <div style={{ background: "#F8FAFC", borderRadius: 16, padding: "16px 20px", border: `1px solid ${C.border}` }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 8, display: "flex", justifyContent: "space-between" }}>
-                      <span>Paste Raw CSV / HMIS Export (Format: Name, Phone, Age, Symptoms, Department, Priority)</span>
-                      <span style={{ color: C.muted }}>Deduplicates automatically by Phone Number</span>
-                    </div>
-                    <textarea
-                      value={bulkCsvText}
-                      onChange={(e) => setBulkCsvText(e.target.value)}
-                      placeholder="e.g. Ramesh More, 9898989801, 45, Severe Chest Pain, Cardiology, RED&#10;Sunita Patil, 9898989802, 32, High Fever & Vomiting, General Medicine, YELLOW"
-                      rows={3}
-                      style={{
-                        width: "100%", padding: "10px 12px", borderRadius: 10,
-                        border: `1px solid ${C.border}`, fontSize: 12, fontFamily: "monospace",
-                        outline: "none", boxSizing: "border-box", background: "white"
-                      }}
-                    />
-                    <div style={{ marginTop: 10, display: "flex", justifyContent: "flex-end", gap: 10 }}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (!bulkCsvText.trim()) return;
-                          const lines = bulkCsvText.trim().split("\n");
-                          const customRecs = lines.map((l) => {
-                            const [name, phone, age, symptoms, dept, priority] = l.split(",").map((s) => s.trim());
-                            return {
-                              patientName: name || "Walk-in Patient",
-                              patientPhone: phone || "+91 99999 00000",
-                              age: age || "40",
-                              symptoms: symptoms || "General OPD consultation",
-                              department: dept || "General Medicine",
-                              urgency: priority === "RED" ? "RED" : priority === "YELLOW" ? "YELLOW" : "GREEN",
-                              slotTime: "HMIS Walk-in",
-                              hospital: activeFacility?.name || "Kalyan Civil Hospital",
-                              facilityId: activeFacility?.facilityId || selectedFacilityId,
-                            };
-                          });
-                          handleImportLegacyOPD(customRecs);
-                          setBulkCsvText("");
-                        }}
-                        style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: C.primary, color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-                      >
-                        📥 Parse & Merge Custom CSV Rows
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 3. Local Hospital Network REST Webhook Configuration */}
-                <div style={{ background: C.card, borderRadius: 24, padding: "28px 32px", border: `1px solid ${C.border}`, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05)" }}>
-                  <h3 style={{ margin: "0 0 8px 0", fontSize: 18, fontWeight: 800, color: C.text, display: "flex", alignItems: "center", gap: 8 }}>
-                    <span>⚙️</span> {T("अस्पताल लोकल सर्वर / ईएचआर वेबहुक", "Local Hospital Intranet REST API / Webhook")}
-                  </h3>
-                  <p style={{ margin: "0 0 16px 0", fontSize: 13, color: C.muted }}>
-                    Connect to your on-premise HIS/EMR server running inside {activeFacility?.shortName || "Hospital"} intranet network.
-                  </p>
-
-                  <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr auto", gap: 12, alignItems: "flex-end" }}>
-                    <div>
-                      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 6 }}>
-                        Local HIS Server Endpoint URL
-                      </label>
-                      <input
-                        type="text"
-                        value={hmisEndpoint}
-                        onChange={(e) => setHmisEndpoint(e.target.value)}
-                        style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 6 }}>
-                        Facility API Key / HFR Token
-                      </label>
-                      <input
-                        type="text"
-                        value={hmisApiKey}
-                        onChange={(e) => setHmisApiKey(e.target.value)}
-                        style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
-                      />
-                    </div>
-                    <div>
-                      <button
-                        type="button"
-                        onClick={handleTestHmisEndpoint}
-                        disabled={endpointTesting}
-                        style={{
-                          padding: "10px 18px", borderRadius: 10, border: "none",
-                          background: "#0F766E", color: "white", fontSize: 13, fontWeight: 800,
-                          cursor: endpointTesting ? "not-allowed" : "pointer",
-                        }}
-                      >
-                        {endpointTesting ? "Pinging..." : "⚡ Test Connection"}
-                      </button>
-                    </div>
-                  </div>
-
-                  {endpointStatus && (
-                    <div style={{ marginTop: 14, padding: "10px 14px", borderRadius: 10, background: "#F0FDF4", border: "1px solid #BBF7D0", color: "#166534", fontSize: 12, fontWeight: 700 }}>
-                      {endpointStatus}
-                    </div>
-                  )}
+                  ))}
                 </div>
               </div>
-            )}
 
-          </div>
+              <div style={{ padding: 0 }}>
+                {(() => {
+                  const scopedRefs = referrals.filter((r) => {
+                    if (referralFilter !== "ALL" && r.referralType !== referralFilter) return false;
+                    if (selectedFacilityId === "ALL") return true;
+                    const fac = facilities.find((f) => f.facilityId === selectedFacilityId);
+                    if (!fac) return true;
+                    return (
+                      r.targetFacility?.toLowerCase().includes(fac.shortName?.toLowerCase() || "") ||
+                      r.targetFacility?.toLowerCase().includes(fac.city?.toLowerCase() || "") ||
+                      r.targetFacility?.toLowerCase().includes(fac.name?.toLowerCase() || "")
+                    );
+                  });
 
-          
+                  if (scopedRefs.length === 0) {
+                    return (
+                      <div style={{ padding: 36, textAlign: "center", color: C.muted }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>No inbound referrals or physical OPD appointments for this facility.</div>
+                        <div style={{ fontSize: 12, marginTop: 4 }}>Appointments booked by telemedicine doctors will appear in real-time.</div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                      <thead>
+                        <tr style={{ background: "#F8FAFC", fontSize: 11.5, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                          <th style={{ padding: "14px 20px", fontWeight: 700 }}>Patient Identity</th>
+                          <th style={{ padding: "14px 20px", fontWeight: 700 }}>Type & Token</th>
+                          <th style={{ padding: "14px 20px", fontWeight: 700 }}>Referring Doctor</th>
+                          <th style={{ padding: "14px 20px", fontWeight: 700 }}>Scheduled Slot & Reason</th>
+                          <th style={{ padding: "14px 20px", fontWeight: 700 }}>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {scopedRefs.map((r) => {
+                          const isInPerson = r.referralType === "IN_PERSON_FOLLOWUP";
+                          const isPending = r.status === "pending";
+                          const isArrived = r.status === "arrived";
+                          const isCompleted = r.status === "completed";
+
+                          return (
+                            <tr
+                              key={r._id}
+                              style={{ borderTop: `1px solid ${C.border}`, transition: "background 0.2s" }}
+                            >
+                              <td style={{ padding: "14px 20px" }}>
+                                <div style={{ fontWeight: 800, color: C.text, fontSize: 14 }}>{r.patientName}</div>
+                                <div style={{ display: "flex", gap: 6, marginTop: 3 }}>
+                                  <button
+                                    type="button"
+                                    onClick={() => window.open(`tel:${r.patientPhone}`)}
+                                    style={{ background: "#F1F5F9", border: "none", borderRadius: 5, padding: "2px 6px", fontSize: 11, fontWeight: 700, cursor: "pointer", color: C.text, display: "flex", alignItems: "center", gap: 3 }}
+                                  >
+                                    <Phone size={11} /> {r.patientPhone}
+                                  </button>
+                                </div>
+                              </td>
+
+                              <td style={{ padding: "14px 20px" }}>
+                                <span
+                                  style={{
+                                    background: isInPerson ? "#ECFDF5" : "#FFF7ED",
+                                    color: isInPerson ? "#059669" : "#C2410C",
+                                    padding: "3px 8px",
+                                    borderRadius: 6,
+                                    fontSize: 10.5,
+                                    fontWeight: 800,
+                                    display: "inline-block",
+                                  }}
+                                >
+                                  {isInPerson ? "Physical OPD" : "Specialist Transfer"}
+                                </span>
+                                {r.opdToken && (
+                                  <div style={{ fontSize: 11, fontWeight: 800, color: C.primary, marginTop: 3 }}>
+                                    Token: {r.opdToken}
+                                  </div>
+                                )}
+                              </td>
+
+                              <td style={{ padding: "14px 20px" }}>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Dr. {r.referredByDoctorName}</div>
+                                <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>{r.sourceFacility}</div>
+                              </td>
+
+                              <td style={{ padding: "14px 20px" }}>
+                                <div style={{ fontSize: 12, fontWeight: 700, color: C.text }}>
+                                  {r.scheduledDate || "Today"} · {r.scheduledSlot || "OPD Hours"}
+                                </div>
+                                <div style={{ fontSize: 11, color: C.muted, marginTop: 2, maxWidth: 280, lineHeight: 1.3 }}>
+                                  {r.reasonForReferral}
+                                </div>
+                              </td>
+
+                              <td style={{ padding: "14px 20px" }}>
+                                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                                  {isPending && (
+                                    <button
+                                      type="button"
+                                      onClick={async () => {
+                                        await fetch("/api/referrals", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: r._id, status: "arrived" }) });
+                                        fetchData();
+                                      }}
+                                      style={{ padding: "5px 10px", background: "#0284C7", color: "white", border: "none", borderRadius: 6, fontSize: 11, fontWeight: 800, cursor: "pointer" }}
+                                    >
+                                      Mark Arrived
+                                    </button>
+                                  )}
+                                  {isArrived && (
+                                    <button
+                                      type="button"
+                                      onClick={async () => {
+                                        await fetch("/api/referrals", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: r._id, status: "completed" }) });
+                                        fetchData();
+                                      }}
+                                      style={{ padding: "5px 10px", background: C.green, color: "white", border: "none", borderRadius: 6, fontSize: 11, fontWeight: 800, cursor: "pointer" }}
+                                    >
+                                      Complete Visit
+                                    </button>
+                                  )}
+                                  {isCompleted && (
+                                    <span style={{ fontSize: 11, fontWeight: 800, color: C.green, background: "#D1FAE5", padding: "4px 8px", borderRadius: 8 }}>
+                                      Finished
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+
+          {/* Lab Diagnostics Safety Net */}
+          {(activeTab === "dashboard" || activeTab === "diagnostics") && (
+            <div style={{ background: C.card, borderRadius: 16, border: `1px solid ${C.border}`, overflow: "hidden", boxShadow: "0 6px 16px rgba(0, 0, 0, 0.03)" }}>
+              <div style={{ padding: "18px 24px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: C.text, display: "flex", alignItems: "center", gap: 6 }}>
+                  <FlaskConical size={18} /> {T("ग्लोबल लैब रिपोर्ट (सेफ्टी नेट)", "Global Lab Reports (Diagnostics Safety Net)")}
+                </h3>
+                <div style={{ fontSize: 12, color: C.accent, fontWeight: 700, background: `${C.accent}15`, padding: "4px 12px", borderRadius: 14 }}>
+                  {labTests.length} Total Reports
+                </div>
+              </div>
+              <div style={{ padding: 0 }}>
+                {labTests.length === 0 ? (
+                  <div style={{ padding: 32, textAlign: "center", color: C.muted }}>No lab reports found.</div>
+                ) : (
+                  <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                    <thead>
+                      <tr style={{ background: "#F8FAFC", fontSize: 11.5, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Patient</th>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Test Result</th>
+                        <th style={{ padding: "14px 20px", fontWeight: 700 }}>Status / Assignment</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {labTests.slice(0, 20).map((t) => (
+                        <tr key={t._id} style={{ borderTop: `1px solid ${C.border}`, background: t.isCritical && !t.assignedDoctorId ? "#FEF2F2" : "transparent" }}>
+                          <td style={{ padding: "14px 20px" }}>
+                            <div style={{ fontWeight: 700, color: C.text, fontSize: 14 }}>{t.patientName}</div>
+                            <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2 }}>Phone: {t.patientPhone}</div>
+                          </td>
+                          <td style={{ padding: "14px 20px" }}>
+                            <div style={{ fontSize: 13.5, fontWeight: 800, color: t.isCritical ? C.red : C.text }}>{t.testType}: {t.result}</div>
+                            <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2 }}>Date: {new Date(t.testDate).toLocaleDateString()}</div>
+                          </td>
+                          <td style={{ padding: "14px 20px" }}>
+                            {t.assignedDoctorId ? (
+                              <span style={{ background: "#D1FAE5", color: "#059669", padding: "4px 10px", borderRadius: 10, fontSize: 11, fontWeight: 800 }}>Assigned to Doctor</span>
+                            ) : (
+                              <span style={{ background: t.isCritical ? C.red : "#FEF3C7", color: t.isCritical ? "white" : "#D97706", padding: "4px 10px", borderRadius: 10, fontSize: 11, fontWeight: 800 }}>Unassigned {t.isCritical && "(CRITICAL)"}</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* HMIS / EMR Integration Bridge */}
+          {activeTab === "hmis-bridge" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              {/* 1. Live ABDM & NIC e-Hospital Cloud Gateway Status */}
+              <div style={{ background: C.card, borderRadius: 16, padding: "22px 26px", border: `1px solid ${C.border}`, boxShadow: "0 6px 18px rgba(0, 0, 0, 0.03)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 14, marginBottom: 16 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ width: 42, height: 42, borderRadius: 10, background: "#E0F2FE", color: "#0284C7", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Network size={22} />
+                    </div>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: C.text }}>
+                          {T("आयुष्मान भारत (ABDM) व ई-हॉस्पिटल गेटवे", "ABDM & NIC e-Hospital Integration Bridge")}
+                        </h3>
+                        <span style={{ background: "#D1FAE5", color: "#059669", fontSize: 10.5, fontWeight: 800, padding: "2px 8px", borderRadius: 14, display: "flex", alignItems: "center", gap: 4 }}>
+                          <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#059669", animation: "pulse 1.5s infinite" }} />
+                          Live Sync Active
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
+                        Bi-directional FHIR M3 / HL7 v2.4 protocol connecting <strong>{activeFacility?.name}</strong> to the National Health Grid.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={handleForceSyncHmis}
+                      disabled={hmisSyncing}
+                      style={{
+                        padding: "8px 14px", borderRadius: 9, border: "none",
+                        background: "linear-gradient(135deg, #0D9488, #0F766E)", color: "white",
+                        fontSize: 12, fontWeight: 800, cursor: hmisSyncing ? "not-allowed" : "pointer",
+                        display: "flex", alignItems: "center", gap: 5, boxShadow: "0 3px 10px rgba(13, 148, 136, 0.25)"
+                      }}
+                    >
+                      <RefreshCw size={13} /> {hmisSyncing ? "Synchronizing Records..." : "Force Sync Now"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Gateway Metrics Grid */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginTop: 12 }}>
+                  <div style={{ background: "#F8FAFC", padding: "14px 18px", borderRadius: 12, border: `1px solid ${C.border}` }}>
+                    <div style={{ fontSize: 10, color: C.muted, fontWeight: 700, textTransform: "uppercase" }}>OPD Tokens Synced</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: C.primary, marginTop: 3 }}>{facilityScopedQueue.length} Active</div>
+                    <div style={{ fontSize: 10.5, color: "#10B981", marginTop: 2 }}>Auto-synced with NIC e-Hospital</div>
+                  </div>
+
+                  <div style={{ background: "#F8FAFC", padding: "14px 18px", borderRadius: 12, border: `1px solid ${C.border}` }}>
+                    <div style={{ fontSize: 10, color: C.muted, fontWeight: 700, textTransform: "uppercase" }}>ABHA Health IDs Linked</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: "#7C3AED", marginTop: 3 }}>{new Set(facilityScopedQueue.map(q => q.patientPhone || q.patientName)).size} Patients</div>
+                    <div style={{ fontSize: 10.5, color: C.muted, marginTop: 2 }}>FHIR Milestone 2 Verified</div>
+                  </div>
+
+                  <div style={{ background: "#F8FAFC", padding: "14px 18px", borderRadius: 12, border: `1px solid ${C.border}` }}>
+                    <div style={{ fontSize: 10, color: C.muted, fontWeight: 700, textTransform: "uppercase" }}>Lab Orders Pushed</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: "#D97706", marginTop: 3 }}>{labTests.length} Reports</div>
+                    <div style={{ fontSize: 10.5, color: C.muted, marginTop: 2 }}>LOINC Standardized</div>
+                  </div>
+
+                  <div style={{ background: "#F8FAFC", padding: "14px 18px", borderRadius: 12, border: `1px solid ${C.border}` }}>
+                    <div style={{ fontSize: 10, color: C.muted, fontWeight: 700, textTransform: "uppercase" }}>HFR Registry Code</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: C.text, marginTop: 4 }}>{activeFacility?.facilityId}</div>
+                    <div style={{ fontSize: 10.5, color: C.muted, marginTop: 2 }}>NIN: 270014022 (Approved)</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. 1-Click Legacy HMIS Data Ingestion & Live Merge */}
+              <div style={{ background: C.card, borderRadius: 16, padding: "22px 26px", border: `1px solid ${C.border}`, boxShadow: "0 6px 18px rgba(0, 0, 0, 0.03)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: C.text, display: "flex", alignItems: "center", gap: 6 }}>
+                      <Upload size={18} /> {T("मौजूदा अस्पताल HMIS डेटा मर्ज करें", "Merge Existing Hospital Walk-ins & Offline OPD")}
+                    </h3>
+                    <p style={{ margin: "2px 0 0", fontSize: 12, color: C.muted }}>
+                      Easily merge walk-in patients from existing hospital software, Excel/CSV sheets, or offline registers into AarogyaAI Live Triage without double entry.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={bulkImporting}
+                    onClick={() => handleImportLegacyOPD()}
+                    style={{
+                      padding: "8px 14px", borderRadius: 9, border: "none",
+                      background: "linear-gradient(135deg, #2563EB, #1D4ED8)", color: "white",
+                      fontSize: 12, fontWeight: 800, cursor: bulkImporting ? "not-allowed" : "pointer",
+                      display: "flex", alignItems: "center", gap: 5, boxShadow: "0 3px 10px rgba(37, 99, 235, 0.25)"
+                    }}
+                  >
+                    <Download size={13} /> {bulkImporting ? "Merging..." : "1-Click Merge 3 Walk-in Records"}
+                  </button>
+                </div>
+
+                {importStatusMessage && (
+                  <div style={{ background: "#ECFDF5", border: "1px solid #A7F3D0", color: "#065F46", padding: "10px 14px", borderRadius: 10, fontSize: 12, fontWeight: 700, marginBottom: 14 }}>
+                    {importStatusMessage}
+                  </div>
+                )}
+
+                {/* CSV Input Box */}
+                <div style={{ background: "#F8FAFC", borderRadius: 12, padding: "14px 18px", border: `1px solid ${C.border}` }}>
+                  <div style={{ fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 6, display: "flex", justifyContent: "space-between" }}>
+                    <span>Paste Raw CSV / HMIS Export (Format: Name, Phone, Age, Symptoms, Department, Priority)</span>
+                    <span style={{ color: C.muted }}>Deduplicates automatically by Phone Number</span>
+                  </div>
+                  <textarea
+                    value={bulkCsvText}
+                    onChange={(e) => setBulkCsvText(e.target.value)}
+                    placeholder="e.g. Ramesh More, 9898989801, 45, Severe Chest Pain, Cardiology, RED&#10;Sunita Patil, 9898989802, 32, High Fever & Vomiting, General Medicine, YELLOW"
+                    rows={3}
+                    style={{
+                      width: "100%", padding: "8px 10px", borderRadius: 8,
+                      border: `1px solid ${C.border}`, fontSize: 11.5, fontFamily: "monospace",
+                      outline: "none", boxSizing: "border-box", background: "white"
+                    }}
+                  />
+                  <div style={{ marginTop: 8, display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!bulkCsvText.trim()) return;
+                        const lines = bulkCsvText.trim().split("\n");
+                        const customRecs = lines.map((l) => {
+                          const [name, phone, age, symptoms, dept, priority] = l.split(",").map((s) => s.trim());
+                          return {
+                            patientName: name || "Walk-in Patient",
+                            patientPhone: phone || "+91 99999 00000",
+                            age: age || "40",
+                            symptoms: symptoms ? [symptoms] : ["General OPD consultation"],
+                            department: dept || "General Medicine",
+                            urgency: priority === "RED" ? "RED" : priority === "YELLOW" ? "YELLOW" : "GREEN",
+                            slotTime: "HMIS Walk-in",
+                            hospital: activeFacility?.name || "Civil Hospital",
+                            facilityId: activeFacility?.facilityId || selectedFacilityId,
+                            receptionistStatus: "CONFIRMED",
+                            status: "confirmed",
+                          };
+                        });
+                        handleImportLegacyOPD(customRecs);
+                        setBulkCsvText("");
+                      }}
+                      style={{ padding: "7px 14px", borderRadius: 8, border: "none", background: C.primary, color: "white", fontSize: 11.5, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+                    >
+                      <Upload size={12} /> Parse & Merge Custom CSV Rows
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. Local Hospital Network REST Webhook Configuration */}
+              <div style={{ background: C.card, borderRadius: 16, padding: "22px 26px", border: `1px solid ${C.border}`, boxShadow: "0 6px 18px rgba(0, 0, 0, 0.03)" }}>
+                <h3 style={{ margin: "0 0 6px 0", fontSize: 16, fontWeight: 800, color: C.text, display: "flex", alignItems: "center", gap: 6 }}>
+                  <Layers size={18} /> {T("अस्पताल लोकल सर्वर / ईएचआर वेबहुक", "Local Hospital Intranet REST API / Webhook")}
+                </h3>
+                <p style={{ margin: "0 0 14px 0", fontSize: 12, color: C.muted }}>
+                  Connect to your on-premise HIS/EMR server running inside {activeFacility?.shortName || "Hospital"} intranet network.
+                </p>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr auto", gap: 10, alignItems: "flex-end" }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: C.text, marginBottom: 4 }}>
+                      Local HIS Server Endpoint URL
+                    </label>
+                    <input
+                      type="text"
+                      value={hmisEndpoint}
+                      onChange={(e) => setHmisEndpoint(e.target.value)}
+                      style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12, outline: "none", boxSizing: "border-box" }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: C.text, marginBottom: 4 }}>
+                      Facility API Key / HFR Token
+                    </label>
+                    <input
+                      type="text"
+                      value={hmisApiKey}
+                      onChange={(e) => setHmisApiKey(e.target.value)}
+                      style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12, outline: "none", boxSizing: "border-box" }}
+                    />
+                  </div>
+                  <div>
+                    <button
+                      type="button"
+                      onClick={handleTestHmisEndpoint}
+                      disabled={endpointTesting}
+                      style={{
+                        padding: "8px 14px", borderRadius: 8, border: "none",
+                        background: "#0F766E", color: "white", fontSize: 12, fontWeight: 800,
+                        cursor: endpointTesting ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      {endpointTesting ? "Pinging..." : "Test Connection"}
+                    </button>
+                  </div>
+                </div>
+
+                {endpointStatus && (
+                  <div style={{ marginTop: 12, padding: "8px 12px", borderRadius: 8, background: "#F0FDF4", border: "1px solid #BBF7D0", color: "#166534", fontSize: 11.5, fontWeight: 700 }}>
+                    {endpointStatus}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
         </div>
 
         {/* Informative Footer */}
-        <footer style={{ marginTop: 60, borderTop: `1px solid ${C.border}`, paddingTop: 32, display: "flex", justifyContent: "space-between", alignItems: "center", color: C.muted }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(15, 118, 110, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🏥</div>
+        <footer style={{ marginTop: 40, borderTop: `1px solid ${C.border}`, paddingTop: 20, display: "flex", justifyContent: "space-between", alignItems: "center", color: C.muted, fontSize: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 6, background: "rgba(15, 118, 110, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: C.primary }}>
+              <Building2 size={16} />
+            </div>
             <div>
-              <div style={{ fontWeight: 800, color: C.text, fontSize: 14 }}>AarogyaAI Central Operations</div>
-              <div style={{ fontSize: 13, marginTop: 2 }}>Secure Medical Command Interface</div>
+              <div style={{ fontWeight: 800, color: C.text, fontSize: 13 }}>AarogyaAI Central Operations</div>
+              <div style={{ fontSize: 11 }}>Secure Clinical Reception & Command Interface</div>
             </div>
           </div>
-          <div style={{ fontSize: 13, fontWeight: 600 }}>
+          <div style={{ fontWeight: 600 }}>
             {T("AarogyaAI © 2026. सर्वाधिकार सुरक्षित।", "AarogyaAI © 2026. All rights reserved.")}
           </div>
         </footer>
 
       </main>
 
-      <style>{`
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        @keyframes alertGlow { 0%, 100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); } 50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.8); } }
-        .info-btn:hover .tooltip { visibility: visible !important; opacity: 1 !important; transform: translateX(-50%) translateY(-5px) !important; }
-      `}</style>
+      {/* ═══════════════════════════════════════════════════════════════════ */}
+      {/* ── MODAL 1: QUICK WALK-IN PATIENT REGISTRATION DRAWER / MODAL ── */}
+      {/* ═══════════════════════════════════════════════════════════════════ */}
+      {isRegisterModalOpen && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 99999,
+          background: "rgba(15, 23, 42, 0.75)", backdropFilter: "blur(6px)",
+          display: "flex", alignItems: "center", justifyContent: "center", padding: 16
+        }}>
+          <div style={{
+            background: "white", borderRadius: 20, width: "100%", maxWidth: 540,
+            overflow: "hidden", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.35)",
+            border: `1px solid ${C.border}`
+          }}>
+            <div style={{ padding: "18px 24px", background: "#0F766E", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <UserPlus size={22} />
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>New Walk-In Patient Registration</h3>
+                  <div style={{ fontSize: 11, opacity: 0.85 }}>Issue instant OPD token and assign consultation room</div>
+                </div>
+              </div>
+              <button onClick={() => setIsRegisterModalOpen(false)} style={{ background: "transparent", border: "none", color: "white", cursor: "pointer" }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateWalkin} style={{ padding: "20px 24px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>
+                    Patient Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Ramesh Patil"
+                    value={walkinForm.patientName}
+                    onChange={(e) => setWalkinForm({ ...walkinForm, patientName: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>
+                    Mobile Number *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="e.g. +91 98765 43210"
+                    value={walkinForm.patientPhone}
+                    onChange={(e) => setWalkinForm({ ...walkinForm, patientPhone: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 14 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Age</label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 42"
+                    value={walkinForm.age}
+                    onChange={(e) => setWalkinForm({ ...walkinForm, age: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Gender</label>
+                  <select
+                    value={walkinForm.gender}
+                    onChange={(e) => setWalkinForm({ ...walkinForm, gender: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box", background: "white" }}
+                  >
+                    <option value="M">Male (M)</option>
+                    <option value="F">Female (F)</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Triage Priority</label>
+                  <select
+                    value={walkinForm.urgency}
+                    onChange={(e) => setWalkinForm({ ...walkinForm, urgency: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box", background: "white", fontWeight: 700, color: walkinForm.urgency === "RED" ? C.red : walkinForm.urgency === "YELLOW" ? C.yellow : C.green }}
+                  >
+                    <option value="GREEN">GREEN (Routine OPD)</option>
+                    <option value="YELLOW">YELLOW (Urgent / Fast-track)</option>
+                    <option value="RED">RED (Casualty Emergency)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Department</label>
+                  <select
+                    value={walkinForm.department}
+                    onChange={(e) => setWalkinForm({ ...walkinForm, department: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box", background: "white" }}
+                  >
+                    <option value="General Medicine">General Medicine (OPD)</option>
+                    <option value="Cardiology">Cardiology</option>
+                    <option value="Pediatrics">Pediatrics & Child Care</option>
+                    <option value="Orthopedics">Orthopedics</option>
+                    <option value="Emergency & Trauma 24/7">Emergency & Trauma</option>
+                    <option value="Gynecology & Maternal">Gynecology</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Assign Doctor (On Duty)</label>
+                  <select
+                    value={walkinForm.doctorName}
+                    onChange={(e) => setWalkinForm({ ...walkinForm, doctorName: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box", background: "white" }}
+                  >
+                    <option value="">-- Auto-Assign Available Room --</option>
+                    {activeFacilityStaff.doctors.map((doc: any) => (
+                      <option key={doc.id} value={doc.name}>
+                        {doc.name} ({doc.room || doc.dept}) {doc.onDuty ? "• On Duty" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 18 }}>
+                <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Chief Complaints / Symptoms</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Chest pain, fever for 3 days, headache"
+                  value={walkinForm.symptoms}
+                  onChange={(e) => setWalkinForm({ ...walkinForm, symptoms: e.target.value })}
+                  style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                <button
+                  type="button"
+                  onClick={() => setIsRegisterModalOpen(false)}
+                  style={{ padding: "9px 16px", borderRadius: 8, border: `1px solid ${C.border}`, background: "#F1F5F9", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={walkinSubmitting}
+                  style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: C.primary, color: "white", fontSize: 13, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                >
+                  <Printer size={15} /> {walkinSubmitting ? "Generating..." : "Generate Token & Check-in"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════ */}
+      {/* ── MODAL 2: PRINTABLE OPD TOKEN SLIP MODAL ── */}
+      {/* ═══════════════════════════════════════════════════════════════════ */}
+      {activeTokenSlip && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 999999,
+          background: "rgba(15, 23, 42, 0.8)", backdropFilter: "blur(6px)",
+          display: "flex", alignItems: "center", justifyContent: "center", padding: 16
+        }}>
+          <div style={{
+            background: "white", borderRadius: 16, width: "100%", maxWidth: 400,
+            overflow: "hidden", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.4)",
+            border: `1px solid ${C.border}`
+          }}>
+            {/* Printable Slip Receipt */}
+            <div id="printable-opd-slip" style={{ padding: "24px 28px", fontFamily: "monospace", color: "#1E293B", background: "white" }}>
+              <div style={{ textAlign: "center", borderBottom: "1.5px dashed #CBD5E1", paddingBottom: 14, marginBottom: 14 }}>
+                <div style={{ fontSize: 15, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  {activeFacility?.name || "AarogyaAI Medical Center"}
+                </div>
+                <div style={{ fontSize: 10, color: "#64748B", marginTop: 2 }}>
+                  {activeFacility?.address || "Govt Hospital Network"} · Ph: {activeFacility?.phone || "+91 22 24076381"}
+                </div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: C.primary, marginTop: 4 }}>
+                  CENTRAL OPD TOKEN SLIP
+                </div>
+              </div>
+
+              <div style={{ textAlign: "center", margin: "14px 0", padding: "10px", background: "#F8FAFC", borderRadius: 8, border: "1px solid #E2E8F0" }}>
+                <div style={{ fontSize: 10, color: "#64748B", textTransform: "uppercase", fontWeight: 700 }}>Token Number</div>
+                <div style={{ fontSize: 26, fontWeight: 900, color: "#0F766E", letterSpacing: "1px" }}>
+                  {activeTokenSlip.tokenNumber || `OPD-${activeTokenSlip._id?.slice(-4).toUpperCase() || "102"}`}
+                </div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: activeTokenSlip.urgency === "RED" ? C.red : activeTokenSlip.urgency === "YELLOW" ? "#D97706" : C.green, marginTop: 2 }}>
+                  {activeTokenSlip.urgency === "RED" ? "EMERGENCY CASUALTY" : activeTokenSlip.urgency === "YELLOW" ? "URGENT FAST-TRACK" : "STANDARD OPD"}
+                </div>
+              </div>
+
+              <div style={{ fontSize: 12, lineHeight: 1.8 }}>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ color: "#64748B" }}>Patient Name:</span>
+                  <span style={{ fontWeight: 800 }}>{activeTokenSlip.patientName}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ color: "#64748B" }}>Mobile:</span>
+                  <span style={{ fontWeight: 700 }}>{activeTokenSlip.patientPhone}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ color: "#64748B" }}>Department:</span>
+                  <span style={{ fontWeight: 700 }}>{activeTokenSlip.department || "General OPD"}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ color: "#64748B" }}>Doctor / Room:</span>
+                  <span style={{ fontWeight: 800, color: C.primary }}>{activeTokenSlip.doctorName || "Room 102"}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ color: "#64748B" }}>Date & Time:</span>
+                  <span>{new Date().toLocaleDateString()} {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                </div>
+              </div>
+
+              <div style={{ borderTop: "1.5px dashed #CBD5E1", paddingTop: 12, marginTop: 14, textAlign: "center", fontSize: 10, color: "#64748B" }}>
+                Please proceed to the waiting lobby. Your token will be called on the OPD display screen.
+              </div>
+            </div>
+
+            {/* Modal Controls */}
+            <div style={{ padding: "12px 20px", background: "#F8FAFC", borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", gap: 10 }}>
+              <button
+                type="button"
+                onClick={() => setActiveTokenSlip(null)}
+                style={{ padding: "8px 14px", borderRadius: 8, border: `1px solid ${C.border}`, background: "white", color: C.muted, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={() => window.print()}
+                style={{ padding: "8px 18px", borderRadius: 8, border: "none", background: C.primary, color: "white", fontSize: 12, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+              >
+                <Printer size={14} /> Print Receipt
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════ */}
+      {/* ── MODAL 3: ASSIGN DOCTOR / ROOM MODAL ── */}
+      {/* ═══════════════════════════════════════════════════════════════════ */}
+      {assignDoctorPatient && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 99999,
+          background: "rgba(15, 23, 42, 0.75)", backdropFilter: "blur(6px)",
+          display: "flex", alignItems: "center", justifyContent: "center", padding: 16
+        }}>
+          <div style={{
+            background: "white", borderRadius: 16, width: "100%", maxWidth: 440,
+            overflow: "hidden", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.35)",
+            border: `1px solid ${C.border}`
+          }}>
+            <div style={{ padding: "16px 20px", background: "#0F766E", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Stethoscope size={20} />
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>Assign Doctor & Consultation Room</h3>
+              </div>
+              <button onClick={() => setAssignDoctorPatient(null)} style={{ background: "transparent", border: "none", color: "white", cursor: "pointer" }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{ padding: "20px" }}>
+              <div style={{ marginBottom: 14, padding: "10px 14px", background: "#F8FAFC", borderRadius: 8, border: `1px solid ${C.border}` }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: C.text }}>{assignDoctorPatient.patientName}</div>
+                <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2 }}>{assignDoctorPatient.department || "General OPD"} • {assignDoctorPatient.patientPhone}</div>
+              </div>
+
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 8 }}>Select On-Duty Doctor & Room:</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 260, overflowY: "auto" }}>
+                {activeFacilityStaff.doctors.map((doc: any) => (
+                  <button
+                    key={doc.id}
+                    onClick={() => handleAssignDoctor(assignDoctorPatient._id, doc.name, doc.room || "Room 102")}
+                    style={{
+                      padding: "10px 14px",
+                      borderRadius: 10,
+                      border: `1px solid ${C.border}`,
+                      background: "white",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      transition: "all 0.15s ease",
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.borderColor = C.primary}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = C.border}
+                  >
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: C.text }}>{doc.name}</div>
+                      <div style={{ fontSize: 11, color: C.primary, fontWeight: 600 }}>{doc.room || "Room 102"} • {doc.dept}</div>
+                    </div>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: doc.onDuty ? "#059669" : C.muted, background: doc.onDuty ? "#D1FAE5" : "#F1F5F9", padding: "2px 8px", borderRadius: 6 }}>
+                      {doc.onDuty ? "Available" : "Off Duty"}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Doctor Direct Phone QR Modal */}
       <DoctorCallQRModal
@@ -2586,6 +3053,17 @@ export default function HospitalDesktopDashboard() {
         onClose={() => setSelectedQRDoctor(null)}
         doctor={selectedQRDoctor}
       />
+
+      <style>{`
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes alertGlow { 0%, 100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); } 50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.8); } }
+        .info-btn:hover .tooltip { visibility: visible !important; opacity: 1 !important; transform: translateX(-50%) translateY(-5px) !important; }
+        @media print {
+          body * { visibility: hidden; }
+          #printable-opd-slip, #printable-opd-slip * { visibility: visible; }
+          #printable-opd-slip { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+      `}</style>
     </div>
   );
 }

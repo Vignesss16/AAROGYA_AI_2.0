@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { QrCode, Phone, Copy, Check, X, Contact, PhoneCall } from "lucide-react";
 
 interface DoctorCallQRModalProps {
   isOpen: boolean;
@@ -83,9 +84,9 @@ END:VCARD`;
             <div style={{
               width: 36, height: 36, borderRadius: 10,
               background: "rgba(56, 189, 248, 0.15)", border: "1px solid rgba(56, 189, 248, 0.3)",
-              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18
+              display: "flex", alignItems: "center", justifyContent: "center", color: "#38BDF8"
             }}>
-              📱
+              <QrCode size={20} />
             </div>
             <div>
               <div style={{ fontSize: 15, fontWeight: 800, color: "white" }}>Scan to Call Doctor</div>
@@ -107,7 +108,7 @@ END:VCARD`;
               alignItems: "center",
               justifyContent: "center",
             }}>
-            ✕
+            <X size={16} />
           </button>
         </div>
 
@@ -129,7 +130,7 @@ END:VCARD`;
             <button
               onClick={() => setQrType("tel")}
               style={{
-                padding: "5px 12px",
+                padding: "6px 12px",
                 borderRadius: 9,
                 border: "none",
                 background: qrType === "tel" ? "#0284C7" : "transparent",
@@ -137,13 +138,16 @@ END:VCARD`;
                 fontSize: 11,
                 fontWeight: 700,
                 cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
               }}>
-              📞 Direct Call QR
+              <Phone size={13} /> Direct Call QR
             </button>
             <button
               onClick={() => setQrType("vcard")}
               style={{
-                padding: "5px 12px",
+                padding: "6px 12px",
                 borderRadius: 9,
                 border: "none",
                 background: qrType === "vcard" ? "#0284C7" : "transparent",
@@ -151,8 +155,11 @@ END:VCARD`;
                 fontSize: 11,
                 fontWeight: 700,
                 cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
               }}>
-              📇 Save Contact QR
+              <Contact size={13} /> Save Contact QR
             </button>
           </div>
 
@@ -197,9 +204,9 @@ END:VCARD`;
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: 5,
+                gap: 6,
               }}>
-              <span>{copied ? "✓" : "📋"}</span> {copied ? "Copied!" : "Copy Phone"}
+              {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? "Copied!" : "Copy Phone"}
             </button>
 
             <a
@@ -216,10 +223,10 @@ END:VCARD`;
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: 5,
+                gap: 6,
                 boxShadow: "0 4px 12px rgba(16, 185, 129, 0.4)",
               }}>
-              <span>📞</span> Call Now
+              <PhoneCall size={14} /> Call Now
             </a>
           </div>
         </div>
