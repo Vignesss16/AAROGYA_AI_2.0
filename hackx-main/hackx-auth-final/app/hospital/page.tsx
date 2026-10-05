@@ -2042,24 +2042,50 @@ export default function HospitalDesktopDashboard() {
                           <span style={{ fontSize: 11, color: "#92400E", fontWeight: 700 }}>
                             Field Community Lead
                           </span>
-                          <button
-                            onClick={() => window.open(`tel:${asha.phone}`)}
-                            style={{
-                              background: "#D97706",
-                              border: "none",
-                              color: "white",
-                              borderRadius: 6,
-                              padding: "5px 10px",
-                              fontSize: 11,
-                              fontWeight: 800,
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 3,
-                            }}
-                          >
-                            <PhoneCall size={12} /> Call
-                          </button>
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <button
+                              onClick={() => setSelectedQRDoctor({
+                                name: asha.name,
+                                phone: asha.phone,
+                                dept: asha.area || asha.village || "Catchment Health Ward",
+                                hospital: activeFacility?.name || "Hospital Medical Center",
+                                role: "ASHA Field Community Lead",
+                              })}
+                              style={{
+                                background: "rgba(217, 119, 6, 0.12)",
+                                border: "1px solid rgba(217, 119, 6, 0.35)",
+                                color: "#B45309",
+                                borderRadius: 6,
+                                padding: "5px 8px",
+                                fontSize: 11,
+                                fontWeight: 800,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 3,
+                              }}
+                            >
+                              <QrCode size={12} /> QR Call
+                            </button>
+                            <button
+                              onClick={() => window.open(`tel:${asha.phone}`)}
+                              style={{
+                                background: "#D97706",
+                                border: "none",
+                                color: "white",
+                                borderRadius: 6,
+                                padding: "5px 10px",
+                                fontSize: 11,
+                                fontWeight: 800,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 3,
+                              }}
+                            >
+                              <PhoneCall size={12} /> Call
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -2120,6 +2146,32 @@ export default function HospitalDesktopDashboard() {
                           </td>
                           <td style={{ padding: "14px 20px" }}>
                             <div style={{ display: "flex", gap: 6 }}>
+                              {p.patientPhone && p.patientPhone !== "unknown" && (
+                                <button
+                                  onClick={() => setSelectedQRDoctor({
+                                    name: p.patientName === "Unknown" ? "Emergency Patient" : p.patientName,
+                                    phone: p.patientPhone,
+                                    dept: "Emergency Casualty Patient",
+                                    hospital: activeFacility?.name || "Hospital Emergency Unit",
+                                    role: "Emergency Patient Contact",
+                                  })}
+                                  style={{
+                                    padding: "6px 10px",
+                                    background: "rgba(239, 68, 68, 0.12)",
+                                    color: C.red,
+                                    border: `1px solid rgba(239, 68, 68, 0.3)`,
+                                    borderRadius: 6,
+                                    fontSize: 11.5,
+                                    fontWeight: 700,
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 3,
+                                  }}
+                                >
+                                  <QrCode size={12} /> QR Call
+                                </button>
+                              )}
                               <button onClick={() => window.open(`tel:${p.patientPhone}`)} style={{ padding: "6px 12px", background: C.red, color: "white", border: "none", borderRadius: 6, fontSize: 11.5, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
                                 <PhoneCall size={12} /> Call
                               </button>

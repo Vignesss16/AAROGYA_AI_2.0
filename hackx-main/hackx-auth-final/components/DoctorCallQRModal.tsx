@@ -25,10 +25,15 @@ export default function DoctorCallQRModal({
 
   if (!isOpen || !doctor) return null;
 
-  const cleanName = doctor.name.startsWith("Dr.") ? doctor.name : `Dr. ${doctor.name.replace(/^(Dr\.?\s*)/i, "").trim()}`;
+  const isAshaOrStaff = doctor.role?.toLowerCase().includes("asha") || doctor.role?.toLowerCase().includes("community") || doctor.role?.toLowerCase().includes("nurse") || (!doctor.name.toLowerCase().startsWith("dr.") && !doctor.role?.toLowerCase().includes("doctor") && !doctor.role?.toLowerCase().includes("physician") && !doctor.role?.toLowerCase().includes("surgeon"));
+
+  const cleanName = isAshaOrStaff
+    ? doctor.name
+    : (doctor.name.toLowerCase().startsWith("dr.") ? doctor.name : `Dr. ${doctor.name.replace(/^(Dr\.?\s*)/i, "").trim()}`);
+
   const phone = doctor.phone || "+91 98765 01002";
   const hospital = doctor.hospital || "AarogyaAI Medical Command Center";
-  const specialty = doctor.dept || doctor.specialization || doctor.role || "Medical Specialist";
+  const specialty = doctor.dept || doctor.specialization || doctor.role || (isAshaOrStaff ? "ASHA Field Lead" : "Medical Specialist");
 
   const vCardData = `BEGIN:VCARD
 VERSION:3.0
@@ -36,7 +41,7 @@ FN:${cleanName}
 ORG:${hospital}
 TITLE:${specialty}
 TEL;TYPE=CELL:${phone}
-NOTE:AarogyaAI On-Duty Hospital Doctor
+NOTE:AarogyaAI ${isAshaOrStaff ? "ASHA Field Worker & Health Roster" : "On-Duty Hospital Clinician"}
 END:VCARD`;
 
   const rawData = qrType === "tel" ? `tel:${phone}` : vCardData;
@@ -83,13 +88,17 @@ END:VCARD`;
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{
               width: 36, height: 36, borderRadius: 10,
-              background: "rgba(56, 189, 248, 0.15)", border: "1px solid rgba(56, 189, 248, 0.3)",
-              display: "flex", alignItems: "center", justifyContent: "center", color: "#38BDF8"
+              background: isAshaOrStaff ? "rgba(245, 158, 11, 0.18)" : "rgba(56, 189, 248, 0.15)",
+              border: isAshaOrStaff ? "1px solid rgba(245, 158, 11, 0.4)" : "1px solid rgba(56, 189, 248, 0.3)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: isAshaOrStaff ? "#F59E0B" : "#38BDF8"
             }}>
               <QrCode size={20} />
             </div>
             <div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: "white" }}>Scan to Call Doctor</div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: "white" }}>
+                {isAshaOrStaff ? "Scan to Call ASHA / Staff" : "Scan to Call Doctor"}
+              </div>
               <div style={{ fontSize: 11, color: "#94A3B8" }}>Instant phone connect for receptionists</div>
             </div>
           </div>
@@ -112,10 +121,10 @@ END:VCARD`;
           </button>
         </div>
 
-        {/* Doctor Info Card */}
+        {/* Doctor / Staff Info Card */}
         <div style={{ padding: "20px", textAlign: "center" }}>
           <div style={{ fontSize: 18, fontWeight: 900, color: "#F8FAFC" }}>{cleanName}</div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#38BDF8", marginTop: 2 }}>{specialty}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: isAshaOrStaff ? "#FBBF24" : "#38BDF8", marginTop: 2 }}>{specialty}</div>
           <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 2 }}>{hospital}</div>
 
           {/* QR Code Type Selector */}
