@@ -453,23 +453,87 @@ export default function VideoCallModal({
   const isLocalAsha = callerRole === "asha";
   const isLocalPatient = !isLocalReceptionist && !isLocalDoctor && !isLocalAsha;
 
+  // Remote role detection
   const incomingRole = state.incomingCaller?.callerRole;
-  const isRemoteReceptionist = incomingRole === "receptionist";
-  const isRemoteDoctor = incomingRole === "doctor";
-
   const rawCallerTitle = state.incomingCaller?.callerTitle || callerTitle;
   const displayCallerTitle = sanitizeTitle(rawCallerTitle, incomingRole || callerRole, facilityName);
+
+  // Determine remote role when patient is receiving/viewing the call
+  const isRemoteDoctor = isLocalPatient && Boolean(
+    incomingRole === "doctor" ||
+    (displayCallerTitle && (/^(Dr\.?|Doctor)/i.test(displayCallerTitle) || /Consultation/i.test(displayCallerTitle))) ||
+    Boolean(patientDetails?.doctorName || assignedDoctor)
+  );
+
+  const isRemoteReceptionist = isLocalPatient && Boolean(
+    !isRemoteDoctor && (
+      incomingRole === "receptionist" ||
+      (displayCallerTitle && /reception/i.test(displayCallerTitle)) ||
+      (facilityName && !isRemoteDoctor && !displayCallerTitle?.startsWith("Dr."))
+    )
+  );
+
+  const isRemoteAsha = isLocalPatient && Boolean(
+    !isRemoteDoctor && !isRemoteReceptionist && (
+      incomingRole === "asha" ||
+      (displayCallerTitle && /asha/i.test(displayCallerTitle))
+    )
+  );
 
   // Dynamic remote participant, hospital name, and local user labels
   const isSionFacility = (facilityName || displayCallerTitle)?.includes("Lokmanya") || (facilityName || displayCallerTitle)?.includes("SION");
 
-  const remoteDisplayName = isLocalPatient
-    ? (isSionFacility ? "SION Hospital (LTMGH Mumbai)" : (facilityName || displayCallerTitle))
-    : (patientName ? `${patientName}` : "Patient Feed");
+  let remoteDisplayName = "Remote Video";
+  let remoteSubTitle = "Live Tele-Health";
+  let modalHeaderTitle = "Tele-Health Consultation";
+  let modalHeaderSubtitle = "Connected";
+  let modalHeaderIcon = <PhoneCall size={20} />;
 
-  const remoteSubTitle = isLocalPatient
-    ? "Reception Desk Live Verification"
-    : (patientId ? `Phone: ${patientId} • Token: ${resolvedTokenNumber}` : `Token: ${resolvedTokenNumber}`);
+  if (isLocalPatient) {
+    if (isRemoteDoctor) {
+      remoteDisplayName = displayCallerTitle || assignedDoctor || "Dr. Consultation";
+      remoteSubTitle = assignedDept ? `${assignedDept} • Tele-Consultation` : "Doctor Tele-Consultation";
+      modalHeaderTitle = displayCallerTitle || assignedDoctor || "Dr. Consultation";
+      modalHeaderSubtitle = assignedDept ? `${assignedDept} • Online Consultation` : "Doctor Tele-Consultation";
+      modalHeaderIcon = <Stethoscope size={20} />;
+    } else if (isRemoteReceptionist) {
+      remoteDisplayName = isSionFacility ? "SION Hospital (LTMGH Mumbai)" : (facilityName || displayCallerTitle || "Hospital Reception Desk");
+      remoteSubTitle = resolvedTokenNumber ? `Reception Desk • Token: #${resolvedTokenNumber}` : "Reception Desk Live Verification";
+      modalHeaderTitle = isSionFacility ? "SION Hospital (LTMGH Mumbai)" : (facilityName || displayCallerTitle || "Hospital Reception Desk");
+      modalHeaderSubtitle = resolvedTokenNumber ? `Live Verification Desk • Token: #${resolvedTokenNumber}` : "Reception Desk Live Verification";
+      modalHeaderIcon = <Building2 size={20} />;
+    } else if (isRemoteAsha) {
+      remoteDisplayName = displayCallerTitle || "ASHA Community Health Worker";
+      remoteSubTitle = "Community Health Assistance";
+      modalHeaderTitle = displayCallerTitle || "ASHA Community Health Worker";
+      modalHeaderSubtitle = "Community Health Assistance";
+      modalHeaderIcon = <User size={20} />;
+    } else {
+      remoteDisplayName = displayCallerTitle || "Consultation Desk";
+      remoteSubTitle = resolvedTokenNumber ? `Token: #${resolvedTokenNumber}` : "Tele-Health Call";
+      modalHeaderTitle = displayCallerTitle || "Tele-Health Consultation";
+      modalHeaderSubtitle = resolvedTokenNumber ? `Connected • Token: #${resolvedTokenNumber}` : "Connected";
+      modalHeaderIcon = <PhoneCall size={20} />;
+    }
+  } else if (isLocalDoctor) {
+    remoteDisplayName = patientName ? `${patientName}` : "Patient Feed";
+    remoteSubTitle = patientId ? `Phone: ${patientId} • Token: ${resolvedTokenNumber}` : `Token: ${resolvedTokenNumber}`;
+    modalHeaderTitle = "Clinical Tele-Consultation Room";
+    modalHeaderSubtitle = patientName ? `Patient: ${patientName}${patientId ? ` (${patientId})` : ""}` : "Patient Consultation";
+    modalHeaderIcon = <Stethoscope size={20} />;
+  } else if (isLocalReceptionist) {
+    remoteDisplayName = patientName ? `${patientName}` : "Patient Feed";
+    remoteSubTitle = patientId ? `Phone: ${patientId} • Token: ${resolvedTokenNumber}` : `Token: ${resolvedTokenNumber}`;
+    modalHeaderTitle = isSionFacility ? "SION Hospital (LTMGH Mumbai) — Reception Desk" : "Reception Desk Live Verification";
+    modalHeaderSubtitle = patientName ? `Patient: ${patientName}${patientId ? ` (${patientId})` : ""}` : "Patient Live Verification";
+    modalHeaderIcon = <Building2 size={20} />;
+  } else if (isLocalAsha) {
+    remoteDisplayName = patientName ? `${patientName}` : "Patient Feed";
+    remoteSubTitle = patientId ? `Phone: ${patientId}` : "Patient Visit";
+    modalHeaderTitle = "ASHA Field Consultation";
+    modalHeaderSubtitle = patientName ? `Patient: ${patientName}` : "Patient Visit";
+    modalHeaderIcon = <User size={20} />;
+  }
 
   const localDisplayName = isLocalReceptionist
     ? "You (Reception)"
@@ -477,13 +541,13 @@ export default function VideoCallModal({
     ? "You (Doctor)"
     : isLocalAsha
     ? "You (ASHA)"
-    : "You";
+    : (patientName ? `${patientName} (You)` : "You");
 
   const handleStartCall = (mode: "video" | "audio") => {
     actions.startCall(mode, {
       callerRole: callerRole === "patient" ? undefined : (callerRole as any),
       callerTitle: displayCallerTitle,
-      facilityName,
+      facilityName: isLocalReceptionist ? facilityName : undefined,
       department: assignedDept,
     });
   };
@@ -761,11 +825,11 @@ export default function VideoCallModal({
             <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
               <div style={{
                 width: 40, height: 40, borderRadius: "50%",
-                background: isLocalReceptionist ? "rgba(14, 165, 233, 0.25)" : "rgba(56, 189, 248, 0.15)",
-                border: isLocalReceptionist ? "1px solid rgba(14, 165, 233, 0.5)" : "1px solid rgba(56, 189, 248, 0.3)",
+                background: (isLocalReceptionist || isRemoteReceptionist) ? "rgba(14, 165, 233, 0.25)" : "rgba(56, 189, 248, 0.15)",
+                border: (isLocalReceptionist || isRemoteReceptionist) ? "1px solid rgba(14, 165, 233, 0.5)" : "1px solid rgba(56, 189, 248, 0.3)",
                 display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0
               }}>
-                {isLocalReceptionist ? <Building2 size={20} /> : isLocalDoctor ? <Stethoscope size={20} /> : <PhoneCall size={20} />}
+                {modalHeaderIcon}
               </div>
               <div style={{ minWidth: 0 }}>
                 <div style={{
@@ -777,18 +841,12 @@ export default function VideoCallModal({
                   textOverflow: "ellipsis",
                   letterSpacing: -0.2
                 }}>
-                  {isIncoming
-                    ? "Incoming Call"
-                    : isLocalReceptionist
-                    ? "Reception Desk Live Verification"
-                    : isLocalDoctor
-                    ? "Clinical Tele-Consultation Room"
-                    : (isSionFacility ? "SION Hospital (LTMGH Mumbai)" : (facilityName || displayCallerTitle))}
+                  {isIncoming ? "Incoming Call" : modalHeaderTitle}
                 </div>
                 <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {isLocalDoctor || isLocalReceptionist
-                    ? `Patient: ${patientName} (${patientId})`
-                    : `Live Verification Desk • Token: #${resolvedTokenNumber}`}
+                  {isIncoming
+                    ? (isRemoteDoctor ? "Doctor Tele-Consultation" : isRemoteReceptionist ? "Reception Desk Verification" : "Tele-Health Call")
+                    : modalHeaderSubtitle}
                 </div>
               </div>
             </div>
@@ -934,18 +992,16 @@ export default function VideoCallModal({
                 display: "inline-flex", alignItems: "center", justifyContent: "center",
                 color: "#38BDF8", animation: "ring 1.2s infinite ease-in-out", marginBottom: 16
               }}>
-                {isRemoteReceptionist ? <Building2 size={38} /> : <Stethoscope size={38} />}
+                {isRemoteDoctor ? <Stethoscope size={38} /> : isRemoteReceptionist ? <Building2 size={38} /> : isRemoteAsha ? <User size={38} /> : <PhoneCall size={38} />}
               </div>
 
               <div style={{ fontSize: 20, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
-                {displayCallerTitle}
+                {remoteDisplayName}
               </div>
 
-              {facilityName && (
-                <div style={{ fontSize: 13, fontWeight: 600, color: "#38BDF8", marginTop: 4 }}>
-                  {facilityName}
-                </div>
-              )}
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#38BDF8", marginTop: 4 }}>
+                {remoteSubTitle}
+              </div>
 
               <div style={{
                 display: "inline-flex", alignItems: "center", gap: 6,
@@ -1550,12 +1606,13 @@ export default function VideoCallModal({
             border: none !important;
           }
           .patient-video-frame .video-main-label {
-            bottom: 86px !important;
+            bottom: 96px !important;
             left: 12px !important;
-            max-width: calc(100vw - 24px) !important;
-            background: rgba(10, 20, 35, 0.9) !important;
+            max-width: calc(100vw - 28px) !important;
+            background: rgba(10, 20, 35, 0.92) !important;
             border: 1px solid rgba(56, 189, 248, 0.3) !important;
-            padding: 5px 10px !important;
+            padding: 6px 12px !important;
+            z-index: 25 !important;
           }
           .patient-controls-dock {
             position: absolute !important;
