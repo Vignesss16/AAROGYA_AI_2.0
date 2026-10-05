@@ -2,8 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { useLang } from "@/lib/useLang";
-import dynamic from "next/dynamic";
-const VideoCallModal = dynamic(() => import("@/components/VideoCallModal"), { ssr: false });
+import { useCall } from "@/context/CallContext";
 
 const C = {
   primary: "#0F766E", // Deep Teal
@@ -289,6 +288,7 @@ const MOCK_STAFF_MAP: Record<string, { doctors: any[]; ashaWorkers: any[] }> = {
 export default function HospitalDesktopDashboard() {
   const router = useRouter();
   const { lang, setLang, mounted } = useLang();
+  const { startCallSession } = useCall();
   const [auth, setAuth] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("hospitalAuth") === "true" || !!localStorage.getItem("hospital_command_user");
@@ -1277,16 +1277,31 @@ export default function HospitalDesktopDashboard() {
                                   📞 {T("फ़ोन कॉल सत्यापन", "Phone Verify")}
                                 </button>
                                 <button
-                                  onClick={() => setCallPatient({
-                                    id: p.patientPhone || p._id,
-                                    name: p.patientName,
-                                    details: {
+                                  onClick={() => startCallSession({
+                                    patientId: p.patientPhone || p._id,
+                                    patientName: p.patientName,
+                                    isDoctor: true,
+                                    callerRole: "receptionist",
+                                    callerTitle: `${activeFacility?.shortName || activeFacility?.name || "Hospital"} Reception Desk`,
+                                    facilityName: activeFacility?.name || "Hospital Medical Center",
+                                    department: p.department || "General OPD",
+                                    patientDetails: {
                                       department: p.department || "General OPD",
                                       urgency: p.urgency || p.priority || (p.triageCategory === "RED" ? "RED CRITICAL" : "STANDARD"),
                                       slotTime: p.slotTime || "Immediate Token",
                                       doctorName: p.doctorName,
                                       verificationNotes: p.verificationNotes,
                                       symptoms: p.symptoms || p.triageReason,
+                                    },
+                                    onSaveNotes: async (notes, verifiedStatus) => {
+                                      try {
+                                        if (verifiedStatus === "Verified & Confirmed" || verifiedStatus?.includes("Verified")) {
+                                          await handleConfirmAppointment(p._id);
+                                        } else if (verifiedStatus?.includes("Suspicious") || verifiedStatus?.includes("Canceled")) {
+                                          await handleFlagScamAppointment(p._id);
+                                        }
+                                        fetchData();
+                                      } catch {}
                                     }
                                   })}
                                   title="App video/audio intercom to verify patient"
@@ -1940,10 +1955,15 @@ export default function HospitalDesktopDashboard() {
                                     </button>
                                     <button
                                       type="button"
-                                      onClick={() => setCallPatient({
-                                        id: r.patientPhone || r._id,
-                                        name: r.patientName,
-                                        details: {
+                                      onClick={() => startCallSession({
+                                        patientId: r.patientPhone || r._id,
+                                        patientName: r.patientName,
+                                        isDoctor: true,
+                                        callerRole: "receptionist",
+                                        callerTitle: `${activeFacility?.shortName || activeFacility?.name || "Hospital"} Reception Desk`,
+                                        facilityName: activeFacility?.name || "Hospital Medical Center",
+                                        department: r.targetDepartment || "Specialist OPD",
+                                        patientDetails: {
                                           department: r.targetDepartment || "Specialist OPD",
                                           urgency: r.priority || "MEDIUM",
                                           doctorName: r.referringDoctorName,
@@ -2377,30 +2397,7 @@ export default function HospitalDesktopDashboard() {
         @keyframes alertGlow { 0%, 100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); } 50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.8); } }
         .info-btn:hover .tooltip { visibility: visible !important; opacity: 1 !important; transform: translateX(-50%) translateY(-5px) !important; }
       `}</style>
-      {callPatient && (
-        <VideoCallModal
-          isOpen={true}
-          onClose={() => setCallPatient(null)}
-          patientName={callPatient.name}
-          patientId={callPatient.id}
-          isDoctor={true}
-          callerRole="receptionist"
-          callerTitle={`${activeFacility?.shortName || activeFacility?.name || "Hospital"} Reception Desk`}
-          facilityName={activeFacility?.name || "Hospital Medical Center"}
-          department={callPatient.details?.department || "General OPD"}
-          patientDetails={callPatient.details}
-          onSaveNotes={async (notes, verifiedStatus) => {
-            try {
-              if (verifiedStatus === "Verified & Confirmed") {
-                await handleConfirmAppointment(callPatient.id);
-              } else if (verifiedStatus === "Flagged Suspicious") {
-                await handleFlagScamAppointment(callPatient.id);
-              }
-              fetchData();
-            } catch {}
-          }}
-        />
-      )}
+
     </div>
   );
 }

@@ -2,8 +2,7 @@
 import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import dynamic from "next/dynamic";
-const VideoCallModal = dynamic(() => import("@/components/VideoCallModal"), { ssr: false });
+import { useCall } from "@/context/CallContext";
 
 const C = {
   primary: "#1B6CA8",
@@ -92,10 +91,10 @@ export default function ConsultationDetailPage() {
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState("");
   const { data: session } = useSession();
+  const { startCallSession } = useCall();
   const [doctorName, setDoctorName] = useState("");
   const [rxRows, setRxRows] = useState<RxRow[]>([emptyRow()]);
   const [saving, setSaving] = useState(false);
-  const [callOpen, setCallOpen] = useState(false);
   const [referModalOpen, setReferModalOpen] = useState(false);
   const [referralTarget, setReferralTarget] = useState("Lokmanya Tilak Municipal General Hospital (SION Mumbai)");
   const [referralDept, setReferralDept] = useState("Cardiology & Apex Trauma");
@@ -783,7 +782,25 @@ export default function ConsultationDetailPage() {
           {/* Action Row 1: Immediate Patient Engagement & In-Person Follow-up */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 10, marginBottom: 10 }}>
             <button
-              onClick={() => setCallOpen(true)}
+              onClick={() => {
+                if (!consultation) return;
+                startCallSession({
+                  patientName: consultation.patientName,
+                  patientId: consultation.patientPhone,
+                  isDoctor: true,
+                  callerRole: "doctor",
+                  callerTitle: session?.user?.name ? (session.user.name.startsWith("Dr.") ? session.user.name : `Dr. ${session.user.name.replace(/^(Dr\.?\s*)/i, "").trim()}`) : (consultation.doctorName ? (consultation.doctorName.startsWith("Dr.") ? consultation.doctorName : `Dr. ${consultation.doctorName.replace(/^(Dr\.?\s*)/i, "").trim()}`) : "Dr. Consultation"),
+                  department: (consultation as any).department || "Consultation Room",
+                  facilityName: "AarogyaAI Central Tele-Health",
+                  patientDetails: {
+                    department: (consultation as any).department,
+                    urgency: consultation.urgency === "RED" ? "RED CRITICAL" : consultation.urgency === "YELLOW" ? "YELLOW URGENT" : "GREEN STABLE",
+                    symptoms: consultation.symptoms,
+                    doctorName: consultation.doctorName,
+                    consultationId: id,
+                  },
+                });
+              }}
               style={{ padding: 13, borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 13, background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, color: "white", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
             >
               📞 Call Patient
@@ -832,27 +849,6 @@ export default function ConsultationDetailPage() {
           </div>
         </div>
       </div>
-
-      {/* Video Call Modal */}
-      {callOpen && (
-        <VideoCallModal
-          isOpen={true}
-          onClose={() => setCallOpen(false)}
-          patientName={consultation.patientName}
-          patientId={consultation.patientPhone}
-          isDoctor={true}
-          callerRole="doctor"
-          callerTitle={`Dr. ${session?.user?.name || consultation.doctorName || "Doctor"}`}
-          department={(consultation as any).department || "Consultation Room"}
-          facilityName="AarogyaAI Central Tele-Health"
-          patientDetails={{
-            department: (consultation as any).department,
-            urgency: consultation.urgency === "RED" ? "RED CRITICAL" : consultation.urgency === "YELLOW" ? "YELLOW URGENT" : "GREEN STABLE",
-            symptoms: Array.isArray(consultation.symptoms) ? consultation.symptoms.join(", ") : (consultation.symptoms || ""),
-            doctorName: consultation.doctorName,
-          }}
-        />
-      )}
 
       {/* Modal 1: Prescribe Diagnostic Lab Test */}
       {labModalOpen && (

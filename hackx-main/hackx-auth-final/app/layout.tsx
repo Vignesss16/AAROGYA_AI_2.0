@@ -20,6 +20,8 @@ export const viewport: Viewport = {
   themeColor: "#1B6CA8",
 };
 
+import { CallProvider } from "@/context/CallContext";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="hi">
@@ -31,10 +33,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <AuthProvider>
-          <ServiceWorkerRegister />
-          <OfflineBanner />
-          <CacheWarmer />
-          {children}
+          <CallProvider>
+            <ServiceWorkerRegister />
+            <OfflineBanner />
+            <CacheWarmer />
+            {children}
+          </CallProvider>
         </AuthProvider>
       </body>
     </html>

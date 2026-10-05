@@ -3,8 +3,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { useLang } from "@/lib/useLang";
 import { useSession, signOut } from "next-auth/react";
-import dynamic from "next/dynamic";
-const VideoCallModal = dynamic(() => import("@/components/VideoCallModal"), { ssr: false });
+import { useCall } from "@/context/CallContext";
 
 const C = {
   primary: "#1B6CA8",
@@ -51,6 +50,7 @@ export default function DoctorDashboardPage() {
   const router = useRouter();
   const { data: session } = useSession();
   const { lang, setLang, mounted } = useLang();
+  const { startCallSession } = useCall();
   const [tick, setTick] = useState(30);
   const [activeTab, setActiveTab] = useState<"queue" | "lab-reports" | "referrals" | "reviews">("queue");
   const [queue, setQueue] = useState<Consultation[]>([]);
@@ -637,14 +637,21 @@ export default function DoctorDashboardPage() {
                           {markingDone === p._id ? "..." : `✓ ${T("पूर्ण", "Done")}`}
                         </button>
                         <button
-                          onClick={() => setCallPatient({
-                            id: p.patientPhone,
-                            name: p.patientName,
-                            details: {
+                          onClick={() => startCallSession({
+                            patientId: p.patientPhone,
+                            patientName: p.patientName,
+                            isDoctor: true,
+                            callerRole: "doctor",
+                            callerTitle: session?.user?.name ? (session.user.name.startsWith("Dr.") ? session.user.name : `Dr. ${session.user.name.replace(/^(Dr\.?\s*)/i, "").trim()}`) : "Dr. Consultation",
+                            department: (session?.user as any)?.specialty || (p as any).department || "Specialist OPD",
+                            facilityName: "AarogyaAI Medical Command Center",
+                            patientDetails: {
                               department: (p as any).department || "General OPD",
                               urgency: p.urgency === "RED" ? "RED CRITICAL" : p.urgency === "YELLOW" ? "YELLOW URGENT" : "GREEN STABLE",
                               symptoms: Array.isArray(p.symptoms) ? p.symptoms.join(", ") : (p.symptoms || ""),
+                              reasoning: p.triageResult?.summary || p.triageResult?.aiSummary || "",
                               doctorName: session?.user?.name || "Dr. Consultation",
+                              consultationId: p._id,
                             }
                           })}
                           style={{
@@ -1208,20 +1215,7 @@ export default function DoctorDashboardPage() {
         </div>
       </div>
 
-      {callPatient && (
-        <VideoCallModal
-          isOpen={true}
-          onClose={() => setCallPatient(null)}
-          patientName={callPatient.name}
-          patientId={callPatient.id}
-          isDoctor={true}
-          callerRole="doctor"
-          callerTitle={`Dr. ${session?.user?.name || "Doctor"}`}
-          department={(session?.user as any)?.specialty || "Specialist OPD"}
-          facilityName="AarogyaAI Medical Command Center"
-          patientDetails={callPatient.details}
-        />
-      )}
+
 
       {selectedSOS && (
         <div
