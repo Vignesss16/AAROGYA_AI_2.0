@@ -122,7 +122,7 @@ function VideoView({
   isMirrored,
   isMuted,
   isSmall,
-  fitMode = "contain",
+  fitMode = "cover",
   onToggleFit,
 }: {
   stream: MediaStream | null;
@@ -141,13 +141,13 @@ function VideoView({
   return (
     <div style={{
       position: "relative",
-      borderRadius: isSmall ? 10 : 16,
+      borderRadius: isSmall ? 12 : 16,
       overflow: "hidden",
       background: "#050B14",
       width: isSmall ? 96 : "100%",
-      height: isSmall ? 128 : "100%",
-      border: isSmall ? "2px solid rgba(255,255,255,0.6)" : "none",
-      boxShadow: isSmall ? "0 4px 14px rgba(0,0,0,0.6)" : "none",
+      height: isSmall ? 132 : "100%",
+      border: isSmall ? "2px solid rgba(255,255,255,0.7)" : "none",
+      boxShadow: isSmall ? "0 6px 18px rgba(0,0,0,0.7)" : "none",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -249,7 +249,7 @@ function AudioOnlyView({
     <div style={{
       borderRadius: compact ? 12 : 16,
       background: "radial-gradient(ellipse at center, #1E293B 0%, #0F172A 70%, #050B14 100%)",
-      height: compact ? "100%" : 220,
+      height: compact ? "100%" : 240,
       border: "1px solid rgba(255,255,255,0.1)",
       display: "flex",
       flexDirection: "column",
@@ -259,7 +259,7 @@ function AudioOnlyView({
     }}>
       {stream && <audio ref={audioRef} autoPlay playsInline />}
       <div style={{
-        width: compact ? 54 : 74, height: compact ? 54 : 74, borderRadius: "50%",
+        width: compact ? 54 : 76, height: compact ? 54 : 76, borderRadius: "50%",
         background: isDoctor ? "#0284C7" : "#10B981",
         display: "flex", alignItems: "center", justifyContent: "center",
         fontSize: compact ? 22 : 28, color: "white", fontWeight: 800,
@@ -298,7 +298,7 @@ export default function VideoCallModal({
 
   const [hasConnectedOnce, setHasConnectedOnce] = useState(false);
   const [isFloating, setIsFloating] = useState(false);
-  const [fitMode, setFitMode] = useState<"contain" | "cover">("contain");
+  const [fitMode, setFitMode] = useState<"contain" | "cover">("cover");
   const [mobileTab, setMobileTab] = useState<"video" | "desk">("video");
   const [showDeskPad, setShowDeskPad] = useState(true);
 
@@ -607,43 +607,50 @@ export default function VideoCallModal({
   const shouldShowDeskPanel = (isLocalReceptionist || isLocalDoctor) && showDeskPad;
 
   return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 1000,
-      background: "rgba(8, 14, 24, 0.90)",
-      backdropFilter: "blur(10px)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      padding: isActive ? "12px" : "16px",
-    }}>
-      <div style={{
-        width: "100%",
-        maxWidth: isLocalPatient
-          ? "min(500px, 94vw)"
-          : (shouldShowDeskPanel ? "min(1040px, 96vw)" : "min(560px, 94vw)"),
-        background: isLocalReceptionist ? "#0A192F" : "#0F172A",
-        borderRadius: 24,
-        maxHeight: "96vh",
-        overflowY: "auto",
-        display: "flex",
-        flexDirection: "column",
-        border: isLocalReceptionist ? "1px solid rgba(14, 165, 233, 0.3)" : "1px solid rgba(59, 130, 246, 0.3)",
-        boxShadow: "0 25px 65px rgba(0,0,0,0.75), 0 0 0 1px rgba(56, 189, 248, 0.15)",
-        animation: "slideUp .3s ease-out",
-        transition: "max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-      }}>
+    <div
+      className={`call-modal-backdrop ${isLocalPatient ? "patient-backdrop" : ""}`}
+      style={{
+        position: "fixed", inset: 0, zIndex: 1000,
+        background: "rgba(8, 14, 24, 0.92)",
+        backdropFilter: "blur(12px)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: isLocalPatient ? 0 : (isActive ? "12px" : "16px"),
+      }}
+    >
+      <div
+        className={`call-dialog-container ${isLocalPatient ? "patient-fullscreen-dialog" : ""}`}
+        style={{
+          width: "100%",
+          maxWidth: isLocalPatient
+            ? "100vw"
+            : (shouldShowDeskPanel ? "min(1060px, 96vw)" : "min(560px, 94vw)"),
+          height: isLocalPatient ? "100vh" : "auto",
+          background: isLocalReceptionist ? "#0A192F" : "#0F172A",
+          borderRadius: isLocalPatient ? 0 : 24,
+          maxHeight: isLocalPatient ? "100vh" : "96vh",
+          overflowY: "auto",
+          display: "flex",
+          flexDirection: "column",
+          border: isLocalPatient ? "none" : (isLocalReceptionist ? "1px solid rgba(14, 165, 233, 0.3)" : "1px solid rgba(59, 130, 246, 0.3)"),
+          boxShadow: isLocalPatient ? "none" : "0 25px 65px rgba(0,0,0,0.75), 0 0 0 1px rgba(56, 189, 248, 0.15)",
+          animation: "slideUp .25s ease-out",
+          transition: "max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      >
         {/* Modal Header */}
         <div style={{
           background: isLocalReceptionist
             ? "linear-gradient(135deg, #075985, #0C4A6E)"
             : "linear-gradient(135deg, #1E293B, #0F172A)",
-          padding: "16px 20px",
-          borderRadius: "24px 24px 0 0",
+          padding: isLocalPatient ? "14px 16px" : "16px 20px",
+          borderRadius: isLocalPatient ? 0 : "24px 24px 0 0",
           flexShrink: 0,
           borderBottom: "1px solid rgba(255,255,255,0.1)",
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
               <div style={{
-                width: 42, height: 42, borderRadius: "50%",
+                width: 40, height: 40, borderRadius: "50%",
                 background: isLocalReceptionist ? "rgba(14, 165, 233, 0.25)" : "rgba(56, 189, 248, 0.15)",
                 border: isLocalReceptionist ? "1px solid rgba(14, 165, 233, 0.5)" : "1px solid rgba(56, 189, 248, 0.3)",
                 display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0
@@ -722,7 +729,7 @@ export default function VideoCallModal({
           </div>
         )}
 
-        <div style={{ padding: "18px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
+        <div style={{ padding: isLocalPatient ? "12px 14px 20px" : "18px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
 
           {/* ── 1. IDLE: Choose call type (initiator side) ── */}
           {effectiveCallMode === "idle" && (
@@ -877,7 +884,7 @@ export default function VideoCallModal({
 
           {/* ── 4. ACTIVE CALL VIEW ── */}
           {isActive && (
-            <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 14 }}>
+            <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 12 }}>
               {/* Top Sub-bar */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
                 <NetworkBadge quality={state.networkQuality} />
@@ -939,35 +946,36 @@ export default function VideoCallModal({
 
               {/* Main Call + In-Call Desk Grid */}
               <div
-                className="call-main-grid"
+                className={`call-main-grid ${shouldShowDeskPanel ? "has-desk-panel" : ""}`}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: shouldShowDeskPanel ? "minmax(0, 1.2fr) minmax(0, 1fr)" : "1fr",
                   gap: 16,
                 }}
               >
                 {/* Video / Audio Stream Feed */}
                 <div
-                  className="call-video-column"
+                  className={`call-video-column ${mobileTab === "desk" ? "mobile-hide-video" : ""}`}
                   style={{
-                    display: (shouldShowDeskPanel && mobileTab === "desk") ? "none" : "flex",
                     flexDirection: "column", minWidth: 0, width: "100%"
                   }}
                 >
                   {effectiveCallMode === "video" ? (
-                    <div style={{
-                      position: "relative",
-                      borderRadius: 18,
-                      overflow: "hidden",
-                      minHeight: 280,
-                      height: isLocalPatient ? "52vh" : "46vh",
-                      maxHeight: 520,
-                      background: "#050B14",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}>
+                    <div
+                      className={isLocalPatient ? "patient-video-frame" : "staff-video-frame"}
+                      style={{
+                        position: "relative",
+                        borderRadius: 18,
+                        overflow: "hidden",
+                        minHeight: isLocalPatient ? "62vh" : 300,
+                        height: isLocalPatient ? "calc(100dvh - 180px)" : "48vh",
+                        maxHeight: isLocalPatient ? "none" : 520,
+                        background: "#050B14",
+                        border: "1px solid rgba(255,255,255,0.12)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
                       <VideoView
                         stream={state.remoteStream}
                         label={isLocalDoctor ? patientName : displayCallerTitle}
@@ -979,7 +987,7 @@ export default function VideoCallModal({
                       </div>
                     </div>
                   ) : (
-                    <div style={{ marginBottom: 10 }}>
+                    <div style={{ marginBottom: 10, minHeight: isLocalPatient ? "60vh" : "auto", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <AudioOnlyView name={isLocalDoctor ? patientName : displayCallerTitle} isDoctor={isLocalDoctor} stream={state.remoteStream} />
                     </div>
                   )}
@@ -1046,9 +1054,8 @@ export default function VideoCallModal({
                 {/* ── A. RECEPTIONIST DESK PAD UI ── */}
                 {isLocalReceptionist && showDeskPad && (
                   <div
-                    className="call-desk-column"
+                    className={`call-desk-column ${mobileTab === "video" ? "mobile-hide-desk" : ""}`}
                     style={{
-                      display: mobileTab === "video" ? "none" : "flex",
                       background: "rgba(10, 30, 52, 0.8)", borderRadius: 18, padding: "16px",
                       border: "1px solid rgba(14, 165, 233, 0.3)", flexDirection: "column", gap: 12,
                       minWidth: 0, width: "100%"
@@ -1173,9 +1180,8 @@ export default function VideoCallModal({
                 {/* ── B. DOCTOR CLINICAL DESK PAD UI ── */}
                 {isLocalDoctor && showDeskPad && (
                   <div
-                    className="call-desk-column"
+                    className={`call-desk-column ${mobileTab === "video" ? "mobile-hide-desk" : ""}`}
                     style={{
-                      display: mobileTab === "video" ? "none" : "flex",
                       background: "rgba(30, 41, 59, 0.75)", borderRadius: 18, padding: "16px",
                       border: "1px solid rgba(59, 130, 246, 0.3)", flexDirection: "column", gap: 12,
                       minWidth: 0, width: "100%"
@@ -1345,17 +1351,65 @@ export default function VideoCallModal({
           from { opacity: 0; transform: scale(0.85); }
           to { opacity: 1; transform: scale(1); }
         }
+
+        /* Desktop Mode (>= 769px) */
+        @media (min-width: 769px) {
+          .has-desk-panel {
+            grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) !important;
+          }
+          .call-video-column {
+            display: flex !important;
+          }
+          .call-desk-column {
+            display: flex !important;
+          }
+          .mobile-only-tabs {
+            display: none !important;
+          }
+        }
+
+        /* Mobile Mode (<= 768px) */
         @media (max-width: 768px) {
-          .mobile-only-tabs { display: flex !important; }
+          .mobile-only-tabs {
+            display: flex !important;
+          }
           .call-main-grid {
             grid-template-columns: 1fr !important;
             gap: 12px !important;
           }
           .call-video-column {
             width: 100% !important;
+            display: flex;
           }
           .call-desk-column {
             width: 100% !important;
+            display: flex;
+          }
+          .mobile-hide-video {
+            display: none !important;
+          }
+          .mobile-hide-desk {
+            display: none !important;
+          }
+
+          /* Patient True Full Screen on Mobile */
+          .patient-backdrop {
+            padding: 0 !important;
+            background: #050B14 !important;
+          }
+          .patient-fullscreen-dialog {
+            width: 100vw !important;
+            max-width: 100vw !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            border-radius: 0 !important;
+            border: none !important;
+          }
+          .patient-video-frame {
+            height: calc(100dvh - 170px) !important;
+            min-height: calc(100dvh - 170px) !important;
+            border-radius: 16px !important;
           }
         }
       `}</style>
