@@ -1,21 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { jsPDF } from "jspdf";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { getDB, seedOfflineData } from "@/lib/db-offline";
+import { generatePDF, PatientInfo, Consultation, urgencyConfig, formatDate, getTitle } from '@/lib/pdf';
+import { useAuth } from "@/lib/useAuth";
 
 const C = {
   primary: "#1B6CA8", primaryDark: "#0F4C7A", green: "#1E8449",
   red: "#C0392B", yellow: "#D68910", bg: "#F0F4F8",
   card: "#FFFFFF", text: "#1A2332", muted: "#6B7C93", border: "#DDE3EC",
 };
-
-import { generatePDF, PatientInfo, Consultation, urgencyConfig, formatDate, getTitle } from '@/lib/pdf';
-
-import { useAuth } from "@/lib/useAuth";
 
 export default function RecordsPage() {
   const router = useRouter();
@@ -38,7 +35,26 @@ export default function RecordsPage() {
   const [downloading, setDownloading] = useState(false);
   const [isOfflineMode, setIsOfflineMode] = useState(false);
 
+  // Professional Filter & Minimize Controls
+  const [activeTab, setActiveTab] = useState<"ALL" | "CONSULTATIONS" | "LABS" | "HOSPITAL">("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "COMPLETED" | "PENDING" | "CRITICAL">("ALL");
+  const [isLabsCollapsed, setIsLabsCollapsed] = useState(false);
+  const [isConsultationsCollapsed, setIsConsultationsCollapsed] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(6);
+  const [isCompactView, setIsCompactView] = useState(false);
+
   const t = (hi: string, en: string) => (lang === "hi" ? hi : en);
+
+  // Universal Doctor Name Sanitizer (prevents Dr. Dr duplication and handles unassigned hospital bookings)
+  const formatDoctorDisplay = (name?: string) => {
+    if (!name || name.trim() === "") return t("रिसेप्शनिस्ट असाइनमेंट प्रतीक्षारत", "Awaiting Receptionist Assignment");
+    if (name.toLowerCase().includes("pending") || name.toLowerCase().includes("awaiting") || name.toLowerCase().includes("receptionist")) {
+      return name;
+    }
+    const stripped = name.replace(/^(Dr\.?\s*)+/i, "").trim();
+    return stripped ? `Dr. ${stripped}` : t("डॉक्टर असाइनमेंट प्रतीक्षारत", "Awaiting Doctor Assignment");
+  };
 
   useEffect(() => {
     setLang(localStorage.getItem("lang") || "hi");
@@ -57,21 +73,17 @@ export default function RecordsPage() {
 
     setFetched(true);
     setFetching(true);
-    // Seed offline data on first visit
     if (typeof window !== "undefined") {
       seedOfflineData().catch(console.error);
     }
 
-    // If offline, load directly from IndexedDB
     if (!isOnline) {
-      console.log("📡 Offline mode — loading records from IndexedDB");
       setIsOfflineMode(true);
       setFetching(true);
 
       getDB()
         .consultations.toArray()
         .then((offlineRecords) => {
-          // Convert IndexedDB format to Consultation interface
           const converted: Consultation[] = offlineRecords.map((rec) => ({
             _id: `offline-${rec.id}`,
             symptoms: rec.symptoms || [],
@@ -92,7 +104,6 @@ export default function RecordsPage() {
       return;
     }
 
-    // If online, fetch from server AND cache in IndexedDB
     setIsOfflineMode(false);
 
     fetch(`/api/lab-orders?patientPhone=${encodeURIComponent(identifier)}`)
@@ -117,7 +128,6 @@ export default function RecordsPage() {
         const serverConsultations = data.consultations || [];
         setConsultations(serverConsultations);
 
-        // Cache in IndexedDB for offline use
         if (typeof window !== "undefined" && serverConsultations.length > 0) {
           try {
             const db = getDB();
@@ -179,7 +189,7 @@ export default function RecordsPage() {
           patientPhone: identifier,
           patientName: user?.name || "Patient",
           doctorId: (rateModalConsultation as any).doctorId || "DOC-DEFAULT",
-          doctorName: rateModalConsultation.doctorName || "Doctor",
+          doctorName: formatDoctorDisplay(rateModalConsultation.doctorName),
           hospital: rateModalConsultation.hospital || "",
           rating: selectedRating,
           comment: reviewComment,
@@ -208,16 +218,6 @@ export default function RecordsPage() {
     }
   };
 
-  if (authLoading && !user) {
-    return (
-      <div style={{ background: "#0d1520", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <div style={{ fontSize: 20, color: "white" }}>⏳ Loading...</div>
-      </div>
-    );
-  }
-
-  if (!user && !isOfflineMode) return null;
-
   const patient: PatientInfo = {
     name: user?.name || "Patient",
     gender: user?.gender === "female" ? t("महिला", "Female") : t("पुरुष", "Male"),
@@ -241,6 +241,58 @@ export default function RecordsPage() {
     completed:  t("✅ पूर्ण", "✅ Completed"),
   };
 
+  // Filtered Lists computation
+  const filteredLabOrders = useMemo(() => {
+    if (activeTab === "CONSULTATIONS") return [];
+    return labOrders.filter((lo) => {
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const matchesName = (lo.labName || "").toLowerCase().includes(q);
+        const matchesDoc = (lo.doctorName || "").toLowerCase().includes(q);
+        const matchesTests = (lo.tests || []).some((test: string) => test.toLowerCase().includes(q));
+        if (!matchesName && !matchesDoc && !matchesTests) return false;
+      }
+      return true;
+    });
+  }, [labOrders, activeTab, searchQuery]);
+
+  const filteredConsultations = useMemo(() => {
+    if (activeTab === "LABS") return [];
+    return consultations.filter((c) => {
+      if (activeTab === "HOSPITAL") {
+        const isHospitalAssisted = (c as any).bookingType === "HOSPITAL_RECEPTIONIST_ASSISTED" || !!c.hospital;
+        if (!isHospitalAssisted) return false;
+      }
+
+      if (statusFilter === "COMPLETED" && c.status !== "completed") return false;
+      if (statusFilter === "PENDING" && c.status === "completed") return false;
+      if (statusFilter === "CRITICAL" && c.urgency !== "RED") return false;
+
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const matchesDoctor = (c.doctorName || "").toLowerCase().includes(q);
+        const matchesHospital = (c.hospital || "").toLowerCase().includes(q);
+        const matchesSymptoms = (c.symptoms || []).some((s: string) => s.toLowerCase().includes(q));
+        const matchesDiagnosis = ((c as any).diagnosis || "").toLowerCase().includes(q);
+        if (!matchesDoctor && !matchesHospital && !matchesSymptoms && !matchesDiagnosis) return false;
+      }
+
+      return true;
+    });
+  }, [consultations, activeTab, statusFilter, searchQuery]);
+
+  const visibleConsultations = filteredConsultations.slice(0, visibleCount);
+
+  if (authLoading && !user) {
+    return (
+      <div style={{ background: "#0d1520", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div style={{ fontSize: 20, color: "white" }}>⏳ Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user && !isOfflineMode) return null;
+
   return (
     <div style={{ background: "#0d1520", minHeight: "100vh", display: "flex", justifyContent: "center" }}>
       <style>{`
@@ -249,360 +301,453 @@ export default function RecordsPage() {
         .rec-card { transition: box-shadow 0.18s, transform 0.18s; }
         .rec-card:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,0,0,0.09) !important; }
         .rec-pill { display:inline-flex; align-items:center; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; background:#EBF4FD; color:${C.primary}; margin-right:5px; margin-bottom:3px; }
-        .rec-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:10px; font-size:13px; fontWeight:700; cursor:pointer; border:none; transition:opacity 0.15s, transform 0.1s; }
+        .rec-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; border:none; transition:opacity 0.15s, transform 0.1s; }
         .rec-btn:hover { opacity:0.85; transform:scale(0.98); }
         .rec-btn:active { transform:scale(0.96); }
         .rec-expand-row { cursor:pointer; }
         .rec-expand-row:hover .rec-chevron { color: ${C.primary}; }
       `}</style>
 
-      <div style={{ width: 420, background: C.bg, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-        <div style={{ display: "flex", alignItems: "center", padding: "12px 14px", gap: 10, background: C.card, borderBottom: `1px solid ${C.border}` }}>
-          <button onClick={() => router.push("/home")} style={{ width: 36, height: 36, borderRadius: 10, background: C.bg, border: "none", fontSize: 18, cursor: "pointer" }}>←</button>
+      <div style={{ width: 440, maxWidth: "100vw", background: C.bg, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        {/* Top App Header */}
+        <div style={{ display: "flex", alignItems: "center", padding: "14px 16px", gap: 10, background: C.card, borderBottom: `1px solid ${C.border}`, position: "sticky", top: 0, zIndex: 20 }}>
+          <button
+            onClick={() => router.push("/home")}
+            style={{ width: 36, height: 36, borderRadius: 10, background: C.bg, border: "none", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            ←
+          </button>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 15, fontWeight: 700 }}>{t("मेरे स्वास्थ्य रिकॉर्ड", "My Health Records")}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: C.text }}>{t("मेरे स्वास्थ्य रिकॉर्ड", "My Health Records")}</div>
             <div style={{ fontSize: 11, color: C.muted }}>{isOfflineMode ? t("डिवाइस से सुरक्षित रिकॉर्ड", "Saved on device") : t("क्लाउड से सिंक", "Synced with cloud")}</div>
           </div>
           {consultations.length > 0 && (
-            <button className="rec-btn" onClick={handleDownloadAll} disabled={downloading} style={{ background: C.primary, color: "#fff", fontSize: 12, padding: "7px 12px" }}>
-              {downloading ? "⏳" : "📄"} {downloading ? t("तैयार हो रहा है...", "Preparing...") : t("डाउनलोड PDF", "Download PDF")}
+            <button className="rec-btn" onClick={handleDownloadAll} disabled={downloading} style={{ background: C.primary, color: "#fff", fontSize: 11, padding: "6px 12px" }}>
+              {downloading ? "⏳" : "📄"} {downloading ? t("...", "...") : t("PDF", "PDF")}
             </button>
           )}
         </div>
 
-        <div style={{ flex: 1, overflowY: "auto", padding: 16 }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "14px 16px" }}>
 
-          <div style={{ background: C.card, borderRadius: 16, border: `1px solid ${C.border}`, overflow: "hidden", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.05)" }}>
-            <div style={{ background: "linear-gradient(135deg,#EBF4FD,#DDEEFF)", padding: "16px 14px", display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ width: 52, height: 52, borderRadius: "50%", background: C.primary, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 800, color: "white", flexShrink: 0 }}>
+          {/* Patient Profile Card */}
+          <div style={{ background: C.card, borderRadius: 16, border: `1px solid ${C.border}`, overflow: "hidden", marginBottom: 14, boxShadow: "0 2px 12px rgba(0,0,0,0.05)" }}>
+            <div style={{ background: "linear-gradient(135deg,#EBF4FD,#DDEEFF)", padding: "14px", display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 48, height: 48, borderRadius: "50%", background: C.primary, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 800, color: "white", flexShrink: 0 }}>
                 {patient.name.charAt(0).toUpperCase()}
               </div>
               <div>
-                <div style={{ fontSize: 18, fontWeight: 800 }}>{patient.name}</div>
-                <div style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>
+                <div style={{ fontSize: 17, fontWeight: 800, color: C.text }}>{patient.name}</div>
+                <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
                   {patient.gender} · {patient.age} {t("वर्ष", "years")} {patient.phone !== "—" ? `· 📱 ${patient.phone}` : ""}
                 </div>
               </div>
             </div>
-            <div style={{ padding: "12px 14px", display: "flex", gap: 10 }}>
+            <div style={{ padding: "10px 12px", display: "flex", gap: 8 }}>
               {[
                 { v: patient.bloodGroup, l: t("रक्त समूह", "Blood Group") },
                 { v: patient.age,        l: t("उम्र", "Age") },
                 { v: patient.condition,  l: t("स्थिति", "Condition") },
               ].map((d, i) => (
-                <div key={i} style={{ flex: 1, textAlign: "center", padding: 10, background: C.bg, borderRadius: 10 }}>
-                  <div style={{ fontSize: 15, fontWeight: 800 }}>{d.v}</div>
+                <div key={i} style={{ flex: 1, textAlign: "center", padding: "8px 6px", background: C.bg, borderRadius: 10 }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{d.v}</div>
                   <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>{d.l}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Diagnostic Lab Orders Section */}
-          {labOrders.length > 0 && (
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                <span style={{ fontSize: 16 }}>🧪</span>
-                <span style={{ fontWeight: 700, fontSize: 14, color: C.text }}>
-                  {t("डायग्नोस्टिक लैब टेस्ट और रिपोर्ट्स", "Prescribed Lab Tests & Reports")}
-                </span>
-                <span style={{ background: "#0891B2", color: "white", borderRadius: 20, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>
-                  {labOrders.length}
-                </span>
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {/* ── PROFESSIONAL FILTER BAR & CATEGORY TABS ── */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          <div style={{ background: C.card, borderRadius: 16, padding: "12px", border: `1px solid ${C.border}`, marginBottom: 14, boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
+            {/* Search Input */}
+            <div style={{ position: "relative", marginBottom: 10 }}>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t("लक्षण, डॉक्टर या लैब खोजें...", "Search symptom, doctor, hospital...")}
+                style={{
+                  width: "100%", padding: "8px 12px 8px 32px", borderRadius: 10,
+                  border: `1px solid ${C.border}`, background: C.bg, fontSize: 12, outline: "none"
+                }}
+              />
+              <span style={{ position: "absolute", left: 10, top: 8, fontSize: 13, color: C.muted }}>🔍</span>
+              {searchQuery && (
+                <button onClick={() => setSearchQuery("")} style={{ position: "absolute", right: 8, top: 6, background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 12 }}>✕</button>
+              )}
+            </div>
+
+            {/* Category Navigation Pills */}
+            <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4 }}>
+              {[
+                { id: "ALL", label: t("सभी", "All"), count: consultations.length + labOrders.length },
+                { id: "CONSULTATIONS", label: t("परामर्श", "Consultations"), count: consultations.length },
+                { id: "LABS", label: t("लैब टेस्ट", "Lab Tests"), count: labOrders.length },
+                { id: "HOSPITAL", label: t("अस्पताल विज़िट", "Hospital Visits"), count: consultations.filter(c => (c as any).bookingType === "HOSPITAL_RECEPTIONIST_ASSISTED" || !!c.hospital).length },
+              ].map((tab) => {
+                const isSelected = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    style={{
+                      padding: "5px 10px", borderRadius: 20, border: "none",
+                      background: isSelected ? C.primary : C.bg,
+                      color: isSelected ? "white" : C.text,
+                      fontSize: 11, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap",
+                      display: "flex", alignItems: "center", gap: 5,
+                      boxShadow: isSelected ? "0 2px 6px rgba(27,108,168,0.3)" : "none"
+                    }}>
+                    <span>{tab.label}</span>
+                    <span style={{
+                      background: isSelected ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.06)",
+                      color: isSelected ? "white" : C.muted, padding: "1px 6px", borderRadius: 10, fontSize: 10
+                    }}>
+                      {tab.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Status Quick Filter & View Mode Toggle */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8, paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
+              <div style={{ display: "flex", gap: 4 }}>
+                {[
+                  { id: "ALL", label: "All" },
+                  { id: "COMPLETED", label: "✓ Done" },
+                  { id: "PENDING", label: "⏳ Pending" },
+                  { id: "CRITICAL", label: "🔴 Red" },
+                ].map((sf) => (
+                  <button
+                    key={sf.id}
+                    onClick={() => setStatusFilter(sf.id as any)}
+                    style={{
+                      padding: "3px 8px", borderRadius: 6, border: `1px solid ${statusFilter === sf.id ? C.primary : C.border}`,
+                      background: statusFilter === sf.id ? "#EBF4FD" : "transparent",
+                      color: statusFilter === sf.id ? C.primary : C.muted, fontSize: 10, fontWeight: 700, cursor: "pointer"
+                    }}>
+                    {sf.label}
+                  </button>
+                ))}
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {labOrders.map((lo) => {
-                  const statusMap: Record<string, { label: string; color: string; bg: string }> = {
-                    SENT_TO_LAB: { label: t("लैब को भेजा गया", "Sent to Lab"), color: "#0284C7", bg: "#E0F2FE" },
-                    LAB_ACCEPTED: { label: t("लैब ने स्वीकार किया", "Lab Accepted"), color: "#059669", bg: "#D1FAE5" },
-                    LAB_REJECTED: { label: t("अस्वीकृत", "Rejected"), color: "#DC2626", bg: "#FEE2E2" },
-                    APPOINTMENT_CONFIRMED: { label: t("स्लॉट बुक हुआ", "Slot Confirmed"), color: "#7C3AED", bg: "#EDE9FE" },
-                    SAMPLE_COLLECTED: { label: t("सैंपल एकत्र", "Sample Collected"), color: "#D97706", bg: "#FEF3C7" },
-                    PROCESSING: { label: t("जांच जारी", "Analyzing"), color: "#DB2777", bg: "#FCE7F3" },
-                    REPORT_UPLOADED: { label: t("रिपोर्ट तैयार", "Report Uploaded"), color: "#16A34A", bg: "#DCFCE7" },
-                    DOCTOR_REVIEWED: { label: t("डॉक्टर द्वारा समीक्षित", "Doctor Reviewed"), color: "#2563EB", bg: "#DBEAFE" },
-                  };
-                  const s = statusMap[lo.status] || { label: lo.status, color: C.muted, bg: C.bg };
-
-                  return (
-                    <div key={lo._id} style={{ background: C.card, borderRadius: 14, padding: 14, border: `1px solid ${C.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-                        <div>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>🏥 {lo.labName}</div>
-                          <div style={{ fontSize: 11, color: C.muted }}>Dr. {lo.doctorName} · {lo.orderId}</div>
-                        </div>
-                        <span style={{ fontSize: 10, fontWeight: 700, color: s.color, background: s.bg, padding: "3px 8px", borderRadius: 8 }}>
-                          {s.label}
-                        </span>
-                      </div>
-
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, margin: "6px 0 8px" }}>
-                        {(lo.tests || []).map((test: string, idx: number) => (
-                          <span key={idx} style={{ background: "#F1F5F9", color: "#334155", padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600 }}>
-                            🧪 {test}
-                          </span>
-                        ))}
-                      </div>
-
-                      {lo.appointmentSlot && (
-                        <div style={{ fontSize: 11, color: "#7C3AED", fontWeight: 600, marginBottom: 6 }}>
-                          📅 {t("अपॉइंटमेंट समय", "Slot")}: {lo.appointmentSlot}
-                        </div>
-                      )}
-
-                      {lo.doctorReviewNotes && (
-                        <div style={{ background: "#EFF6FF", borderRadius: 8, padding: "8px 10px", fontSize: 11, color: "#1E40AF", marginBottom: 8 }}>
-                          <strong>👨‍⚕️ {t("डॉक्टर रिव्यू", "Doctor Review")}:</strong> {lo.doctorReviewNotes}
-                        </div>
-                      )}
-
-                      {lo.reportUrl && (
-                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}>
-                          <button
-                            onClick={() => setSelectedReportOrder(lo)}
-                            style={{ background: "#0E7490", color: "white", border: "none", borderRadius: 8, padding: "6px 12px", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
-                          >
-                            📄 {t("रिपोर्ट देखें", "View Diagnostic Report")}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-            <span style={{ fontSize: 14 }}>📋</span>
-            <span style={{ fontWeight: 700, fontSize: 14, color: C.text }}>
-              {t("पिछली विज़िट", "Past Consultations")}
-            </span>
-            {consultations.length > 0 && (
-              <span style={{ background: C.primary, color: "white", borderRadius: 20, padding: "2px 9px", fontSize: 11, fontWeight: 700 }}>
-                {consultations.length}
-              </span>
-            )}
-          </div>
-
-          {fetching ? (
-            <div style={{ textAlign: "center", padding: 32, color: C.muted }}>
-              ⏳ {t("लोड हो रहा है...", "Loading records...")}
-            </div>
-          ) : consultations.length === 0 ? (
-            <div style={{ background: C.card, borderRadius: 16, padding: 28, textAlign: "center", border: `1px solid ${C.border}` }}>
-              <div style={{ fontSize: 38, marginBottom: 10 }}>🩺</div>
-              <div style={{ fontSize: 14, fontWeight: 700 }}>{t("कोई रिकॉर्ड नहीं", "No records yet")}</div>
-              <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>{t("लक्षण जाँचें और डॉक्टर बुक करें", "Check symptoms and book a doctor")}</div>
-              <button className="rec-btn" onClick={() => router.push("/symptoms")} style={{ marginTop: 16, background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, color: "white" }}>
-                🩺 {t("लक्षण जाँचें", "Check Symptoms")}
+              <button
+                onClick={() => setIsCompactView(!isCompactView)}
+                style={{ background: "none", border: "none", color: C.primary, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
+                {isCompactView ? "📑 Detailed" : "☰ Compact"}
               </button>
             </div>
-          ) : (
-            consultations.map((c, i) => {
-              const cfg = urgencyConfig[c.urgency] || urgencyConfig.GREEN;
-              const title = getTitle(c);
-              const isOpen = expanded === (c._id || String(i));
-              const cardId = c._id || String(i);
+          </div>
 
-              return (
-                <div key={cardId} className="rec-card" style={{ background: C.card, borderRadius: 14, border: `1px solid ${C.border}`, borderLeft: `4px solid ${cfg.color}`, marginBottom: 10, boxShadow: "0 2px 10px rgba(0,0,0,0.04)", overflow: "hidden" }}>
-                  <div className="rec-expand-row" onClick={() => setExpanded(isOpen ? null : cardId)} style={{ padding: "14px 14px 12px" }}>
-                    <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                      <div style={{ width: 10, height: 10, borderRadius: "50%", background: cfg.color, marginTop: 5, flexShrink: 0, boxShadow: `0 0 7px ${cfg.color}70` }} />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                          <span style={{ fontWeight: 700, fontSize: 14, color: C.text }}>{title}</span>
-                          <span style={{ background: cfg.bg, color: cfg.color, padding: "2px 9px", borderRadius: 20, fontSize: 11, fontWeight: 700 }}>
-                            {cfg.label}
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {/* ── SECTION 1: DIAGNOSTIC LAB TESTS & REPORTS (MINIMIZABLE) ── */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {filteredLabOrders.length > 0 && activeTab !== "CONSULTATIONS" && (
+            <div style={{ marginBottom: 14 }}>
+              <div
+                onClick={() => setIsLabsCollapsed(!isLabsCollapsed)}
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  background: C.card, padding: "10px 14px", borderRadius: 12, border: `1px solid ${C.border}`,
+                  cursor: "pointer", marginBottom: isLabsCollapsed ? 0 : 8
+                }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 16 }}>🧪</span>
+                  <span style={{ fontWeight: 800, fontSize: 13, color: C.text }}>
+                    {t("डायग्नोस्टिक लैब टेस्ट और रिपोर्ट्स", "Prescribed Lab Tests & Reports")}
+                  </span>
+                  <span style={{ background: "#0891B2", color: "white", borderRadius: 20, padding: "1px 7px", fontSize: 10, fontWeight: 800 }}>
+                    {filteredLabOrders.length}
+                  </span>
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: C.primary }}>
+                  {isLabsCollapsed ? "▲ Expand" : "▼ Minimize"}
+                </span>
+              </div>
+
+              {!isLabsCollapsed && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {filteredLabOrders.map((lo) => {
+                    const statusMap: Record<string, { label: string; color: string; bg: string }> = {
+                      SENT_TO_LAB: { label: t("लैब को भेजा गया", "Sent to Lab"), color: "#0284C7", bg: "#E0F2FE" },
+                      LAB_ACCEPTED: { label: t("स्वीकृत", "Lab Accepted"), color: "#059669", bg: "#D1FAE5" },
+                      LAB_REJECTED: { label: t("अस्वीकृत", "Rejected"), color: "#DC2626", bg: "#FEE2E2" },
+                      APPOINTMENT_CONFIRMED: { label: t("स्लॉट बुक", "Slot Confirmed"), color: "#7C3AED", bg: "#EDE9FE" },
+                      SAMPLE_COLLECTED: { label: t("सैंपल एकत्र", "Sample Collected"), color: "#D97706", bg: "#FEF3C7" },
+                      PROCESSING: { label: t("जांच जारी", "Analyzing"), color: "#DB2777", bg: "#FCE7F3" },
+                      REPORT_UPLOADED: { label: t("रिपोर्ट तैयार", "Report Uploaded"), color: "#16A34A", bg: "#DCFCE7" },
+                      DOCTOR_REVIEWED: { label: t("डॉक्टर समीक्षित", "Doctor Reviewed"), color: "#2563EB", bg: "#DBEAFE" },
+                    };
+                    const s = statusMap[lo.status] || { label: lo.status, color: C.muted, bg: C.bg };
+
+                    return (
+                      <div key={lo._id} style={{ background: C.card, borderRadius: 14, padding: isCompactView ? "10px 12px" : "12px 14px", border: `1px solid ${C.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 800, color: C.text }}>🏥 {lo.labName}</div>
+                            <div style={{ fontSize: 11, color: C.muted }}>{formatDoctorDisplay(lo.doctorName)} · {lo.orderId}</div>
+                          </div>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: s.color, background: s.bg, padding: "2px 8px", borderRadius: 8 }}>
+                            {s.label}
                           </span>
                         </div>
-                        <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>{formatDate(c.createdAt)}</div>
-                        <div style={{ marginTop: 6 }}>
-                          {(c.symptoms || []).slice(0, 4).map((s) => (
-                            <span key={s} className="rec-pill">{s}</span>
+
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, margin: "6px 0 6px" }}>
+                          {(lo.tests || []).map((test: string, idx: number) => (
+                            <span key={idx} style={{ background: "#F1F5F9", color: "#334155", padding: "2px 7px", borderRadius: 6, fontSize: 10, fontWeight: 600 }}>
+                              🧪 {test}
+                            </span>
                           ))}
                         </div>
-                        {(c.doctorName || c.slot) && (
-                          <div style={{ fontSize: 11, color: C.primary, marginTop: 6 }}>
-                            {c.doctorName && `🏥 Dr. ${c.doctorName.replace(/^(Dr\.?\s*)/i, "").trim()}`}
-                            {c.slot && ` · 🕐 ${c.slot}`}
-                            {c.queueNo && ` · #${c.queueNo}`}
+
+                        {lo.appointmentSlot && (
+                          <div style={{ fontSize: 10, color: "#7C3AED", fontWeight: 700, marginBottom: 4 }}>
+                            📅 {t("अपॉइंटमेंट", "Slot")}: {lo.appointmentSlot}
                           </div>
                         )}
-                        <div style={{ display: "flex", alignItems: "center", marginTop: 8 }}>
-                          <span style={{ fontSize: 12, color: c.status === "completed" ? C.green : cfg.color, fontStyle: "italic" }}>
-                            {statusLabel[c.status] || c.status}
-                          </span>
-                          <span className="rec-chevron" style={{ marginLeft: "auto", fontSize: 11, color: C.muted, fontWeight: 600 }}>
-                            {isOpen ? "▲ Hide" : "▼ View Report"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
 
-                  {isOpen && (
-                    <div style={{ padding: "0 14px 16px", borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
-                      {(c.doctorName || c.hospital || c.slot || c.queueNo) && (
-                        <div style={{ background: "linear-gradient(135deg, #EBF4FD, #DDEEFF)", borderRadius: 12, padding: "12px 14px", marginBottom: 12, border: `1px solid ${C.primary}30` }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                            <span style={{ fontSize: 14 }}>📅</span>
-                            <span style={{ fontWeight: 700, fontSize: 11, color: C.primary, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                              {t("अपॉइंटमेंट बुक", "Appointment Booked")}
-                            </span>
+                        {!isCompactView && lo.doctorReviewNotes && (
+                          <div style={{ background: "#EFF6FF", borderRadius: 8, padding: "6px 8px", fontSize: 11, color: "#1E40AF", marginBottom: 6 }}>
+                            <strong>👨‍⚕️ {t("डॉक्टर रिव्यू", "Doctor Review")}:</strong> {lo.doctorReviewNotes}
                           </div>
-                          {c.doctorName && <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 4 }}>🏥 {t("डॉक्टर", "Doctor")}: Dr. {c.doctorName.replace(/^(Dr\.?\s*)/i, "").trim()}</div>}
-                          {c.hospital && <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 4 }}>🏩 {t("अस्पताल", "Hospital")}: {c.hospital}</div>}
-                          {c.slot && <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 4 }}>🕐 {t("समय", "Time")}: {c.slot}{c.queueNo && ` · ${t("कतार No.", "Queue No.")} #${c.queueNo}`}</div>}
-                        </div>
-                      )}
+                        )}
 
-                      {c.uploadedRecords && c.uploadedRecords.length > 0 && (
-                        <div style={{ marginBottom: 12 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                            <span style={{ fontSize: 14 }}>📎</span>
-                            <span style={{ fontWeight: 700, fontSize: 11, color: C.text, textTransform: "uppercase" }}>
-                              {t("अपलोड रिकॉर्ड", "Uploaded Records")} ({c.uploadedRecords.length})
-                            </span>
-                          </div>
-                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                            {c.uploadedRecords.map((rec: any, idx: number) => (
-                              rec.dataUrl ? (
-                                <div key={idx}>
-                                  <img src={rec.dataUrl} alt={rec.name || "record"} style={{ width: 80, height: 80, borderRadius: 10, objectFit: "cover", border: `1px solid ${C.border}` }} />
-                                </div>
-                              ) : null
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {c.symptoms && c.symptoms.length > 0 && (
-                        <div style={{ background: "#FEF9E7", borderRadius: 10, padding: "10px 14px", marginBottom: 12, border: "1px solid #F4D03F" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                            <span style={{ fontSize: 14 }}>🤒</span>
-                            <span style={{ fontWeight: 700, fontSize: 11, color: "#7D6608", textTransform: "uppercase" }}>{t("लक्षण", "Symptoms")}</span>
-                          </div>
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                            {c.symptoms.map((s) => (
-                              <span key={s} style={{ background: "#FFF9E6", padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, color: "#7D6608" }}>{s}</span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {c.doctorNotes ? (
-                        <div style={{ background: "#F8FAFC", borderRadius: 10, padding: "12px 14px", marginBottom: 12, border: `1px solid ${C.border}` }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                            <span style={{ fontSize: 14 }}>🩺</span>
-                            <span style={{ fontWeight: 700, fontSize: 11, color: C.text, textTransform: "uppercase" }}>{t("डॉक्टर नोट्स", "Doctor Notes")}</span>
-                          </div>
-                          <p style={{ margin: 0, fontSize: 13, color: "#4b5563", lineHeight: 1.6 }}>{c.doctorNotes}</p>
-                        </div>
-                      ) : (
-                        <div style={{ background: "#FAFAFA", borderRadius: 10, padding: "10px 14px", marginBottom: 12, border: `1px solid ${C.border}`, fontSize: 12, color: C.muted, fontStyle: "italic" }}>
-                          🩺 {t("डॉक्टर के नोट्स अभी उपलब्ध नहीं", "Doctor notes not yet available")}
-                        </div>
-                      )}
-
-                      {c.prescription ? (
-                        <div style={{ background: "#F0FDF4", borderRadius: 10, padding: "12px 14px", marginBottom: 14, border: "1px solid #BBF7D0" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                            <span style={{ fontSize: 14 }}>💊</span>
-                            <span style={{ fontWeight: 700, fontSize: 11, color: "#166534", textTransform: "uppercase" }}>{t("नुस्खा", "Prescription")}</span>
-                          </div>
-                          <p style={{ margin: 0, fontSize: 13, color: "#166534", lineHeight: 1.7, whiteSpace: "pre-line" }}>{c.prescription}</p>
-                        </div>
-                      ) : (
-                        <div style={{ background: "#FAFAFA", borderRadius: 10, padding: "10px 14px", marginBottom: 14, border: `1px solid ${C.border}`, fontSize: 12, color: C.muted, fontStyle: "italic" }}>
-                          💊 {t("अभी कोई नुस्खा नहीं", "No prescription yet")}
-                        </div>
-                      )}
-
-                      {/* Doctor Review & Rating Section */}
-                      {c.status === "completed" && (
-                        reviews[c._id] ? (
-                          <div style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: 10, padding: "10px 14px", marginBottom: 14 }}>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                <span style={{ color: "#D97706", fontWeight: 800, fontSize: 13 }}>
-                                  {"★".repeat(reviews[c._id].rating)}{"☆".repeat(5 - reviews[c._id].rating)} {reviews[c._id].rating}/5
-                                </span>
-                                <span style={{ fontSize: 11, fontWeight: 700, color: "#92400E", textTransform: "uppercase" }}>
-                                  {t("आपकी समीक्षा", "Your Doctor Rating")}
-                                </span>
-                              </div>
-                              <span style={{ fontSize: 10, color: "#B45309" }}>
-                                {new Date(reviews[c._id].createdAt).toLocaleDateString()}
-                              </span>
-                            </div>
-                            {reviews[c._id].comment && (
-                              <p style={{ margin: "6px 0 0", fontSize: 12, color: "#78350F", fontStyle: "italic" }}>
-                                &ldquo;{reviews[c._id].comment}&rdquo;
-                              </p>
-                            )}
-                          </div>
-                        ) : (
-                          <div style={{ background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 10, padding: "12px 14px", marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-                            <div>
-                              <div style={{ fontSize: 12, fontWeight: 700, color: "#1E40AF" }}>
-                                {t("डॉक्टर के साथ अपना परामर्श अनुभव रेट करें", "Rate your consultation experience with this doctor")}
-                              </div>
-                              <div style={{ fontSize: 11, color: "#3B82F6", marginTop: 2 }}>
-                                {t("आपकी प्रतिक्रिया हमें सेवा बेहतर बनाने में मदद करती है", "Your feedback helps improve our medical care")}
-                              </div>
-                            </div>
+                        {lo.reportUrl && (
+                          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 4 }}>
                             <button
-                              onClick={() => {
-                                setRateModalConsultation(c);
-                                setSelectedRating(5);
-                                setReviewComment("");
-                              }}
-                              style={{
-                                background: "linear-gradient(135deg, #0F766E, #14B8A6)",
-                                color: "white",
-                                border: "none",
-                                padding: "7px 14px",
-                                borderRadius: 8,
-                                fontSize: 12,
-                                fontWeight: 700,
-                                cursor: "pointer",
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 4,
-                                boxShadow: "0 2px 6px rgba(15,118,110,0.2)",
-                              }}
-                            >
-                              ★ {t("डॉक्टर को रेट करें", "Rate Doctor")}
+                              onClick={() => setSelectedReportOrder(lo)}
+                              style={{ background: "#0E7490", color: "white", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                              📄 {t("रिपोर्ट देखें", "View Diagnostic Report")}
                             </button>
                           </div>
-                        )
-                      )}
-
-                      <button className="rec-btn" onClick={() => generatePDF(patient, [c])} style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.color}40`, width: "100%", justifyContent: "center" }}>
-                        📄 {t("PDF डाउनलोड करें", "Download PDF")}
-                      </button>
-                    </div>
-                  )}
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })
+              )}
+            </div>
           )}
+
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {/* ── SECTION 2: PAST CONSULTATIONS (MINIMIZABLE & PAGINATED) ── */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {activeTab !== "LABS" && (
+            <div style={{ marginBottom: 14 }}>
+              <div
+                onClick={() => setIsConsultationsCollapsed(!isConsultationsCollapsed)}
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  background: C.card, padding: "10px 14px", borderRadius: 12, border: `1px solid ${C.border}`,
+                  cursor: "pointer", marginBottom: isConsultationsCollapsed ? 0 : 8
+                }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 16 }}>📋</span>
+                  <span style={{ fontWeight: 800, fontSize: 13, color: C.text }}>
+                    {t("पिछली विज़िट व परामर्श", "Past Consultations & Appointments")}
+                  </span>
+                  <span style={{ background: C.primary, color: "white", borderRadius: 20, padding: "1px 7px", fontSize: 10, fontWeight: 800 }}>
+                    {filteredConsultations.length}
+                  </span>
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: C.primary }}>
+                  {isConsultationsCollapsed ? "▲ Expand" : "▼ Minimize"}
+                </span>
+              </div>
+
+              {!isConsultationsCollapsed && (
+                fetching ? (
+                  <div style={{ textAlign: "center", padding: 32, color: C.muted }}>
+                    ⏳ {t("लोड हो रहा है...", "Loading records...")}
+                  </div>
+                ) : filteredConsultations.length === 0 ? (
+                  <div style={{ background: C.card, borderRadius: 16, padding: 24, textAlign: "center", border: `1px solid ${C.border}` }}>
+                    <div style={{ fontSize: 32, marginBottom: 8 }}>🩺</div>
+                    <div style={{ fontSize: 13, fontWeight: 700 }}>{t("कोई रिकॉर्ड नहीं मिला", "No matching records found")}</div>
+                    <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>{t("लक्षण जाँचें और डॉक्टर बुक करें", "Check symptoms and book a doctor")}</div>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {visibleConsultations.map((c, i) => {
+                        const cfg = urgencyConfig[c.urgency] || urgencyConfig.GREEN;
+                        const title = getTitle(c);
+                        const isOpen = expanded === (c._id || String(i));
+                        const cardId = c._id || String(i);
+
+                        return (
+                          <div key={cardId} className="rec-card" style={{ background: C.card, borderRadius: 14, border: `1px solid ${C.border}`, borderLeft: `4px solid ${cfg.color}`, boxShadow: "0 2px 8px rgba(0,0,0,0.03)", overflow: "hidden" }}>
+                            <div className="rec-expand-row" onClick={() => setExpanded(isOpen ? null : cardId)} style={{ padding: isCompactView ? "10px 12px" : "12px 14px" }}>
+                              <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                                <div style={{ width: 10, height: 10, borderRadius: "50%", background: cfg.color, marginTop: 5, flexShrink: 0, boxShadow: `0 0 7px ${cfg.color}70` }} />
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                                    <span style={{ fontWeight: 800, fontSize: 13, color: C.text }}>{title}</span>
+                                    <span style={{ background: cfg.bg, color: cfg.color, padding: "1px 8px", borderRadius: 20, fontSize: 10, fontWeight: 800 }}>
+                                      {cfg.label}
+                                    </span>
+                                  </div>
+                                  <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>{formatDate(c.createdAt)}</div>
+                                  
+                                  {!isCompactView && (
+                                    <div style={{ marginTop: 5 }}>
+                                      {(c.symptoms || []).slice(0, 4).map((s) => (
+                                        <span key={s} className="rec-pill">{s}</span>
+                                      ))}
+                                    </div>
+                                  )}
+
+                                  <div style={{ fontSize: 11, color: C.primary, marginTop: 4 }}>
+                                    <span>🏥 {formatDoctorDisplay(c.doctorName)}</span>
+                                    {c.slot && <span> · 🕐 {c.slot}</span>}
+                                    {c.queueNo && <span> · #{c.queueNo}</span>}
+                                  </div>
+
+                                  <div style={{ display: "flex", alignItems: "center", marginTop: 6 }}>
+                                    <span style={{ fontSize: 11, color: c.status === "completed" ? C.green : cfg.color, fontStyle: "italic", fontWeight: 600 }}>
+                                      {statusLabel[c.status] || c.status}
+                                    </span>
+                                    <span className="rec-chevron" style={{ marginLeft: "auto", fontSize: 11, color: C.muted, fontWeight: 700 }}>
+                                      {isOpen ? "▲ Hide" : "▼ View Report"}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Expanded Details */}
+                            {isOpen && (
+                              <div style={{ padding: "0 14px 14px", borderTop: `1px solid ${C.border}`, paddingTop: 12 }}>
+                                {(c.doctorName || c.hospital || c.slot || c.queueNo) && (
+                                  <div style={{ background: "linear-gradient(135deg, #EBF4FD, #DDEEFF)", borderRadius: 12, padding: "10px 12px", marginBottom: 10, border: `1px solid ${C.primary}30` }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                                      <span style={{ fontSize: 13 }}>📅</span>
+                                      <span style={{ fontWeight: 800, fontSize: 10, color: C.primary, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                                        {t("अपॉइंटमेंट विवरण", "Appointment Details")}
+                                      </span>
+                                    </div>
+                                    <div style={{ fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 3 }}>
+                                      🏥 {t("डॉक्टर", "Doctor")}: {formatDoctorDisplay(c.doctorName)}
+                                    </div>
+                                    {c.hospital && (
+                                      <div style={{ fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 3 }}>
+                                        🏩 {t("अस्पताल", "Hospital")}: {c.hospital}
+                                      </div>
+                                    )}
+                                    {c.slot && (
+                                      <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>
+                                        🕐 {t("समय", "Time")}: {c.slot}{c.queueNo && ` · ${t("कतार No.", "Queue No.")} #${c.queueNo}`}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Symptoms */}
+                                <div style={{ background: "#FEF9E7", borderRadius: 12, padding: "10px 12px", marginBottom: 10, border: "1px solid #FAD7A0" }}>
+                                  <div style={{ fontSize: 10, fontWeight: 800, color: "#7D6608", textTransform: "uppercase", marginBottom: 4 }}>
+                                    🤧 {t("दर्ज लक्षण", "Symptoms Reported")}
+                                  </div>
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                                    {(c.symptoms || []).map((s) => (
+                                      <span key={s} style={{ background: "#fff", padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid #F5CBA7" }}>
+                                        {s}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* Clinical Notes */}
+                                <div style={{ background: C.bg, borderRadius: 10, padding: 10, fontSize: 11, color: C.muted, marginBottom: 8 }}>
+                                  {(c as any).notes ? (
+                                    <><strong>🩺 Doctor Notes:</strong> {(c as any).notes}</>
+                                  ) : (
+                                    <span>🩺 {t("डॉक्टर के नोट्स अभी उपलब्ध नहीं हैं", "Doctor notes not yet available")}</span>
+                                  )}
+                                </div>
+
+                                {/* Prescriptions */}
+                                <div style={{ background: C.bg, borderRadius: 10, padding: 10, fontSize: 11, color: C.muted, marginBottom: 10 }}>
+                                  {(c as any).prescription ? (
+                                    <><strong>💊 Prescription:</strong> {(c as any).prescription}</>
+                                  ) : (
+                                    <span>💊 {t("कोई प्रिस्क्रिप्शन अभी नहीं", "No prescription yet")}</span>
+                                  )}
+                                </div>
+
+                                {/* Actions */}
+                                <div style={{ display: "flex", gap: 8 }}>
+                                  <button
+                                    className="rec-btn"
+                                    onClick={() => generatePDF(patient, [c])}
+                                    style={{ flex: 1, background: "#E0F2FE", color: "#0369A1", fontSize: 11, justifyContent: "center" }}>
+                                    📄 {t("PDF डाउनलोड", "Download PDF")}
+                                  </button>
+
+                                  {c.status === "completed" && (
+                                    <button
+                                      className="rec-btn"
+                                      onClick={() => setRateModalConsultation(c)}
+                                      style={{
+                                        flex: 1,
+                                        background: reviews[c._id] ? "#FEF3C7" : "linear-gradient(135deg, #0F766E, #14B8A6)",
+                                        color: reviews[c._id] ? "#92400E" : "white",
+                                        fontSize: 11,
+                                        justifyContent: "center",
+                                      }}>
+                                      ★ {reviews[c._id] ? `Rated ${reviews[c._id].rating}★` : t("रेट करें", "Rate Doctor")}
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Pagination / Show More Button */}
+                    {filteredConsultations.length > visibleCount && (
+                      <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                        <button
+                          onClick={() => setVisibleCount((prev) => prev + 10)}
+                          style={{
+                            flex: 1, padding: "10px", borderRadius: 10, border: `1px solid ${C.border}`,
+                            background: C.card, color: C.primary, fontSize: 12, fontWeight: 800, cursor: "pointer",
+                            boxShadow: "0 2px 6px rgba(0,0,0,0.03)"
+                          }}>
+                          📄 {t("और लोड करें (+10)", "Load More (+10)")}
+                        </button>
+                        <button
+                          onClick={() => setVisibleCount(filteredConsultations.length)}
+                          style={{
+                            padding: "10px 14px", borderRadius: 10, border: "none",
+                            background: C.primary, color: "white", fontSize: 12, fontWeight: 800, cursor: "pointer"
+                          }}>
+                          {t("सभी देखें", "Show All")} ({filteredConsultations.length})
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )
+              )}
+            </div>
+          )}
+
         </div>
 
-        {/* Doctor Rating & Feedback Modal */}
+        {/* Doctor Rating Modal */}
         {rateModalConsultation && (
-          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)", zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-            <div style={{ background: C.card, width: "100%", maxWidth: 400, borderRadius: 24, padding: 24, border: `1px solid ${C.border}`, boxShadow: "0 20px 40px rgba(0,0,0,0.25)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(6px)", zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+            <div style={{ background: C.card, width: "100%", maxWidth: 360, borderRadius: 20, padding: 20, border: `1px solid ${C.border}` }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: C.text }}>
+                  <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: C.text }}>
                     ★ {t("डॉक्टर को रेट करें", "Rate Your Doctor")}
                   </h3>
                   <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
-                    Dr. {rateModalConsultation.doctorName ? rateModalConsultation.doctorName.replace(/^(Dr\.?\s*)/i, "").trim() : "Medical Consultant"}
+                    {formatDoctorDisplay(rateModalConsultation.doctorName)}
                   </div>
                 </div>
                 <button onClick={() => setRateModalConsultation(null)} style={{ background: C.bg, border: "none", borderRadius: 8, width: 28, height: 28, cursor: "pointer", fontSize: 14 }}>✕</button>
@@ -615,59 +760,47 @@ export default function RecordsPage() {
                 </div>
               ) : (
                 <>
-                  {/* Star Rating Interactive Bar */}
-                  <div style={{ textAlign: "center", margin: "16px 0 20px" }}>
-                    <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 8 }}>
+                  <div style={{ textAlign: "center", margin: "14px 0 16px" }}>
+                    <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 6 }}>
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           key={star}
                           type="button"
                           onClick={() => setSelectedRating(star)}
                           style={{
-                            background: "none",
-                            border: "none",
-                            fontSize: 32,
-                            cursor: "pointer",
-                            color: star <= selectedRating ? "#F59E0B" : "#CBD5E1",
-                            padding: 0,
-                            transition: "transform 0.1s",
-                          }}
-                          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.2)")}
-                          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
-                        >
+                            background: "none", border: "none", fontSize: 30, cursor: "pointer",
+                            color: star <= selectedRating ? "#F59E0B" : "#CBD5E1", padding: 0
+                          }}>
                           ★
                         </button>
                       ))}
                     </div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: selectedRating >= 4 ? "#059669" : selectedRating === 3 ? "#D97706" : "#DC2626" }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: selectedRating >= 4 ? "#059669" : selectedRating === 3 ? "#D97706" : "#DC2626" }}>
                       {selectedRating === 5 && t("उत्कृष्ट (5/5) — बहुत मददगार!", "Excellent (5/5) — Extremely Helpful!")}
                       {selectedRating === 4 && t("अच्छा (4/5) — अच्छी सलाह मिली", "Good (4/5) — Helpful Consultation")}
                       {selectedRating === 3 && t("औसत (3/5) — ठीक ठाक", "Average (3/5) — Satisfactory")}
-                      {selectedRating === 2 && t("खराब (2/5) — सुधार की आवश्यकता", "Poor (2/5) — Needs Improvement")}
-                      {selectedRating === 1 && t("बहुत खराब (1/5) — असंतुष्ट", "Very Poor (1/5) — Dissatisfied")}
+                      {selectedRating <= 2 && t("खराब — सुधार की आवश्यकता", "Poor — Needs Improvement")}
                     </div>
                   </div>
 
-                  {/* Feedback Textarea */}
-                  <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                      {t("आपकी प्रतिक्रिया (वैकल्पिक)", "Your Feedback (Optional)")}
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: C.muted, marginBottom: 4, textTransform: "uppercase" }}>
+                      {t("आपकी प्रतिक्रिया", "Your Feedback (Optional)")}
                     </label>
                     <textarea
                       rows={3}
                       value={reviewComment}
                       onChange={(e) => setReviewComment(e.target.value)}
-                      placeholder={t("उदा. डॉक्टर ने मेरी समस्या ध्यान से समझी और सही दवाई दी...", "e.g. Doctor explained the treatment clearly and answered all questions...")}
-                      style={{ width: "100%", padding: "12px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.bg, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                      placeholder={t("उदा. डॉक्टर ने मेरी समस्या ध्यान से समझी...", "e.g. Doctor explained the treatment clearly...")}
+                      style={{ width: "100%", padding: "10px", borderRadius: 10, border: `1px solid ${C.border}`, background: C.bg, fontSize: 12, outline: "none" }}
                     />
                   </div>
 
-                  <div style={{ display: "flex", gap: 10 }}>
+                  <div style={{ display: "flex", gap: 8 }}>
                     <button
                       type="button"
                       onClick={() => setRateModalConsultation(null)}
-                      style={{ flex: 1, padding: 12, borderRadius: 12, border: `1px solid ${C.border}`, background: C.bg, color: C.muted, fontWeight: 700, cursor: "pointer" }}
-                    >
+                      style={{ flex: 1, padding: 10, borderRadius: 10, border: `1px solid ${C.border}`, background: C.bg, color: C.muted, fontWeight: 700, cursor: "pointer", fontSize: 12 }}>
                       {t("रद्द करें", "Cancel")}
                     </button>
                     <button
@@ -675,18 +808,11 @@ export default function RecordsPage() {
                       onClick={handleSubmitReview}
                       disabled={submittingReview}
                       style={{
-                        flex: 1.5,
-                        padding: 12,
-                        borderRadius: 12,
-                        border: "none",
-                        background: "linear-gradient(135deg, #0F766E, #14B8A6)",
-                        color: "white",
-                        fontWeight: 700,
-                        cursor: submittingReview ? "not-allowed" : "pointer",
-                        opacity: submittingReview ? 0.7 : 1,
-                      }}
-                    >
-                      {submittingReview ? t("दर्ज हो रहा है...", "Submitting...") : t("समीक्षा सबमिट करें →", "Submit Review →")}
+                        flex: 1.5, padding: 10, borderRadius: 10, border: "none",
+                        background: "linear-gradient(135deg, #0F766E, #14B8A6)", color: "white",
+                        fontWeight: 700, cursor: submittingReview ? "not-allowed" : "pointer", fontSize: 12
+                      }}>
+                      {submittingReview ? "..." : t("सबमिट करें →", "Submit Review →")}
                     </button>
                   </div>
                 </>

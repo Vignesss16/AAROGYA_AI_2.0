@@ -579,9 +579,15 @@ export default function ConfirmBookingPage() {
   // Trigger Booking Selection
   const startFacilityBooking = (facility: any) => {
     setSelectedFacility(facility);
-    // Pick first affiliated doctor or default
-    const matchingDoc = doctors.find((d) => d.hospital?.toLowerCase().includes(facility.city?.toLowerCase())) || doctors[0];
-    setSelectedDoctor(matchingDoc);
+    // Find doctor that actually belongs to this facility
+    const facilityNameLower = (facility.name || "").toLowerCase();
+    const facilityShortLower = (facility.shortName || "").toLowerCase();
+    const matchingDoc = doctors.find((d) => {
+      const docHosp = (d.hospital || "").toLowerCase();
+      return docHosp.includes(facilityNameLower) || docHosp.includes(facilityShortLower) || (facility.city && docHosp.includes(facility.city.toLowerCase()) && docHosp.includes("hospital"));
+    });
+
+    setSelectedDoctor(matchingDoc || null);
     setBookingType("HOSPITAL_RECEPTIONIST_ASSISTED");
     setSelectedSlot("");
     setStep("select-slot");
@@ -621,14 +627,18 @@ export default function ConfirmBookingPage() {
     const voiceNoteBase64 = localStorage.getItem("voiceNoteBase64") || undefined;
     const urg = result?.urgency || "GREEN";
 
+    const cleanDocName = selectedDoctor?.name
+      ? (selectedDoctor.name.startsWith("Dr.") ? selectedDoctor.name : `Dr. ${selectedDoctor.name.replace(/^(Dr\.?\s*)/i, "").trim()}`)
+      : (bookingType === "HOSPITAL_RECEPTIONIST_ASSISTED" ? "Awaiting Receptionist Assignment" : "Dr. Medical Consultant");
+
     const consultationData = {
       patientPhone: (session?.user as any)?.phone || patient?.phone || "9876543210",
       patientName: session?.user?.name || patient?.name || "Patient",
-      doctorId: selectedDoctor?.id || "DOC-DEFAULT",
-      doctorName: selectedDoctor?.name || "Dr. Medical Consultant",
+      doctorId: selectedDoctor?.id || (bookingType === "HOSPITAL_RECEPTIONIST_ASSISTED" ? "PENDING_RECEPTIONIST" : "DOC-DEFAULT"),
+      doctorName: cleanDocName,
       hospital: selectedFacility ? selectedFacility.name : selectedDoctor?.hospital || "Civil Hospital",
       facilityId: selectedFacility?.facilityId,
-      department: selectedDeptFilter !== "ALL" ? selectedDeptFilter : "General Medicine",
+      department: selectedDeptFilter !== "ALL" ? selectedDeptFilter : (selectedDoctor?.specialization || "General Medicine"),
       bookingType,
       receptionistStatus: bookingType === "HOSPITAL_RECEPTIONIST_ASSISTED" ? "PENDING_CONFIRMATION" : "CONFIRMED",
       estimatedConfirmationTime: bookingType === "HOSPITAL_RECEPTIONIST_ASSISTED" ? "10 - 20 minutes" : "Instant",

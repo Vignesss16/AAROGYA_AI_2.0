@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { useLang } from "@/lib/useLang";
 import { useCall } from "@/context/CallContext";
+import DoctorCallQRModal from "@/components/DoctorCallQRModal";
 
 const C = {
   primary: "#0F766E", // Deep Teal
@@ -289,6 +290,7 @@ export default function HospitalDesktopDashboard() {
   const router = useRouter();
   const { lang, setLang, mounted } = useLang();
   const { startCallSession } = useCall();
+  const [selectedQRDoctor, setSelectedQRDoctor] = useState<any | null>(null);
   const [auth, setAuth] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("hospitalAuth") === "true" || !!localStorage.getItem("hospital_command_user");
@@ -1501,21 +1503,47 @@ export default function HospitalDesktopDashboard() {
                           <span style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>
                             🏥 {activeFacility?.shortName || "Hospital Unit"}
                           </span>
-                          <button
-                            onClick={() => alert(`Calling ${doc.name} intercom...`)}
-                            style={{
-                              background: "#F0FDFA",
-                              border: `1px solid ${C.primary}`,
-                              color: C.primary,
-                              borderRadius: 8,
-                              padding: "6px 12px",
-                              fontSize: 12,
-                              fontWeight: 700,
-                              cursor: "pointer",
-                            }}
-                          >
-                            📞 Intercom
-                          </button>
+                          <div style={{ display: "flex", gap: 8 }}>
+                            <button
+                              onClick={() => setSelectedQRDoctor({
+                                name: doc.name,
+                                phone: doc.phone || "+91 98765 01002",
+                                dept: doc.dept,
+                                hospital: activeFacility?.name || "Hospital Medical Center",
+                                role: doc.role,
+                              })}
+                              style={{
+                                background: "rgba(56, 189, 248, 0.12)",
+                                border: "1px solid rgba(56, 189, 248, 0.35)",
+                                color: "#0284C7",
+                                borderRadius: 8,
+                                padding: "6px 10px",
+                                fontSize: 12,
+                                fontWeight: 800,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 4,
+                              }}
+                            >
+                              <span>📱</span> {T("QR कॉल", "QR Call")}
+                            </button>
+                            <button
+                              onClick={() => alert(`Calling ${doc.name} intercom...`)}
+                              style={{
+                                background: "#F0FDFA",
+                                border: `1px solid ${C.primary}`,
+                                color: C.primary,
+                                borderRadius: 8,
+                                padding: "6px 12px",
+                                fontSize: 12,
+                                fontWeight: 700,
+                                cursor: "pointer",
+                              }}
+                            >
+                              📞 Intercom
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -2398,6 +2426,12 @@ export default function HospitalDesktopDashboard() {
         .info-btn:hover .tooltip { visibility: visible !important; opacity: 1 !important; transform: translateX(-50%) translateY(-5px) !important; }
       `}</style>
 
+      {/* Doctor Direct Phone QR Modal */}
+      <DoctorCallQRModal
+        isOpen={!!selectedQRDoctor}
+        onClose={() => setSelectedQRDoctor(null)}
+        doctor={selectedQRDoctor}
+      />
     </div>
   );
 }

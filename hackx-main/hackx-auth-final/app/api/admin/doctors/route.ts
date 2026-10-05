@@ -14,8 +14,12 @@ export async function GET() {
     console.warn("Could not connect to MongoDB for doctors list, using fallback:", error.message);
     return NextResponse.json({
       doctors: [
-        { _id: "doc-1", name: "Dr. Ramesh Sharma", specialization: "General Physician", hospital: "Nabha Civil Hospital" },
-        { _id: "doc-2", name: "Dr. Allwin Nadar", specialization: "General Physician", hospital: "Nabha Civil Hospital" }
+        { _id: "doc-1", name: "Dr. S. Kulkarni", specialization: "Emergency & Trauma", hospital: "Lokmanya Tilak Municipal General Hospital (SION Hospital)" },
+        { _id: "doc-2", name: "Dr. Aniruddh Joshi", specialization: "Cardiology", hospital: "Lokmanya Tilak Municipal General Hospital (SION Hospital)" },
+        { _id: "doc-3", name: "Dr. Ramesh Sharma", specialization: "General Physician", hospital: "Kalyan Civil Hospital" },
+        { _id: "doc-4", name: "Dr. Anjali Deshmukh", specialization: "Pediatrics & Maternal", hospital: "Palghar Rural Civil Hospital" },
+        { _id: "doc-5", name: "Dr. Vasanth", specialization: "General Physician", hospital: "Nabha Civil Hospital" },
+        { _id: "doc-6", name: "Dr. Allwin Nadar", specialization: "General Physician", hospital: "CityCare Hospital Dombivli" },
       ],
       isFallback: true
     });
