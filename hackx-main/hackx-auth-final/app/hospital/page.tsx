@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useLang } from "@/lib/useLang";
 import { useCall } from "@/context/CallContext";
 import DoctorCallQRModal from "@/components/DoctorCallQRModal";
+import { getPusherClient } from "@/lib/pusher-client";
 import {
   Building2,
   Users,
@@ -499,6 +500,38 @@ export default function HospitalDesktopDashboard() {
     }
   }, [auth, fetchData]);
 
+  useEffect(() => {
+    if (!auth) return;
+    try {
+      const pusherClient = getPusherClient();
+      const channel = pusherClient.subscribe("hospital-channel");
+      channel.bind("new-appointment", (newAppointment: any) => {
+        setQueue((prev) => {
+          const exists = prev.some((item) => (item._id && item._id === newAppointment._id) || (item.id && item.id === newAppointment.id) || (item.tokenNumber && item.tokenNumber === newAppointment.tokenNumber));
+          if (exists) return prev;
+          return [newAppointment, ...prev];
+        });
+      });
+      channel.bind("appointment-updated", (updatedAppointment: any) => {
+        setQueue((prev) =>
+          prev.map((item) =>
+            (item._id && item._id === updatedAppointment._id) || (item.id && item.id === updatedAppointment.id) || (item.tokenNumber && item.tokenNumber === updatedAppointment.tokenNumber)
+              ? { ...item, ...updatedAppointment }
+              : item
+          )
+        );
+      });
+      return () => {
+        try {
+          channel.unbind_all();
+          pusherClient.unsubscribe("hospital-channel");
+        } catch {}
+      };
+    } catch (err) {
+      console.warn("Pusher subscription error:", err);
+    }
+  }, [auth]);
+
   const handleResolveSOS = async (id: string) => {
     if (!window.confirm(T("क्या आप वाकई इस आपातकाल को हल करना चाहते हैं?", "Are you sure you want to mark this SOS emergency as resolved?"))) return;
     try {
@@ -849,7 +882,23 @@ export default function HospitalDesktopDashboard() {
     facilityScopedQueue = queue.filter((q) => {
       if (q.facilityId && q.facilityId === fid) return true;
       const h = (q.hospital || "").toLowerCase();
-      return h.includes(sn) || h.includes(fn) || fn.includes(h) || sn.includes(h);
+      if (!h && !q.facilityId) return true; // Default fallback inclusion
+      return (
+        h.includes(sn) ||
+        h.includes(fn) ||
+        fn.includes(h) ||
+        sn.includes(h) ||
+        (fid === "HOSP-SION-001" && (h.includes("sion") || h.includes("lokmanya") || h.includes("ltmgh") || h.includes("mumbai"))) ||
+        (fid === "HOSP-KLY-002" && (h.includes("kalyan") || h.includes("kly"))) ||
+        (fid === "HOSP-KLW-003" && (h.includes("kalwa") || h.includes("csmh") || h.includes("thane"))) ||
+        (fid === "HOSP-PLG-004" && (h.includes("palghar") || h.includes("plg"))) ||
+        (fid === "HOSP-MRB-005" && (h.includes("murbad") || h.includes("mrb"))) ||
+        (fid === "HOSP-JWH-006" && (h.includes("jawhar") || h.includes("jwh"))) ||
+        (fid === "HOSP-DMB-007" && (h.includes("citycare") || h.includes("dombivli"))) ||
+        (fid === "HOSP-NBH-008" && (h.includes("nabha") || h.includes("nbh"))) ||
+        (fid === "HOSP-PTL-009" && (h.includes("patiala") || h.includes("rajindra"))) ||
+        (fid === "HOSP-KSR-010" && (h.includes("kesri") || h.includes("ksr")))
+      );
     });
   }
 
