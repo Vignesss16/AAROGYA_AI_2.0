@@ -90,11 +90,13 @@ export default function RecordsPage() {
   }, [authLoading, user, status, router, isOnline]);
 
   useEffect(() => {
-    if (!user || fetched) return;
-    const identifier = user.phone || user.name || (user as any)._id || "";
-    if (!identifier) return;
+    const activeUser = user || session?.user;
+    const identifier = (activeUser as any)?.phone || activeUser?.name || (activeUser as any)?._id || (typeof window !== "undefined" ? localStorage.getItem("patient_phone") : null) || "8591292159";
+    if (!identifier) {
+      if (!authLoading && status !== "loading") setFetching(false);
+      return;
+    }
 
-    setFetched(true);
     setFetching(true);
     if (typeof window !== "undefined") {
       seedOfflineData().catch(console.error);
@@ -138,11 +140,15 @@ export default function RecordsPage() {
         .then((r) => r.json())
         .catch(() => ({ tests: [] })),
     ]).then(([labData, bloodData]) => {
-      const orders = (labData.orders || []).map((o: any) => ({ ...o, source: "Lab Order" }));
+      const orders = (labData.orders || []).map((o: any) => ({
+        ...o,
+        tests: (o.tests || []).map((t: any) => (typeof t === "string" ? t : t?.name || t?.testName || "Diagnostic Test")),
+        source: "Lab Order",
+      }));
       const bloodAsOrders = (bloodData.tests || []).map((bt: any) => ({
         _id: bt._id,
-        orderId: `BLD-${bt._id ? bt._id.slice(-6).toUpperCase() : Math.floor(1000 + Math.random() * 9000)}`,
-        tests: [{ name: bt.testType || "Diagnostic Blood Test", code: "BLD" }],
+        orderId: `BLD-${bt._id ? String(bt._id).slice(-6).toUpperCase() : Math.floor(1000 + Math.random() * 9000)}`,
+        tests: [typeof bt.testType === "string" ? bt.testType : "Diagnostic Blood Test"],
         labName: bt.labName || bt.submittedByName || "Diagnostic Health Center",
         status: bt.status === "completed" ? "REPORT_UPLOADED" : "SENT_TO_LAB",
         priority: bt.isCritical ? "STAT" : "NORMAL",
@@ -152,7 +158,7 @@ export default function RecordsPage() {
         source: "Blood Test",
       }));
       setLabOrders([...orders, ...bloodAsOrders]);
-    });
+    }).catch(console.error);
 
     fetch(`/api/reviews?patientPhone=${encodeURIComponent(identifier)}`)
       .then((r) => r.json())
@@ -190,7 +196,7 @@ export default function RecordsPage() {
                 await db.consultations.add({
                   clientId: c._id,
                   patientPhone: identifier,
-                  patientName: user.name || "",
+                  patientName: user?.name || session?.user?.name || c.patientName || "Patient",
                   symptoms: c.symptoms || [],
                   urgency: c.urgency || "GREEN",
                   triageResult: JSON.stringify(c.triageResult || {}),
@@ -223,7 +229,7 @@ export default function RecordsPage() {
           .catch(console.error);
       })
       .finally(() => setFetching(false));
-  }, [user, isOnline, fetched]);
+  }, [user, session, isOnline]);
 
   const handleSubmitReview = async () => {
     if (!rateModalConsultation) return;
@@ -544,11 +550,14 @@ export default function RecordsPage() {
                         </div>
 
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 4, margin: "6px 0 6px" }}>
-                          {(lo.tests || []).map((test: string, idx: number) => (
-                            <span key={idx} style={{ background: "#F1F5F9", color: "#334155", padding: "2px 7px", borderRadius: 6, fontSize: 10, fontWeight: 600 }}>
-                              🧪 {test}
-                            </span>
-                          ))}
+                          {(lo.tests || []).map((test: any, idx: number) => {
+                            const testLabel = typeof test === "string" ? test : (test?.name || test?.testName || "Diagnostic Test");
+                            return (
+                              <span key={idx} style={{ background: "#F1F5F9", color: "#334155", padding: "2px 7px", borderRadius: 6, fontSize: 10, fontWeight: 600 }}>
+                                🧪 {testLabel}
+                              </span>
+                            );
+                          })}
                         </div>
 
                         {lo.appointmentSlot && (
