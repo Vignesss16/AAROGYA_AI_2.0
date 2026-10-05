@@ -264,13 +264,10 @@ export async function GET(req: NextRequest) {
     const userLat = latStr ? parseFloat(latStr) : null;
     const userLng = lngStr ? parseFloat(lngStr) : null;
 
-    // Auto-seed/upsert default facilities
-    for (const df of DEFAULT_FACILITIES) {
-      await Facility.findOneAndUpdate(
-        { facilityId: df.facilityId },
-        { $set: df },
-        { upsert: true, new: true }
-      );
+    // Auto-seed default facilities only if empty
+    const count = await Facility.estimatedDocumentCount();
+    if (count === 0) {
+      await Facility.insertMany(DEFAULT_FACILITIES);
     }
 
     const filter: Record<string, any> = { status: "ACTIVE" };

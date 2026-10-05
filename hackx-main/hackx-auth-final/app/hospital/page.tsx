@@ -447,36 +447,40 @@ export default function HospitalDesktopDashboard() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [resQueue, resDocs, resAsha, resSos, resLabs, resRefs, resFacs] = await Promise.all([
-        fetch("/api/consultations?status=all"),
-        fetch("/api/admin/doctors"),
-        fetch("/api/asha/visits"),
-        fetch("/api/sos"),
-        fetch("/api/blood-tests"),
-        fetch("/api/referrals"),
-        fetch("/api/facilities"),
-      ]);
-      const dataQueue = await resQueue.json();
-      const dataDocs = await resDocs.json();
-      const dataAsha = await resAsha.json();
-      const dataSos = await resSos.json();
-      const dataLabs = await resLabs.json();
-      const dataRefs = await resRefs.json();
-      const dataFacs = await resFacs.json();
+      const safeFetchJson = async (url: string) => {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) return null;
+          return await res.json();
+        } catch {
+          return null;
+        }
+      };
 
-      setQueue(dataQueue.consultations || []);
-      setDoctors(dataDocs.doctors || []);
-      setAshaVisits(dataAsha.visits || []);
-      setSosAlerts(dataSos.alerts || []);
-      setLabTests(dataLabs.tests || []);
-      setReferrals(dataRefs.referrals || []);
-      if (dataFacs.facilities && dataFacs.facilities.length > 0) {
+      const [dataQueue, dataDocs, dataAsha, dataSos, dataLabs, dataRefs, dataFacs] = await Promise.all([
+        safeFetchJson("/api/consultations?status=all"),
+        safeFetchJson("/api/admin/doctors"),
+        safeFetchJson("/api/asha/visits"),
+        safeFetchJson("/api/sos"),
+        safeFetchJson("/api/blood-tests"),
+        safeFetchJson("/api/referrals"),
+        safeFetchJson("/api/facilities"),
+      ]);
+
+      if (dataQueue?.consultations) setQueue(dataQueue.consultations);
+      if (dataDocs?.doctors) setDoctors(dataDocs.doctors);
+      if (dataAsha?.visits) setAshaVisits(dataAsha.visits);
+      if (dataSos?.alerts) setSosAlerts(dataSos.alerts);
+      if (dataLabs?.tests) setLabTests(dataLabs.tests);
+      if (dataRefs?.referrals) setReferrals(dataRefs.referrals);
+      if (dataFacs?.facilities && dataFacs.facilities.length > 0) {
         setFacilities(dataFacs.facilities);
       }
     } catch {
       /* offline fallback */
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => {
