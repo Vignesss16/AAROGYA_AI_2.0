@@ -44,7 +44,7 @@ const ConsultationSchema = new Schema<IConsultation>(
     age:          { type: Schema.Types.Mixed },
     gender:       { type: String },
     symptoms:     { type: [String], required: true },
-    urgency:      { type: String, enum: ["RED", "YELLOW", "GREEN"], required: true, index: true },
+    urgency:      { type: String, default: "GREEN", index: true },
     triageResult: { type: Schema.Types.Mixed, required: true },
     patientContext: { type: Schema.Types.Mixed },
     uploadedRecords: { type: Schema.Types.Mixed },

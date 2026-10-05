@@ -1,4 +1,6 @@
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Consultation from "@/models/Consultation";
@@ -38,9 +40,12 @@ export async function GET(req: NextRequest) {
 
     // Fetch single consultation by ID
     if (id) {
-      const consultation = await Consultation.findById(id);
+      const consultation = await Consultation.findById(id).lean();
       if (!consultation) return NextResponse.json({ error: "Not found" }, { status: 404 });
-      return NextResponse.json({ consultation });
+      return NextResponse.json(
+        { consultation },
+        { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate" } }
+      );
     }
 
     // Fetch consultations based on status and doctorId
@@ -52,10 +57,13 @@ export async function GET(req: NextRequest) {
       query.facilityId = facilityId;
     }
 
-    const raw = await Consultation.find(query).sort({ createdAt: -1 });
+    const raw = await Consultation.find(query).sort({ createdAt: -1 }).lean();
     const priority: Record<string, number> = { RED: 0, YELLOW: 1, GREEN: 2 };
-    const sorted = raw.sort((a, b) => (priority[a.urgency] ?? 3) - (priority[b.urgency] ?? 3));
-    return NextResponse.json({ consultations: sorted });
+    const sorted = (raw || []).sort((a: any, b: any) => (priority[a.urgency] ?? 3) - (priority[b.urgency] ?? 3));
+    return NextResponse.json(
+      { consultations: sorted },
+      { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate" } }
+    );
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
