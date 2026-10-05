@@ -1708,7 +1708,7 @@ export default function HospitalDesktopDashboard() {
                                   <PhoneCall size={12} /> Call
                                 </button>
 
-                                {/* Intercom Video Call */}
+                                {/* In-App Video Call */}
                                 <button
                                   onClick={() => startCallSession({
                                     patientId: p.patientPhone || p._id,
@@ -1737,7 +1737,7 @@ export default function HospitalDesktopDashboard() {
                                       } catch {}
                                     }
                                   })}
-                                  title="App video intercom"
+                                  title="Live Video Verification Call"
                                   style={{
                                     background: "#E0F2FE",
                                     color: "#0369A1",
@@ -1752,7 +1752,7 @@ export default function HospitalDesktopDashboard() {
                                     gap: 3,
                                   }}
                                 >
-                                  <Video size={12} /> Intercom
+                                  <Video size={12} /> Video Call
                                 </button>
 
                                 {!isArrived && (
