@@ -782,7 +782,7 @@ export default function VideoCallModal({
 
   return (
     <div
-      className={`call-modal-backdrop ${isLocalPatient ? "patient-backdrop" : ""}`}
+      className={`call-modal-backdrop ${isLocalPatient ? "patient-backdrop" : "staff-backdrop"}`}
       style={{
         position: "fixed", inset: 0, zIndex: 1000,
         background: "rgba(8, 14, 24, 0.92)",
@@ -792,7 +792,7 @@ export default function VideoCallModal({
       }}
     >
       <div
-        className={`call-dialog-container ${isLocalPatient ? "patient-fullscreen-dialog" : ""}`}
+        className={`call-dialog-container ${isLocalPatient ? "patient-fullscreen-dialog" : "staff-fullscreen-dialog"}`}
         style={{
           width: "100%",
           maxWidth: isLocalPatient
@@ -1061,9 +1061,16 @@ export default function VideoCallModal({
 
           {/* ── 4. ACTIVE CALL VIEW ── */}
           {isActive && (
-            <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 12 }}>
-              {/* Top Sub-bar */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+            <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 10 }}>
+              {/* Top Sub-bar with Network Quality and Clean Segmented Switcher */}
+              <div style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 8,
+                padding: "2px 2px 4px"
+              }}>
                 <NetworkBadge quality={state.networkQuality} />
 
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -1074,52 +1081,83 @@ export default function VideoCallModal({
                     </div>
                   )}
 
+                  {/* High-Performance Segmented Switcher (Doctor & Receptionist) */}
                   {(isLocalReceptionist || isLocalDoctor) && (
-                    <button
-                      type="button"
-                      onClick={() => setShowDeskPad(!showDeskPad)}
-                      style={{
-                        padding: "5px 12px", borderRadius: 14, border: "none",
-                        background: showDeskPad ? (isLocalReceptionist ? "#0284C7" : "#3B82F6") : "rgba(255,255,255,0.15)",
-                        color: "white", fontSize: 11, fontWeight: 700, cursor: "pointer",
-                        display: "flex", alignItems: "center", gap: 5
-                      }}>
-                      {isLocalReceptionist ? <Building2 size={13} /> : <Stethoscope size={13} />}
-                      {isLocalReceptionist ? "Verification Desk" : "Clinical Desk Pad"}
-                    </button>
+                    <div style={{
+                      display: "flex",
+                      background: "rgba(15, 23, 42, 0.85)",
+                      padding: "3px",
+                      borderRadius: 12,
+                      border: "1px solid rgba(255, 255, 255, 0.18)",
+                      gap: 3,
+                    }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMobileTab("video");
+                          if (typeof window !== "undefined" && window.innerWidth >= 769 && showDeskPad) {
+                            setShowDeskPad(false);
+                          }
+                        }}
+                        style={{
+                          padding: "5px 12px",
+                          borderRadius: 9,
+                          border: "none",
+                          background: (mobileTab === "video" && (!showDeskPad || (typeof window !== "undefined" && window.innerWidth < 769)))
+                            ? (isLocalReceptionist ? "linear-gradient(135deg, #0284C7, #0369A1)" : "linear-gradient(135deg, #2563EB, #1D4ED8)")
+                            : "transparent",
+                          color: (mobileTab === "video") ? "white" : "#94A3B8",
+                          fontSize: 11.5,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 5,
+                          transition: "all .15s ease"
+                        }}
+                      >
+                        <Video size={13} />
+                        <span>Video Feed</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMobileTab("desk");
+                          setShowDeskPad(true);
+                        }}
+                        style={{
+                          padding: "5px 12px",
+                          borderRadius: 9,
+                          border: "none",
+                          background: (mobileTab === "desk" || (showDeskPad && typeof window !== "undefined" && window.innerWidth >= 769))
+                            ? (isLocalReceptionist ? "linear-gradient(135deg, #0284C7, #0369A1)" : "linear-gradient(135deg, #2563EB, #1D4ED8)")
+                            : "transparent",
+                          color: (mobileTab === "desk" || showDeskPad) ? "white" : "#94A3B8",
+                          fontSize: 11.5,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 5,
+                          transition: "all .15s ease"
+                        }}
+                      >
+                        {isLocalReceptionist ? <Building2 size={13} /> : <Stethoscope size={13} />}
+                        <span>{isLocalReceptionist ? "Verification Desk" : "Clinical Desk"}</span>
+                        {patientDetails?.urgency?.includes("RED") && (
+                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#EF4444" }} />
+                        )}
+                      </button>
+                    </div>
                   )}
-                  <span style={{ fontSize: 12, color: "#94A3B8", display: "flex", alignItems: "center", gap: 4 }}>
+
+                  <span style={{ fontSize: 11, color: "#94A3B8", display: "flex", alignItems: "center", gap: 4 }}>
                     {effectiveCallMode === "video" ? <Video size={13} /> : <Mic size={13} />}
                     {effectiveCallMode === "video" ? "Video" : "Voice"}
                   </span>
                 </div>
               </div>
-
-              {/* Mobile Tab Switcher ONLY for Receptionist/Doctor when on narrow screen */}
-              {shouldShowDeskPanel && (
-                <div className="mobile-only-tabs" style={{ display: "none", gap: 8 }}>
-                  <button
-                    type="button"
-                    onClick={() => setMobileTab("video")}
-                    style={{
-                      flex: 1, padding: "8px 12px", borderRadius: 10, border: "none",
-                      background: mobileTab === "video" ? "#0284C7" : "rgba(255,255,255,0.08)",
-                      color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5
-                    }}>
-                    <Video size={14} /> Video Feed
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMobileTab("desk")}
-                    style={{
-                      flex: 1, padding: "8px 12px", borderRadius: 10, border: "none",
-                      background: mobileTab === "desk" ? "#0284C7" : "rgba(255,255,255,0.08)",
-                      color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5
-                    }}>
-                    <ClipboardList size={14} /> {isLocalReceptionist ? "Verification Desk" : "Clinical Desk"}
-                  </button>
-                </div>
-              )}
 
               {/* Main Call + In-Call Desk Grid */}
               <div
@@ -1375,6 +1413,33 @@ export default function VideoCallModal({
                       minWidth: 0, width: "100%"
                     }}
                   >
+                    {/* Mobile Quick Return Banner */}
+                    <div className="mobile-desk-header" style={{ display: "none", alignItems: "center", justifyContent: "space-between", background: "rgba(15, 23, 42, 0.9)", padding: "8px 12px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#4ADE80", animation: "pulse 1.5s infinite" }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: "white" }}>In Call with {patientName}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setMobileTab("video")}
+                        style={{
+                          background: "rgba(56, 189, 248, 0.2)",
+                          border: "1px solid rgba(56, 189, 248, 0.4)",
+                          borderRadius: 8,
+                          padding: "4px 10px",
+                          color: "#38BDF8",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 4,
+                        }}
+                      >
+                        <Video size={12} /> Video Feed
+                      </button>
+                    </div>
+
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ fontSize: 14, fontWeight: 800, color: "#60A5FA", display: "flex", alignItems: "center", gap: 6 }}>
                         <Stethoscope size={16} /> Clinical Diagnosis & Tele-Consultation
@@ -1543,49 +1608,32 @@ export default function VideoCallModal({
         /* Desktop Mode (>= 769px) */
         @media (min-width: 769px) {
           .has-desk-panel {
-            grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) !important;
+            grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) !important;
           }
           .call-video-column {
             display: flex !important;
           }
           .call-desk-column {
             display: flex !important;
+            max-height: 520px !important;
+            overflow-y: auto !important;
           }
-          .mobile-only-tabs {
+          .mobile-desk-header {
             display: none !important;
           }
         }
 
         /* Mobile Mode (<= 768px) */
         @media (max-width: 768px) {
-          .mobile-only-tabs {
-            display: flex !important;
-          }
-          .call-main-grid {
-            grid-template-columns: 1fr !important;
-            gap: 12px !important;
-          }
-          .call-video-column {
-            width: 100% !important;
-            display: flex;
-          }
-          .call-desk-column {
-            width: 100% !important;
-            display: flex;
-          }
-          .mobile-hide-video {
-            display: none !important;
-          }
-          .mobile-hide-desk {
-            display: none !important;
-          }
-
-          /* Patient True Full Screen on Mobile */
-          .patient-backdrop {
+          .call-modal-backdrop,
+          .patient-backdrop,
+          .staff-backdrop {
             padding: 0 !important;
             background: #050B14 !important;
           }
-          .patient-fullscreen-dialog {
+          .call-dialog-container,
+          .patient-fullscreen-dialog,
+          .staff-fullscreen-dialog {
             width: 100vw !important;
             max-width: 100vw !important;
             height: 100vh !important;
@@ -1595,16 +1643,56 @@ export default function VideoCallModal({
             border: none !important;
             overflow: hidden !important;
           }
-          .patient-content-body {
+          .patient-content-body,
+          .staff-content-body {
             padding: 0 !important;
-            height: calc(100dvh - 70px) !important;
+            height: calc(100dvh - 66px) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
           }
-          .patient-video-frame {
-            height: calc(100dvh - 80px) !important;
-            min-height: calc(100dvh - 80px) !important;
+          .call-main-grid {
+            grid-template-columns: 1fr !important;
+            gap: 0 !important;
+            flex: 1 !important;
+            height: calc(100dvh - 116px) !important;
+          }
+          .call-video-column {
+            width: 100% !important;
+            height: 100% !important;
+            display: flex !important;
+            position: relative !important;
+          }
+          .call-desk-column {
+            width: 100% !important;
+            height: calc(100dvh - 116px) !important;
+            max-height: calc(100dvh - 116px) !important;
+            display: flex !important;
+            overflow-y: auto !important;
+            padding: 12px 14px 44px !important;
             border-radius: 0 !important;
             border: none !important;
           }
+          .mobile-hide-video {
+            display: none !important;
+          }
+          .mobile-hide-desk {
+            display: none !important;
+          }
+          .mobile-desk-header {
+            display: flex !important;
+          }
+          .staff-video-frame,
+          .patient-video-frame {
+            height: calc(100dvh - 116px) !important;
+            min-height: calc(100dvh - 116px) !important;
+            max-height: calc(100dvh - 116px) !important;
+            border-radius: 0 !important;
+            border: none !important;
+            position: relative !important;
+            flex: 1 !important;
+          }
+          .staff-video-frame .video-main-label,
           .patient-video-frame .video-main-label {
             bottom: 96px !important;
             left: 12px !important;
@@ -1614,6 +1702,7 @@ export default function VideoCallModal({
             padding: 6px 12px !important;
             z-index: 25 !important;
           }
+          .staff-controls-dock,
           .patient-controls-dock {
             position: absolute !important;
             bottom: 22px !important;
