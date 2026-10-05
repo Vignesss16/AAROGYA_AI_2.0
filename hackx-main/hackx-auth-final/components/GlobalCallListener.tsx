@@ -168,7 +168,7 @@ export default function GlobalCallListener() {
           patientName={session.user.name || "Patient"}
           patientId={(session.user as any).phone || session.user.name || "patient-001"}
           isDoctor={false}
-          callerRole={(incomingCaller?.callerRole as any) || "doctor"}
+          callerRole="patient"
           callerTitle={incomingCaller?.callerTitle}
           facilityName={incomingCaller?.facilityName}
           department={incomingCaller?.department}

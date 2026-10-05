@@ -363,7 +363,7 @@ export default function VideoCallModal({
   const isConnecting = effectiveCallMode === "connecting" || (isCallType && !hasConnectedOnce && state.statusMessage !== "");
   const isIncoming = effectiveCallMode === "incoming";
 
-  // Role Separation: Local client identity vs Remote caller identity
+  // Strict local role detection
   const isLocalReceptionist = callerRole === "receptionist";
   const isLocalDoctor = !isLocalReceptionist && (isDoctor || callerRole === "doctor");
   const isLocalAsha = callerRole === "asha";
@@ -372,7 +372,6 @@ export default function VideoCallModal({
   const incomingRole = state.incomingCaller?.callerRole;
   const isRemoteReceptionist = incomingRole === "receptionist";
   const isRemoteDoctor = incomingRole === "doctor";
-  const isRemoteAsha = incomingRole === "asha";
 
   const rawCallerTitle = state.incomingCaller?.callerTitle || callerTitle;
   const displayCallerTitle = sanitizeTitle(rawCallerTitle, incomingRole || callerRole, facilityName);
@@ -605,6 +604,8 @@ export default function VideoCallModal({
     ? patientDetails.symptoms.split(",").map(s => s.trim()).filter(Boolean)
     : [];
 
+  const shouldShowDeskPanel = (isLocalReceptionist || isLocalDoctor) && showDeskPad;
+
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 1000,
@@ -615,7 +616,9 @@ export default function VideoCallModal({
     }}>
       <div style={{
         width: "100%",
-        maxWidth: isActive ? (showDeskPad ? "min(1040px, 96vw)" : "min(560px, 94vw)") : "min(440px, 92vw)",
+        maxWidth: isLocalPatient
+          ? "min(500px, 94vw)"
+          : (shouldShowDeskPanel ? "min(1040px, 96vw)" : "min(560px, 94vw)"),
         background: isLocalReceptionist ? "#0A192F" : "#0F172A",
         borderRadius: 24,
         maxHeight: "96vh",
@@ -655,11 +658,12 @@ export default function VideoCallModal({
                     ? "Reception Desk Live Verification"
                     : isLocalDoctor
                     ? "Clinical Tele-Consultation Room"
-                    : `Hospital Consultation Call: ${displayCallerTitle}`}
+                    : (facilityName || displayCallerTitle)}
                 </div>
                 <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {isLocalDoctor || isLocalReceptionist ? `Patient: ${patientName} (${patientId})` : displayCallerTitle}
-                  {facilityName && ` • ${facilityName}`}
+                  {isLocalDoctor || isLocalReceptionist
+                    ? `Patient: ${patientName} (${patientId})`
+                    : `Consultation Desk • ${displayCallerTitle}`}
                 </div>
               </div>
             </div>
@@ -802,7 +806,7 @@ export default function VideoCallModal({
                 display: "inline-flex", alignItems: "center", justifyContent: "center",
                 color: "#38BDF8", animation: "ring 1.2s infinite ease-in-out", marginBottom: 16
               }}>
-                {isRemoteReceptionist ? <Building2 size={38} /> : isRemoteDoctor ? <Stethoscope size={38} /> : <PhoneIncoming size={38} />}
+                {isRemoteReceptionist ? <Building2 size={38} /> : <Stethoscope size={38} />}
               </div>
 
               <div style={{ fontSize: 20, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
@@ -879,27 +883,36 @@ export default function VideoCallModal({
                 <NetworkBadge quality={state.networkQuality} />
 
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                  <button
-                    type="button"
-                    onClick={() => setShowDeskPad(!showDeskPad)}
-                    style={{
-                      padding: "5px 12px", borderRadius: 14, border: "none",
-                      background: showDeskPad ? (isLocalReceptionist ? "#0284C7" : isLocalDoctor ? "#3B82F6" : "#0F766E") : "rgba(255,255,255,0.15)",
-                      color: "white", fontSize: 11, fontWeight: 700, cursor: "pointer",
-                      display: "flex", alignItems: "center", gap: 5
-                    }}>
-                    {isLocalReceptionist ? <Building2 size={13} /> : isLocalDoctor ? <Stethoscope size={13} /> : <ClipboardList size={13} />}
-                    {isLocalReceptionist ? "Verification Desk" : isLocalDoctor ? "Clinical Desk Pad" : "Consultation Info"}
-                  </button>
+                  {/* Token Pill for Patient */}
+                  {isLocalPatient && (
+                    <div style={{ background: "rgba(14, 165, 233, 0.15)", border: "1px solid rgba(14, 165, 233, 0.3)", borderRadius: 14, padding: "4px 10px", fontSize: 11, fontWeight: 800, color: "#38BDF8" }}>
+                      Token: #{resolvedTokenNumber}
+                    </div>
+                  )}
+
+                  {(isLocalReceptionist || isLocalDoctor) && (
+                    <button
+                      type="button"
+                      onClick={() => setShowDeskPad(!showDeskPad)}
+                      style={{
+                        padding: "5px 12px", borderRadius: 14, border: "none",
+                        background: showDeskPad ? (isLocalReceptionist ? "#0284C7" : "#3B82F6") : "rgba(255,255,255,0.15)",
+                        color: "white", fontSize: 11, fontWeight: 700, cursor: "pointer",
+                        display: "flex", alignItems: "center", gap: 5
+                      }}>
+                      {isLocalReceptionist ? <Building2 size={13} /> : <Stethoscope size={13} />}
+                      {isLocalReceptionist ? "Verification Desk" : "Clinical Desk Pad"}
+                    </button>
+                  )}
                   <span style={{ fontSize: 12, color: "#94A3B8", display: "flex", alignItems: "center", gap: 4 }}>
                     {effectiveCallMode === "video" ? <Video size={13} /> : <Mic size={13} />}
-                    {effectiveCallMode === "video" ? "Video Mode" : "Voice Mode"}
+                    {effectiveCallMode === "video" ? "Video" : "Voice"}
                   </span>
                 </div>
               </div>
 
-              {/* Mobile Tab Switcher when Desk Pad is open on small screen */}
-              {showDeskPad && (
+              {/* Mobile Tab Switcher ONLY for Receptionist/Doctor when on narrow screen */}
+              {shouldShowDeskPanel && (
                 <div className="mobile-only-tabs" style={{ display: "none", gap: 8 }}>
                   <button
                     type="button"
@@ -919,30 +932,36 @@ export default function VideoCallModal({
                       background: mobileTab === "desk" ? "#0284C7" : "rgba(255,255,255,0.08)",
                       color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5
                     }}>
-                    <ClipboardList size={14} /> {isLocalReceptionist ? "Verification Desk" : isLocalDoctor ? "Clinical Desk" : "Appointment Info"}
+                    <ClipboardList size={14} /> {isLocalReceptionist ? "Verification Desk" : "Clinical Desk"}
                   </button>
                 </div>
               )}
 
               {/* Main Call + In-Call Desk Grid */}
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: (showDeskPad && !isFloating) ? "minmax(0, 1.2fr) minmax(0, 1fr)" : "1fr",
-                gap: 16,
-              }}>
-                {/* Left Column: Video / Audio Stream Feed */}
-                <div style={{
-                  display: mobileTab === "desk" ? "none" : "flex",
-                  flexDirection: "column", minWidth: 0
-                }}>
+              <div
+                className="call-main-grid"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: shouldShowDeskPanel ? "minmax(0, 1.2fr) minmax(0, 1fr)" : "1fr",
+                  gap: 16,
+                }}
+              >
+                {/* Video / Audio Stream Feed */}
+                <div
+                  className="call-video-column"
+                  style={{
+                    display: (shouldShowDeskPanel && mobileTab === "desk") ? "none" : "flex",
+                    flexDirection: "column", minWidth: 0, width: "100%"
+                  }}
+                >
                   {effectiveCallMode === "video" ? (
                     <div style={{
                       position: "relative",
                       borderRadius: 18,
                       overflow: "hidden",
                       minHeight: 280,
-                      height: "46vh",
-                      maxHeight: 480,
+                      height: isLocalPatient ? "52vh" : "46vh",
+                      maxHeight: 520,
                       background: "#050B14",
                       border: "1px solid rgba(255,255,255,0.12)",
                       display: "flex",
@@ -1022,15 +1041,19 @@ export default function VideoCallModal({
                   </div>
                 </div>
 
-                {/* Right Column: TAILORED DESK PAD */}
+                {/* Right Column: TAILORED DESK PAD (Only for Receptionist & Doctor) */}
 
-                {/* ── A. RECEPTIONIST DESK PAD UI (Only visible to receptionist) ── */}
+                {/* ── A. RECEPTIONIST DESK PAD UI ── */}
                 {isLocalReceptionist && showDeskPad && (
-                  <div style={{
-                    background: "rgba(10, 30, 52, 0.8)", borderRadius: 18, padding: "16px",
-                    border: "1px solid rgba(14, 165, 233, 0.3)", display: "flex", flexDirection: "column", gap: 12,
-                    minWidth: 0,
-                  }}>
+                  <div
+                    className="call-desk-column"
+                    style={{
+                      display: mobileTab === "video" ? "none" : "flex",
+                      background: "rgba(10, 30, 52, 0.8)", borderRadius: 18, padding: "16px",
+                      border: "1px solid rgba(14, 165, 233, 0.3)", flexDirection: "column", gap: 12,
+                      minWidth: 0, width: "100%"
+                    }}
+                  >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ fontSize: 14, fontWeight: 800, color: "#38BDF8", display: "flex", alignItems: "center", gap: 6 }}>
                         <Building2 size={16} /> In-Call Reception Verification Desk
@@ -1147,13 +1170,17 @@ export default function VideoCallModal({
                   </div>
                 )}
 
-                {/* ── B. DOCTOR CLINICAL DESK PAD UI (Only visible to doctor) ── */}
+                {/* ── B. DOCTOR CLINICAL DESK PAD UI ── */}
                 {isLocalDoctor && showDeskPad && (
-                  <div style={{
-                    background: "rgba(30, 41, 59, 0.75)", borderRadius: 18, padding: "16px",
-                    border: "1px solid rgba(59, 130, 246, 0.3)", display: "flex", flexDirection: "column", gap: 12,
-                    minWidth: 0,
-                  }}>
+                  <div
+                    className="call-desk-column"
+                    style={{
+                      display: mobileTab === "video" ? "none" : "flex",
+                      background: "rgba(30, 41, 59, 0.75)", borderRadius: 18, padding: "16px",
+                      border: "1px solid rgba(59, 130, 246, 0.3)", flexDirection: "column", gap: 12,
+                      minWidth: 0, width: "100%"
+                    }}
+                  >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ fontSize: 14, fontWeight: 800, color: "#60A5FA", display: "flex", alignItems: "center", gap: 6 }}>
                         <Stethoscope size={16} /> Clinical Diagnosis & Tele-Consultation
@@ -1289,73 +1316,6 @@ export default function VideoCallModal({
                   </div>
                 )}
 
-                {/* ── C. PATIENT IN-CALL DESK UI (Calm, informative view for patient) ── */}
-                {isLocalPatient && showDeskPad && (
-                  <div style={{
-                    background: "rgba(15, 23, 42, 0.85)", borderRadius: 18, padding: "16px",
-                    border: "1px solid rgba(56, 189, 248, 0.25)", display: "flex", flexDirection: "column", gap: 12,
-                    minWidth: 0,
-                  }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div style={{ fontSize: 13.5, fontWeight: 800, color: "#38BDF8", display: "flex", alignItems: "center", gap: 6 }}>
-                        <Building2 size={16} /> Live Consultation Desk
-                      </div>
-                      <span style={{ fontSize: 10.5, fontWeight: 800, color: "#4ADE80", background: "rgba(34,197,94,0.15)", padding: "2px 8px", borderRadius: 10, display: "flex", alignItems: "center", gap: 4 }}>
-                        <ShieldCheck size={12} /> Connected
-                      </span>
-                    </div>
-
-                    {/* Patient & Token Info */}
-                    <div style={{ background: "rgba(30, 41, 59, 0.7)", borderRadius: 12, padding: "10px 12px", fontSize: 11.5, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, color: "#CBD5E1", border: "1px solid rgba(255,255,255,0.08)" }}>
-                      <div>
-                        <div style={{ fontSize: 10, color: "#94A3B8", fontWeight: 700 }}>Your OPD Token</div>
-                        <div style={{ color: "#38BDF8", fontWeight: 900, fontSize: 13, marginTop: 2 }}>{resolvedTokenNumber}</div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 10, color: "#94A3B8", fontWeight: 700 }}>Triage Urgency</div>
-                        <div style={{ color: patientDetails?.urgency?.includes("RED") ? "#F87171" : patientDetails?.urgency?.includes("YELLOW") ? "#FBBF24" : "#4ADE80", fontWeight: 800, fontSize: 12, marginTop: 2 }}>
-                          {patientDetails?.urgency || "STANDARD"}
-                        </div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 10, color: "#94A3B8", fontWeight: 700 }}>Assigned Doctor / Desk</div>
-                        <div style={{ color: "white", fontWeight: 700, fontSize: 11.5, marginTop: 2 }}>
-                          {patientDetails?.doctorName || displayCallerTitle || "Hospital Reception Desk"}
-                        </div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 10, color: "#94A3B8", fontWeight: 700 }}>Facility / Room</div>
-                        <div style={{ color: "white", fontWeight: 700, fontSize: 11.5, marginTop: 2 }}>
-                          {facilityName || patientDetails?.department || "General OPD"}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Verification Checklist */}
-                    <div style={{ background: "rgba(15, 23, 42, 0.5)", borderRadius: 12, padding: "10px 12px", border: "1px solid rgba(255,255,255,0.06)" }}>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", marginBottom: 6, display: "flex", alignItems: "center", gap: 5 }}>
-                        <CheckCircle2 size={13} color="#38BDF8" /> Tele-Consultation Checklist
-                      </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 5, fontSize: 11, color: "#E2E8F0" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <Check size={12} color="#4ADE80" /> Voice & Audio connection verified
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <Check size={12} color="#4ADE80" /> Patient ABHA / Health ID linked
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <Check size={12} color="#4ADE80" /> Digital token queued for physician consult
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Instructions for Patient */}
-                    <div style={{ fontSize: 11, color: "#94A3B8", background: "rgba(2, 132, 199, 0.1)", borderRadius: 10, padding: "8px 10px", border: "1px solid rgba(2, 132, 199, 0.2)", lineHeight: 1.4 }}>
-                      Please describe your symptoms clearly. If you have previous medical reports or prescription photos, you can share them.
-                    </div>
-                  </div>
-                )}
-
               </div>
             </div>
           )}
@@ -1385,8 +1345,18 @@ export default function VideoCallModal({
           from { opacity: 0; transform: scale(0.85); }
           to { opacity: 1; transform: scale(1); }
         }
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
           .mobile-only-tabs { display: flex !important; }
+          .call-main-grid {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+          .call-video-column {
+            width: 100% !important;
+          }
+          .call-desk-column {
+            width: 100% !important;
+          }
         }
       `}</style>
     </div>
