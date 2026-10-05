@@ -30,6 +30,111 @@ function inferFacilityId(facilityId?: string, hospital?: string): string {
   return "HOSP-SION-001";
 }
 
+const INITIAL_SAMPLE_PATIENTS = [
+  {
+    patientName: "Suresh Patil",
+    patientPhone: "+91 98201 54321",
+    age: 48,
+    gender: "M",
+    symptoms: ["Chest heaviness", "shortness of breath"],
+    urgency: "RED",
+    department: "Cardiology",
+    doctorName: "Dr. Aniruddh Joshi",
+    consultationRoom: "Room 104 (Cardiac OPD)",
+    slotTime: "Immediate Priority",
+    hospital: "Lokmanya Tilak Municipal General Hospital (SION Hospital)",
+    facilityId: "HOSP-SION-001",
+    source: "Apex Trauma Triage",
+    receptionistStatus: "CONFIRMED",
+    checkInStatus: "ARRIVED",
+    status: "confirmed",
+    tokenNumber: "OPD-SION-101",
+    queueNo: "OPD-SION-101",
+    triageResult: { urgency: "RED", department: "Cardiology", summary: "High risk cardiac triage" },
+  },
+  {
+    patientName: "Meenakshi Kadam",
+    patientPhone: "+91 98192 65432",
+    age: 34,
+    gender: "F",
+    symptoms: ["High fever 103F", "severe body pain"],
+    urgency: "YELLOW",
+    department: "General Medicine",
+    doctorName: "Dr. Vilas Patil",
+    consultationRoom: "Room 102 (General OPD)",
+    slotTime: "10:30 AM",
+    hospital: "Lokmanya Tilak Municipal General Hospital (SION Hospital)",
+    facilityId: "HOSP-SION-001",
+    source: "Reception Desk",
+    receptionistStatus: "CONFIRMED",
+    checkInStatus: "ARRIVED",
+    status: "confirmed",
+    tokenNumber: "OPD-SION-102",
+    queueNo: "OPD-SION-102",
+    triageResult: { urgency: "YELLOW", department: "General Medicine", summary: "Moderate febrile illness" },
+  },
+  {
+    patientName: "Santosh Yadav",
+    patientPhone: "+91 98670 12345",
+    age: 55,
+    gender: "M",
+    symptoms: ["Diabetes routine checkup", "insulin refill"],
+    urgency: "GREEN",
+    department: "General Medicine",
+    doctorName: "Dr. Vilas Patil",
+    consultationRoom: "Room 102 (General OPD)",
+    slotTime: "11:15 AM",
+    hospital: "Lokmanya Tilak Municipal General Hospital (SION Hospital)",
+    facilityId: "HOSP-SION-001",
+    source: "OPD Walk-in",
+    receptionistStatus: "CONFIRMED",
+    status: "confirmed",
+    tokenNumber: "OPD-SION-103",
+    queueNo: "OPD-SION-103",
+    triageResult: { urgency: "GREEN", department: "General Medicine", summary: "Routine metabolic follow-up" },
+  },
+  {
+    patientName: "Aarav Sharma",
+    patientPhone: "+91 98331 45678",
+    age: 6,
+    gender: "M",
+    symptoms: ["Acute wheezing", "persistent cough"],
+    urgency: "YELLOW",
+    department: "Pediatrics",
+    doctorName: "Dr. Priya Nair",
+    consultationRoom: "Room 201 (Child Health)",
+    slotTime: "11:45 AM",
+    hospital: "Lokmanya Tilak Municipal General Hospital (SION Hospital)",
+    facilityId: "HOSP-SION-001",
+    source: "Pediatric Emergency Desk",
+    receptionistStatus: "PENDING_CONFIRMATION",
+    status: "pending",
+    tokenNumber: "OPD-SION-104",
+    queueNo: "OPD-SION-104",
+    triageResult: { urgency: "YELLOW", department: "Pediatrics", summary: "Pediatric respiratory wheeze" },
+  },
+  {
+    patientName: "Sunita Kamble",
+    patientPhone: "+91 98765 11001",
+    age: 29,
+    gender: "F",
+    symptoms: ["Antenatal 3rd trimester routine check"],
+    urgency: "GREEN",
+    department: "Maternal Health",
+    doctorName: "Dr. Priya Nair",
+    consultationRoom: "Room 201 (Maternal Care)",
+    slotTime: "12:15 PM",
+    hospital: "Lokmanya Tilak Municipal General Hospital (SION Hospital)",
+    facilityId: "HOSP-SION-001",
+    source: "ASHA Field Referral",
+    receptionistStatus: "CONFIRMED",
+    status: "confirmed",
+    tokenNumber: "OPD-SION-105",
+    queueNo: "OPD-SION-105",
+    triageResult: { urgency: "GREEN", department: "Maternal Health", summary: "Routine ANC checkup" },
+  }
+];
+
 export async function GET(req: NextRequest) {
   const status = req.nextUrl.searchParams.get("status") || "pending";
   const id = req.nextUrl.searchParams.get("id");
@@ -37,6 +142,14 @@ export async function GET(req: NextRequest) {
   const facilityId = req.nextUrl.searchParams.get("facilityId");
   try {
     await dbConnect();
+
+    // Auto-seed initial queue patients if database is empty
+    const count = await Consultation.estimatedDocumentCount();
+    if (count === 0) {
+      try {
+        await Consultation.insertMany(INITIAL_SAMPLE_PATIENTS);
+      } catch {}
+    }
 
     // Fetch single consultation by ID
     if (id) {

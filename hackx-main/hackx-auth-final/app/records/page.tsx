@@ -129,10 +129,30 @@ export default function RecordsPage() {
 
     setIsOfflineMode(false);
 
-    fetch(`/api/lab-orders?patientPhone=${encodeURIComponent(identifier)}`)
-      .then((r) => r.json())
-      .then((d) => setLabOrders(d.orders || []))
-      .catch(() => {});
+    // Fetch Lab Orders & Diagnostic Blood Tests
+    Promise.all([
+      fetch(`/api/lab-orders?patientPhone=${encodeURIComponent(identifier)}&_t=${Date.now()}`)
+        .then((r) => r.json())
+        .catch(() => ({ orders: [] })),
+      fetch(`/api/blood-tests?patientPhone=${encodeURIComponent(identifier)}&_t=${Date.now()}`)
+        .then((r) => r.json())
+        .catch(() => ({ tests: [] })),
+    ]).then(([labData, bloodData]) => {
+      const orders = (labData.orders || []).map((o: any) => ({ ...o, source: "Lab Order" }));
+      const bloodAsOrders = (bloodData.tests || []).map((bt: any) => ({
+        _id: bt._id,
+        orderId: `BLD-${bt._id ? bt._id.slice(-6).toUpperCase() : Math.floor(1000 + Math.random() * 9000)}`,
+        tests: [{ name: bt.testType || "Diagnostic Blood Test", code: "BLD" }],
+        labName: bt.labName || bt.submittedByName || "Diagnostic Health Center",
+        status: bt.status === "completed" ? "REPORT_UPLOADED" : "SENT_TO_LAB",
+        priority: bt.isCritical ? "STAT" : "NORMAL",
+        createdAt: bt.testDate || bt.createdAt,
+        doctorReviewNotes: bt.notes || (bt.result ? `Result: ${bt.result} ${bt.unit || ""}` : ""),
+        reportData: bt.numericValue ? `${bt.numericValue} ${bt.unit || ""}` : bt.result,
+        source: "Blood Test",
+      }));
+      setLabOrders([...orders, ...bloodAsOrders]);
+    });
 
     fetch(`/api/reviews?patientPhone=${encodeURIComponent(identifier)}`)
       .then((r) => r.json())
@@ -145,10 +165,16 @@ export default function RecordsPage() {
       })
       .catch(() => {});
 
-    fetch(`/api/consultations/my?identifier=${encodeURIComponent(identifier)}`)
+    fetch(`/api/consultations/my?identifier=${encodeURIComponent(identifier)}&_t=${Date.now()}`)
       .then((res) => res.json())
       .then(async (data) => {
-        const serverConsultations = data.consultations || [];
+        let serverConsultations = data.consultations || [];
+        if (serverConsultations.length === 0 && typeof window !== "undefined") {
+          try {
+            const local = JSON.parse(localStorage.getItem("myConsultations") || "[]");
+            if (local.length > 0) serverConsultations = local;
+          } catch {}
+        }
         setConsultations(serverConsultations);
 
         if (typeof window !== "undefined" && serverConsultations.length > 0) {

@@ -1,4 +1,6 @@
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import LabOrder from "@/models/LabOrder";
@@ -19,14 +21,32 @@ export async function GET(req: NextRequest) {
 
     if (orderId) query.orderId = orderId;
     if (consultationId) query.consultationId = consultationId;
-    if (patientPhone) query.patientPhone = patientPhone;
     if (doctorId) query.doctorId = doctorId;
     if (labId) query.labId = labId;
     if (status && status !== "ALL") query.status = status;
 
-    const orders = await LabOrder.find(query).sort({ createdAt: -1 });
+    if (patientPhone) {
+      const cleanDigits = patientPhone.replace(/\D/g, "");
+      const cleanName = patientPhone.trim();
+      const orClauses: any[] = [
+        { patientPhone },
+        { patientName: cleanName },
+      ];
+      if (cleanDigits.length >= 6) {
+        orClauses.push({ patientPhone: { $regex: new RegExp(cleanDigits, "i") } });
+      }
+      if (cleanName.length >= 2) {
+        orClauses.push({ patientName: { $regex: new RegExp(cleanName, "i") } });
+      }
+      query.$or = orClauses;
+    }
 
-    return NextResponse.json({ orders });
+    const orders = await LabOrder.find(query).sort({ createdAt: -1 }).lean();
+
+    return NextResponse.json(
+      { orders },
+      { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate" } }
+    );
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to fetch lab orders" }, { status: 500 });
   }
