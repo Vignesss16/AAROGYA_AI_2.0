@@ -376,6 +376,19 @@ export default function VideoCallModal({
   const rawCallerTitle = state.incomingCaller?.callerTitle || callerTitle;
   const displayCallerTitle = sanitizeTitle(rawCallerTitle, incomingRole || callerRole, facilityName);
 
+  // Dynamic remote participant and local user labels
+  const remoteDisplayName = isLocalPatient
+    ? displayCallerTitle
+    : (patientName ? `${patientName}${patientId ? ` (${patientId})` : ""}` : "Patient Feed");
+
+  const localDisplayName = isLocalReceptionist
+    ? "You (Reception)"
+    : isLocalDoctor
+    ? "You (Doctor)"
+    : isLocalAsha
+    ? "You (ASHA)"
+    : "You";
+
   const handleStartCall = (mode: "video" | "audio") => {
     actions.startCall(mode, {
       callerRole: callerRole === "patient" ? undefined : (callerRole as any),
@@ -491,7 +504,7 @@ export default function VideoCallModal({
           <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#4ADE80", animation: "pulse 1.5s infinite" }} />
             <span style={{ fontSize: 11, fontWeight: 800, color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {isLocalDoctor || isLocalReceptionist ? patientName : displayCallerTitle}
+              {remoteDisplayName}
             </span>
           </div>
 
@@ -525,13 +538,13 @@ export default function VideoCallModal({
           {effectiveCallMode === "video" ? (
             <VideoView
               stream={state.remoteStream}
-              label={isLocalDoctor ? patientName : displayCallerTitle}
+              label={remoteDisplayName}
               fitMode="cover"
             />
           ) : (
             <AudioOnlyView
-              name={isLocalDoctor ? patientName : displayCallerTitle}
-              isDoctor={isLocalDoctor}
+              name={remoteDisplayName}
+              isDoctor={!isLocalPatient}
               stream={state.remoteStream}
               compact
             />
@@ -540,7 +553,7 @@ export default function VideoCallModal({
           {/* Local User Mini Pip Video */}
           {effectiveCallMode === "video" && (
             <div style={{ position: "absolute", top: 8, right: 8, width: 68, height: 90, zIndex: 10 }}>
-              <VideoView stream={state.localStream} label="You" isMirrored isMuted isSmall />
+              <VideoView stream={state.localStream} label={localDisplayName} isMirrored isMuted isSmall />
             </div>
           )}
         </div>
@@ -729,7 +742,10 @@ export default function VideoCallModal({
           </div>
         )}
 
-        <div style={{ padding: isLocalPatient ? "12px 14px 20px" : "18px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
+        <div
+          className={isLocalPatient ? "patient-content-body" : "staff-content-body"}
+          style={{ padding: isLocalPatient ? (isActive ? "4px 8px 12px" : "12px 14px 20px") : "18px 20px", flex: 1, display: "flex", flexDirection: "column" }}
+        >
 
           {/* ── 1. IDLE: Choose call type (initiator side) ── */}
           {effectiveCallMode === "idle" && (
@@ -964,13 +980,13 @@ export default function VideoCallModal({
                       className={isLocalPatient ? "patient-video-frame" : "staff-video-frame"}
                       style={{
                         position: "relative",
-                        borderRadius: 18,
+                        borderRadius: isLocalPatient ? 0 : 18,
                         overflow: "hidden",
                         minHeight: isLocalPatient ? "62vh" : 300,
-                        height: isLocalPatient ? "calc(100dvh - 180px)" : "48vh",
+                        height: isLocalPatient ? "calc(100dvh - 150px)" : "48vh",
                         maxHeight: isLocalPatient ? "none" : 520,
                         background: "#050B14",
-                        border: "1px solid rgba(255,255,255,0.12)",
+                        border: isLocalPatient ? "none" : "1px solid rgba(255,255,255,0.12)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -978,22 +994,31 @@ export default function VideoCallModal({
                     >
                       <VideoView
                         stream={state.remoteStream}
-                        label={isLocalDoctor ? patientName : displayCallerTitle}
+                        label={remoteDisplayName}
                         fitMode={fitMode}
                         onToggleFit={() => setFitMode(fitMode === "contain" ? "cover" : "contain")}
                       />
                       <div style={{ position: "absolute", top: 12, right: 12, zIndex: 10 }}>
-                        <VideoView stream={state.localStream} label="You" isMirrored isMuted isSmall />
+                        <VideoView stream={state.localStream} label={localDisplayName} isMirrored isMuted isSmall />
                       </div>
                     </div>
                   ) : (
                     <div style={{ marginBottom: 10, minHeight: isLocalPatient ? "60vh" : "auto", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <AudioOnlyView name={isLocalDoctor ? patientName : displayCallerTitle} isDoctor={isLocalDoctor} stream={state.remoteStream} />
+                      <AudioOnlyView name={remoteDisplayName} isDoctor={!isLocalPatient} stream={state.remoteStream} />
                     </div>
                   )}
 
                   {/* Active Call Controls Dock */}
-                  <div style={{ display: "flex", justifyContent: "center", gap: 14, marginTop: 14, flexWrap: "wrap" }}>
+                  <div
+                    className={isLocalPatient ? "patient-controls-dock" : "staff-controls-dock"}
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      gap: 14,
+                      marginTop: 14,
+                      flexWrap: "wrap",
+                    }}
+                  >
                     <button
                       type="button"
                       onClick={actions.toggleMute}
@@ -1405,11 +1430,31 @@ export default function VideoCallModal({
             max-height: 100dvh !important;
             border-radius: 0 !important;
             border: none !important;
+            overflow: hidden !important;
+          }
+          .patient-content-body {
+            padding: 0 !important;
+            height: calc(100dvh - 70px) !important;
           }
           .patient-video-frame {
-            height: calc(100dvh - 170px) !important;
-            min-height: calc(100dvh - 170px) !important;
-            border-radius: 16px !important;
+            height: calc(100dvh - 80px) !important;
+            min-height: calc(100dvh - 80px) !important;
+            border-radius: 0 !important;
+            border: none !important;
+          }
+          .patient-controls-dock {
+            position: absolute !important;
+            bottom: 24px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            z-index: 40 !important;
+            background: rgba(15, 23, 42, 0.85) !important;
+            backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            border-radius: 36px !important;
+            padding: 8px 16px !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+            margin-top: 0 !important;
           }
         }
       `}</style>
