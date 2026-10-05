@@ -172,7 +172,11 @@ export async function GET(req: NextRequest) {
 
     const raw = await Consultation.find(query).sort({ createdAt: -1 }).lean();
     const priority: Record<string, number> = { RED: 0, YELLOW: 1, GREEN: 2 };
-    const sorted = (raw || []).sort((a: any, b: any) => (priority[a.urgency] ?? 3) - (priority[b.urgency] ?? 3));
+    const sorted = (raw || []).sort((a: any, b: any) => {
+      const pDiff = (priority[a.urgency] ?? 3) - (priority[b.urgency] ?? 3);
+      if (pDiff !== 0) return pDiff;
+      return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+    });
     return NextResponse.json(
       { consultations: sorted },
       { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate" } }

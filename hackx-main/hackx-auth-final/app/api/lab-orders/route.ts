@@ -29,14 +29,17 @@ export async function GET(req: NextRequest) {
       const cleanDigits = patientPhone.replace(/\D/g, "");
       const cleanName = patientPhone.trim();
       const orClauses: any[] = [
-        { patientPhone },
+        { patientPhone: patientPhone },
         { patientName: cleanName },
       ];
       if (cleanDigits.length >= 6) {
-        orClauses.push({ patientPhone: { $regex: new RegExp(cleanDigits, "i") } });
+        orClauses.push({ patientPhone: { $regex: cleanDigits, $options: "i" } });
+        if (cleanDigits.length >= 10) {
+          orClauses.push({ patientPhone: { $regex: cleanDigits.slice(-10), $options: "i" } });
+        }
       }
       if (cleanName.length >= 2) {
-        orClauses.push({ patientName: { $regex: new RegExp(cleanName, "i") } });
+        orClauses.push({ patientName: { $regex: cleanName, $options: "i" } });
       }
       query.$or = orClauses;
     }
