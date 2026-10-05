@@ -1737,7 +1737,7 @@ export default function HospitalDesktopDashboard() {
                                       } catch {}
                                     }
                                   })}
-                                  title="Live Video Verification Call"
+                                  title="In-App Audio / Video Call"
                                   style={{
                                     background: "#E0F2FE",
                                     color: "#0369A1",
@@ -1752,7 +1752,7 @@ export default function HospitalDesktopDashboard() {
                                     gap: 3,
                                   }}
                                 >
-                                  <Video size={12} /> Video Call
+                                  <Video size={12} /> App Call
                                 </button>
 
                                 {!isArrived && (
