@@ -379,11 +379,11 @@ export default function VideoCallModal({
   useEffect(() => {
     if (isFloating && !pipPos && typeof window !== "undefined") {
       const isMobile = window.innerWidth < 640;
-      const initialWidth = isMobile ? Math.min(320, window.innerWidth - 24) : 340;
-      const initialHeight = 290;
+      const initialWidth = isMobile ? 130 : 176;
+      const initialHeight = isMobile ? 186 : 246;
       setPipPos({
-        x: Math.max(12, window.innerWidth - initialWidth - 16),
-        y: Math.max(12, window.innerHeight - initialHeight - 24),
+        x: Math.max(10, window.innerWidth - initialWidth - 14),
+        y: Math.max(10, window.innerHeight - initialHeight - 36),
       });
     }
   }, [isFloating, pipPos]);
@@ -469,178 +469,209 @@ export default function VideoCallModal({
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ── 1. FLOATING PICTURE-IN-PICTURE (PiP) MODE ──
+  // ── 1. FLOATING PICTURE-IN-PICTURE (PiP) MODE (WHATSAPP-STYLE SLEEK CARD) ──
   // ═══════════════════════════════════════════════════════════════════════════
   if (isFloating && isActive) {
-    const handlePointerDown = (e: React.PointerEvent) => {
+    const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+      if ((e.target as HTMLElement).closest("button")) return;
+      const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+      const cardW = isMobile ? 130 : 176;
+      const cardH = isMobile ? 186 : 246;
+      const currentX = pipPos?.x ?? (typeof window !== "undefined" ? window.innerWidth - cardW - 14 : 20);
+      const currentY = pipPos?.y ?? (typeof window !== "undefined" ? window.innerHeight - cardH - 36 : 20);
+
       dragRef.current = {
         pointerX: e.clientX,
         pointerY: e.clientY,
-        initX: pipPos?.x || 0,
-        initY: pipPos?.y || 0,
+        initX: currentX,
+        initY: currentY,
         active: true,
       };
       setIsDragging(true);
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+      (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
     };
 
-    const handlePointerMove = (e: React.PointerEvent) => {
+    const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
       if (!dragRef.current.active) return;
       const dx = e.clientX - dragRef.current.pointerX;
       const dy = e.clientY - dragRef.current.pointerY;
-      const newX = Math.max(8, Math.min(window.innerWidth - 340, dragRef.current.initX + dx));
-      const newY = Math.max(8, Math.min(window.innerHeight - 290, dragRef.current.initY + dy));
+      const isMobile = window.innerWidth < 640;
+      const cardW = isMobile ? 130 : 176;
+      const cardH = isMobile ? 186 : 246;
+      const newX = Math.max(6, Math.min(window.innerWidth - cardW - 6, dragRef.current.initX + dx));
+      const newY = Math.max(6, Math.min(window.innerHeight - cardH - 6, dragRef.current.initY + dy));
       setPipPos({ x: newX, y: newY });
     };
 
-    const handlePointerUp = (e: React.PointerEvent) => {
+    const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!dragRef.current.active) return;
+      const dx = Math.abs(e.clientX - dragRef.current.pointerX);
+      const dy = Math.abs(e.clientY - dragRef.current.pointerY);
       dragRef.current.active = false;
       setIsDragging(false);
       try {
-        (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+        (e.currentTarget as HTMLDivElement).releasePointerCapture(e.pointerId);
       } catch {}
+
+      // Tapping anywhere without dragging expands back to full modal
+      if (dx < 5 && dy < 5) {
+        setIsFloating(false);
+      }
     };
 
     return (
       <div
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        title="Tap to expand fullscreen • Drag to move freely"
         style={{
           position: "fixed",
           left: pipPos?.x ?? "auto",
           top: pipPos?.y ?? "auto",
-          right: pipPos ? "auto" : 20,
-          bottom: pipPos ? "auto" : 20,
+          right: pipPos ? "auto" : 14,
+          bottom: pipPos ? "auto" : 36,
           zIndex: 999999,
-          width: 320,
-          height: 280,
-          background: "#0A121E",
+          width: typeof window !== "undefined" && window.innerWidth < 640 ? 130 : 176,
+          height: typeof window !== "undefined" && window.innerWidth < 640 ? 186 : 246,
+          background: "#050B14",
           borderRadius: 18,
-          border: isLocalReceptionist ? "2px solid #0284C7" : "2px solid #10B981",
-          boxShadow: "0 20px 50px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.1)",
+          border: isLocalReceptionist ? "2px solid #0284C7" : "2px solid rgba(255,255,255,0.35)",
+          boxShadow: "0 16px 40px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.15)",
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
-          cursor: isDragging ? "grabbing" : "auto",
+          cursor: isDragging ? "grabbing" : "grab",
           userSelect: "none",
+          touchAction: "none",
           animation: "popIn .2s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
         }}
       >
-        {/* Floating Draggable Header */}
-        <div
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          style={{
-            padding: "8px 12px",
-            background: "rgba(15, 23, 42, 0.95)",
-            borderBottom: "1px solid rgba(255,255,255,0.1)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            cursor: "grab",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#4ADE80", animation: "pulse 1.5s infinite" }} />
-            <span style={{ fontSize: 11, fontWeight: 800, color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {remoteDisplayName}
-            </span>
-          </div>
+        {/* Full-bleed Remote Video View */}
+        {effectiveCallMode === "video" ? (
+          <div style={{ width: "100%", height: "100%", position: "relative", background: "#050B14" }}>
+            {state.remoteStream ? (
+              <video
+                ref={(el) => { if (el && state.remoteStream) el.srcObject = state.remoteStream; }}
+                autoPlay
+                playsInline
+                style={{ width: "100%", height: "100%", objectFit: "cover", background: "#050B14" }}
+              />
+            ) : (
+              <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                <User size={26} color="#94A3B8" />
+                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>Connecting...</span>
+              </div>
+            )}
 
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8" }}>{formatDuration(state.callDuration)}</span>
-            <button
-              type="button"
-              onClick={() => setIsFloating(false)}
-              title="Expand to Full View"
-              style={{
-                background: "rgba(255,255,255,0.12)",
-                border: "none",
-                borderRadius: 6,
-                padding: "3px 6px",
-                color: "white",
-                fontSize: 10,
-                cursor: "pointer",
-                fontWeight: 700,
-                display: "flex",
-                alignItems: "center",
-                gap: 3,
-              }}
-            >
-              <Maximize2 size={11} /> Expand
-            </button>
-          </div>
-        </div>
-
-        {/* Mini Media Stream Feed */}
-        <div style={{ flex: 1, position: "relative", background: "#050B14", overflow: "hidden" }}>
-          {effectiveCallMode === "video" ? (
-            <VideoView
-              stream={state.remoteStream}
-              label={remoteDisplayName}
-              fitMode="cover"
-            />
-          ) : (
-            <AudioOnlyView
-              name={remoteDisplayName}
-              isDoctor={!isLocalPatient}
-              stream={state.remoteStream}
-              compact
-            />
-          )}
-
-          {/* Local User Mini Pip Video */}
-          {effectiveCallMode === "video" && (
-            <div style={{ position: "absolute", top: 8, right: 8, width: 68, height: 90, zIndex: 10 }}>
-              <VideoView stream={state.localStream} label={localDisplayName} isMirrored isMuted isSmall />
+            {/* Local Patient Thumbnail (Bottom-Right, WhatsApp style) */}
+            <div style={{
+              position: "absolute",
+              bottom: 8,
+              right: 8,
+              width: 36,
+              height: 50,
+              borderRadius: 6,
+              border: "1.5px solid rgba(255,255,255,0.9)",
+              overflow: "hidden",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.6)",
+              zIndex: 15,
+              background: "#000",
+            }}>
+              {state.localStream ? (
+                <video
+                  ref={(el) => { if (el && state.localStream) el.srcObject = state.localStream; }}
+                  autoPlay
+                  playsInline
+                  muted
+                  style={{ width: "100%", height: "100%", objectFit: "cover", transform: "scaleX(-1)" }}
+                />
+              ) : (
+                <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <User size={12} color="#CBD5E1" />
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <AudioOnlyView
+            name={remoteDisplayName}
+            isDoctor={!isLocalPatient}
+            stream={state.remoteStream}
+            compact
+          />
+        )}
 
-        {/* Mini Bottom Controls */}
+        {/* Top-Left: Live Duration Badge */}
         <div style={{
-          padding: "6px 10px",
-          background: "rgba(15, 23, 42, 0.95)",
-          borderTop: "1px solid rgba(255,255,255,0.08)",
+          position: "absolute",
+          top: 8,
+          left: 8,
+          background: "rgba(10, 15, 26, 0.8)",
+          backdropFilter: "blur(8px)",
+          borderRadius: 12,
+          padding: "2px 6px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-around",
+          gap: 4,
+          zIndex: 20,
+          border: "1px solid rgba(255,255,255,0.2)",
+          pointerEvents: "none"
         }}>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); actions.toggleMute(); }}
-            style={{
-              width: 34, height: 34, borderRadius: "50%", border: "none", cursor: "pointer",
-              background: state.isMuted ? C.red : "rgba(255,255,255,0.15)", color: "white",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}
-            title={state.isMuted ? "Unmute" : "Mute"}>
-            {state.isMuted ? <MicOff size={15} /> : <Mic size={15} />}
-          </button>
+          <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ADE80", animation: "pulse 1.5s infinite" }} />
+          <span style={{ fontSize: 9.5, fontWeight: 800, color: "white" }}>{formatDuration(state.callDuration)}</span>
+        </div>
 
-          {effectiveCallMode === "video" && (
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); actions.toggleCamera(); }}
-              style={{
-                width: 34, height: 34, borderRadius: "50%", border: "none", cursor: "pointer",
-                background: state.isCameraOff ? C.red : "rgba(255,255,255,0.15)", color: "white",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}
-              title={state.isCameraOff ? "Turn Cam On" : "Turn Cam Off"}>
-              {state.isCameraOff ? <VideoOff size={15} /> : <Video size={15} />}
-            </button>
-          )}
+        {/* Top-Right: Expand Button */}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); setIsFloating(false); }}
+          title="Expand to Fullscreen"
+          style={{
+            position: "absolute",
+            top: 7,
+            right: 7,
+            width: 24,
+            height: 24,
+            borderRadius: "50%",
+            background: "rgba(10, 15, 26, 0.82)",
+            backdropFilter: "blur(8px)",
+            border: "1px solid rgba(255,255,255,0.25)",
+            color: "white",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            zIndex: 25,
+          }}
+        >
+          <Maximize2 size={11} />
+        </button>
 
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); actions.endCall(); setIsFloating(false); }}
-            style={{
-              padding: "5px 12px", borderRadius: 16, border: "none", cursor: "pointer",
-              background: `linear-gradient(135deg, ${C.redLight}, ${C.red})`, color: "white", fontSize: 11, fontWeight: 700,
-              display: "flex", alignItems: "center", gap: 4, boxShadow: "0 4px 12px rgba(239,68,68,0.4)"
-            }}>
-            <PhoneOff size={13} /> End
-          </button>
+        {/* Bottom-Left: Remote Participant / Hospital Title */}
+        <div style={{
+          position: "absolute",
+          bottom: 8,
+          left: 8,
+          maxWidth: "calc(100% - 52px)",
+          background: "rgba(10, 15, 26, 0.85)",
+          backdropFilter: "blur(8px)",
+          borderRadius: 6,
+          padding: "2px 6px",
+          zIndex: 15,
+          border: "1px solid rgba(255,255,255,0.18)",
+          pointerEvents: "none",
+        }}>
+          <div style={{
+            fontSize: 9,
+            fontWeight: 800,
+            color: "#F8FAFC",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}>
+            {remoteDisplayName}
+          </div>
         </div>
       </div>
     );
