@@ -886,13 +886,13 @@ export default function HospitalDesktopDashboard() {
     facilityScopedQueue = queue.filter((q) => {
       if (q.facilityId && q.facilityId === fid) return true;
       const h = (q.hospital || "").toLowerCase();
-      if (!h && !q.facilityId) return true; // Default fallback inclusion
+      if (!h || !q.facilityId) return true; // Include untagged/civil appointments
       return (
         h.includes(sn) ||
         h.includes(fn) ||
         fn.includes(h) ||
         sn.includes(h) ||
-        (fid === "HOSP-SION-001" && (h.includes("sion") || h.includes("lokmanya") || h.includes("ltmgh") || h.includes("mumbai"))) ||
+        (fid === "HOSP-SION-001" && (h.includes("sion") || h.includes("lokmanya") || h.includes("ltmgh") || h.includes("mumbai") || h.includes("civil") || h.includes("general") || h.includes("hospital") || h.includes("center"))) ||
         (fid === "HOSP-KLY-002" && (h.includes("kalyan") || h.includes("kly"))) ||
         (fid === "HOSP-KLW-003" && (h.includes("kalwa") || h.includes("csmh") || h.includes("thane"))) ||
         (fid === "HOSP-PLG-004" && (h.includes("palghar") || h.includes("plg"))) ||
