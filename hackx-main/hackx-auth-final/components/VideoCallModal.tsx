@@ -119,6 +119,7 @@ function NetworkBadge({ quality }: { quality: NetworkQuality }) {
 function VideoView({
   stream,
   label,
+  subLabel,
   isMirrored,
   isMuted,
   isSmall,
@@ -127,6 +128,7 @@ function VideoView({
 }: {
   stream: MediaStream | null;
   label: string;
+  subLabel?: string;
   isMirrored?: boolean;
   isMuted?: boolean;
   isSmall?: boolean;
@@ -175,26 +177,56 @@ function VideoView({
         </div>
       )}
 
-      {/* Name Label */}
-      <div style={{
-        position: "absolute",
-        bottom: 8,
-        left: 8,
-        background: "rgba(15, 23, 42, 0.75)",
-        backdropFilter: "blur(6px)",
-        borderRadius: 8,
-        padding: "3px 8px",
-        fontSize: isSmall ? 9 : 11,
-        color: "#F8FAFC",
-        fontWeight: 700,
-        border: "1px solid rgba(255,255,255,0.12)",
-        pointerEvents: "none",
-        maxWidth: "85%",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-      }}>
-        {label}
+      {/* Name & Role Label Badge Inside Video */}
+      <div
+        className={isSmall ? "video-pip-label" : "video-main-label"}
+        style={{
+          position: "absolute",
+          bottom: isSmall ? 6 : 12,
+          left: isSmall ? 6 : 12,
+          background: "rgba(15, 23, 42, 0.88)",
+          backdropFilter: "blur(10px)",
+          borderRadius: isSmall ? 6 : 10,
+          padding: isSmall ? "3px 6px" : "6px 12px",
+          border: "1px solid rgba(255,255,255,0.18)",
+          boxShadow: "0 4px 14px rgba(0,0,0,0.5)",
+          pointerEvents: "none",
+          maxWidth: isSmall ? "88%" : "85%",
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          zIndex: 15,
+        }}
+      >
+        {!isSmall && (
+          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#10B981", boxShadow: "0 0 8px #10B981", flexShrink: 0 }} />
+        )}
+        <div style={{ minWidth: 0 }}>
+          <div style={{
+            fontSize: isSmall ? 9 : 12,
+            color: "#F8FAFC",
+            fontWeight: 800,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            letterSpacing: 0.2
+          }}>
+            {label}
+          </div>
+          {subLabel && !isSmall && (
+            <div style={{
+              fontSize: 10,
+              color: "#38BDF8",
+              fontWeight: 700,
+              marginTop: 1,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis"
+            }}>
+              {subLabel}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Fit Mode Toggle Button for Large Video */}
@@ -376,10 +408,16 @@ export default function VideoCallModal({
   const rawCallerTitle = state.incomingCaller?.callerTitle || callerTitle;
   const displayCallerTitle = sanitizeTitle(rawCallerTitle, incomingRole || callerRole, facilityName);
 
-  // Dynamic remote participant and local user labels
+  // Dynamic remote participant, hospital name, and local user labels
+  const isSionFacility = (facilityName || displayCallerTitle)?.includes("Lokmanya") || (facilityName || displayCallerTitle)?.includes("SION");
+
   const remoteDisplayName = isLocalPatient
-    ? displayCallerTitle
-    : (patientName ? `${patientName}${patientId ? ` (${patientId})` : ""}` : "Patient Feed");
+    ? (isSionFacility ? "SION Hospital (LTMGH Mumbai)" : (facilityName || displayCallerTitle))
+    : (patientName ? `${patientName}` : "Patient Feed");
+
+  const remoteSubTitle = isLocalPatient
+    ? "Reception Desk Live Verification"
+    : (patientId ? `Phone: ${patientId} • Token: ${resolvedTokenNumber}` : `Token: ${resolvedTokenNumber}`);
 
   const localDisplayName = isLocalReceptionist
     ? "You (Reception)"
@@ -671,19 +709,27 @@ export default function VideoCallModal({
                 {isLocalReceptionist ? <Building2 size={20} /> : isLocalDoctor ? <Stethoscope size={20} /> : <PhoneCall size={20} />}
               </div>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 15, fontWeight: 800, color: "#F8FAFC", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <div style={{
+                  fontSize: isLocalPatient ? 13.5 : 15,
+                  fontWeight: 800,
+                  color: "#F8FAFC",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  letterSpacing: -0.2
+                }}>
                   {isIncoming
                     ? "Incoming Call"
                     : isLocalReceptionist
                     ? "Reception Desk Live Verification"
                     : isLocalDoctor
                     ? "Clinical Tele-Consultation Room"
-                    : (facilityName || displayCallerTitle)}
+                    : (isSionFacility ? "SION Hospital (LTMGH Mumbai)" : (facilityName || displayCallerTitle))}
                 </div>
-                <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {isLocalDoctor || isLocalReceptionist
                     ? `Patient: ${patientName} (${patientId})`
-                    : `Consultation Desk • ${displayCallerTitle}`}
+                    : `Live Verification Desk • Token: #${resolvedTokenNumber}`}
                 </div>
               </div>
             </div>
@@ -995,6 +1041,7 @@ export default function VideoCallModal({
                       <VideoView
                         stream={state.remoteStream}
                         label={remoteDisplayName}
+                        subLabel={remoteSubTitle}
                         fitMode={fitMode}
                         onToggleFit={() => setFitMode(fitMode === "contain" ? "cover" : "contain")}
                       />
@@ -1441,6 +1488,14 @@ export default function VideoCallModal({
             min-height: calc(100dvh - 80px) !important;
             border-radius: 0 !important;
             border: none !important;
+          }
+          .patient-video-frame .video-main-label {
+            bottom: 86px !important;
+            left: 12px !important;
+            max-width: calc(100vw - 24px) !important;
+            background: rgba(10, 20, 35, 0.9) !important;
+            border: 1px solid rgba(56, 189, 248, 0.3) !important;
+            padding: 5px 10px !important;
           }
           .patient-controls-dock {
             position: absolute !important;
