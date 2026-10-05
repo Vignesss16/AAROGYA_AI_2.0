@@ -7,6 +7,29 @@ import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { getDB, seedOfflineData } from "@/lib/db-offline";
 import { generatePDF, PatientInfo, Consultation, urgencyConfig, formatDate, getTitle } from '@/lib/pdf';
 import { useAuth } from "@/lib/useAuth";
+import {
+  Building2,
+  Calendar,
+  Clock,
+  Stethoscope,
+  FileText,
+  Pill,
+  Download,
+  Star,
+  CheckCircle2,
+  Activity,
+  ChevronDown,
+  ChevronUp,
+  QrCode,
+  Search,
+  Shield,
+  Filter,
+  Eye,
+  EyeOff,
+  ClipboardList,
+  AlertTriangle,
+  FlaskConical
+} from "lucide-react";
 
 const C = {
   primary: "#1B6CA8", primaryDark: "#0F4C7A", green: "#1E8449",
@@ -577,6 +600,8 @@ export default function RecordsPage() {
                         const isOpen = expanded === (c._id || String(i));
                         const cardId = c._id || String(i);
 
+                        const tokenCode = (c as any).tokenNumber || (c.queueNo ? (c.queueNo.startsWith("OPD-") ? c.queueNo : `OPD-${c.queueNo.replace(/^Q-?/i, "")}`) : (c._id ? `OPD-${c._id.slice(-4).toUpperCase()}` : "OPD-101"));
+
                         return (
                           <div key={cardId} className="rec-card" style={{ background: C.card, borderRadius: 14, border: `1px solid ${C.border}`, borderLeft: `4px solid ${cfg.color}`, boxShadow: "0 2px 8px rgba(0,0,0,0.03)", overflow: "hidden" }}>
                             <div className="rec-expand-row" onClick={() => setExpanded(isOpen ? null : cardId)} style={{ padding: isCompactView ? "10px 12px" : "12px 14px" }}>
@@ -599,18 +624,27 @@ export default function RecordsPage() {
                                     </div>
                                   )}
 
-                                  <div style={{ fontSize: 11, color: C.primary, marginTop: 4 }}>
-                                    <span>🏥 {formatDoctorDisplay(c.doctorName)}</span>
-                                    {c.slot && <span> · 🕐 {c.slot}</span>}
-                                    {c.queueNo && <span> · #{c.queueNo}</span>}
+                                  <div style={{ fontSize: 11, color: C.primary, marginTop: 4, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                                    <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+                                      <Building2 size={12} /> {formatDoctorDisplay(c.doctorName)}
+                                    </span>
+                                    {c.slot && (
+                                      <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+                                        · <Clock size={12} /> {c.slot}
+                                      </span>
+                                    )}
+                                    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, fontWeight: 800, color: "#0369A1", background: "#E0F2FE", padding: "1px 6px", borderRadius: 4 }}>
+                                      Token: #{tokenCode}
+                                    </span>
                                   </div>
 
                                   <div style={{ display: "flex", alignItems: "center", marginTop: 6 }}>
                                     <span style={{ fontSize: 11, color: c.status === "completed" ? C.green : cfg.color, fontStyle: "italic", fontWeight: 600 }}>
                                       {statusLabel[c.status] || c.status}
                                     </span>
-                                    <span className="rec-chevron" style={{ marginLeft: "auto", fontSize: 11, color: C.muted, fontWeight: 700 }}>
-                                      {isOpen ? "▲ Hide" : "▼ View Report"}
+                                    <span className="rec-chevron" style={{ marginLeft: "auto", fontSize: 11, color: C.muted, fontWeight: 700, display: "flex", alignItems: "center", gap: 3 }}>
+                                      {isOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                                      {isOpen ? t("छुपाएं", "Hide") : t("रिपोर्ट देखें", "View Report")}
                                     </span>
                                   </div>
                                 </div>
@@ -623,31 +657,29 @@ export default function RecordsPage() {
                                 {(c.doctorName || c.hospital || c.slot || c.queueNo) && (
                                   <div style={{ background: "linear-gradient(135deg, #EBF4FD, #DDEEFF)", borderRadius: 12, padding: "10px 12px", marginBottom: 10, border: `1px solid ${C.primary}30` }}>
                                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                                      <span style={{ fontSize: 13 }}>📅</span>
+                                      <Calendar size={13} color={C.primary} />
                                       <span style={{ fontWeight: 800, fontSize: 10, color: C.primary, textTransform: "uppercase", letterSpacing: "0.5px" }}>
                                         {t("अपॉइंटमेंट विवरण", "Appointment Details")}
                                       </span>
                                     </div>
-                                    <div style={{ fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 3 }}>
-                                      🏥 {t("डॉक्टर", "Doctor")}: {formatDoctorDisplay(c.doctorName)}
+                                    <div style={{ fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 3, display: "flex", alignItems: "center", gap: 5 }}>
+                                      <Stethoscope size={13} color={C.primary} /> <strong>{t("डॉक्टर", "Doctor")}:</strong> {formatDoctorDisplay(c.doctorName)}
                                     </div>
                                     {c.hospital && (
-                                      <div style={{ fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 3 }}>
-                                        🏩 {t("अस्पताल", "Hospital")}: {c.hospital}
+                                      <div style={{ fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 3, display: "flex", alignItems: "center", gap: 5 }}>
+                                        <Building2 size={13} color={C.primary} /> <strong>{t("अस्पताल", "Hospital")}:</strong> {c.hospital}
                                       </div>
                                     )}
-                                    {c.slot && (
-                                      <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>
-                                        🕐 {t("समय", "Time")}: {c.slot}{c.queueNo && ` · ${t("कतार No.", "Queue No.")} #${c.queueNo}`}
-                                      </div>
-                                    )}
+                                    <div style={{ fontSize: 12, fontWeight: 600, color: C.text, display: "flex", alignItems: "center", gap: 5 }}>
+                                      <Clock size={13} color={C.primary} /> <strong>{t("समय एवं टोकन", "Time & Token")}:</strong> {c.slot || "OPD Slot"} · Token: #{tokenCode}
+                                    </div>
                                   </div>
                                 )}
 
                                 {/* Symptoms */}
                                 <div style={{ background: "#FEF9E7", borderRadius: 12, padding: "10px 12px", marginBottom: 10, border: "1px solid #FAD7A0" }}>
-                                  <div style={{ fontSize: 10, fontWeight: 800, color: "#7D6608", textTransform: "uppercase", marginBottom: 4 }}>
-                                    🤧 {t("दर्ज लक्षण", "Symptoms Reported")}
+                                  <div style={{ fontSize: 10, fontWeight: 800, color: "#7D6608", textTransform: "uppercase", marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}>
+                                    <Activity size={12} color="#7D6608" /> {t("दर्ज लक्षण", "Symptoms Reported")}
                                   </div>
                                   <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                                     {(c.symptoms || []).map((s) => (
@@ -661,18 +693,28 @@ export default function RecordsPage() {
                                 {/* Clinical Notes */}
                                 <div style={{ background: C.bg, borderRadius: 10, padding: 10, fontSize: 11, color: C.muted, marginBottom: 8 }}>
                                   {(c as any).notes ? (
-                                    <><strong>🩺 Doctor Notes:</strong> {(c as any).notes}</>
+                                    <div style={{ display: "flex", gap: 6, alignItems: "flex-start" }}>
+                                      <Stethoscope size={13} color={C.primary} style={{ marginTop: 2, flexShrink: 0 }} />
+                                      <div><strong>Doctor Notes:</strong> {(c as any).notes}</div>
+                                    </div>
                                   ) : (
-                                    <span>🩺 {t("डॉक्टर के नोट्स अभी उपलब्ध नहीं हैं", "Doctor notes not yet available")}</span>
+                                    <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                                      <Stethoscope size={12} /> {t("डॉक्टर के नोट्स अभी उपलब्ध नहीं हैं", "Doctor notes not yet available")}
+                                    </span>
                                   )}
                                 </div>
 
                                 {/* Prescriptions */}
                                 <div style={{ background: C.bg, borderRadius: 10, padding: 10, fontSize: 11, color: C.muted, marginBottom: 10 }}>
                                   {(c as any).prescription ? (
-                                    <><strong>💊 Prescription:</strong> {(c as any).prescription}</>
+                                    <div style={{ display: "flex", gap: 6, alignItems: "flex-start" }}>
+                                      <Pill size={13} color={C.green} style={{ marginTop: 2, flexShrink: 0 }} />
+                                      <div><strong>Prescription:</strong> {(c as any).prescription}</div>
+                                    </div>
                                   ) : (
-                                    <span>💊 {t("कोई प्रिस्क्रिप्शन अभी नहीं", "No prescription yet")}</span>
+                                    <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                                      <Pill size={12} /> {t("कोई प्रिस्क्रिप्शन अभी नहीं", "No prescription yet")}
+                                    </span>
                                   )}
                                 </div>
 
@@ -681,8 +723,8 @@ export default function RecordsPage() {
                                   <button
                                     className="rec-btn"
                                     onClick={() => generatePDF(patient, [c])}
-                                    style={{ flex: 1, background: "#E0F2FE", color: "#0369A1", fontSize: 11, justifyContent: "center" }}>
-                                    📄 {t("PDF डाउनलोड", "Download PDF")}
+                                    style={{ flex: 1, background: "#E0F2FE", color: "#0369A1", fontSize: 11, justifyContent: "center", display: "flex", alignItems: "center", gap: 5 }}>
+                                    <Download size={13} /> {t("PDF डाउनलोड", "Download PDF")}
                                   </button>
 
                                   {c.status === "completed" && (
@@ -695,8 +737,12 @@ export default function RecordsPage() {
                                         color: reviews[c._id] ? "#92400E" : "white",
                                         fontSize: 11,
                                         justifyContent: "center",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 5
                                       }}>
-                                      ★ {reviews[c._id] ? `Rated ${reviews[c._id].rating}★` : t("रेट करें", "Rate Doctor")}
+                                      <Star size={13} fill={reviews[c._id] ? "#F59E0B" : "none"} />
+                                      {reviews[c._id] ? `Rated ${reviews[c._id].rating}★` : t("रेट करें", "Rate Doctor")}
                                     </button>
                                   )}
                                 </div>

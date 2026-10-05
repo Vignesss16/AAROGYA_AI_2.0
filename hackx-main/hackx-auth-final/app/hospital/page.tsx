@@ -1575,7 +1575,7 @@ export default function HospitalDesktopDashboard() {
                             <td style={{ padding: "14px 20px" }}>
                               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                                 <span style={{ background: "#E0F2FE", color: "#0369A1", fontSize: 11, fontWeight: 800, padding: "2px 6px", borderRadius: 4 }}>
-                                  {p.tokenNumber || `OPD-${p._id?.slice(-4).toUpperCase()}`}
+                                  {p.tokenNumber || (p.queueNo ? (p.queueNo.startsWith("OPD-") ? p.queueNo : `OPD-${p.queueNo.replace(/^Q-?/i, "")}`) : (p._id ? `OPD-${p._id.slice(-4).toUpperCase()}` : "OPD-101"))}
                                 </span>
                                 {isArrived && (
                                   <span style={{ background: "#D1FAE5", color: "#059669", fontSize: 10, fontWeight: 800, padding: "2px 6px", borderRadius: 4 }}>

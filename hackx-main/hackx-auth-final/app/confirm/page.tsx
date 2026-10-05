@@ -607,7 +607,7 @@ export default function ConfirmBookingPage() {
   const handleConfirmBooking = async () => {
     if (!selectedSlot) return;
     setLoading(true);
-    const qn = `Q-${Math.floor(Math.random() * 90 + 10)}`;
+    const qn = `OPD-${Math.floor(Math.random() * 899 + 100)}`;
     setQueueNo(qn);
 
     const symptomsRaw = localStorage.getItem("selectedSymptomNames");
@@ -645,6 +645,7 @@ export default function ConfirmBookingPage() {
       slot: selectedSlot,
       urgency: urg,
       queueNo: qn,
+      tokenNumber: qn,
       triageResult: result || { summary: "General Consultation Booking" },
       symptoms: symptoms.length > 0 ? symptoms : ["General Health Checkup"],
       patientContext,
