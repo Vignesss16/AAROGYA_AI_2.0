@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
 import { useWebRTC, formatDuration, NetworkQuality } from "@/hooks/useWebRTC";
 import {
@@ -116,6 +116,54 @@ function NetworkBadge({ quality }: { quality: NetworkQuality }) {
   );
 }
 
+const PersistentStreamVideo = React.memo(function PersistentStreamVideo({
+  stream,
+  isMirrored,
+  isMuted,
+  style,
+}: {
+  stream: MediaStream | null;
+  isMirrored?: boolean;
+  isMuted?: boolean;
+  style?: React.CSSProperties;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current && stream) {
+      if (videoRef.current.srcObject !== stream) {
+        videoRef.current.srcObject = stream;
+      }
+    }
+  }, [stream]);
+
+  if (!stream) {
+    return (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, background: "#050B14" }}>
+        <User size={isMirrored ? 14 : 24} color="#94A3B8" />
+        {!isMirrored && <span style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>Connecting video...</span>}
+      </div>
+    );
+  }
+
+  return (
+    <video
+      ref={videoRef}
+      autoPlay
+      playsInline
+      muted={isMuted}
+      style={{
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        background: "#050B14",
+        transform: isMirrored ? "scaleX(-1)" : undefined,
+        ...style,
+      }}
+    />
+  );
+});
+
 function VideoView({
   stream,
   label,
@@ -137,7 +185,11 @@ function VideoView({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
-    if (videoRef.current && stream) videoRef.current.srcObject = stream;
+    if (videoRef.current && stream) {
+      if (videoRef.current.srcObject !== stream) {
+        videoRef.current.srcObject = stream;
+      }
+    }
   }, [stream]);
 
   return (
@@ -550,19 +602,7 @@ export default function VideoCallModal({
         {/* Full-bleed Remote Video View */}
         {effectiveCallMode === "video" ? (
           <div style={{ width: "100%", height: "100%", position: "relative", background: "#050B14" }}>
-            {state.remoteStream ? (
-              <video
-                ref={(el) => { if (el && state.remoteStream) el.srcObject = state.remoteStream; }}
-                autoPlay
-                playsInline
-                style={{ width: "100%", height: "100%", objectFit: "cover", background: "#050B14" }}
-              />
-            ) : (
-              <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                <User size={26} color="#94A3B8" />
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>Connecting...</span>
-              </div>
-            )}
+            <PersistentStreamVideo stream={state.remoteStream} />
 
             {/* Local Patient Thumbnail (Bottom-Right, WhatsApp style) */}
             <div style={{
@@ -578,19 +618,7 @@ export default function VideoCallModal({
               zIndex: 15,
               background: "#000",
             }}>
-              {state.localStream ? (
-                <video
-                  ref={(el) => { if (el && state.localStream) el.srcObject = state.localStream; }}
-                  autoPlay
-                  playsInline
-                  muted
-                  style={{ width: "100%", height: "100%", objectFit: "cover", transform: "scaleX(-1)" }}
-                />
-              ) : (
-                <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <User size={12} color="#CBD5E1" />
-                </div>
-              )}
+              <PersistentStreamVideo stream={state.localStream} isMirrored isMuted />
             </div>
           </div>
         ) : (
@@ -1091,21 +1119,22 @@ export default function VideoCallModal({
                     className={isLocalPatient ? "patient-controls-dock" : "staff-controls-dock"}
                     style={{
                       display: "flex",
+                      alignItems: "center",
                       justifyContent: "center",
-                      gap: 14,
+                      gap: 10,
                       marginTop: 14,
-                      flexWrap: "wrap",
+                      flexWrap: "nowrap",
                     }}
                   >
                     <button
                       type="button"
                       onClick={actions.toggleMute}
                       style={{
-                        width: 50, height: 50, borderRadius: "50%", border: "none", cursor: "pointer",
+                        width: 44, height: 44, borderRadius: "50%", border: "none", cursor: "pointer",
                         background: state.isMuted ? C.red : "rgba(255,255,255,0.15)", boxShadow: "0 4px 12px rgba(0,0,0,.3)",
-                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "white"
+                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "white", flexShrink: 0
                       }}>
-                      {state.isMuted ? <MicOff size={18} /> : <Mic size={18} />}
+                      {state.isMuted ? <MicOff size={16} /> : <Mic size={16} />}
                       <span style={{ fontSize: 8, fontWeight: 700 }}>{state.isMuted ? "Muted" : "Mute"}</span>
                     </button>
 
@@ -1114,11 +1143,11 @@ export default function VideoCallModal({
                         type="button"
                         onClick={actions.toggleCamera}
                         style={{
-                          width: 50, height: 50, borderRadius: "50%", border: "none", cursor: "pointer",
+                          width: 44, height: 44, borderRadius: "50%", border: "none", cursor: "pointer",
                           background: state.isCameraOff ? C.red : "rgba(255,255,255,0.15)", boxShadow: "0 4px 12px rgba(0,0,0,.3)",
-                          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "white"
+                          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "white", flexShrink: 0
                         }}>
-                        {state.isCameraOff ? <VideoOff size={18} /> : <Video size={18} />}
+                        {state.isCameraOff ? <VideoOff size={16} /> : <Video size={16} />}
                         <span style={{ fontSize: 8, fontWeight: 700 }}>{state.isCameraOff ? "Cam Off" : "Cam"}</span>
                       </button>
                     )}
@@ -1128,12 +1157,12 @@ export default function VideoCallModal({
                         type="button"
                         onClick={actions.downgradeToAudio}
                         style={{
-                          width: 50, height: 50, borderRadius: "50%", border: "none", cursor: "pointer",
+                          width: 44, height: 44, borderRadius: "50%", border: "none", cursor: "pointer",
                           background: "rgba(255,255,255,0.15)", boxShadow: "0 4px 12px rgba(0,0,0,.3)",
-                          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "white"
+                          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "white", flexShrink: 0
                         }}>
-                        <Mic size={18} />
-                        <span style={{ fontSize: 8, fontWeight: 700 }}>Voice Only</span>
+                        <PhoneCall size={16} />
+                        <span style={{ fontSize: 8, fontWeight: 700 }}>Voice</span>
                       </button>
                     )}
 
@@ -1141,13 +1170,13 @@ export default function VideoCallModal({
                       type="button"
                       onClick={actions.endCall}
                       style={{
-                        width: 56, height: 56, borderRadius: "50%", border: "none", cursor: "pointer",
+                        width: 46, height: 46, borderRadius: "50%", border: "none", cursor: "pointer",
                         background: `linear-gradient(135deg,${C.redLight},${C.red})`,
                         boxShadow: "0 4px 18px rgba(239,68,68,.6)",
-                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "white"
+                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "white", flexShrink: 0
                       }}>
-                      <PhoneOff size={22} />
-                      <span style={{ fontSize: 9, fontWeight: 700 }}>End</span>
+                      <PhoneOff size={20} />
+                      <span style={{ fontSize: 8, fontWeight: 700 }}>End</span>
                     </button>
                   </div>
                 </div>
@@ -1530,17 +1559,25 @@ export default function VideoCallModal({
           }
           .patient-controls-dock {
             position: absolute !important;
-            bottom: 24px !important;
+            bottom: 22px !important;
             left: 50% !important;
             transform: translateX(-50%) !important;
             z-index: 40 !important;
-            background: rgba(15, 23, 42, 0.85) !important;
+            background: rgba(15, 23, 42, 0.88) !important;
             backdrop-filter: blur(16px) !important;
             border: 1px solid rgba(255, 255, 255, 0.18) !important;
             border-radius: 36px !important;
-            padding: 8px 16px !important;
+            padding: 6px 14px !important;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 10px !important;
             margin-top: 0 !important;
+            width: auto !important;
+            max-width: 92vw !important;
           }
         }
       `}</style>

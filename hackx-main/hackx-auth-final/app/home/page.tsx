@@ -4,6 +4,17 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/lib/useAuth";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import dynamic from "next/dynamic";
+import {
+  Stethoscope,
+  FileText,
+  Pill,
+  Mic,
+  Droplet,
+  ChevronRight,
+  ClipboardList,
+  Activity,
+  Building2
+} from "lucide-react";
 
 const C = {
   primary: "#1B6CA8",
@@ -135,11 +146,19 @@ export default function HomePage() {
       ? `नमस्ते ${currentUser.name.split(" ")[0]} जी`
       : `Hello ${currentUser.name.split(" ")[0]}`;
 
-  const badges: string[] = [];
-  if (currentUser.bloodGroup && currentUser.bloodGroup !== "—") badges.push(`🩸 ${currentUser.bloodGroup}`);
-  if (currentUser.conditions && currentUser.conditions.length > 0) badges.push(`💊 ${currentUser.conditions[0]}`);
-  if (currentUser.age) badges.push(`${currentUser.age} ${t("वर्ष", "years")}`);
-  if (!isOnline) badges.push(t("⚡ ऑफ़लाइन AI", "⚡ Offline AI"));
+  const badges: { icon?: React.ReactNode; text: string }[] = [];
+  if (currentUser.bloodGroup && currentUser.bloodGroup !== "—") {
+    badges.push({ icon: <Droplet size={12} fill="#EF4444" color="#EF4444" />, text: currentUser.bloodGroup });
+  }
+  if (currentUser.conditions && currentUser.conditions.length > 0) {
+    badges.push({ icon: <Pill size={12} color="#FBBF24" />, text: currentUser.conditions[0] });
+  }
+  if (currentUser.age) {
+    badges.push({ text: `${currentUser.age} ${t("वर्ष", "years")}` });
+  }
+  if (!isOnline) {
+    badges.push({ icon: <Activity size={12} color="#60A5FA" />, text: t("ऑफ़लाइन AI", "Offline AI") });
+  }
 
   const pastVisits = hasReport ? 1 : 0;
 
@@ -179,9 +198,12 @@ export default function HomePage() {
                 fontSize: 80,
                 opacity: 0.07,
                 pointerEvents: "none",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              🏥
+              <Building2 size={88} color="white" />
             </div>
 
             {/* Top Right Actions: Language Switch & Logout */}
@@ -260,7 +282,13 @@ export default function HomePage() {
                     marginTop: 12,
                   }}
                 >
-                  {badges.join(" · ")}
+                  {badges.map((b, idx) => (
+                    <span key={idx} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                      {b.icon}
+                      <span>{b.text}</span>
+                      {idx < badges.length - 1 && <span style={{ opacity: 0.6 }}>·</span>}
+                    </span>
+                  ))}
                 </div>
               )}
             </div>
@@ -272,7 +300,7 @@ export default function HomePage() {
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
                 {
-                  icon: "🩺",
+                  icon: <Stethoscope size={24} color="white" />,
                   title: t("लक्षण जाँचें", "Check My Symptoms"),
                   sub: t("AI से जाँचें — बिना इंटरनेट", "AI powered — works offline"),
                   bg: `linear-gradient(135deg,${C.primary},${C.primaryDark})`,
@@ -280,7 +308,7 @@ export default function HomePage() {
                   path: "/symptoms",
                 },
                 {
-                  icon: "📋",
+                  icon: <FileText size={24} color="white" />,
                   title: t("मेरे स्वास्थ्य रिकॉर्ड", "My Health Records"),
                   sub: t("पिछली विज़िट और नुस्खे देखें", "View past visits & prescriptions"),
                   bg: "linear-gradient(135deg,#6C3483,#4A235A)",
@@ -288,7 +316,7 @@ export default function HomePage() {
                   path: "/records",
                 },
                 {
-                  icon: "💊",
+                  icon: <Pill size={24} color="white" />,
                   title: t("दवाई खोजें", "Find Medicine Nearby"),
                   sub: t("पास की दुकान में दवाई उपलब्धता", "Check stock at nearby pharmacies"),
                   bg: `linear-gradient(135deg,${C.greenLight},${C.green})`,
@@ -322,7 +350,6 @@ export default function HomePage() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: 26,
                       flexShrink: 0,
                     }}
                   >
@@ -351,7 +378,7 @@ export default function HomePage() {
                       {action.sub}
                     </p>
                   </div>
-                  <span style={{ fontSize: 20, color: "rgba(255,255,255,.5)" }}>›</span>
+                  <ChevronRight size={18} color="rgba(255,255,255,.6)" />
                 </button>
               ))}
             </div>
@@ -378,9 +405,9 @@ export default function HomePage() {
                 width: 54, height: 54, borderRadius: 14,
                 background: "rgba(255,255,255,.18)",
                 display: "flex", alignItems: "center",
-                justifyContent: "center", fontSize: 26, flexShrink: 0,
+                justifyContent: "center", flexShrink: 0,
               }}>
-                🎙️
+                <Mic size={24} color="white" />
               </div>
               <div style={{ flex: 1 }}>
                 <h3 style={{ fontSize: 16, fontWeight: 800, color: "white", lineHeight: 1.2, margin: 0 }}>
@@ -390,7 +417,7 @@ export default function HomePage() {
                   {t("AI से बात करें — फ़ोन पर", "Talk to AI health assistant by phone")}
                 </p>
               </div>
-              <span style={{ fontSize: 20, color: "rgba(255,255,255,.5)" }}>›</span>
+              <ChevronRight size={18} color="rgba(255,255,255,.6)" />
             </button>
 
             {/* Stats */}
@@ -435,8 +462,8 @@ export default function HomePage() {
                 }}
                 onClick={() => router.push("/report")}
               >
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D4E6F1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-                  📋
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D4E6F1", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <ClipboardList size={20} color={C.primary} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: C.primary }}>
@@ -462,8 +489,8 @@ export default function HomePage() {
                 }}
                 onClick={() => router.push("/symptoms")}
               >
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: "#E8F4F8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-                  🩺
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: "#E8F4F8", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Stethoscope size={20} color={C.primary} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: C.primary }}>
