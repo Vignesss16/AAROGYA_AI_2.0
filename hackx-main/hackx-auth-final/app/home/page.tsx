@@ -33,20 +33,25 @@ export default function HomePage() {
   const router = useRouter();
   const { user, logout, loading } = useAuth();
   const { isOnline } = useOnlineStatus();
+  const [mounted, setMounted] = useState(false);
   const [lang, setLang] = useState("hi");
   const [hasReport, setHasReport] = useState(false);
   const [consultationCount, setConsultationCount] = useState(0);
   const [doctorsCount, setDoctorsCount] = useState(2);
   const [showVoiceModal, setShowVoiceModal] = useState(false);
-
-  const isLoggedOut = typeof window !== "undefined" && localStorage.getItem("user_is_logged_out") === "true";
-  const cachedPatientStr = typeof window !== "undefined"
-    ? (localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient"))
-    : null;
+  const [cachedUserParsed, setCachedUserParsed] = useState<any>(null);
 
   useEffect(() => {
+    setMounted(true);
     const storedLang = localStorage.getItem("lang") || "hi";
     setLang(storedLang);
+
+    const isLoggedOut = localStorage.getItem("user_is_logged_out") === "true";
+    const cachedPatientStr = localStorage.getItem("cachedPatientUser") || localStorage.getItem("aarogya_user") || localStorage.getItem("patient");
+
+    if (cachedPatientStr) {
+      try { setCachedUserParsed(JSON.parse(cachedPatientStr)); } catch {}
+    }
 
     // Smoothly redirect unauthenticated visitors without cached session or if explicitly logged out
     if (isLoggedOut || (!loading && !user && !cachedPatientStr)) {
@@ -55,12 +60,7 @@ export default function HomePage() {
     }
 
     setHasReport(!!localStorage.getItem("triageResult"));
-  }, [user, loading, isLoggedOut, cachedPatientStr, router]);
-
-  let cachedUserParsed: any = null;
-  if (cachedPatientStr) {
-    try { cachedUserParsed = JSON.parse(cachedPatientStr); } catch {}
-  }
+  }, [user, loading, router]);
 
   // Resilient current user shape for offline & online — uses real patient data
   const currentUser = user || cachedUserParsed || {
@@ -123,8 +123,8 @@ export default function HomePage() {
 
   const t = (hi: string, en: string) => (lang === "hi" ? hi : en);
 
-  // If visitor is unauthenticated or explicitly logged out, show minimal neutral screen while redirect completes
-  if (isLoggedOut || (!user && !cachedPatientStr)) {
+  // If visitor is unauthenticated or page is hydrating, show minimal neutral screen
+  if (!mounted || loading || (!user && !cachedUserParsed)) {
     return (
       <div
         style={{
