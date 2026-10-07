@@ -14,9 +14,15 @@ function normalizeUrgency(val?: string): "RED" | "YELLOW" | "GREEN" {
   return "GREEN";
 }
 
-function inferFacilityId(facilityId?: string, hospital?: string): string {
+function inferFacilityId(facilityId?: string, hospital?: string, bookingType?: string, isPrivate?: boolean): string {
   if (facilityId && facilityId.trim()) return facilityId.trim();
+  if (bookingType === "DIRECT_DOCTOR" || bookingType === "ONLINE_TELECONSULT" || isPrivate) {
+    return "DIRECT_TELECONSULT";
+  }
   const h = (hospital || "").toLowerCase();
+  if (h.includes("private") || h.includes("independent clinic") || h.includes("tele-hub") || h.includes("teleconsult center")) {
+    return "DIRECT_TELECONSULT";
+  }
   if (h.includes("sion") || h.includes("lokmanya")) return "HOSP-SION-001";
   if (h.includes("kalyan")) return "HOSP-KLY-002";
   if (h.includes("kalwa") || h.includes("csmh")) return "HOSP-KLW-003";
@@ -226,13 +232,19 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Fetch consultations based on status and doctorId
+    // Fetch consultations based on status, doctorId, or facilityId
     const query: any = status === "all" ? {} : { status };
     if (doctorId) {
-      query.doctorId = doctorId;
-    }
-    if (facilityId && facilityId !== "ALL") {
+      const cleanDoc = doctorId.replace(/^doc-?/i, "").replace(/^Dr\.?\s*/i, "").trim();
+      query.$or = [
+        { doctorId: doctorId },
+        { doctorEmail: doctorId },
+        { doctorName: new RegExp(cleanDoc, "i") },
+      ];
+    } else if (facilityId && facilityId !== "ALL") {
       query.facilityId = facilityId;
+      query.bookingType = { $ne: "DIRECT_DOCTOR" };
+      query.isPrivate = { $ne: true };
     }
 
     const raw = await Consultation.find(query).sort({ createdAt: -1 }).lean();
@@ -257,7 +269,7 @@ export async function POST(req: NextRequest) {
     await dbConnect();
 
     const normalizedUrgency = normalizeUrgency(body.urgency);
-    const resolvedFacilityId = inferFacilityId(body.facilityId, body.hospital);
+    const resolvedFacilityId = inferFacilityId(body.facilityId, body.hospital, body.bookingType, body.isPrivate);
     const token = body.tokenNumber || body.queueNo || `OPD-${Math.floor(100 + Math.random() * 899)}`;
 
     const payload = {

@@ -948,9 +948,18 @@ export default function HospitalDesktopDashboard() {
     const sn = (activeFacility.shortName || "").toLowerCase();
     const fid = activeFacility.facilityId;
     facilityScopedQueue = queue.filter((q) => {
-      // Privacy Guard: Private practice / independent clinic consultations NEVER leak to hospital reception
+      // Privacy Guard: Private practice / direct teleconsultations NEVER leak to hospital reception desks
       const h = (q.hospital || "").toLowerCase();
-      if (q.isPrivate || h.includes("private") || h.includes("independent clinic")) {
+      if (
+        q.isPrivate ||
+        q.bookingType === "DIRECT_DOCTOR" ||
+        q.bookingType === "ONLINE_TELECONSULT" ||
+        q.facilityId === "DIRECT_TELECONSULT" ||
+        h.includes("private") ||
+        h.includes("independent clinic") ||
+        h.includes("tele-hub") ||
+        h.includes("teleconsult center")
+      ) {
         return false;
       }
 
