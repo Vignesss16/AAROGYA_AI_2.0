@@ -23,7 +23,9 @@ function inferFacilityId(facilityId?: string, hospital?: string): string {
   if (h.includes("palghar")) return "HOSP-PLG-004";
   if (h.includes("murbad")) return "HOSP-MRB-005";
   if (h.includes("jawhar")) return "HOSP-JWH-006";
-  if (h.includes("citycare") || h.includes("dombivli")) return "HOSP-DMB-007";
+  if (h.includes("nerul") || h.includes("dy patil") || h.includes("d.y. patil")) return "HOSP-NERUL-007";
+  if (h.includes("kharghar") || h.includes("actrec") || h.includes("tata")) return "HOSP-KHAR-008";
+  if (h.includes("citycare") || h.includes("dombivli")) return "HOSP-DMB-009";
   if (h.includes("nabha")) return "HOSP-NBH-008";
   if (h.includes("patiala") || h.includes("rajindra")) return "HOSP-PTL-009";
   if (h.includes("kesri")) return "HOSP-KSR-010";

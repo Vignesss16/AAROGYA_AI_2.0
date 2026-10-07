@@ -210,7 +210,49 @@ const DEFAULT_FACILITIES = [
     catchmentVillages: ["Jawhar Ghat Pada", "Mokhada Tribal", "Dehre Gaon", "Nyhale"],
   },
   {
-    facilityId: "HOSP-DMB-007",
+    facilityId: "HOSP-NERUL-007",
+    name: "Dr. D. Y. Patil Multi-Specialty Hospital & Medical College (Nerul)",
+    shortName: "D. Y. Patil Hospital Nerul",
+    type: "Govt-Affiliated Multi-Specialty & Tertiary Hospital",
+    location: "Sector 5, Nerul East, Navi Mumbai",
+    city: "Navi Mumbai",
+    state: "Maharashtra",
+    address: "Sector 5, Nerul East, Navi Mumbai, Maharashtra 400706",
+    phone: "+91 22 2773 5901",
+    departments: ["Emergency & Trauma 24/7", "Cardiology", "Neurology", "General Medicine", "Pediatrics", "Orthopedics", "Oncology", "Diagnostic Lab"],
+    emergencyAvailable: true,
+    ayushmanBharat: true,
+    opdTimings: "08:00 AM - 02:00 PM / 04:00 PM - 08:30 PM (24/7 Casualty)",
+    receptionistPhone: "+91 98765 01017",
+    totalBeds: 1500,
+    occupiedBeds: 1180,
+    icuBeds: 140,
+    icuOccupied: 108,
+    catchmentVillages: ["Nerul East & West", "Seawoods Darave", "Juinagar Gaon", "Shiravane MIDC", "Karave Village"],
+  },
+  {
+    facilityId: "HOSP-KHAR-008",
+    name: "Kharghar Super-Specialty Civil & Apex Research Hospital",
+    shortName: "Kharghar Super-Specialty Hospital",
+    type: "Super-Specialty Apex Civil Hospital & Research Center",
+    location: "Sector 22, Kharghar, Navi Mumbai",
+    city: "Navi Mumbai",
+    state: "Maharashtra",
+    address: "Sector 22, Near Central Park & Utsav Chowk, Kharghar, Navi Mumbai, Maharashtra 410210",
+    phone: "+91 22 2740 5000",
+    departments: ["Emergency 24/7", "Oncology & Radiation", "Cardiology", "General Medicine", "Gastroenterology", "Critical Care ICU", "Diagnostic Lab"],
+    emergencyAvailable: true,
+    ayushmanBharat: true,
+    opdTimings: "08:30 AM - 02:00 PM / 03:30 PM - 07:30 PM (24/7 Casualty)",
+    receptionistPhone: "+91 98765 01018",
+    totalBeds: 750,
+    occupiedBeds: 580,
+    icuBeds: 90,
+    icuOccupied: 72,
+    catchmentVillages: ["Kharghar Sectors 1-35", "Belpada Gaon", "Owe Tribal Village", "Rohinjan Gaon", "Kamothe Rural"],
+  },
+  {
+    facilityId: "HOSP-DMB-009",
     name: "CityCare Super-Specialty Medical Center",
     shortName: "CityCare Hospital Dombivli",
     type: "Private Multi-Specialty Hospital",
@@ -325,6 +367,28 @@ const MOCK_STAFF_MAP: Record<string, { doctors: any[]; ashaWorkers: any[] }> = {
     ashaWorkers: [
       { id: "ASHA_JWH_1", name: "Kalpana Gavit", area: "Jawhar Hill Pada", phone: "+91 98765 16001", visitsThisMonth: 112, activeAlerts: 4 },
       { id: "ASHA_JWH_2", name: "Usha Baraf", area: "Mokhada Tribal Cluster", phone: "+91 98765 16002", visitsThisMonth: 91, activeAlerts: 2 },
+    ]
+  },
+  "HOSP-NERUL-007": {
+    doctors: [
+      { id: "D_NER_1", name: "Dr. Sandeep Kadam", role: "Head of Emergency & Critical Care", dept: "Emergency & Trauma", room: "Room 101 (Casualty)", experience: "16 yrs", onDuty: true, rating: 4.9 },
+      { id: "D_NER_2", name: "Dr. Meenal Thakur", role: "Senior Consultant Cardiologist", dept: "Cardiology", room: "Room 105 (Cardiac OPD)", experience: "12 yrs", onDuty: true, rating: 5.0 },
+      { id: "D_NER_3", name: "Dr. Rajesh Gaikwad", role: "General Physician & Diabetologist", dept: "General Medicine", room: "Room 102 (General OPD)", experience: "10 yrs", onDuty: true, rating: 4.8 },
+    ],
+    ashaWorkers: [
+      { id: "ASHA_NER_1", name: "Pooja Salvi", area: "Nerul Gaon & Shiravane", phone: "+91 98765 18001", visitsThisMonth: 76, activeAlerts: 1 },
+      { id: "ASHA_NER_2", name: "Kavita Mhatre", area: "Seawoods & Karave Tribal Pocket", phone: "+91 98765 18002", visitsThisMonth: 89, activeAlerts: 2 },
+    ]
+  },
+  "HOSP-KHAR-008": {
+    doctors: [
+      { id: "D_KHAR_1", name: "Dr. Alok Sharma", role: "Chief of Clinical Oncology & Medicine", dept: "Oncology & Medicine", room: "Room 201 (Oncology)", experience: "17 yrs", onDuty: true, rating: 4.9 },
+      { id: "D_KHAR_2", name: "Dr. Neha Bendre", role: "Consultant Cardiologist & Critical Care", dept: "Cardiology", room: "Room 104 (Cardiac OPD)", experience: "13 yrs", onDuty: true, rating: 5.0 },
+      { id: "D_KHAR_3", name: "Dr. Sanjay Chavan", role: "General Physician & Casualty Incharge", dept: "General Medicine", room: "Room 102 (General OPD)", experience: "11 yrs", onDuty: true, rating: 4.8 },
+    ],
+    ashaWorkers: [
+      { id: "ASHA_KHAR_1", name: "Surekha Patil", area: "Owe Gaon & Kharghar Hills", phone: "+91 98765 19001", visitsThisMonth: 94, activeAlerts: 1 },
+      { id: "ASHA_KHAR_2", name: "Manisha Bhoir", area: "Belpada & Rohinjan Tribal Pada", phone: "+91 98765 19002", visitsThisMonth: 82, activeAlerts: 0 },
     ]
   },
   "HOSP-NBH-008": {
@@ -898,7 +962,9 @@ export default function HospitalDesktopDashboard() {
         (fid === "HOSP-PLG-004" && (h.includes("palghar") || h.includes("plg"))) ||
         (fid === "HOSP-MRB-005" && (h.includes("murbad") || h.includes("mrb"))) ||
         (fid === "HOSP-JWH-006" && (h.includes("jawhar") || h.includes("jwh"))) ||
-        (fid === "HOSP-DMB-007" && (h.includes("citycare") || h.includes("dombivli"))) ||
+        (fid === "HOSP-NERUL-007" && (h.includes("nerul") || h.includes("dy patil") || h.includes("d.y. patil") || h.includes("navi mumbai"))) ||
+        (fid === "HOSP-KHAR-008" && (h.includes("kharghar") || h.includes("actrec") || h.includes("tata") || h.includes("cancer"))) ||
+        (fid === "HOSP-DMB-009" && (h.includes("citycare") || h.includes("dombivli"))) ||
         (fid === "HOSP-NBH-008" && (h.includes("nabha") || h.includes("nbh"))) ||
         (fid === "HOSP-PTL-009" && (h.includes("patiala") || h.includes("rajindra"))) ||
         (fid === "HOSP-KSR-010" && (h.includes("kesri") || h.includes("ksr")))

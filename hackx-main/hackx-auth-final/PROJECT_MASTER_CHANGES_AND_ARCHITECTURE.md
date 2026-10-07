@@ -28,6 +28,7 @@
 | **Next.js Hydration Mismatch in `HomePage`** | `localStorage` and `window` were read during initial SSR render pass, causing HTML mismatch with client-side cached user state. | Added `mounted` lifecycle state; deferred `localStorage` reads to `useEffect`; added `suppressHydrationWarning` to `<html>` and `<body>`. | `app/home/page.tsx`<br/>`app/layout.tsx` |
 | **AI Engine Clarification** | Stack clarified from legacy placeholder references to actual Groq LPU API. | Confirmed Groq LPU (`openai/gpt-oss-120b` / `llama-3.3-70b-versatile`) + Groq Whisper-Large-v3 + Local Clinical CSV RAG. | `lib/ai-triage.ts` |
 | **NextAuth Production URL & Secret Resilience** | NextAuth failed or misdirected in production if `NEXTAUTH_URL` was set to localhost instead of the live Vercel domain. | Added resilient fallback secret in `authOptions` and documented setting `NEXTAUTH_URL` to the live Vercel domain in Vercel settings. | `app/api/auth/[...nextauth]/route.ts` |
+| **Nerul & Kharghar Hospitals Added** | Added two major Navi Mumbai hospitals: D. Y. Patil Multi-Specialty Hospital (Nerul) & Kharghar Super-Specialty Civil Hospital. | Added `HOSP-NERUL-007` & `HOSP-KHAR-008` with live OPD counters, passkeys, doctor queues, and catchment areas. | `app/api/facilities/route.ts`<br/>`app/hospital/login/page.tsx`<br/>`app/hospital/page.tsx`<br/>`app/api/consultations/route.ts` |
 
 ---
 
