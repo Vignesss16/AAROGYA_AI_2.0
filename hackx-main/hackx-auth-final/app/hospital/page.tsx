@@ -475,6 +475,27 @@ export default function HospitalDesktopDashboard() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlFac = urlParams.get("facilityId") || urlParams.get("facility");
+      if (urlFac) {
+        const uf = urlFac.toLowerCase();
+        let matchedId = urlFac;
+        if (uf.includes("nerul") || uf.includes("dy patil") || uf.includes("dypatil")) matchedId = "HOSP-NERUL-007";
+        else if (uf.includes("kharghar")) matchedId = "HOSP-KHAR-008";
+        else if (uf.includes("sion") || uf.includes("lokmanya")) matchedId = "HOSP-SION-001";
+        else if (uf.includes("kalyan")) matchedId = "HOSP-KLY-002";
+        else if (uf.includes("kalwa")) matchedId = "HOSP-KLW-003";
+        else if (uf.includes("palghar")) matchedId = "HOSP-PLG-004";
+        else if (uf.includes("murbad")) matchedId = "HOSP-MRB-005";
+        else if (uf.includes("jawhar")) matchedId = "HOSP-JWH-006";
+
+        setSelectedFacilityId(matchedId);
+        localStorage.setItem("hospitalSelectedFacility", matchedId);
+        localStorage.setItem("hospitalAuth", "true");
+        setAuth(true);
+        return;
+      }
+
       const stored = localStorage.getItem("hospital_command_user");
       if (!stored && !localStorage.getItem("hospitalAuth")) {
         router.replace("/hospital/login");
@@ -1399,7 +1420,47 @@ export default function HospitalDesktopDashboard() {
             </div>
 
             {/* Isolated Tenant Security & Session Card */}
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              {/* 1-Click Interactive Facility Switcher Dropdown */}
+              <select
+                value={selectedFacilityId}
+                onChange={(e) => {
+                  const newFid = e.target.value;
+                  setSelectedFacilityId(newFid);
+                  if (typeof window !== "undefined") {
+                    localStorage.setItem("hospitalSelectedFacility", newFid);
+                    localStorage.setItem("hospitalAuth", "true");
+                    const stored = localStorage.getItem("hospital_command_user");
+                    if (stored) {
+                      try {
+                        const u = JSON.parse(stored);
+                        u.facilityId = newFid;
+                        localStorage.setItem("hospital_command_user", JSON.stringify(u));
+                      } catch {}
+                    }
+                  }
+                }}
+                style={{
+                  padding: "7px 12px",
+                  borderRadius: 9,
+                  border: "1.5px solid #0D9488",
+                  background: "#F0FDFA",
+                  color: "#0F766E",
+                  fontWeight: 800,
+                  fontSize: 12,
+                  cursor: "pointer",
+                  outline: "none",
+                  boxShadow: "0 1px 3px rgba(15, 118, 110, 0.1)",
+                }}
+                title="Select active hospital command desk"
+              >
+                {facilities.map((fac) => (
+                  <option key={fac.facilityId} value={fac.facilityId}>
+                    🏥 {fac.shortName || fac.name} ({fac.facilityId})
+                  </option>
+                ))}
+              </select>
+
               <div style={{ background: "#F0FDFA", border: "1.5px solid #99F6E4", borderRadius: 10, padding: "5px 10px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#0F766E" }}>
                   <Lock size={12} />
@@ -1437,7 +1498,7 @@ export default function HospitalDesktopDashboard() {
                 }}
                 title="Sign out and switch to another hospital portal"
               >
-                <RefreshCw size={12} /> {T("अस्पताल बदलें", "Switch Facility")}
+                <RefreshCw size={12} /> {T("लॉगिन बदलें", "Switch Login")}
               </button>
             </div>
           </div>
