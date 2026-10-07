@@ -6,6 +6,11 @@ export interface IDoctor extends Document {
   name: string;
   specialization: string;
   hospital: string;
+  facilityId?: string;
+  room?: string;
+  experience?: string;
+  onDuty?: boolean;
+  phone?: string;
   role: "doctor";
   createdAt: Date;
 }
@@ -16,7 +21,12 @@ const DoctorSchema = new Schema<IDoctor>(
     passwordHash:   { type: String, required: true },
     name:           { type: String, required: true },
     specialization: { type: String, default: "General Physician" },
-    hospital:       { type: String, default: "Nabha Civil Hospital" },
+    hospital:       { type: String, default: "Civil Hospital" },
+    facilityId:     { type: String, index: true },
+    room:           { type: String, default: "Room 102 (OPD)" },
+    experience:     { type: String, default: "8 yrs" },
+    onDuty:         { type: Boolean, default: true },
+    phone:          { type: String },
     role:           { type: String, default: "doctor" },
   },
   { timestamps: true }

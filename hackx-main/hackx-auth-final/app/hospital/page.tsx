@@ -52,7 +52,11 @@ import {
   Network,
   Download,
   Upload,
-  AlertCircle
+  AlertCircle,
+  Key,
+  Edit3,
+  Trash2,
+  PlusCircle
 } from "lucide-react";
 
 const C = {
@@ -463,6 +467,22 @@ export default function HospitalDesktopDashboard() {
     symptoms: "",
   });
   const [walkinSubmitting, setWalkinSubmitting] = useState(false);
+
+  // Doctor Management Modal State (Facility Admin)
+  const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false);
+  const [editingDoctor, setEditingDoctor] = useState<any | null>(null);
+  const [doctorForm, setDoctorForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    specialization: "General Medicine",
+    room: "Room 102 (General OPD)",
+    experience: "5 yrs",
+    phone: "+91 98200 11000",
+    onDuty: true,
+  });
+  const [doctorSubmitting, setDoctorSubmitting] = useState(false);
+  const [doctorError, setDoctorError] = useState<string | null>(null);
 
   const [auth, setAuth] = useState(() => {
     if (typeof window !== "undefined") {
@@ -912,6 +932,125 @@ export default function HospitalDesktopDashboard() {
     }
   };
 
+  const handleOpenAddDoctor = () => {
+    setEditingDoctor(null);
+    setDoctorForm({
+      name: "",
+      email: "",
+      password: "",
+      specialization: "General Medicine",
+      room: "Room 102 (General OPD)",
+      experience: "5 yrs",
+      phone: "+91 98200 11000",
+      onDuty: true,
+    });
+    setDoctorError(null);
+    setIsDoctorModalOpen(true);
+  };
+
+  const handleOpenEditDoctor = (doc: any) => {
+    setEditingDoctor(doc);
+    setDoctorForm({
+      name: doc.name || "",
+      email: doc.email || "",
+      password: "",
+      specialization: doc.dept || doc.specialization || "General Medicine",
+      room: doc.room || "Room 102 (OPD)",
+      experience: doc.experience || "5 yrs",
+      phone: doc.phone || "+91 98200 11000",
+      onDuty: doc.onDuty ?? true,
+    });
+    setDoctorError(null);
+    setIsDoctorModalOpen(true);
+  };
+
+  const handleSaveDoctor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDoctorSubmitting(true);
+    setDoctorError(null);
+    try {
+      if (editingDoctor) {
+        const res = await fetch("/api/admin/doctors", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: editingDoctor._id || editingDoctor.id,
+            name: doctorForm.name,
+            specialization: doctorForm.specialization,
+            facilityId: selectedFacilityId,
+            hospital: activeFacility?.name || "Civil Hospital",
+            room: doctorForm.room,
+            experience: doctorForm.experience,
+            phone: doctorForm.phone,
+            onDuty: doctorForm.onDuty,
+            password: doctorForm.password ? doctorForm.password : undefined,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to update doctor");
+      } else {
+        const res = await fetch("/api/admin/doctors", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: doctorForm.name,
+            email: doctorForm.email,
+            password: doctorForm.password || "doctor123",
+            specialization: doctorForm.specialization,
+            facilityId: selectedFacilityId,
+            hospital: activeFacility?.name || "Civil Hospital",
+            room: doctorForm.room,
+            experience: doctorForm.experience,
+            phone: doctorForm.phone,
+            onDuty: doctorForm.onDuty,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to create doctor");
+      }
+      setIsDoctorModalOpen(false);
+      await fetchData();
+    } catch (err: any) {
+      setDoctorError(err.message || "An error occurred while saving doctor credentials.");
+    } finally {
+      setDoctorSubmitting(false);
+    }
+  };
+
+  const handleToggleDoctorDuty = async (doc: any) => {
+    try {
+      const docId = doc._id || doc.id;
+      const newStatus = !doc.onDuty;
+      setDoctors((prev) =>
+        prev.map((d) => ((d._id === docId || d.id === docId) ? { ...d, onDuty: newStatus } : d))
+      );
+      await fetch("/api/admin/doctors", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: docId,
+          onDuty: newStatus,
+        }),
+      });
+      fetchData();
+    } catch (err) {
+      console.error("Failed to toggle duty status:", err);
+    }
+  };
+
+  const handleDeleteDoctor = async (docId: string, docName: string) => {
+    if (!window.confirm(`Are you sure you want to delete ${docName} from this hospital facility?`)) return;
+    try {
+      const res = await fetch(`/api/admin/doctors?id=${docId}`, { method: "DELETE" });
+      if (res.ok) {
+        setDoctors((prev) => prev.filter((d) => d._id !== docId && d.id !== docId));
+        fetchData();
+      }
+    } catch (err) {
+      console.error("Failed to delete doctor:", err);
+    }
+  };
+
   if (!mounted) return null;
 
   if (!auth) {
@@ -1080,25 +1219,34 @@ export default function HospitalDesktopDashboard() {
   const greenPatients = pendingQueue.filter((q) => q.urgency === "GREEN");
 
   // Facility-specific Staff & ASHA Roster
-  const activeFacilityStaff =
-    selectedFacilityId !== "ALL" && MOCK_STAFF_MAP[selectedFacilityId]
-      ? MOCK_STAFF_MAP[selectedFacilityId]
-      : {
-          doctors:
-            doctors.length > 0
-              ? doctors.map((d, idx) => ({
-                  id: d._id || d.id,
-                  name: d.name.startsWith("Dr.") ? d.name : `Dr. ${d.name}`,
-                  role: "Consultant Medical Officer",
-                  dept: d.specialization || "General Medicine",
-                  room: `Room ${101 + idx} (OPD)`,
-                  experience: "8 yrs",
-                  onDuty: true,
-                  rating: 4.8,
-                }))
-              : MOCK_STAFF_MAP["HOSP-SION-001"].doctors,
-          ashaWorkers: MOCK_STAFF_MAP["HOSP-SION-001"].ashaWorkers,
-        };
+  const facilityMatchedDocs = doctors.filter(
+    (d) =>
+      d.facilityId === selectedFacilityId ||
+      (d.hospital && activeFacility?.name && d.hospital.toLowerCase().includes(activeFacility.name.toLowerCase())) ||
+      (d.hospital && activeFacility?.shortName && d.hospital.toLowerCase().includes(activeFacility.shortName.toLowerCase()))
+  );
+
+  const activeFacilityStaff = {
+    doctors:
+      facilityMatchedDocs.length > 0
+        ? facilityMatchedDocs.map((d, idx) => ({
+            id: d._id || d.id || `D_${selectedFacilityId}_${idx + 1}`,
+            _id: d._id || d.id,
+            name: d.name.startsWith("Dr.") ? d.name : `Dr. ${d.name}`,
+            email: d.email || "",
+            role: d.specialization || "Consultant Medical Officer",
+            dept: d.specialization || "General Medicine",
+            room: d.room || `Room ${101 + idx} (OPD)`,
+            experience: d.experience || "8 yrs",
+            onDuty: d.onDuty ?? true,
+            rating: d.rating || 4.9,
+            phone: d.phone || "+91 98200 00000",
+            facilityId: d.facilityId || selectedFacilityId,
+          }))
+        : MOCK_STAFF_MAP[selectedFacilityId]?.doctors || MOCK_STAFF_MAP["HOSP-SION-001"].doctors,
+    ashaWorkers:
+      MOCK_STAFF_MAP[selectedFacilityId]?.ashaWorkers || MOCK_STAFF_MAP["HOSP-SION-001"].ashaWorkers,
+  };
 
   // Facility-specific ASHA visits
   const facilityAshaVisits =
@@ -2087,15 +2235,34 @@ export default function HospitalDesktopDashboard() {
                     </h3>
                   </div>
                   <p style={{ margin: "2px 0 0 0", fontSize: 12, color: C.muted, fontWeight: 500 }}>
-                    {activeFacility?.name || "Facility Command"} — Consultation room assignments & real-time doctor availability
+                    {activeFacility?.name || "Facility Command"} — Consultation room assignments & unique credentials management
                   </p>
                 </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <div style={{ background: "rgba(15, 118, 110, 0.1)", color: C.primary, padding: "4px 10px", borderRadius: 8, fontSize: 11.5, fontWeight: 800, display: "flex", alignItems: "center", gap: 4 }}>
-                    <Stethoscope size={13} /> {activeFacilityStaff.doctors.length} Doctors Registered
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <button
+                    onClick={handleOpenAddDoctor}
+                    style={{
+                      background: "linear-gradient(135deg, #0F766E, #0D5E58)",
+                      color: "white",
+                      padding: "7px 14px",
+                      borderRadius: 8,
+                      fontSize: 12,
+                      fontWeight: 800,
+                      border: "none",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      boxShadow: "0 2px 8px rgba(15, 118, 110, 0.3)",
+                    }}
+                  >
+                    <Plus size={14} /> Add Doctor & Credentials
+                  </button>
+                  <div style={{ background: "rgba(15, 118, 110, 0.1)", color: C.primary, padding: "5px 10px", borderRadius: 8, fontSize: 11.5, fontWeight: 800, display: "flex", alignItems: "center", gap: 4 }}>
+                    <Stethoscope size={13} /> {activeFacilityStaff.doctors.length} Doctors
                   </div>
-                  <div style={{ background: "rgba(245, 158, 11, 0.15)", color: "#B45309", padding: "4px 10px", borderRadius: 8, fontSize: 11.5, fontWeight: 800, display: "flex", alignItems: "center", gap: 4 }}>
-                    <Activity size={13} /> {activeFacilityStaff.ashaWorkers.length} ASHA Workers
+                  <div style={{ background: "rgba(245, 158, 11, 0.15)", color: "#B45309", padding: "5px 10px", borderRadius: 8, fontSize: 11.5, fontWeight: 800, display: "flex", alignItems: "center", gap: 4 }}>
+                    <Activity size={13} /> {activeFacilityStaff.ashaWorkers.length} ASHA
                   </div>
                 </div>
               </div>
@@ -2103,22 +2270,29 @@ export default function HospitalDesktopDashboard() {
               <div style={{ padding: "20px 24px" }}>
                 {/* Doctors Roster Grid */}
                 <div style={{ marginBottom: 24 }}>
-                  <h4 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", color: C.muted, letterSpacing: 0.6, marginBottom: 12, display: "flex", alignItems: "center", gap: 5 }}>
-                    <Stethoscope size={14} /> {T("संबद्ध मेडिकल ऑफिसर एवं ओपीडी कक्ष", "Affiliated Medical Officers & OPD Room Status")}
-                  </h4>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(290px, 1fr))", gap: 16 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                    <h4 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", color: C.muted, letterSpacing: 0.6, margin: 0, display: "flex", alignItems: "center", gap: 5 }}>
+                      <Stethoscope size={14} /> {T("संबद्ध मेडिकल ऑफिसर एवं ओपीडी कक्ष", "Affiliated Medical Officers, Credentials & Duty Status")}
+                    </h4>
+                    <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>
+                      Manage room assignments, unique logins & active on-duty switch
+                    </span>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
                     {activeFacilityStaff.doctors.map((doc: any) => (
                       <div
-                        key={doc.id}
+                        key={doc.id || doc._id}
                         style={{
                           background: "#FFFFFF",
-                          border: `1.5px solid ${C.border}`,
+                          border: `1.5px solid ${doc.onDuty ? "#99F6E4" : C.border}`,
                           borderRadius: 14,
                           padding: "16px",
                           display: "flex",
                           flexDirection: "column",
                           justifyContent: "space-between",
-                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)",
+                          boxShadow: doc.onDuty ? "0 4px 12px rgba(15, 118, 110, 0.08)" : "0 2px 8px rgba(0, 0, 0, 0.02)",
+                          transition: "all 0.2s ease",
                         }}
                       >
                         <div>
@@ -2126,52 +2300,108 @@ export default function HospitalDesktopDashboard() {
                             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                               <div
                                 style={{
-                                  width: 38,
-                                  height: 38,
+                                  width: 40,
+                                  height: 40,
                                   borderRadius: 10,
-                                  background: "linear-gradient(135deg, #0F766E, #14B8A6)",
+                                  background: doc.onDuty ? "linear-gradient(135deg, #0F766E, #14B8A6)" : "#94A3B8",
                                   color: "white",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
                                 }}
                               >
-                                <Stethoscope size={18} />
+                                <Stethoscope size={20} />
                               </div>
                               <div>
-                                <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text }}>{doc.name}</div>
-                                <div style={{ fontSize: 11.5, color: C.primary, fontWeight: 700 }}>{doc.dept}</div>
+                                <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>{doc.name}</div>
+                                <div style={{ fontSize: 12, color: C.primary, fontWeight: 700 }}>{doc.dept || doc.specialization}</div>
                               </div>
                             </div>
-                            <span
+                            <button
+                              onClick={() => handleToggleDoctorDuty(doc)}
+                              title="Click to toggle On-Duty / Off-Duty status"
                               style={{
                                 background: doc.onDuty ? "#D1FAE5" : "#F1F5F9",
                                 color: doc.onDuty ? "#059669" : C.muted,
-                                padding: "2px 8px",
+                                border: `1px solid ${doc.onDuty ? "#A7F3D0" : C.border}`,
+                                padding: "4px 10px",
                                 borderRadius: 8,
-                                fontSize: 10.5,
+                                fontSize: 11,
                                 fontWeight: 800,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 4,
                               }}
                             >
+                              <span style={{ width: 7, height: 7, borderRadius: "50%", background: doc.onDuty ? "#10B981" : "#94A3B8" }} />
                               {doc.onDuty ? "On Duty" : "Off Duty"}
-                            </span>
+                            </button>
                           </div>
 
-                          <div style={{ fontSize: 12, color: C.muted, marginBottom: 4 }}>
-                            {doc.room || "Room 102 (OPD)"} · <span style={{ fontWeight: 700, color: C.text }}>{doc.experience}</span> exp
+                          {/* Login Credentials & Room Badge */}
+                          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 10 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#F8FAFC", padding: "6px 10px", borderRadius: 8, border: `1px solid ${C.border}` }}>
+                              <Key size={12} color="#0F766E" />
+                              <div style={{ fontSize: 11.5, color: C.text, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                Login: <span style={{ fontFamily: "monospace", color: C.primaryDark, fontWeight: 700 }}>{doc.email || `${doc.name.toLowerCase().replace(/[^a-z]/g, "")}@aarogya.ai`}</span>
+                              </div>
+                            </div>
+                            <div style={{ fontSize: 12, color: C.muted, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <span>{doc.room || "Room 102 (OPD)"}</span>
+                              <span style={{ fontWeight: 700, color: C.text }}>{doc.experience || "8 yrs"} exp</span>
+                            </div>
                           </div>
                         </div>
 
-                        <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>
-                            {activeFacility?.shortName || "Hospital Unit"}
-                          </span>
+                        <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
                           <div style={{ display: "flex", gap: 6 }}>
+                            <button
+                              onClick={() => handleOpenEditDoctor(doc)}
+                              style={{
+                                background: "#F1F5F9",
+                                border: `1px solid ${C.border}`,
+                                color: C.text,
+                                borderRadius: 6,
+                                padding: "5px 8px",
+                                fontSize: 11,
+                                fontWeight: 700,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 4,
+                              }}
+                            >
+                              <Edit3 size={11} /> Edit & Reset Pass
+                            </button>
+                            {doc._id && (
+                              <button
+                                onClick={() => handleDeleteDoctor(doc._id, doc.name)}
+                                style={{
+                                  background: "#FEF2F2",
+                                  border: "1px solid #FECACA",
+                                  color: "#DC2626",
+                                  borderRadius: 6,
+                                  padding: "5px 8px",
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 3,
+                                }}
+                              >
+                                <Trash2 size={11} />
+                              </button>
+                            )}
+                          </div>
+
+                          <div style={{ display: "flex", gap: 5 }}>
                             <button
                               onClick={() => setSelectedQRDoctor({
                                 name: doc.name,
-                                phone: doc.phone || "+91 98765 01002",
-                                dept: doc.dept,
+                                phone: doc.phone || "+91 98200 11000",
+                                dept: doc.dept || doc.specialization,
                                 hospital: activeFacility?.name || "Hospital Medical Center",
                                 role: doc.role,
                               })}
@@ -2192,7 +2422,7 @@ export default function HospitalDesktopDashboard() {
                               <QrCode size={12} /> QR Call
                             </button>
                             <button
-                              onClick={() => window.open(`tel:${doc.phone || "+91 98765 01002"}`)}
+                              onClick={() => window.open(`tel:${doc.phone || "+91 98200 11000"}`)}
                               style={{
                                 background: "#F0FDFA",
                                 border: `1px solid ${C.primary}`,
@@ -3332,6 +3562,178 @@ export default function HospitalDesktopDashboard() {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════ */}
+      {/* ── MODAL 4: ADD / EDIT DOCTOR & CREDENTIALS MODAL ── */}
+      {/* ═══════════════════════════════════════════════════════════════════ */}
+      {isDoctorModalOpen && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 999999,
+          background: "rgba(15, 23, 42, 0.8)", backdropFilter: "blur(6px)",
+          display: "flex", alignItems: "center", justifyContent: "center", padding: 16
+        }}>
+          <div style={{
+            background: "white", borderRadius: 20, width: "100%", maxWidth: 540,
+            overflow: "hidden", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.35)",
+            border: `1px solid ${C.border}`
+          }}>
+            <div style={{ padding: "18px 24px", background: "#0F766E", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <Stethoscope size={22} />
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>
+                    {editingDoctor ? "Manage Doctor & Login Credentials" : "Register New Doctor & Issue Credentials"}
+                  </h3>
+                  <div style={{ fontSize: 11, opacity: 0.85 }}>
+                    Facility: {activeFacility?.name || "Hospital Facility"} ({selectedFacilityId})
+                  </div>
+                </div>
+              </div>
+              <button onClick={() => setIsDoctorModalOpen(false)} style={{ background: "transparent", border: "none", color: "white", cursor: "pointer" }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            {doctorError && (
+              <div style={{ padding: "10px 24px", background: "#FEF2F2", color: "#DC2626", fontSize: 12.5, fontWeight: 700, borderBottom: "1px solid #FECACA" }}>
+                ⚠️ {doctorError}
+              </div>
+            )}
+
+            <form onSubmit={handleSaveDoctor} style={{ padding: "20px 24px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>
+                    Doctor Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Dr. Ramesh Gaikwad"
+                    value={doctorForm.name}
+                    onChange={(e) => setDoctorForm({ ...doctorForm, name: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>
+                    Specialization / Dept *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. General Medicine / Cardiology"
+                    value={doctorForm.specialization}
+                    onChange={(e) => setDoctorForm({ ...doctorForm, specialization: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                  />
+                </div>
+              </div>
+
+              {/* Login Credentials Section */}
+              <div style={{ background: "#F8FAFC", padding: "12px 14px", borderRadius: 10, border: `1px solid ${C.border}`, marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 800, color: C.primary, marginBottom: 8 }}>
+                  <Key size={14} /> Unique Login Credentials for Doctor Dashboard
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: C.text, marginBottom: 3 }}>
+                      Unique Email / ID *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      disabled={!!editingDoctor}
+                      placeholder="e.g. doc.name@dypatil.edu"
+                      value={doctorForm.email}
+                      onChange={(e) => setDoctorForm({ ...doctorForm, email: e.target.value })}
+                      style={{
+                        width: "100%", padding: "8px 10px", borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12.5, outline: "none", boxSizing: "border-box",
+                        background: editingDoctor ? "#E2E8F0" : "white"
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: C.text, marginBottom: 3 }}>
+                      {editingDoctor ? "New Password (Leave blank to keep)" : "Password *"}
+                    </label>
+                    <input
+                      type="password"
+                      required={!editingDoctor}
+                      placeholder={editingDoctor ? "Enter to reset password" : "e.g. hospital@doc1"}
+                      value={doctorForm.password}
+                      onChange={(e) => setDoctorForm({ ...doctorForm, password: e.target.value })}
+                      style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12.5, outline: "none", boxSizing: "border-box" }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 14 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>OPD Room / Chamber</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Room 102 (OPD)"
+                    value={doctorForm.room}
+                    onChange={(e) => setDoctorForm({ ...doctorForm, room: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Experience</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 10 yrs"
+                    value={doctorForm.experience}
+                    onChange={(e) => setDoctorForm({ ...doctorForm, experience: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Duty Availability</label>
+                  <select
+                    value={doctorForm.onDuty ? "true" : "false"}
+                    onChange={(e) => setDoctorForm({ ...doctorForm, onDuty: e.target.value === "true" })}
+                    style={{ width: "100%", padding: "9px 10px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", background: "white", boxSizing: "border-box", fontWeight: 700 }}
+                  >
+                    <option value="true">🟢 On Duty (Available)</option>
+                    <option value="false">⚪ Off Duty</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Phone / Desk Direct Line</label>
+                <input
+                  type="text"
+                  placeholder="e.g. +91 98200 11001"
+                  value={doctorForm.phone}
+                  onChange={(e) => setDoctorForm({ ...doctorForm, phone: e.target.value })}
+                  style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
+                <button
+                  type="button"
+                  onClick={() => setIsDoctorModalOpen(false)}
+                  style={{ padding: "9px 16px", borderRadius: 8, border: `1px solid ${C.border}`, background: "#F1F5F9", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={doctorSubmitting}
+                  style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: C.primary, color: "white", fontSize: 13, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                >
+                  <CheckCircle2 size={15} /> {doctorSubmitting ? "Saving..." : editingDoctor ? "Update Doctor & Credentials" : "Create & Activate Doctor"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
