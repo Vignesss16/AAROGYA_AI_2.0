@@ -391,6 +391,43 @@ const MOCK_STAFF_MAP: Record<string, { doctors: any[]; ashaWorkers: any[] }> = {
       { id: "ASHA_KHAR_2", name: "Manisha Bhoir", area: "Belpada & Rohinjan Tribal Pada", phone: "+91 98765 19002", visitsThisMonth: 82, activeAlerts: 0 },
     ]
   },
+  "HOSP-KLW-003": {
+    doctors: [
+      { id: "D_KLW_1", name: "Dr. Vilas Patil", role: "Head of Casualty & General Medicine", dept: "Emergency & Trauma", room: "Room 101 (Casualty)", experience: "15 yrs", onDuty: true, rating: 4.8 },
+      { id: "D_KLW_2", name: "Dr. Priya Nair", role: "Pediatric Critical Care Specialist", dept: "Pediatrics", room: "Room 103 (Pediatric Ward)", experience: "12 yrs", onDuty: true, rating: 4.9 },
+      { id: "D_KLW_3", name: "Dr. Amit Vernekar", role: "Orthopedic & Trauma Surgeon", dept: "Orthopedics", room: "Room 106 (Trauma OT)", experience: "11 yrs", onDuty: true, rating: 4.7 },
+    ],
+    ashaWorkers: [
+      { id: "ASHA_KLW_1", name: "Sunita Kamble", area: "Kalwa Naka & Digha Rural", phone: "+91 98765 13001", visitsThisMonth: 82, activeAlerts: 1 },
+      { id: "ASHA_KLW_2", name: "Rekha Gaikwad", area: "Mumbra Hills Tribal Belt", phone: "+91 98765 13002", visitsThisMonth: 65, activeAlerts: 0 },
+    ]
+  },
+  "HOSP-DMB-009": {
+    doctors: [
+      { id: "D_DMB_1", name: "Dr. Allwin Nadar", role: "Consultant Physician & Telemedicine Lead", dept: "General Medicine", room: "Room 102 (OPD)", experience: "10 yrs", onDuty: true, rating: 4.9 },
+      { id: "D_DMB_2", name: "Dr. Sneha Gokhale", role: "Consultant Obstetrician", dept: "Gynecology & Maternal", room: "Room 104 (Maternity)", experience: "14 yrs", onDuty: true, rating: 4.8 },
+    ],
+    ashaWorkers: [
+      { id: "ASHA_DMB_1", name: "Meena Shinde", area: "Nilje Rural & Lodha Palava", phone: "+91 98765 20001", visitsThisMonth: 77, activeAlerts: 1 },
+    ]
+  },
+  "HOSP-PTL-009": {
+    doctors: [
+      { id: "D_PTL_1", name: "Dr. Arvind Kumar", role: "Civil Surgeon & Medical Superintendent", dept: "General Medicine", room: "Room 101 (OPD)", experience: "22 yrs", onDuty: true, rating: 4.9 },
+      { id: "D_PTL_2", name: "Dr. Gurpreet Singh", role: "Senior Cardiologist", dept: "Cardiology", room: "Room 104 (Cardiac OPD)", experience: "16 yrs", onDuty: true, rating: 5.0 },
+    ],
+    ashaWorkers: [
+      { id: "ASHA_PTL_1", name: "Gurpreet Kaur", area: "Patiala Rural Ward 4", phone: "+91 98765 21001", visitsThisMonth: 89, activeAlerts: 0 },
+    ]
+  },
+  "HOSP-KSR-010": {
+    doctors: [
+      { id: "D_KSR_1", name: "Dr. Vasanth", role: "Rural Medical Officer", dept: "General Medicine", room: "Room 101 (OPD)", experience: "8 yrs", onDuty: true, rating: 5.0 },
+    ],
+    ashaWorkers: [
+      { id: "ASHA_KSR_1", name: "Manjit Kaur", area: "Village Kesri Primary Ward", phone: "+91 98765 22001", visitsThisMonth: 45, activeAlerts: 0 },
+    ]
+  },
   "HOSP-NBH-008": {
     doctors: [
       { id: "D_NBH_1", name: "Dr. Arvind Kumar", role: "Civil Surgeon", dept: "General Medicine", room: "Room 101 (OPD)", experience: "20 yrs", onDuty: true, rating: 4.9 },
