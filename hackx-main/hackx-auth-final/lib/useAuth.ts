@@ -138,7 +138,7 @@ export function useAuth() {
     // ONLINE LOGIN
     try {
       const controller = new AbortController();
-      const fetchTimer = setTimeout(() => controller.abort(), 4000);
+      const fetchTimer = setTimeout(() => controller.abort(), 15000);
 
       // 1. Direct verify with credentials API endpoint for instant authentication & real patient record
       const apiRes = await fetch("/api/auth/login", {

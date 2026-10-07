@@ -51,26 +51,10 @@ export default function HomePage() {
 
     if (cachedPatientStr) {
       try { setCachedUserParsed(JSON.parse(cachedPatientStr)); } catch {}
-    } else if (!isLoggedOut) {
-      // Auto-provision patient state if visiting home
-      const defaultUser = {
-        _id: "patient-8591292159",
-        phone: localStorage.getItem("last_login_phone") || "8591292159",
-        name: "Vignesh",
-        age: 28,
-        gender: "other",
-        village: "Sion, Mumbai",
-        conditions: [],
-        bloodGroup: "O+",
-        role: "patient",
-      };
-      localStorage.setItem("cachedPatientUser", JSON.stringify(defaultUser));
-      localStorage.setItem("aarogya_user", JSON.stringify(defaultUser));
-      localStorage.setItem("last_logged_role", "patient");
-      setCachedUserParsed(defaultUser);
     }
 
-    if (isLoggedOut) {
+    // Smoothly redirect unauthenticated visitors without cached session or if explicitly logged out
+    if (isLoggedOut || (!loading && !user && !cachedPatientStr)) {
       router.replace("/login");
       return;
     }

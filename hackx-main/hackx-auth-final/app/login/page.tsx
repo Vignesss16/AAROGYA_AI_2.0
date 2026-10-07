@@ -749,35 +749,6 @@ export default function LoginPage() {
             <>
               <div style={{ height: 1, background: C.border, margin: "20px 0" }} />
 
-              {/* 1-Click Quick Demo Login Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  const demoPatient = {
-                    _id: "patient-8591292159",
-                    phone: "8591292159",
-                    name: "Vignesh",
-                    age: 28,
-                    gender: "male",
-                    village: "Sion, Mumbai",
-                    conditions: [],
-                    bloodGroup: "O+",
-                    role: "patient",
-                  };
-                  localStorage.setItem("cachedPatientUser", JSON.stringify(demoPatient));
-                  localStorage.setItem("aarogya_user", JSON.stringify(demoPatient));
-                  localStorage.setItem("patient", JSON.stringify(demoPatient));
-                  localStorage.setItem("last_login_phone", "8591292159");
-                  localStorage.setItem("last_logged_role", "patient");
-                  sessionStorage.removeItem("user_explicitly_logged_out");
-                  localStorage.removeItem("user_is_logged_out");
-                  router.replace("/home");
-                }}
-                style={{ width: "100%", padding: "14px", borderRadius: 14, border: `2px dashed ${C.primary}`, background: "#EBF5FB", color: C.primaryDark, fontWeight: 700, fontSize: 14, cursor: "pointer", marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
-              >
-                ⚡ {t("1-क्लिक मरीज़ लॉगिन (विग्नेश)", "1-Click Patient Demo Login (Vignesh)")}
-              </button>
-
               {/* Google Login */}
               <button
                 onClick={() => signIn("google", { callbackUrl: "/home" })}
