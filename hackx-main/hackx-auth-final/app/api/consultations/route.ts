@@ -234,13 +234,31 @@ export async function GET(req: NextRequest) {
 
     // Fetch consultations based on status, doctorId, or facilityId
     const query: any = status === "all" ? {} : { status };
-    if (doctorId) {
-      const cleanDoc = doctorId.replace(/^doc-?/i, "").replace(/^Dr\.?\s*/i, "").trim();
-      query.$or = [
-        { doctorId: doctorId },
-        { doctorEmail: doctorId },
-        { doctorName: new RegExp(cleanDoc, "i") },
-      ];
+    const doctorName = req.nextUrl.searchParams.get("doctorName");
+    const doctorEmail = req.nextUrl.searchParams.get("doctorEmail");
+
+    if (doctorId || doctorName || doctorEmail) {
+      const orConditions: any[] = [];
+      if (doctorId) {
+        orConditions.push({ doctorId: doctorId });
+        const cleanId = doctorId.replace(/^doc-?/i, "").replace(/^Dr\.?\s*/i, "").trim();
+        if (cleanId.length >= 2) {
+          orConditions.push({ doctorName: new RegExp(cleanId, "i") });
+        }
+      }
+      if (doctorEmail) {
+        orConditions.push({ doctorEmail: doctorEmail });
+        orConditions.push({ doctorId: doctorEmail });
+      }
+      if (doctorName) {
+        const cleanName = doctorName.replace(/^Dr\.?\s*/i, "").trim();
+        if (cleanName.length >= 2) {
+          orConditions.push({ doctorName: new RegExp(cleanName, "i") });
+        }
+      }
+      if (orConditions.length > 0) {
+        query.$or = orConditions;
+      }
     } else if (facilityId && facilityId !== "ALL") {
       query.facilityId = facilityId;
       query.bookingType = { $ne: "DIRECT_DOCTOR" };
@@ -304,6 +322,8 @@ export async function PATCH(req: NextRequest) {
       doctorNotes,
       prescription,
       doctorName,
+      doctorId,
+      doctorEmail,
       urgency,
       receptionistStatus,
       checkInStatus,
@@ -323,6 +343,8 @@ export async function PATCH(req: NextRequest) {
     if (doctorNotes !== undefined) update.doctorNotes = doctorNotes;
     if (prescription !== undefined) update.prescription = prescription;
     if (doctorName !== undefined) update.doctorName = doctorName;
+    if (doctorId !== undefined) update.doctorId = doctorId;
+    if (doctorEmail !== undefined) update.doctorEmail = doctorEmail;
     if (urgency !== undefined) update.urgency = normalizeUrgency(urgency);
     if (receptionistStatus !== undefined) update.receptionistStatus = receptionistStatus;
     if (checkInStatus !== undefined) update.checkInStatus = checkInStatus;

@@ -87,11 +87,18 @@ export default function DoctorDashboardPage() {
   const [loadingReviews, setLoadingReviews] = useState(true);
 
   const fetchQueue = useCallback(async () => {
-    if (!session?.user?.id) return; // Wait for session to load
+    if (!session?.user?.id && !session?.user?.name && !session?.user?.email) return;
     try {
-      // Append doctorId to query
-      const doctorIdQuery = `&doctorId=${session.user.id}`;
-      const res = await fetch(`/api/consultations?status=pending${doctorIdQuery}`);
+      const docId = session.user.id || "";
+      const docName = session.user.name || "";
+      const docEmail = session.user.email || "";
+      const queryParams = new URLSearchParams({
+        status: "pending",
+        doctorId: docId,
+        doctorName: docName,
+        doctorEmail: docEmail,
+      });
+      const res = await fetch(`/api/consultations?${queryParams.toString()}`);
       const data = await res.json();
       setQueue(data.consultations || []);
     } catch {
