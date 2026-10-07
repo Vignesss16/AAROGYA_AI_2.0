@@ -27,6 +27,7 @@
 | **Records Page React Child Render Crash** | Diagnostic tests array contained object items `{ name: "...", code: "BLD" }`. React crashed when rendering `🧪 {test}` as an object child. | Sanitized test names as string primitives (`typeof t === 'string' ? t : t.name`); linked both Lab Orders and Diagnostic Blood Tests. | `app/records/page.tsx` |
 | **Next.js Hydration Mismatch in `HomePage`** | `localStorage` and `window` were read during initial SSR render pass, causing HTML mismatch with client-side cached user state. | Added `mounted` lifecycle state; deferred `localStorage` reads to `useEffect`; added `suppressHydrationWarning` to `<html>` and `<body>`. | `app/home/page.tsx`<br/>`app/layout.tsx` |
 | **AI Engine Clarification** | Stack clarified from legacy placeholder references to actual Groq LPU API. | Confirmed Groq LPU (`openai/gpt-oss-120b` / `llama-3.3-70b-versatile`) + Groq Whisper-Large-v3 + Local Clinical CSV RAG. | `lib/ai-triage.ts` |
+| **NextAuth Production URL & Secret Resilience** | NextAuth failed or misdirected in production if `NEXTAUTH_URL` was set to localhost instead of the live Vercel domain. | Added resilient fallback secret in `authOptions` and documented setting `NEXTAUTH_URL` to the live Vercel domain in Vercel settings. | `app/api/auth/[...nextauth]/route.ts` |
 
 ---
 
