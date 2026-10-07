@@ -96,8 +96,9 @@ export default function ConsultationDetailPage() {
   const [rxRows, setRxRows] = useState<RxRow[]>([emptyRow()]);
   const [saving, setSaving] = useState(false);
   const [referModalOpen, setReferModalOpen] = useState(false);
-  const [referralTarget, setReferralTarget] = useState("Lokmanya Tilak Municipal General Hospital (SION Mumbai)");
-  const [referralDept, setReferralDept] = useState("Cardiology & Apex Trauma");
+  const [referralTarget, setReferralTarget] = useState("Dr. D. Y. Patil Multi-Specialty Hospital (Nerul)");
+  const [referralDoctor, setReferralDoctor] = useState("Dr. Sandeep Kadam (Emergency Lead)");
+  const [referralDept, setReferralDept] = useState("Emergency & Trauma / ICU");
   const [referralReason, setReferralReason] = useState("");
   const [referralUrgency, setReferralUrgency] = useState<"RED" | "YELLOW" | "GREEN">("YELLOW");
 
@@ -391,8 +392,9 @@ export default function ConsultationDetailPage() {
           sourceFacility: "Telemedicine Platform",
           targetFacility: referralTarget,
           targetDepartment: referralDept,
+          targetDoctorName: referralDoctor,
           referralType: "SPECIALIST_FACILITY_TRANSFER",
-          reasonForReferral: referralReason || notes || "Requires advanced tertiary hospital examination",
+          reasonForReferral: referralReason || notes || "Requires specialized tertiary examination",
           clinicalNotes: notes,
           opdToken: token,
           urgency: referralUrgency || consultation?.urgency || "YELLOW",
@@ -405,13 +407,13 @@ export default function ConsultationDetailPage() {
         body: JSON.stringify({
           id,
           status: "completed",
-          doctorNotes: notes + `\n\n[REFERRED TO ${referralTarget} - ${referralDept}]: ${referralReason} (Token: ${token})`,
+          doctorNotes: notes + `\n\n[REFERRED TO ${referralDoctor} at ${referralTarget} - ${referralDept}]: ${referralReason} (Token: ${token})`,
           prescription: prescriptionJson,
           doctorName,
           urgency: referralUrgency || consultation?.urgency,
         }),
       });
-      alert(`✅ Referral Dispatched!\n\nTarget: ${referralTarget} (${referralDept})\nUrgency: ${referralUrgency}\nTracking Token: ${token}`);
+      alert(`✅ Referral Dispatched!\n\nTarget Specialist: ${referralDoctor}\nHospital: ${referralTarget} (${referralDept})\nUrgency: ${referralUrgency}\nTracking Token: ${token}`);
       router.push("/doctor/dashboard");
     } catch {
       /* offline */
@@ -1123,13 +1125,16 @@ export default function ConsultationDetailPage() {
                   onChange={(e) => setPhysicalFacility(e.target.value)}
                   style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${C.border}`, outline: "none", fontSize: 13, background: C.bg, color: C.text }}
                 >
+                  <option value="Dr. D. Y. Patil Multi-Specialty Hospital (Nerul)">🏥 Dr. D. Y. Patil Multi-Specialty Hospital (Nerul)</option>
+                  <option value="Kharghar Super-Specialty Civil Hospital">🏥 Kharghar Super-Specialty Civil Hospital</option>
                   <option value="Lokmanya Tilak Municipal General Hospital (SION Mumbai)">🏥 SION Hospital (LTMGH Mumbai)</option>
+                  <option value="Navi Mumbai Community Health & Teleconsult Center">🏥 Navi Mumbai Community Health Center</option>
+                  <option value="CityCare Medical & SION Tele-Hub, Mumbai">🏥 CityCare Medical & SION Tele-Hub (Mumbai)</option>
                   <option value="Kalyan Sub-District & Rural Civil Hospital">🏥 Kalyan Sub-District Civil Hospital</option>
                   <option value="Chhatrapati Shivaji Maharaj Hospital (CSMH), Kalwa">🏥 CSMH Kalwa Hospital, Thane</option>
                   <option value="Palghar Rural & Tribal Sub-District Hospital">🏥 Palghar Rural Civil Hospital</option>
                   <option value="Murbad Rural Sub-District Hospital">🏥 Murbad Rural Health Center</option>
-                  <option value="CityCare Hospital, Dombivli">🏥 CityCare Hospital Dombivli</option>
-                  <option value="Civil Hospital, Nabha">🏥 Civil Hospital, Nabha</option>
+                  <option value="Jawhar Tribal Sub-District Hospital">🏥 Jawhar Tribal Hospital</option>
                 </select>
               </div>
 
@@ -1139,7 +1144,7 @@ export default function ConsultationDetailPage() {
                   type="text"
                   value={physicalDept}
                   onChange={(e) => setPhysicalDept(e.target.value)}
-                  placeholder="e.g. General OPD Room 14 / Cardiology Desk"
+                  placeholder="e.g. Room 102 (General OPD) / Casualty Desk"
                   style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${C.border}`, outline: "none", fontSize: 13, background: C.bg, color: C.text, boxSizing: "border-box" }}
                 />
               </div>
@@ -1194,16 +1199,34 @@ export default function ConsultationDetailPage() {
       {/* Refer to Higher Specialist Facility Modal */}
       {referModalOpen && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.65)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ background: C.card, width: "100%", maxWidth: 360, borderRadius: 20, padding: 24, boxShadow: "0 20px 25px -5px rgba(0,0,0,0.3)", border: `1px solid ${C.border}` }}>
+          <div style={{ background: C.card, width: "100%", maxWidth: 400, borderRadius: 20, padding: 24, boxShadow: "0 20px 25px -5px rgba(0,0,0,0.3)", border: `1px solid ${C.border}` }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 20 }}>🏥</span>
-                <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: C.text }}>Inter-Facility Referral</h3>
+                <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: C.text }}>Specialist Referral & Transfer</h3>
               </div>
               <button onClick={() => setReferModalOpen(false)} style={{ background: C.bg, border: "none", borderRadius: 8, width: 28, height: 28, cursor: "pointer", fontSize: 13, color: C.muted }}>✕</button>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 18 }}>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 800, color: C.muted, display: "block", marginBottom: 4, textTransform: "uppercase" }}>Target Specialist Doctor</label>
+                <select
+                  value={referralDoctor}
+                  onChange={(e) => setReferralDoctor(e.target.value)}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${C.border}`, outline: "none", fontSize: 13, background: C.bg, color: C.text, fontWeight: 600 }}
+                >
+                  <option value="Dr. Sandeep Kadam">👨‍⚕️ Dr. Sandeep Kadam (Emergency & Critical Care Lead)</option>
+                  <option value="Dr. Meenal Thakur">👩‍⚕️ Dr. Meenal Thakur (Senior Cardiologist)</option>
+                  <option value="Dr. Alok Sharma">👨‍⚕️ Dr. Alok Sharma (Oncology & Critical Care Lead)</option>
+                  <option value="Dr. Neha Bendre">👩‍⚕️ Dr. Neha Bendre (Consultant Cardiologist)</option>
+                  <option value="Dr. S. Kulkarni">👨‍⚕️ Dr. S. Kulkarni (Head of Emergency & Trauma)</option>
+                  <option value="Dr. Aniruddh Joshi">👨‍⚕️ Dr. Aniruddh Joshi (Senior Cardiologist)</option>
+                  <option value="Dr. Rajesh Gaikwad">👨‍⚕️ Dr. Rajesh Gaikwad (General Physician & Diabetologist)</option>
+                  <option value="On-Duty Casualty Incharge">👨‍⚕️ On-Duty Emergency Specialist (Auto-Assign)</option>
+                </select>
+              </div>
+
               <div>
                 <label style={{ fontSize: 11, fontWeight: 800, color: C.muted, display: "block", marginBottom: 4, textTransform: "uppercase" }}>Target Hospital Center</label>
                 <select
@@ -1211,14 +1234,14 @@ export default function ConsultationDetailPage() {
                   onChange={(e) => setReferralTarget(e.target.value)}
                   style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${C.border}`, outline: "none", fontSize: 13, background: C.bg, color: C.text }}
                 >
+                  <option value="Dr. D. Y. Patil Multi-Specialty Hospital (Nerul)">🏥 Dr. D. Y. Patil Multi-Specialty Hospital (Nerul)</option>
+                  <option value="Kharghar Super-Specialty Civil Hospital">🏥 Kharghar Super-Specialty Civil Hospital</option>
                   <option value="Lokmanya Tilak Municipal General Hospital (SION Mumbai)">🏥 SION Hospital (LTMGH Mumbai) - Apex Trauma</option>
                   <option value="Kalyan Sub-District & Rural Civil Hospital">🏥 Kalyan Sub-District Civil Hospital</option>
                   <option value="Chhatrapati Shivaji Maharaj Hospital (CSMH), Kalwa">🏥 CSMH Kalwa Hospital, Thane</option>
                   <option value="Palghar Rural & Tribal Sub-District Hospital">🏥 Palghar Rural Civil Hospital</option>
                   <option value="Murbad Rural Sub-District Hospital">🏥 Murbad Rural Health Center</option>
                   <option value="Jawhar Tribal Sub-District Hospital">🏥 Jawhar Tribal Hospital</option>
-                  <option value="Civil Hospital, Nabha">🏥 Civil Hospital, Nabha (Punjab)</option>
-                  <option value="Rajindra Hospital & Medical College, Patiala">🏥 Rajindra Hospital Patiala</option>
                 </select>
               </div>
 
