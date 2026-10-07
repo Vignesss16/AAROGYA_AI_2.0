@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import { Referral } from "@/models/index";
+import Consultation from "@/models/Consultation";
 import { pusher } from "@/lib/pusher-server";
 
 export async function GET(req: NextRequest) {
@@ -89,6 +90,34 @@ export async function POST(req: NextRequest) {
       urgency: urgency || "YELLOW",
       status: "pending",
     });
+
+    // Also auto-sync an incoming Consultation entry into the target hospital's physical queue
+    try {
+      const hospitalConsultation = await Consultation.create({
+        patientPhone,
+        patientName,
+        urgency: urgency || "YELLOW",
+        department: targetDepartment || "General Medicine",
+        doctorName: targetDoctorName || referredByDoctorName || "OPD Duty Doctor",
+        hospital: targetFacility,
+        source: referralType === "IN_PERSON_FOLLOWUP" ? "Doctor In-Person Physical Referral" : "Specialist Tertiary Transfer",
+        receptionistStatus: "CONFIRMED",
+        checkInStatus: "PENDING_ARRIVAL",
+        status: "confirmed",
+        tokenNumber: generatedToken,
+        queueNo: generatedToken,
+        slot: scheduledSlot || "Scheduled OPD",
+        doctorNotes: `Referred by ${referredByDoctorName}: ${reasonForReferral}. Clinical Notes: ${clinicalNotes || "None"}`,
+        triageResult: { urgency: urgency || "YELLOW", summary: reasonForReferral, department: targetDepartment || "General Medicine" },
+        bookingType: "HOSPITAL_RECEPTIONIST_ASSISTED",
+        symptoms: [reasonForReferral || "Clinical Physical Referral"],
+      });
+      try {
+        await pusher.trigger("hospital-channel", "new-appointment", hospitalConsultation);
+      } catch {}
+    } catch (syncErr) {
+      console.warn("Could not sync referral to Consultation queue:", syncErr);
+    }
 
     // Notify the target facility command center
     try {
