@@ -5,6 +5,7 @@ import { useLang } from "@/lib/useLang";
 import { useSession, signOut } from "next-auth/react";
 import { useCall } from "@/context/CallContext";
 import DoctorCallQRModal from "@/components/DoctorCallQRModal";
+import { getPusherClient } from "@/lib/pusher-client";
 
 const C = {
   primary: "#1B6CA8",
@@ -93,12 +94,16 @@ export default function DoctorDashboardPage() {
       const docName = session.user.name || "";
       const docEmail = session.user.email || "";
       const queryParams = new URLSearchParams({
-        status: "pending",
+        status: "active",
         doctorId: docId,
         doctorName: docName,
         doctorEmail: docEmail,
+        _t: Date.now().toString(),
       });
-      const res = await fetch(`/api/consultations?${queryParams.toString()}`);
+      const res = await fetch(`/api/consultations?${queryParams.toString()}`, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache, no-store, must-revalidate" },
+      });
       const data = await res.json();
       setQueue(data.consultations || []);
     } catch {
@@ -106,6 +111,28 @@ export default function DoctorDashboardPage() {
     }
     setLoadingQueue(false);
   }, [session]);
+
+  // Real-time Pusher sync from hospital reception desk & triage events
+  useEffect(() => {
+    try {
+      const pusherClient = getPusherClient();
+      const channel = pusherClient.subscribe("hospital-channel");
+      channel.bind("appointment-updated", () => {
+        fetchQueue();
+      });
+      channel.bind("new-appointment", () => {
+        fetchQueue();
+      });
+      return () => {
+        try {
+          channel.unbind_all();
+          pusherClient.unsubscribe("hospital-channel");
+        } catch {}
+      };
+    } catch (err) {
+      console.warn("Doctor dashboard Pusher subscription error:", err);
+    }
+  }, [fetchQueue]);
 
   const fetchSOS = useCallback(async () => {
     try {

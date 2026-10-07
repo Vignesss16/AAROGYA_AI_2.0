@@ -233,7 +233,12 @@ export async function GET(req: NextRequest) {
     }
 
     // Fetch consultations based on status, doctorId, or facilityId
-    const query: any = status === "all" ? {} : { status };
+    const query: any =
+      status === "all"
+        ? {}
+        : status === "pending" || status === "active"
+        ? { status: { $nin: ["completed", "cancelled", "rejected"] } }
+        : { status };
     const doctorName = req.nextUrl.searchParams.get("doctorName");
     const doctorEmail = req.nextUrl.searchParams.get("doctorEmail");
 

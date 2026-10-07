@@ -726,7 +726,7 @@ export default function HospitalDesktopDashboard() {
     } catch {}
   };
 
-  const handleAssignDoctor = async (consultationId: string, doctorName: string, room: string, doctorId?: string) => {
+  const handleAssignDoctor = async (consultationId: string, doctorName: string, room: string, doctorId?: string, doctorEmail?: string) => {
     try {
       const res = await fetch("/api/consultations", {
         method: "PATCH",
@@ -735,6 +735,7 @@ export default function HospitalDesktopDashboard() {
           id: consultationId,
           doctorName,
           doctorId: doctorId || undefined,
+          doctorEmail: doctorEmail || undefined,
           consultationRoom: room,
           receptionistStatus: "CONFIRMED",
           status: "confirmed",
@@ -3535,7 +3536,7 @@ export default function HospitalDesktopDashboard() {
                 {activeFacilityStaff.doctors.map((doc: any) => (
                   <button
                     key={doc.id || doc._id}
-                    onClick={() => handleAssignDoctor(assignDoctorPatient._id, doc.name, doc.room || "Room 102", doc.id || doc._id)}
+                    onClick={() => handleAssignDoctor(assignDoctorPatient._id, doc.name, doc.room || "Room 102", doc.id || doc._id, doc.email)}
                     style={{
                       padding: "10px 14px",
                       borderRadius: 10,
