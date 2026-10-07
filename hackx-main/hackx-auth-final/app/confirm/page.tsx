@@ -46,6 +46,78 @@ const DEFAULT_DOCTORS = [
     fee: "₹0 (Govt)",
   },
   {
+    id: "D_NER_1",
+    name: "Dr. Sandeep Kadam",
+    specialization: "Emergency & Critical Care Lead",
+    hospital: "Dr. D. Y. Patil Multi-Specialty Hospital (Nerul)",
+    city: "Navi Mumbai",
+    dist: "0.8 km",
+    rating: 4.9,
+    reviewCount: 42,
+    slots: ["9:00 AM", "10:30 AM", "1:00 PM", "3:30 PM", "5:00 PM"],
+    fee: "₹0 (Govt)",
+  },
+  {
+    id: "D_NER_2",
+    name: "Dr. Meenal Thakur",
+    specialization: "Senior Cardiologist",
+    hospital: "Dr. D. Y. Patil Multi-Specialty Hospital (Nerul)",
+    city: "Navi Mumbai",
+    dist: "0.8 km",
+    rating: 5.0,
+    reviewCount: 56,
+    slots: ["9:30 AM", "11:30 AM", "2:00 PM", "4:30 PM"],
+    fee: "₹0 (Govt)",
+  },
+  {
+    id: "D_NER_3",
+    name: "Dr. Rajesh Gaikwad",
+    specialization: "General Physician & Diabetologist",
+    hospital: "Dr. D. Y. Patil Multi-Specialty Hospital (Nerul)",
+    city: "Navi Mumbai",
+    dist: "0.9 km",
+    rating: 4.8,
+    reviewCount: 31,
+    slots: ["9:00 AM", "11:00 AM", "2:30 PM", "4:00 PM"],
+    fee: "₹0 (Govt)",
+  },
+  {
+    id: "D_KHAR_1",
+    name: "Dr. Alok Sharma",
+    specialization: "Oncology & Critical Care Lead",
+    hospital: "Kharghar Super-Specialty Civil Hospital",
+    city: "Navi Mumbai",
+    dist: "4.2 km",
+    rating: 4.9,
+    reviewCount: 48,
+    slots: ["10:00 AM", "12:00 PM", "3:00 PM", "5:00 PM"],
+    fee: "₹0 (Govt)",
+  },
+  {
+    id: "D_KHAR_2",
+    name: "Dr. Neha Bendre",
+    specialization: "Consultant Cardiologist",
+    hospital: "Kharghar Super-Specialty Civil Hospital",
+    city: "Navi Mumbai",
+    dist: "4.2 km",
+    rating: 5.0,
+    reviewCount: 39,
+    slots: ["9:00 AM", "11:30 AM", "2:00 PM", "4:30 PM"],
+    fee: "₹0 (Govt)",
+  },
+  {
+    id: "D_PVT_1",
+    name: "Dr. Vivek Deshpande",
+    specialization: "Private Consultant Physician",
+    hospital: "Independent Private Clinic (Nerul West)",
+    city: "Navi Mumbai",
+    dist: "1.1 km",
+    rating: 4.9,
+    reviewCount: 26,
+    slots: ["10:00 AM", "12:30 PM", "4:00 PM", "6:30 PM"],
+    fee: "₹300 (Private)",
+  },
+  {
     id: "D5",
     name: "Dr. Ramesh Sharma",
     specialization: "General Physician",
@@ -132,13 +204,15 @@ const DEFAULT_DOCTORS = [
 ];
 
 const PRESET_LOCATIONS = [
+  { city: "Navi Mumbai", state: "Maharashtra", label: "Nerul East, Navi Mumbai", lat: 19.0433, lng: 73.0163 },
+  { city: "Navi Mumbai", state: "Maharashtra", label: "Kharghar, Navi Mumbai", lat: 19.0473, lng: 73.0699 },
   { city: "Mumbai", state: "Maharashtra", label: "Mumbai (Sion / Dharavi)", lat: 19.0360, lng: 72.8601 },
   { city: "Kalyan", state: "Maharashtra", label: "Kalyan West, Thane Rural", lat: 19.2437, lng: 73.1355 },
+  { city: "Thane", state: "Maharashtra", label: "Thane / Kalwa", lat: 19.1970, lng: 72.9765 },
+  { city: "Dombivli", state: "Maharashtra", label: "Dombivli East", lat: 19.2183, lng: 73.0867 },
   { city: "Palghar", state: "Maharashtra", label: "Palghar Rural & Tribal Belt", lat: 19.6967, lng: 72.7699 },
   { city: "Murbad", state: "Maharashtra", label: "Murbad Rural Tehsil", lat: 19.2530, lng: 73.3980 },
   { city: "Jawhar", state: "Maharashtra", label: "Jawhar Hill Tribal Area", lat: 19.9056, lng: 73.2323 },
-  { city: "Thane", state: "Maharashtra", label: "Thane / Kalwa", lat: 19.1970, lng: 72.9765 },
-  { city: "Dombivli", state: "Maharashtra", label: "Dombivli East", lat: 19.2183, lng: 73.0867 },
   { city: "Nabha", state: "Punjab", label: "Nabha, Punjab", lat: 30.3752, lng: 76.1528 },
   { city: "Patiala", state: "Punjab", label: "Patiala, Punjab", lat: 30.3398, lng: 76.3869 },
   { city: "Kesri", state: "Punjab", label: "Kesri Village, Nabha", lat: 30.4011, lng: 76.1923 },
@@ -503,40 +577,62 @@ export default function ConfirmBookingPage() {
       const facData = await facRes.json();
       setFacilities(facData.facilities || []);
 
-      // 3. Fetch Doctors and attach real ratings
+      // 3. Fetch Doctors and merge with regional specialists
       const docRes = await fetch("/api/admin/doctors");
       const docData = await docRes.json();
 
-      let baseDocs = DEFAULT_DOCTORS;
+      let combinedDocs = [...DEFAULT_DOCTORS];
       if (docData.doctors && docData.doctors.length > 0) {
-        baseDocs = docData.doctors.map((d: any) => ({
+        const dbDocs = docData.doctors.map((d: any) => ({
           id: d._id,
           name: d.name.startsWith("Dr.") ? d.name : "Dr. " + d.name,
           specialization: d.specialization || "General Physician",
           hospital: d.hospital || "Civil Hospital",
-          city: currentLocation.city,
-          dist: `${(Math.random() * 3 + 1).toFixed(1)} km`,
+          city: d.hospital?.includes("Nabha") ? "Nabha" : d.hospital?.includes("SION") ? "Mumbai" : d.hospital?.includes("Nerul") ? "Navi Mumbai" : currentLocation.city,
+          dist: "2.5 km",
           slots: ["9:00 AM", "10:30 AM", "12:00 PM", "2:30 PM", "4:00 PM"],
-          fee: "₹0 (Govt)",
+          fee: d.isPrivate ? "₹300 (Private)" : "₹0 (Govt)",
+          isPrivate: !!d.isPrivate,
         }));
+        // Merge without duplicate IDs or duplicate names
+        for (const dbd of dbDocs) {
+          if (!combinedDocs.some(cd => cd.name.toLowerCase() === dbd.name.toLowerCase())) {
+            combinedDocs.push(dbd);
+          }
+        }
       }
 
-      // Merge ratings into doctor list
-      const enrichedDocs = baseDocs.map((doc) => {
+      const locTokens = (currentLocation.label + " " + currentLocation.city).toLowerCase().split(/[,/ ]+/).filter(s => s.length > 2);
+
+      // Map distance & proximity score
+      const processedDocs = combinedDocs.map((doc) => {
         const normalizedName = doc.name.toLowerCase().replace(/^(dr\.?\s*)/i, "").trim();
         const docRating =
           ratingsMap[doc.id] ||
           ratingsMap[normalizedName] ||
           ratingsMap[doc.name.toLowerCase().trim()];
 
+        const docLocStr = (doc.hospital + " " + doc.city).toLowerCase();
+        const isNearby = locTokens.some(t => docLocStr.includes(t)) || (currentLocation.city.toLowerCase() === doc.city.toLowerCase());
+
+        let distNum = isNearby ? 0.8 + (Math.abs(doc.name.charCodeAt(3) || 70) % 5) * 0.4 : 14.5 + (Math.abs(doc.name.charCodeAt(3) || 70) % 10) * 1.8;
+        if (doc.dist && doc.dist.includes("km") && isNearby) {
+          distNum = parseFloat(doc.dist) || distNum;
+        }
+
         return {
           ...doc,
+          dist: `${distNum.toFixed(1)} km`,
+          distNum,
           rating: docRating ? docRating.averageRating : doc.rating || 5.0,
-          reviewCount: docRating ? docRating.totalReviews : doc.reviewCount || 0,
+          reviewCount: docRating ? docRating.totalReviews : doc.reviewCount || 12,
         };
       });
 
-      setDoctors(enrichedDocs);
+      // Sort closest doctors first
+      processedDocs.sort((a, b) => a.distNum - b.distNum);
+
+      setDoctors(processedDocs);
     } catch {
       setFacilities([]);
       setDoctors(DEFAULT_DOCTORS);

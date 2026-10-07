@@ -302,59 +302,72 @@ export async function GET(req: NextRequest) {
   try {
     await dbConnect();
     const { searchParams } = new URL(req.url);
-    const city = searchParams.get("city");
-    const query = searchParams.get("q");
+    const city = searchParams.get("city") || "";
+    const query = searchParams.get("q") || "";
     const latStr = searchParams.get("lat");
     const lngStr = searchParams.get("lng");
 
     const userLat = latStr ? parseFloat(latStr) : null;
     const userLng = lngStr ? parseFloat(lngStr) : null;
 
-    // Auto-seed default facilities only if empty
-    const count = await Facility.estimatedDocumentCount();
-    if (count === 0) {
-      await Facility.insertMany(DEFAULT_FACILITIES);
+    // Ensure all default facilities exist in MongoDB (upsert any missing ones)
+    const existingCount = await Facility.countDocuments();
+    if (existingCount < DEFAULT_FACILITIES.length) {
+      for (const f of DEFAULT_FACILITIES) {
+        await Facility.updateOne({ facilityId: f.facilityId }, { $set: f }, { upsert: true });
+      }
     }
 
-    const filter: Record<string, any> = { status: "ACTIVE" };
-    if (city && city !== "ALL") {
-      filter.city = new RegExp(`^${city}`, "i");
-    }
-    if (query) {
-      filter.$or = [
-        { name: new RegExp(query, "i") },
-        { shortName: new RegExp(query, "i") },
-        { location: new RegExp(query, "i") },
-        { departments: new RegExp(query, "i") },
-      ];
-    }
+    const allFacilities = await Facility.find({ status: "ACTIVE" }).lean();
 
-    let facilities = await Facility.find(filter).lean();
+    // Clean search tokens from city string (e.g. "Nerul East, Navi Mumbai, Maharashtra" -> ["nerul", "navi mumbai", "mumbai"])
+    const rawTokens = city.toLowerCase().split(/[,/ ]+/).map(s => s.trim()).filter(s => s.length > 2);
 
-    // Map distances
-    const processedFacilities = facilities.map((f: any) => {
+    // Map distances & relevance
+    let processedFacilities = allFacilities.map((f: any) => {
       let distanceKm = 2.4;
-      if (userLat !== null && userLng !== null && !isNaN(userLat) && !isNaN(userLng)) {
+      if (userLat !== null && userLng !== null && !isNaN(userLat) && !isNaN(userLng) && f.lat && f.lng) {
         distanceKm = calculateDistanceKm(userLat, userLng, f.lat, f.lng);
       } else {
-        if (city && f.city?.toLowerCase() === city.toLowerCase()) {
-          distanceKm = Number((1.2 + (f.lat % 1) * 2.5).toFixed(1));
+        const facLocationStr = `${f.name} ${f.shortName} ${f.location} ${f.city} ${f.state} ${(f.catchmentVillages || []).join(" ")}`.toLowerCase();
+        const hasTokenMatch = rawTokens.some(t => facLocationStr.includes(t));
+        if (hasTokenMatch) {
+          distanceKm = Number((0.8 + (Math.abs(f.lat || 19) % 1) * 1.5).toFixed(1));
         } else {
-          distanceKm = Number((4.5 + (f.lat % 1) * 7.5).toFixed(1));
+          distanceKm = Number((12.5 + (Math.abs(f.lat || 19) % 1) * 20.0).toFixed(1));
         }
       }
 
       return {
         ...f,
         distanceKm,
-        availableSlotsCount: Math.floor(6 + (f.lat % 1) * 8),
+        availableSlotsCount: Math.floor(6 + (Math.abs(f.lat || 19) % 1) * 8),
       };
     });
 
-    // Sort closest first
+    // If query string 'q' is passed, filter by search text
+    if (query.trim()) {
+      const qLower = query.toLowerCase();
+      processedFacilities = processedFacilities.filter((f: any) =>
+        (f.name || "").toLowerCase().includes(qLower) ||
+        (f.shortName || "").toLowerCase().includes(qLower) ||
+        (f.location || "").toLowerCase().includes(qLower) ||
+        (f.departments || []).some((d: string) => d.toLowerCase().includes(qLower)) ||
+        (f.catchmentVillages || []).some((v: string) => v.toLowerCase().includes(qLower))
+      );
+    }
+
+    // Sort closest facilities first
     processedFacilities.sort((a, b) => a.distanceKm - b.distanceKm);
 
-    return NextResponse.json({ facilities: processedFacilities });
+    return NextResponse.json(
+      { facilities: processedFacilities },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        },
+      }
+    );
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to fetch facilities" }, { status: 500 });
   }

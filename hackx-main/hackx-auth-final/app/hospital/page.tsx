@@ -948,27 +948,33 @@ export default function HospitalDesktopDashboard() {
     const sn = (activeFacility.shortName || "").toLowerCase();
     const fid = activeFacility.facilityId;
     facilityScopedQueue = queue.filter((q) => {
-      if (q.facilityId && q.facilityId === fid) return true;
+      // Privacy Guard: Private practice / independent clinic consultations NEVER leak to hospital reception
       const h = (q.hospital || "").toLowerCase();
-      if (!h || !q.facilityId) return true; // Include untagged/civil appointments
-      return (
-        h.includes(sn) ||
-        h.includes(fn) ||
-        fn.includes(h) ||
-        sn.includes(h) ||
-        (fid === "HOSP-SION-001" && (h.includes("sion") || h.includes("lokmanya") || h.includes("ltmgh") || h.includes("mumbai") || h.includes("civil") || h.includes("general") || h.includes("hospital") || h.includes("center"))) ||
-        (fid === "HOSP-KLY-002" && (h.includes("kalyan") || h.includes("kly"))) ||
-        (fid === "HOSP-KLW-003" && (h.includes("kalwa") || h.includes("csmh") || h.includes("thane"))) ||
-        (fid === "HOSP-PLG-004" && (h.includes("palghar") || h.includes("plg"))) ||
-        (fid === "HOSP-MRB-005" && (h.includes("murbad") || h.includes("mrb"))) ||
-        (fid === "HOSP-JWH-006" && (h.includes("jawhar") || h.includes("jwh"))) ||
-        (fid === "HOSP-NERUL-007" && (h.includes("nerul") || h.includes("dy patil") || h.includes("d.y. patil") || h.includes("navi mumbai"))) ||
-        (fid === "HOSP-KHAR-008" && (h.includes("kharghar") || h.includes("actrec") || h.includes("tata") || h.includes("cancer"))) ||
-        (fid === "HOSP-DMB-009" && (h.includes("citycare") || h.includes("dombivli"))) ||
-        (fid === "HOSP-NBH-008" && (h.includes("nabha") || h.includes("nbh"))) ||
-        (fid === "HOSP-PTL-009" && (h.includes("patiala") || h.includes("rajindra"))) ||
-        (fid === "HOSP-KSR-010" && (h.includes("kesri") || h.includes("ksr")))
-      );
+      if (q.isPrivate || h.includes("private") || h.includes("independent clinic")) {
+        return false;
+      }
+
+      // 1. Direct facilityId match
+      if (q.facilityId && q.facilityId === fid) return true;
+
+      // 2. Strict hospital name match
+      if (fid === "HOSP-SION-001" && (h.includes("sion") || h.includes("lokmanya") || h.includes("ltmgh"))) return true;
+      if (fid === "HOSP-NERUL-007" && (h.includes("nerul") || h.includes("dy patil") || h.includes("d.y. patil"))) return true;
+      if (fid === "HOSP-KHAR-008" && (h.includes("kharghar") || h.includes("actrec"))) return true;
+      if (fid === "HOSP-KLY-002" && h.includes("kalyan")) return true;
+      if (fid === "HOSP-KLW-003" && (h.includes("kalwa") || h.includes("csmh"))) return true;
+      if (fid === "HOSP-PLG-004" && h.includes("palghar")) return true;
+      if (fid === "HOSP-MRB-005" && h.includes("murbad")) return true;
+      if (fid === "HOSP-JWH-006" && h.includes("jawhar")) return true;
+      if (fid === "HOSP-DMB-009" && (h.includes("citycare") || h.includes("dombivli"))) return true;
+      if (fid === "HOSP-NBH-008" && h.includes("nabha")) return true;
+      if (fid === "HOSP-PTL-009" && (h.includes("patiala") || h.includes("rajindra"))) return true;
+      if (fid === "HOSP-KSR-010" && h.includes("kesri")) return true;
+
+      // 3. Fallback name substring check against active facility name
+      if (h && (h.includes(sn) || h.includes(fn))) return true;
+
+      return false;
     });
   }
 
