@@ -127,13 +127,26 @@ export default function ASHALoginPage() {
             {loading ? T("लॉगिन हो रहा है...", "Logging in...") : `→ ${T("लॉगिन करें", "Login")}`}
           </button>
 
-          {/* Demo hint */}
-          <div style={{ background: "#F4ECF7", borderRadius: 12, padding: "12px 14px", marginTop: 24, border: "1px solid #D2B4DE" }}>
-            <p style={{ fontSize: 12, color: C.purpleDark, margin: 0, fontWeight: 600 }}>
-              💡 Demo: &nbsp;
-              {T("नंबर: 9876502001 · पासवर्ड: asha123", "Phone: 9876502001 · Password: asha123")}
-            </p>
-          </div>
+          {/* Quick Demo 1-Click Login Button */}
+          <button
+            type="button"
+            onClick={() => {
+              const demoAsha = {
+                phone: "9876502001",
+                role: "ashaworker",
+                name: "Priya Sharma",
+                villages: "Kesri, Nabha Sector 4",
+              };
+              localStorage.setItem("cachedAshaUser", JSON.stringify(demoAsha));
+              localStorage.setItem("last_logged_role", "ashaworker");
+              sessionStorage.removeItem("user_explicitly_logged_out");
+              localStorage.removeItem("user_is_logged_out");
+              router.replace("/asha/dashboard");
+            }}
+            style={{ width: "100%", marginTop: 12, padding: "14px", borderRadius: 14, border: `2px dashed ${C.purple}`, background: "#F4ECF7", color: C.purpleDark, fontWeight: 700, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+          >
+            ⚡ {T("1-क्लिक आशा डेमो लॉगिन (प्रिया शर्मा)", "1-Click ASHA Demo Login (Priya Sharma)")}
+          </button>
 
           <div style={{ height: 1, background: C.border, margin: "24px 0" }} />
 
