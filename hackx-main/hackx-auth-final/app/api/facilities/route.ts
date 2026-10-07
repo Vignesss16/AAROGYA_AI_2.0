@@ -310,13 +310,13 @@ export async function GET(req: NextRequest) {
     const userLat = latStr ? parseFloat(latStr) : null;
     const userLng = lngStr ? parseFloat(lngStr) : null;
 
-    // Ensure all default facilities exist in MongoDB (upsert any missing ones)
-    const existingCount = await Facility.countDocuments();
-    if (existingCount < DEFAULT_FACILITIES.length) {
-      for (const f of DEFAULT_FACILITIES) {
-        await Facility.updateOne({ facilityId: f.facilityId }, { $set: f }, { upsert: true });
-      }
+    // Ensure all clean facilities are seeded/updated in MongoDB and prune legacy duplicates
+    const validFacilityIds = DEFAULT_FACILITIES.map(f => f.facilityId);
+    for (const f of DEFAULT_FACILITIES) {
+      await Facility.updateOne({ facilityId: f.facilityId }, { $set: f }, { upsert: true });
     }
+    // Delete old legacy duplicate IDs
+    await Facility.deleteMany({ facilityId: { $nin: validFacilityIds } });
 
     const allFacilities = await Facility.find({ status: "ACTIVE" }).lean();
 
