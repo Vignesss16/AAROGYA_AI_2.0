@@ -34,6 +34,7 @@ export interface WebRTCActions {
   answerCall: (mode: "video" | "audio") => Promise<void>;
   rejectCall: () => void;
   downgradeToAudio: () => void;
+  upgradeToVideo: () => Promise<void>;
 }
 
 const ICE_SERVERS: RTCIceServer[] = [
@@ -225,8 +226,9 @@ export function useWebRTC(
 
   const handleDowngradeToAudio = useCallback((fromRemote: boolean) => {
     const stream = localStreamRef.current;
-    if (!stream) return;
-    stream.getVideoTracks().forEach((t) => { t.stop(); stream.removeTrack(t); });
+    if (stream) {
+      stream.getVideoTracks().forEach((t) => { t.stop(); stream.removeTrack(t); });
+    }
     const pc = pcRef.current;
     if (pc) pc.getSenders().forEach((s) => { if (s.track?.kind === "video") pc.removeTrack(s); });
     if (!fromRemote) sendSignal(roomId, clientIdRef.current, "downgrade-to-audio");
@@ -234,11 +236,66 @@ export function useWebRTC(
       ...s,
       callMode: "audio",
       isVideoFallback: true,
-      statusMessage: fromRemote
-        ? "⚠️ Network weak — switched to audio call"
-        : "⚠️ Poor network — switched to audio to maintain connection",
+      statusMessage: "",
     }));
   }, [roomId]);
+
+  const handleUpgradeToVideo = useCallback(async (fromRemote: boolean) => {
+    try {
+      const videoStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 1280, max: 1920 },
+          height: { ideal: 720, max: 1080 },
+          frameRate: { ideal: 30, max: 30 },
+          facingMode: "user",
+        },
+      });
+      const newVideoTrack = videoStream.getVideoTracks()[0];
+      if (!newVideoTrack) return;
+
+      if (!localStreamRef.current) {
+        localStreamRef.current = videoStream;
+      } else {
+        localStreamRef.current.getVideoTracks().forEach((t) => { t.stop(); localStreamRef.current?.removeTrack(t); });
+        localStreamRef.current.addTrack(newVideoTrack);
+      }
+
+      const pc = pcRef.current;
+      if (pc) {
+        const videoSender = pc.getSenders().find((s) => s.track?.kind === "video");
+        if (videoSender) {
+          await videoSender.replaceTrack(newVideoTrack);
+        } else {
+          pc.addTrack(newVideoTrack, localStreamRef.current);
+          if (isInitiator && pc.signalingState === "stable") {
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            await sendSignal(roomId, clientIdRef.current, "offer", offer);
+          }
+        }
+      }
+
+      if (!fromRemote) {
+        await sendSignal(roomId, clientIdRef.current, "upgrade-to-video");
+      }
+
+      currentQualityRef.current = "good";
+      criticalCountRef.current = 0;
+      await applyAdaptiveEncoding("good");
+
+      setState((s) => ({
+        ...s,
+        callMode: "video",
+        isVideoFallback: false,
+        isCameraOff: false,
+        localStream: localStreamRef.current,
+        statusMessage: "",
+      }));
+    } catch (err) {
+      console.warn("[WebRTC] Failed to upgrade to video:", err);
+      setState((s) => ({ ...s, statusMessage: "Could not access camera for video mode" }));
+    }
+  }, [roomId, isInitiator, applyAdaptiveEncoding]);
 
   const createPeerConnection = useCallback(() => {
     const pc = new RTCPeerConnection({
@@ -442,6 +499,8 @@ export function useWebRTC(
         }
       } else if (type === "downgrade-to-audio") {
         handleDowngradeToAudio(true);
+      } else if (type === "upgrade-to-video") {
+        handleUpgradeToVideo(true);
       } else if (type === "end-call") {
         cleanup();
         setState((s) => ({ ...s, callMode: "ended", statusMessage: "Call ended by other party" }));
@@ -621,9 +680,13 @@ export function useWebRTC(
     handleDowngradeToAudio(false);
   }, [handleDowngradeToAudio]);
 
+  const upgradeToVideo = useCallback(async () => {
+    await handleUpgradeToVideo(false);
+  }, [handleUpgradeToVideo]);
+
   useEffect(() => () => cleanup(), [cleanup]);
 
-  return [state, { startCall, endCall, toggleMute, toggleCamera, answerCall, rejectCall, downgradeToAudio }];
+  return [state, { startCall, endCall, toggleMute, toggleCamera, answerCall, rejectCall, downgradeToAudio, upgradeToVideo }];
 }
 
 export function formatDuration(seconds: number): string {

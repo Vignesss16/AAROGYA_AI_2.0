@@ -318,11 +318,13 @@ function AudioOnlyView({
   isDoctor,
   stream,
   compact = false,
+  onSwitchToVideo,
 }: {
   name: string;
   isDoctor: boolean;
   stream: MediaStream | null;
   compact?: boolean;
+  onSwitchToVideo?: () => void;
 }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   useEffect(() => {
@@ -331,33 +333,62 @@ function AudioOnlyView({
 
   return (
     <div style={{
-      borderRadius: compact ? 12 : 16,
-      background: "radial-gradient(ellipse at center, #1E293B 0%, #0F172A 70%, #050B14 100%)",
-      height: compact ? "100%" : 240,
-      border: "1px solid rgba(255,255,255,0.1)",
+      borderRadius: compact ? 12 : 18,
+      background: "radial-gradient(ellipse at center, rgba(15, 118, 110, 0.25) 0%, rgba(4, 29, 36, 0.95) 75%, #020B10 100%)",
+      height: compact ? "100%" : 320,
+      width: "100%",
+      border: "1px solid rgba(20, 184, 166, 0.25)",
+      boxShadow: "0 8px 30px rgba(0,0,0,0.5)",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      gap: compact ? 8 : 14,
+      gap: compact ? 8 : 16,
+      padding: "20px",
+      position: "relative",
     }}>
       {stream && <audio ref={audioRef} autoPlay playsInline />}
       <div style={{
-        width: compact ? 54 : 76, height: compact ? 54 : 76, borderRadius: "50%",
-        background: isDoctor ? "#0284C7" : "#10B981",
+        width: compact ? 54 : 82, height: compact ? 54 : 82, borderRadius: "50%",
+        background: "linear-gradient(135deg, #0F766E, #14B8A6)",
         display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: compact ? 22 : 28, color: "white", fontWeight: 800,
-        boxShadow: `0 0 0 10px rgba(${isDoctor ? "2,132,199" : "16,185,129"},.25)`,
+        fontSize: compact ? 22 : 32, color: "white", fontWeight: 800,
+        boxShadow: "0 0 0 12px rgba(20, 184, 166, 0.2)",
         animation: "audioRipple 2s ease-in-out infinite",
       }}>
-        {name[0]?.toUpperCase() || "A"}
+        {name[0]?.toUpperCase() || "P"}
       </div>
       <div style={{ textAlign: "center", padding: "0 12px" }}>
-        <div style={{ fontSize: compact ? 13 : 16, fontWeight: 800, color: "white" }}>{name}</div>
-        <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 3, display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
-          <Mic size={12} color="#10B981" /> Encrypted Voice Channel Active
+        <div style={{ fontSize: compact ? 13 : 17, fontWeight: 800, color: "white" }}>{name}</div>
+        <div style={{ fontSize: 11.5, color: "#5EEAD4", marginTop: 4, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, fontWeight: 600 }}>
+          <Mic size={13} color="#5EEAD4" /> Encrypted Voice Channel Active
         </div>
       </div>
+
+      {!compact && onSwitchToVideo && (
+        <button
+          type="button"
+          onClick={onSwitchToVideo}
+          style={{
+            marginTop: 4,
+            padding: "8px 18px",
+            borderRadius: 20,
+            border: "1px solid rgba(20, 184, 166, 0.4)",
+            background: "linear-gradient(135deg, rgba(15, 118, 110, 0.4), rgba(20, 184, 166, 0.2))",
+            color: "#5EEAD4",
+            fontSize: 12,
+            fontWeight: 800,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            boxShadow: "0 4px 14px rgba(15, 118, 110, 0.3)",
+            transition: "all 0.15s ease",
+          }}
+        >
+          <Video size={14} /> Turn Video On
+        </button>
+      )}
     </div>
   );
 }
@@ -888,19 +919,18 @@ export default function VideoCallModal({
           </div>
         </div>
 
-        {/* Video fallback warning */}
-        {state.isVideoFallback && (
-          <div style={{ background: "rgba(245, 158, 11, 0.15)", padding: "10px 18px", display: "flex", gap: 10, alignItems: "center", borderBottom: "1px solid rgba(245, 158, 11, 0.3)" }}>
-            <AlertTriangle size={18} color="#FBBF24" />
-            <div style={{ fontSize: 12, color: "#FDE68A", fontWeight: 600 }}>
-              Low bandwidth connection. Switched to high-clarity encrypted audio to prevent disruption.
-            </div>
+        {/* Status / Critical Network Alert Banner */}
+        {state.networkQuality === "critical" && isActive && (
+          <div style={{ background: "rgba(239, 68, 68, 0.15)", padding: "8px 18px", display: "flex", gap: 8, alignItems: "center", justifyContent: "center", borderBottom: "1px solid rgba(239, 68, 68, 0.3)" }}>
+            <AlertTriangle size={16} color="#F87171" />
+            <span style={{ fontSize: 12, color: "#FCA5A5", fontWeight: 600 }}>
+              Network connection weak. Audio channel prioritized for uninterrupted clarity.
+            </span>
           </div>
         )}
 
-        {/* Status Banner */}
-        {state.statusMessage && !isIncoming && (
-          <div style={{ background: state.networkQuality === "critical" ? "rgba(239, 68, 68, 0.15)" : "rgba(20, 184, 166, 0.12)", padding: "8px 16px", fontSize: 12, color: state.networkQuality === "critical" ? "#FCA5A5" : "#5EEAD4", fontWeight: 700, textAlign: "center", borderBottom: "1px solid rgba(20, 184, 166, 0.2)" }}>
+        {state.statusMessage && !isIncoming && !isActive && effectiveCallMode !== "ended" && (
+          <div style={{ background: "rgba(20, 184, 166, 0.12)", padding: "8px 16px", fontSize: 12, color: "#5EEAD4", fontWeight: 700, textAlign: "center", borderBottom: "1px solid rgba(20, 184, 166, 0.2)" }}>
             {state.statusMessage}
           </div>
         )}
@@ -1275,7 +1305,12 @@ export default function VideoCallModal({
                     </div>
                   ) : (
                     <div style={{ marginBottom: 10, minHeight: isLocalPatient ? "60vh" : "auto", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <AudioOnlyView name={remoteDisplayName} isDoctor={!isLocalPatient} stream={state.remoteStream} />
+                      <AudioOnlyView
+                        name={remoteDisplayName}
+                        isDoctor={!isLocalPatient}
+                        stream={state.remoteStream}
+                        onSwitchToVideo={actions.upgradeToVideo}
+                      />
                     </div>
                   )}
 
@@ -1328,6 +1363,20 @@ export default function VideoCallModal({
                         }}>
                         <PhoneCall size={16} />
                         <span style={{ fontSize: 8, fontWeight: 700 }}>Voice</span>
+                      </button>
+                    )}
+
+                    {effectiveCallMode === "audio" && (
+                      <button
+                        type="button"
+                        onClick={actions.upgradeToVideo}
+                        style={{
+                          height: 46, padding: "0 18px", borderRadius: 24, border: "1px solid rgba(20, 184, 166, 0.4)", cursor: "pointer",
+                          background: "linear-gradient(135deg, #0F766E, #0D9488)", backdropFilter: "blur(8px)", boxShadow: "0 4px 14px rgba(15, 118, 110, 0.4)",
+                          display: "flex", alignItems: "center", justifyContent: "center", gap: 6, color: "white", flexShrink: 0
+                        }}>
+                        <Video size={17} />
+                        <span style={{ fontSize: 11, fontWeight: 800 }}>Switch to Video</span>
                       </button>
                     )}
 
@@ -1651,6 +1700,138 @@ export default function VideoCallModal({
                   </div>
                 )}
 
+              </div>
+            </div>
+          )}
+
+          {/* ── 5. POST-CALL SESSION SUMMARY SCREEN ── */}
+          {effectiveCallMode === "ended" && (
+            <div style={{ textAlign: "center", padding: isLocalPatient ? "24px 16px" : "32px 24px" }}>
+              <div style={{
+                width: 72, height: 72, borderRadius: "50%",
+                background: "linear-gradient(135deg, rgba(15, 118, 110, 0.35), rgba(20, 184, 166, 0.15))",
+                border: "2px solid rgba(20, 184, 166, 0.5)",
+                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                color: "#5EEAD4", marginBottom: 16,
+                boxShadow: "0 4px 24px rgba(20, 184, 166, 0.25)"
+              }}>
+                <CheckCircle2 size={36} />
+              </div>
+
+              <div style={{ fontSize: 20, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
+                Consultation Session Concluded
+              </div>
+
+              <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 4 }}>
+                {state.statusMessage || "Call ended"} • Duration: <strong style={{ color: "#5EEAD4" }}>{formatDuration(state.callDuration)}</strong>
+              </div>
+
+              {/* Consultation Summary Card */}
+              <div style={{
+                background: "rgba(6, 33, 40, 0.75)",
+                backdropFilter: "blur(10px)",
+                borderRadius: 16,
+                padding: "16px 20px",
+                margin: "20px auto 24px",
+                maxWidth: 480,
+                border: "1px solid rgba(20, 184, 166, 0.25)",
+                textAlign: "left"
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid rgba(20, 184, 166, 0.15)" }}>
+                  <div>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase" }}>Patient Record</span>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: "#F8FAFC" }}>{patientName}</div>
+                  </div>
+                  {resolvedTokenNumber && (
+                    <div style={{ background: "rgba(20, 184, 166, 0.15)", border: "1px solid rgba(20, 184, 166, 0.35)", borderRadius: 10, padding: "4px 10px", fontSize: 12, fontWeight: 800, color: "#5EEAD4" }}>
+                      Token: #{resolvedTokenNumber}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 12, color: "#CBD5E1" }}>
+                  <div><span style={{ color: "#94A3B8" }}>Phone:</span> <strong style={{ color: "white" }}>{patientId}</strong></div>
+                  <div><span style={{ color: "#94A3B8" }}>Department:</span> <strong style={{ color: "white" }}>{patientDetails?.department || assignedDept || "General Medicine"}</strong></div>
+                  {isLocalReceptionist && (
+                    <div><span style={{ color: "#94A3B8" }}>Assigned Doctor:</span> <strong style={{ color: "#5EEAD4" }}>{assignedDoctor}</strong></div>
+                  )}
+                  <div><span style={{ color: "#94A3B8" }}>Session Mode:</span> <strong style={{ color: "#5EEAD4" }}>Encrypted WebRTC</strong></div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", maxWidth: 480, margin: "0 auto" }}>
+                {isLocalReceptionist && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await handleSaveVerificationNotes(`Verified & Routed to ${assignedDoctor}`);
+                        onClose();
+                      }}
+                      style={{
+                        flex: 1, minWidth: 180, padding: "12px 18px", borderRadius: 12, border: "none", cursor: "pointer",
+                        background: "linear-gradient(135deg, #0F766E, #0D9488)", color: "white", fontSize: 13, fontWeight: 800,
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: 6, boxShadow: "0 4px 14px rgba(15, 118, 110, 0.4)"
+                      }}
+                    >
+                      <CheckCircle2 size={16} /> Mark Verified & Route
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      style={{
+                        padding: "12px 20px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.18)", cursor: "pointer",
+                        background: "rgba(255,255,255,0.08)", color: "#F8FAFC", fontSize: 13, fontWeight: 700
+                      }}
+                    >
+                      Close Window
+                    </button>
+                  </>
+                )}
+
+                {isLocalDoctor && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await handleSaveVerificationNotes("Consultation Completed");
+                        onClose();
+                      }}
+                      style={{
+                        flex: 1, minWidth: 180, padding: "12px 18px", borderRadius: 12, border: "none", cursor: "pointer",
+                        background: "linear-gradient(135deg, #0F766E, #0D9488)", color: "white", fontSize: 13, fontWeight: 800,
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: 6, boxShadow: "0 4px 14px rgba(15, 118, 110, 0.4)"
+                      }}
+                    >
+                      <CheckCircle2 size={16} /> Complete & Save Rx
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      style={{
+                        padding: "12px 20px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.18)", cursor: "pointer",
+                        background: "rgba(255,255,255,0.08)", color: "#F8FAFC", fontSize: 13, fontWeight: 700
+                      }}
+                    >
+                      Close Window
+                    </button>
+                  </>
+                )}
+
+                {isLocalPatient && (
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    style={{
+                      flex: 1, minWidth: 200, padding: "13px 20px", borderRadius: 12, border: "none", cursor: "pointer",
+                      background: "linear-gradient(135deg, #0F766E, #0D9488)", color: "white", fontSize: 13.5, fontWeight: 800,
+                      boxShadow: "0 4px 14px rgba(15, 118, 110, 0.4)"
+                    }}
+                  >
+                    Return to Home / Dashboard
+                  </button>
+                )}
               </div>
             </div>
           )}
