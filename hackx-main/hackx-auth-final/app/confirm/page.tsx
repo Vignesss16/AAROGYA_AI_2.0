@@ -44,14 +44,16 @@ const DEFAULT_DOCTORS = [
     reviewCount: 38,
     slots: ["9:00 AM", "11:00 AM", "2:00 PM", "4:30 PM"],
     fee: "₹0 (Govt)",
+    facilityId: "HOSP-SION-001",
   },
   {
     id: "D_NER_1",
     name: "Dr. Sandeep Kadam",
     specialization: "Emergency & Critical Care Lead",
     hospital: "Dr. D. Y. Patil Multi-Specialty Hospital (Nerul)",
+    facilityId: "HOSP-NERUL-007",
     city: "Navi Mumbai",
-    dist: "0.8 km",
+    dist: "12.8 km",
     rating: 4.9,
     reviewCount: 42,
     slots: ["9:00 AM", "10:30 AM", "1:00 PM", "3:30 PM", "5:00 PM"],
@@ -62,8 +64,9 @@ const DEFAULT_DOCTORS = [
     name: "Dr. Meenal Thakur",
     specialization: "Senior Cardiologist",
     hospital: "Dr. D. Y. Patil Multi-Specialty Hospital (Nerul)",
+    facilityId: "HOSP-NERUL-007",
     city: "Navi Mumbai",
-    dist: "0.8 km",
+    dist: "12.8 km",
     rating: 5.0,
     reviewCount: 56,
     slots: ["9:30 AM", "11:30 AM", "2:00 PM", "4:30 PM"],
@@ -74,8 +77,9 @@ const DEFAULT_DOCTORS = [
     name: "Dr. Rajesh Gaikwad",
     specialization: "General Physician & Diabetologist",
     hospital: "Dr. D. Y. Patil Multi-Specialty Hospital (Nerul)",
+    facilityId: "HOSP-NERUL-007",
     city: "Navi Mumbai",
-    dist: "0.9 km",
+    dist: "12.8 km",
     rating: 4.8,
     reviewCount: 31,
     slots: ["9:00 AM", "11:00 AM", "2:30 PM", "4:00 PM"],
@@ -86,8 +90,9 @@ const DEFAULT_DOCTORS = [
     name: "Dr. Alok Sharma",
     specialization: "Oncology & Critical Care Lead",
     hospital: "Kharghar Super-Specialty Civil Hospital",
+    facilityId: "HOSP-KHAR-008",
     city: "Navi Mumbai",
-    dist: "4.2 km",
+    dist: "16.4 km",
     rating: 4.9,
     reviewCount: 48,
     slots: ["10:00 AM", "12:00 PM", "3:00 PM", "5:00 PM"],
@@ -98,8 +103,9 @@ const DEFAULT_DOCTORS = [
     name: "Dr. Neha Bendre",
     specialization: "Consultant Cardiologist",
     hospital: "Kharghar Super-Specialty Civil Hospital",
+    facilityId: "HOSP-KHAR-008",
     city: "Navi Mumbai",
-    dist: "4.2 km",
+    dist: "16.4 km",
     rating: 5.0,
     reviewCount: 39,
     slots: ["9:00 AM", "11:30 AM", "2:00 PM", "4:30 PM"],
@@ -110,8 +116,9 @@ const DEFAULT_DOCTORS = [
     name: "Dr. Vivek Deshpande",
     specialization: "Private Consultant Physician",
     hospital: "Independent Private Clinic (Nerul West)",
+    facilityId: "HOSP-NERUL-007",
     city: "Navi Mumbai",
-    dist: "1.1 km",
+    dist: "13.0 km",
     rating: 4.9,
     reviewCount: 26,
     slots: ["10:00 AM", "12:30 PM", "4:00 PM", "6:30 PM"],
@@ -122,8 +129,9 @@ const DEFAULT_DOCTORS = [
     name: "Dr. Ramesh Sharma",
     specialization: "General Physician",
     hospital: "Kalyan Civil Hospital",
+    facilityId: "HOSP-KLY-002",
     city: "Kalyan",
-    dist: "2.2 km",
+    dist: "24.5 km",
     rating: 4.7,
     reviewCount: 15,
     slots: ["9:00 AM", "11:00 AM", "1:30 PM", "4:00 PM"],
@@ -134,8 +142,9 @@ const DEFAULT_DOCTORS = [
     name: "Dr. Anjali Deshmukh",
     specialization: "Pediatrician & Rural Maternal Health",
     hospital: "Palghar Rural Civil Hospital",
+    facilityId: "HOSP-PLG-004",
     city: "Palghar",
-    dist: "1.8 km",
+    dist: "72.0 km",
     rating: 4.8,
     reviewCount: 29,
     slots: ["9:00 AM", "11:30 AM", "2:30 PM", "4:00 PM"],
@@ -146,8 +155,9 @@ const DEFAULT_DOCTORS = [
     name: "Dr. Allwin Nadar",
     specialization: "General Physician & Tele-Consultation Specialist",
     hospital: "CityCare Medical & SION Tele-Hub, Mumbai",
+    facilityId: "HOSP-SION-001",
     city: "Mumbai",
-    dist: "3.5 km",
+    dist: "4.9 km",
     rating: 4.9,
     reviewCount: 22,
     slots: ["9:00 AM", "10:30 AM", "12:00 PM", "2:30 PM"],
@@ -158,8 +168,9 @@ const DEFAULT_DOCTORS = [
     name: "Dr. Vasanth",
     specialization: "General Physician & State Tele-Health Lead",
     hospital: "Navi Mumbai Community Health & Teleconsult Center",
+    facilityId: "HOSP-NERUL-007",
     city: "Navi Mumbai",
-    dist: "1.2 km",
+    dist: "12.8 km",
     rating: 5.0,
     reviewCount: 36,
     slots: ["9:00 AM", "10:30 AM", "12:00 PM", "2:30 PM", "5:00 PM"],
@@ -604,7 +615,7 @@ export default function ConfirmBookingPage() {
 
       const locTokens = (currentLocation.label + " " + currentLocation.city).toLowerCase().split(/[,/ ]+/).filter(s => s.length > 2);
 
-      // Map distance & proximity score
+      // Map distance & proximity score dynamically based on the doctor's hospital
       const processedDocs = combinedDocs.map((doc) => {
         const normalizedName = doc.name.toLowerCase().replace(/^(dr\.?\s*)/i, "").trim();
         const docRating =
@@ -612,12 +623,36 @@ export default function ConfirmBookingPage() {
           ratingsMap[normalizedName] ||
           ratingsMap[doc.name.toLowerCase().trim()];
 
-        const docLocStr = (doc.hospital + " " + doc.city).toLowerCase();
-        const isNearby = locTokens.some(t => docLocStr.includes(t)) || (currentLocation.city.toLowerCase() === doc.city.toLowerCase());
+        const docHosp = (doc.hospital || "").toLowerCase();
 
-        let distNum = isNearby ? 0.8 + (Math.abs(doc.name.charCodeAt(3) || 70) % 5) * 0.4 : 14.5 + (Math.abs(doc.name.charCodeAt(3) || 70) % 10) * 1.8;
-        if (doc.dist && doc.dist.includes("km") && isNearby) {
-          distNum = parseFloat(doc.dist) || distNum;
+        // Match doctor to the calculated facility in the facility list
+        const matchedFacility = (facData.facilities || []).find((f: any) => {
+          const fName = (f.name || "").toLowerCase();
+          const fShort = (f.shortName || "").toLowerCase();
+          const fLoc = (f.location || "").toLowerCase();
+
+          if (docHosp.includes("nerul") && (fName.includes("nerul") || fShort.includes("nerul") || fLoc.includes("nerul"))) return true;
+          if (docHosp.includes("sion") && (fName.includes("sion") || fShort.includes("sion") || fLoc.includes("sion"))) return true;
+          if (docHosp.includes("kalwa") && (fName.includes("kalwa") || fShort.includes("kalwa") || fLoc.includes("kalwa"))) return true;
+          if (docHosp.includes("kalyan") && (fName.includes("kalyan") || fShort.includes("kalyan") || fLoc.includes("kalyan"))) return true;
+          if (docHosp.includes("kharghar") && (fName.includes("kharghar") || fShort.includes("kharghar") || fLoc.includes("kharghar"))) return true;
+          if (docHosp.includes("palghar") && (fName.includes("palghar") || fShort.includes("palghar") || fLoc.includes("palghar"))) return true;
+          if (docHosp.includes("nabha") && (fName.includes("nabha") || fShort.includes("nabha") || fLoc.includes("nabha"))) return true;
+          if (docHosp.includes("kesri") && (fName.includes("kesri") || fShort.includes("kesri") || fLoc.includes("kesri"))) return true;
+          if (docHosp.includes("patiala") && (fName.includes("patiala") || fShort.includes("patiala") || fLoc.includes("patiala"))) return true;
+
+          return fName.includes(docHosp) || docHosp.includes(fShort);
+        });
+
+        let distNum: number;
+        if (matchedFacility && typeof matchedFacility.distanceKm === "number") {
+          distNum = matchedFacility.distanceKm;
+        } else if (matchedFacility && matchedFacility.dist) {
+          distNum = parseFloat(matchedFacility.dist) || 12.0;
+        } else {
+          // Fallback geo distance
+          const isNearby = locTokens.some(t => (docHosp + " " + doc.city).toLowerCase().includes(t)) || (currentLocation.city.toLowerCase() === doc.city.toLowerCase());
+          distNum = isNearby ? 3.5 : 18.0;
         }
 
         return {

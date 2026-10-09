@@ -519,6 +519,19 @@ export default function HospitalDesktopDashboard() {
     return "HOSP-SION-001";
   });
 
+  // Admin Scope & Security State (Only Hospital Admin / Director can modify doctor passwords)
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("hospital_admin_unlocked") === "true";
+    }
+    return false;
+  });
+  const [adminUnlockModalOpen, setAdminUnlockModalOpen] = useState(false);
+  const [adminPassInput, setAdminPassInput] = useState("");
+  const [adminUnlockError, setAdminUnlockError] = useState("");
+
+  const isHospitalAdmin = hospitalUser?.staffRole === "director" || isAdminUnlocked;
+
   // HMIS & EMR Integration Bridge State
   const [hmisSyncing, setHmisSyncing] = useState(false);
   const [hmisLastSynced, setHmisLastSynced] = useState<string>("Just now");
@@ -933,7 +946,49 @@ export default function HospitalDesktopDashboard() {
     }
   };
 
+  const handleUnlockAdmin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = adminPassInput.trim().toLowerCase();
+    const fId = (activeFacility?.facilityId || selectedFacilityId || "").toLowerCase();
+    
+    // Facility specific passkeys
+    let validKeys = ["aarogya123", "admin123", "hospital123"];
+    if (fId.includes("nerul")) validKeys.push("nerul123");
+    if (fId.includes("khar")) validKeys.push("kharghar123");
+    if (fId.includes("sion")) validKeys.push("sion123");
+    if (fId.includes("kly") || fId.includes("kalyan")) validKeys.push("kalyan123");
+    if (fId.includes("klw") || fId.includes("kalwa")) validKeys.push("kalwa123");
+    if (fId.includes("plg") || fId.includes("palghar")) validKeys.push("palghar123");
+    if (fId.includes("mrb") || fId.includes("murbad")) validKeys.push("murbad123");
+    if (fId.includes("jwh") || fId.includes("jawhar")) validKeys.push("jawhar123");
+    if (fId.includes("nbh") || fId.includes("nabha")) validKeys.push("nabha123");
+    if (fId.includes("ptl") || fId.includes("patiala")) validKeys.push("patiala123");
+
+    if (validKeys.includes(clean)) {
+      setIsAdminUnlocked(true);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("hospital_admin_unlocked", "true");
+      }
+      setAdminUnlockModalOpen(false);
+      setAdminPassInput("");
+      setAdminUnlockError("");
+    } else {
+      setAdminUnlockError(`Invalid passkey for ${activeFacility?.shortName || "this hospital"}. Try the facility passkey or admin123.`);
+    }
+  };
+
+  const handleLockAdmin = () => {
+    setIsAdminUnlocked(false);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("hospital_admin_unlocked");
+    }
+  };
+
   const handleOpenAddDoctor = () => {
+    if (!isHospitalAdmin) {
+      setAdminUnlockModalOpen(true);
+      return;
+    }
     setEditingDoctor(null);
     setDoctorForm({
       name: "",
@@ -950,6 +1005,10 @@ export default function HospitalDesktopDashboard() {
   };
 
   const handleOpenEditDoctor = (doc: any) => {
+    if (!isHospitalAdmin) {
+      setAdminUnlockModalOpen(true);
+      return;
+    }
     setEditingDoctor(doc);
     setDoctorForm({
       name: doc.name || "",
@@ -2175,25 +2234,68 @@ export default function HospitalDesktopDashboard() {
                   </p>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                  <button
-                    onClick={handleOpenAddDoctor}
-                    style={{
-                      background: "linear-gradient(135deg, #0F766E, #0D5E58)",
-                      color: "white",
-                      padding: "7px 14px",
-                      borderRadius: 8,
-                      fontSize: 12,
-                      fontWeight: 800,
-                      border: "none",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      boxShadow: "0 2px 8px rgba(15, 118, 110, 0.3)",
-                    }}
-                  >
-                    <Plus size={14} /> Add Doctor & Credentials
-                  </button>
+                  {isHospitalAdmin ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <button
+                        onClick={handleOpenAddDoctor}
+                        style={{
+                          background: "linear-gradient(135deg, #0F766E, #0D5E58)",
+                          color: "white",
+                          padding: "7px 14px",
+                          borderRadius: 8,
+                          fontSize: 12,
+                          fontWeight: 800,
+                          border: "none",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          boxShadow: "0 2px 8px rgba(15, 118, 110, 0.3)",
+                        }}
+                      >
+                        <Plus size={14} /> Add Doctor & Credentials
+                      </button>
+                      <button
+                        onClick={handleLockAdmin}
+                        title="Lock back to Receptionist View"
+                        style={{
+                          background: "#F1F5F9",
+                          color: "#475569",
+                          padding: "6px 10px",
+                          borderRadius: 8,
+                          fontSize: 11.5,
+                          fontWeight: 700,
+                          border: `1px solid ${C.border}`,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 4,
+                        }}
+                      >
+                        <Lock size={12} /> Lock Admin
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setAdminUnlockModalOpen(true)}
+                      style={{
+                        background: "#F8FAFC",
+                        color: C.primary,
+                        padding: "7px 12px",
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontWeight: 800,
+                        border: `1px solid ${C.border}`,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <Lock size={13} color={C.primary} /> Facility Admin Unlock
+                    </button>
+                  )}
+
                   <div style={{ background: "rgba(15, 118, 110, 0.1)", color: C.primary, padding: "5px 10px", borderRadius: 8, fontSize: 11.5, fontWeight: 800, display: "flex", alignItems: "center", gap: 4 }}>
                     <Stethoscope size={13} /> {activeFacilityStaff.doctors.length} Doctors
                   </div>
@@ -2208,10 +2310,10 @@ export default function HospitalDesktopDashboard() {
                 <div style={{ marginBottom: 24 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                     <h4 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", color: C.muted, letterSpacing: 0.6, margin: 0, display: "flex", alignItems: "center", gap: 5 }}>
-                      <Stethoscope size={14} /> {T("संबद्ध मेडिकल ऑफिसर एवं ओपीडी कक्ष", "Affiliated Medical Officers, Credentials & Duty Status")}
+                      <Stethoscope size={14} /> {T("संबद्ध मेडिकल ऑफिसर एवं ओपीडी कक्ष", "Affiliated Medical Officers & OPD Room Assignments")}
                     </h4>
                     <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>
-                      Manage room assignments, unique logins & active on-duty switch
+                      {isHospitalAdmin ? "👑 Facility Admin Mode: Manage logins & room assignments" : "Receptionist View: On-duty management & call routing"}
                     </span>
                   </div>
 
@@ -2277,46 +2379,30 @@ export default function HospitalDesktopDashboard() {
 
                           {/* Login Credentials & Room Badge */}
                           <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 10 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#F8FAFC", padding: "6px 10px", borderRadius: 8, border: `1px solid ${C.border}` }}>
-                              <Key size={12} color="#0F766E" />
-                              <div style={{ fontSize: 11.5, color: C.text, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                Login: <span style={{ fontFamily: "monospace", color: C.primaryDark, fontWeight: 700 }}>{doc.email || `${doc.name.toLowerCase().replace(/[^a-z]/g, "")}@aarogya.ai`}</span>
+                            {isHospitalAdmin ? (
+                              <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#F8FAFC", padding: "6px 10px", borderRadius: 8, border: `1px solid ${C.border}` }}>
+                                <Key size={12} color="#0F766E" />
+                                <div style={{ fontSize: 11.5, color: C.text, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  Login: <span style={{ fontFamily: "monospace", color: C.primaryDark, fontWeight: 700 }}>{doc.email || `${doc.name.toLowerCase().replace(/[^a-z]/g, "")}@aarogya.ai`}</span>
+                                </div>
                               </div>
-                            </div>
-                            <div style={{ fontSize: 12, color: C.muted, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <span>{doc.room || "Room 102 (OPD)"}</span>
-                              <span style={{ fontWeight: 700, color: C.text }}>{doc.experience || "8 yrs"} exp</span>
+                            ) : null}
+                            <div style={{ fontSize: 12, color: C.muted, display: "flex", justifyContent: "space-between", alignItems: "center", background: "#F8FAFC", padding: "6px 10px", borderRadius: 8 }}>
+                              <span style={{ fontWeight: 700, color: C.text }}>📍 {doc.room || "Room 102 (OPD)"}</span>
+                              <span style={{ fontWeight: 600, color: C.muted }}>{doc.experience || "8 yrs"} exp</span>
                             </div>
                           </div>
                         </div>
 
-                        <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
-                          <div style={{ display: "flex", gap: 6 }}>
-                            <button
-                              onClick={() => handleOpenEditDoctor(doc)}
-                              style={{
-                                background: "#F1F5F9",
-                                border: `1px solid ${C.border}`,
-                                color: C.text,
-                                borderRadius: 6,
-                                padding: "5px 8px",
-                                fontSize: 11,
-                                fontWeight: 700,
-                                cursor: "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 4,
-                              }}
-                            >
-                              <Edit3 size={11} /> Edit & Reset Pass
-                            </button>
-                            {doc._id && (
+                        <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
+                          {isHospitalAdmin ? (
+                            <div style={{ display: "flex", gap: 6 }}>
                               <button
-                                onClick={() => handleDeleteDoctor(doc._id, doc.name)}
+                                onClick={() => handleOpenEditDoctor(doc)}
                                 style={{
-                                  background: "#FEF2F2",
-                                  border: "1px solid #FECACA",
-                                  color: "#DC2626",
+                                  background: "#F1F5F9",
+                                  border: `1px solid ${C.border}`,
+                                  color: C.text,
                                   borderRadius: 6,
                                   padding: "5px 8px",
                                   fontSize: 11,
@@ -2324,13 +2410,37 @@ export default function HospitalDesktopDashboard() {
                                   cursor: "pointer",
                                   display: "flex",
                                   alignItems: "center",
-                                  gap: 3,
+                                  gap: 4,
                                 }}
                               >
-                                <Trash2 size={11} />
+                                <Edit3 size={11} /> Edit & Reset Pass
                               </button>
-                            )}
-                          </div>
+                              {doc._id && (
+                                <button
+                                  onClick={() => handleDeleteDoctor(doc._id, doc.name)}
+                                  style={{
+                                    background: "#FEF2F2",
+                                    border: "1px solid #FECACA",
+                                    color: "#DC2626",
+                                    borderRadius: 6,
+                                    padding: "5px 8px",
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 3,
+                                  }}
+                                >
+                                  <Trash2 size={11} />
+                                </button>
+                              )}
+                            </div>
+                          ) : (
+                            <div style={{ fontSize: 11, color: "#64748B", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                              <ShieldCheck size={13} color="#0D9488" /> Verified Medical Officer
+                            </div>
+                          )}
 
                           <div style={{ display: "flex", gap: 5 }}>
                             <button
@@ -3741,6 +3851,140 @@ export default function HospitalDesktopDashboard() {
                   style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: C.primary, color: "white", fontSize: 13, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
                 >
                   <CheckCircle2 size={15} /> {doctorSubmitting ? "Saving..." : editingDoctor ? "Update Doctor & Credentials" : "Create & Activate Doctor"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Facility Admin Authorization / Unlock Modal */}
+      {adminUnlockModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(15, 23, 42, 0.75)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+            padding: 16,
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 440,
+              background: "#FFFFFF",
+              borderRadius: 20,
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.35)",
+              overflow: "hidden",
+              border: `1px solid ${C.border}`,
+            }}
+          >
+            <div
+              style={{
+                background: "linear-gradient(135deg, #0F766E, #0D5E58)",
+                padding: "18px 22px",
+                color: "white",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Lock size={18} />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>Hospital Admin Authorization</h3>
+                  <p style={{ margin: "2px 0 0 0", fontSize: 11.5, opacity: 0.85 }}>
+                    {activeFacility?.shortName || "Hospital Facility"} Credential Vault
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setAdminUnlockModalOpen(false); setAdminUnlockError(""); setAdminPassInput(""); }}
+                style={{ background: "transparent", border: "none", color: "white", cursor: "pointer" }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleUnlockAdmin} style={{ padding: "20px 22px" }}>
+              <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.5, margin: "0 0 16px 0" }}>
+                Doctor accounts and password resets are restricted to the <strong>Admin / Medical Director</strong> of {activeFacility?.shortName || "this facility"}. Please enter the facility administrator key to unlock.
+              </p>
+
+              {adminUnlockError && (
+                <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", color: "#DC2626", padding: "10px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700, marginBottom: 14 }}>
+                  ⚠️ {adminUnlockError}
+                </div>
+              )}
+
+              <div style={{ marginBottom: 18 }}>
+                <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 5 }}>
+                  Facility Admin Passkey *
+                </label>
+                <input
+                  type="password"
+                  required
+                  autoFocus
+                  placeholder={`Enter ${activeFacility?.shortName ? activeFacility.shortName.toLowerCase().replace(/[^a-z]/g, "") + "123" : "admin123"} or master key...`}
+                  value={adminPassInput}
+                  onChange={(e) => { setAdminPassInput(e.target.value); setAdminUnlockError(""); }}
+                  style={{
+                    width: "100%",
+                    padding: "10px 12px",
+                    borderRadius: 8,
+                    border: `1px solid ${C.border}`,
+                    fontSize: 13,
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                <button
+                  type="button"
+                  onClick={() => { setAdminUnlockModalOpen(false); setAdminUnlockError(""); setAdminPassInput(""); }}
+                  style={{
+                    padding: "9px 15px",
+                    borderRadius: 8,
+                    border: `1px solid ${C.border}`,
+                    background: "#F1F5F9",
+                    color: C.muted,
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    padding: "9px 18px",
+                    borderRadius: 8,
+                    border: "none",
+                    background: C.primary,
+                    color: "white",
+                    fontSize: 12.5,
+                    fontWeight: 800,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <Key size={14} /> Unlock Admin Access
                 </button>
               </div>
             </form>
