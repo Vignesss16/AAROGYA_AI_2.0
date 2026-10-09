@@ -242,36 +242,50 @@ export function useWebRTC(
 
   const handleUpgradeToVideo = useCallback(async (fromRemote: boolean) => {
     try {
-      const videoStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 1280, max: 1920 },
-          height: { ideal: 720, max: 1080 },
-          frameRate: { ideal: 30, max: 30 },
-          facingMode: "user",
-        },
-      });
-      const newVideoTrack = videoStream.getVideoTracks()[0];
-      if (!newVideoTrack) return;
+      let newVideoTrack: MediaStreamTrack | null = null;
+      try {
+        const videoStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 1280, max: 1920 },
+            height: { ideal: 720, max: 1080 },
+            frameRate: { ideal: 30, max: 30 },
+            facingMode: "user",
+          },
+        });
+        newVideoTrack = videoStream.getVideoTracks()[0];
+      } catch (mediaErr) {
+        console.warn("[WebRTC] Could not capture camera for video upgrade:", mediaErr);
+      }
 
-      if (!localStreamRef.current) {
-        localStreamRef.current = videoStream;
-      } else {
-        localStreamRef.current.getVideoTracks().forEach((t) => { t.stop(); localStreamRef.current?.removeTrack(t); });
-        localStreamRef.current.addTrack(newVideoTrack);
+      if (newVideoTrack) {
+        if (!localStreamRef.current) {
+          localStreamRef.current = new MediaStream([newVideoTrack]);
+        } else {
+          localStreamRef.current.getVideoTracks().forEach((t) => { t.stop(); localStreamRef.current?.removeTrack(t); });
+          localStreamRef.current.addTrack(newVideoTrack);
+        }
+
+        const pc = pcRef.current;
+        if (pc) {
+          const videoSender = pc.getSenders().find((s) => s.track?.kind === "video");
+          if (videoSender) {
+            await videoSender.replaceTrack(newVideoTrack);
+          } else {
+            pc.addTrack(newVideoTrack, localStreamRef.current);
+          }
+        }
       }
 
       const pc = pcRef.current;
       if (pc) {
-        const videoSender = pc.getSenders().find((s) => s.track?.kind === "video");
-        if (videoSender) {
-          await videoSender.replaceTrack(newVideoTrack);
-        } else {
-          pc.addTrack(newVideoTrack, localStreamRef.current);
-          if (isInitiator && pc.signalingState === "stable") {
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            await sendSignal(roomId, clientIdRef.current, "offer", offer);
-          }
+        if (isInitiator) {
+          // Initiator triggers offer renegotiation
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+          await sendSignal(roomId, clientIdRef.current, "offer", offer);
+        } else if (!fromRemote) {
+          // Non-initiator asks initiator to renegotiate
+          await sendSignal(roomId, clientIdRef.current, "renegotiate-request");
         }
       }
 
@@ -288,12 +302,12 @@ export function useWebRTC(
         callMode: "video",
         isVideoFallback: false,
         isCameraOff: false,
-        localStream: localStreamRef.current,
+        localStream: localStreamRef.current ? new MediaStream(localStreamRef.current.getTracks()) : null,
         statusMessage: "",
       }));
     } catch (err) {
       console.warn("[WebRTC] Failed to upgrade to video:", err);
-      setState((s) => ({ ...s, statusMessage: "Could not access camera for video mode" }));
+      setState((s) => ({ ...s, statusMessage: "Could not switch to video" }));
     }
   }, [roomId, isInitiator, applyAdaptiveEncoding]);
 
@@ -321,7 +335,16 @@ export function useWebRTC(
       }
     };
 
-    pc.ontrack = (e) => setState((s) => ({ ...s, remoteStream: e.streams[0] }));
+    pc.ontrack = (e) => {
+      const incomingStream = e.streams[0] || new MediaStream([e.track]);
+      setState((s) => ({ ...s, remoteStream: incomingStream }));
+      incomingStream.onaddtrack = () => {
+        setState((s) => ({ ...s, remoteStream: new MediaStream(incomingStream.getTracks()) }));
+      };
+      incomingStream.onremovetrack = () => {
+        setState((s) => ({ ...s, remoteStream: new MediaStream(incomingStream.getTracks()) }));
+      };
+    };
 
     // Auto ICE Restart when connection drops or fails on fluctuating network
     pc.oniceconnectionstatechange = () => {
@@ -495,6 +518,17 @@ export function useWebRTC(
             try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch {}
           } else {
             pendingCandidatesRef.current.push(c);
+          }
+        }
+      } else if (type === "renegotiate-request" && isInitiator) {
+        const currentPc = pcRef.current;
+        if (currentPc) {
+          try {
+            const offer = await currentPc.createOffer();
+            await currentPc.setLocalDescription(offer);
+            await sendSignal(roomId, cid, "offer", offer);
+          } catch (err) {
+            console.warn("[WebRTC] Renegotiate offer failed:", err);
           }
         }
       } else if (type === "downgrade-to-audio") {

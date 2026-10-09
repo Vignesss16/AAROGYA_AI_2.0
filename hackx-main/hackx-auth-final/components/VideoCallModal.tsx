@@ -128,20 +128,51 @@ const PersistentStreamVideo = React.memo(function PersistentStreamVideo({
   style?: React.CSSProperties;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [hasVideoTrack, setHasVideoTrack] = useState(false);
 
   useEffect(() => {
-    if (videoRef.current && stream) {
-      if (videoRef.current.srcObject !== stream) {
-        videoRef.current.srcObject = stream;
-      }
+    const video = videoRef.current;
+    if (!video || !stream) {
+      setHasVideoTrack(false);
+      return;
     }
+
+    const checkTracks = () => {
+      const vTracks = stream.getVideoTracks().filter(t => t.readyState === "live");
+      setHasVideoTrack(vTracks.length > 0);
+    };
+
+    checkTracks();
+    stream.addEventListener("addtrack", checkTracks);
+    stream.addEventListener("removetrack", checkTracks);
+
+    if (video.srcObject !== stream) {
+      video.srcObject = stream;
+    }
+    video.play().catch(() => {});
+
+    return () => {
+      stream.removeEventListener("addtrack", checkTracks);
+      stream.removeEventListener("removetrack", checkTracks);
+    };
   }, [stream]);
 
-  if (!stream) {
+  if (!stream || !hasVideoTrack) {
     return (
-      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, background: "#050B14" }}>
-        <User size={isMirrored ? 14 : 24} color="#94A3B8" />
-        {!isMirrored && <span style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>Connecting video...</span>}
+      <div style={{
+        width: "100%", height: "100%", display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center", gap: 6,
+        background: "radial-gradient(ellipse at center, rgba(15, 118, 110, 0.35) 0%, #041D24 80%, #020B10 100%)"
+      }}>
+        <div style={{
+          width: isMirrored ? 24 : 44, height: isMirrored ? 24 : 44, borderRadius: "50%",
+          background: "linear-gradient(135deg, #0F766E, #14B8A6)",
+          display: "flex", alignItems: "center", justifyContent: "center", color: "white",
+          boxShadow: isMirrored ? "none" : "0 0 0 6px rgba(20, 184, 166, 0.2)"
+        }}>
+          <User size={isMirrored ? 12 : 22} />
+        </div>
+        {!isMirrored && <span style={{ fontSize: 10, color: "#99F6E4", fontWeight: 700 }}>Connecting Video...</span>}
       </div>
     );
   }
@@ -156,7 +187,7 @@ const PersistentStreamVideo = React.memo(function PersistentStreamVideo({
         width: "100%",
         height: "100%",
         objectFit: "cover",
-        background: "#050B14",
+        background: "#020B10",
         transform: isMirrored ? "scaleX(-1)" : undefined,
         ...style,
       }}
@@ -184,12 +215,33 @@ function VideoView({
   onToggleFit?: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [hasVideoTrack, setHasVideoTrack] = useState(false);
+
   useEffect(() => {
-    if (videoRef.current && stream) {
-      if (videoRef.current.srcObject !== stream) {
-        videoRef.current.srcObject = stream;
-      }
+    const video = videoRef.current;
+    if (!video || !stream) {
+      setHasVideoTrack(false);
+      return;
     }
+
+    const checkTracks = () => {
+      const vTracks = stream.getVideoTracks().filter(t => t.readyState === "live");
+      setHasVideoTrack(vTracks.length > 0);
+    };
+
+    checkTracks();
+    stream.addEventListener("addtrack", checkTracks);
+    stream.addEventListener("removetrack", checkTracks);
+
+    if (video.srcObject !== stream) {
+      video.srcObject = stream;
+    }
+    video.play().catch(() => {});
+
+    return () => {
+      stream.removeEventListener("addtrack", checkTracks);
+      stream.removeEventListener("removetrack", checkTracks);
+    };
   }, [stream]);
 
   return (
@@ -197,16 +249,16 @@ function VideoView({
       position: "relative",
       borderRadius: isSmall ? 12 : 16,
       overflow: "hidden",
-      background: "#050B14",
+      background: "#020B10",
       width: isSmall ? 96 : "100%",
       height: isSmall ? 132 : "100%",
-      border: isSmall ? "2px solid rgba(255,255,255,0.7)" : "none",
+      border: isSmall ? "2px solid rgba(20, 184, 166, 0.6)" : "none",
       boxShadow: isSmall ? "0 6px 18px rgba(0,0,0,0.7)" : "none",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
     }}>
-      {stream ? (
+      {stream && hasVideoTrack ? (
         <video
           ref={videoRef}
           autoPlay
@@ -217,15 +269,15 @@ function VideoView({
             height: "100%",
             objectFit: isSmall ? "cover" : fitMode,
             transform: isMirrored ? "scaleX(-1)" : undefined,
-            background: "#050B14",
+            background: "#020B10",
           }}
         />
       ) : (
-        <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
-          <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#94A3B8" }}>
-            <User size={22} />
+        <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, background: "radial-gradient(ellipse at center, rgba(15, 118, 110, 0.35) 0%, #041D24 80%, #020B10 100%)" }}>
+          <div style={{ width: isSmall ? 28 : 48, height: isSmall ? 28 : 48, borderRadius: "50%", background: "linear-gradient(135deg, #0F766E, #14B8A6)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", boxShadow: "0 0 0 8px rgba(20, 184, 166, 0.2)" }}>
+            <User size={isSmall ? 14 : 24} />
           </div>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>Connecting video stream...</span>
+          {!isSmall && <span style={{ fontSize: 11, color: "#99F6E4", fontWeight: 700 }}>Connecting video stream...</span>}
         </div>
       )}
 
@@ -455,6 +507,7 @@ export default function VideoCallModal({
     }
     if (effectiveCallMode === "idle" || effectiveCallMode === "ended" || effectiveCallMode === "incoming" || !isOpen) {
       setHasConnectedOnce(false);
+      setIsFloating(false);
     }
   }, [effectiveCallMode, state.statusMessage, isOpen]);
 
