@@ -247,6 +247,15 @@ export function useWebRTC(
 
       if (vTrack) {
         vTrack.enabled = true;
+        const pc = pcRef.current;
+        if (pc) {
+          const videoSender = pc.getSenders().find((s) => s.track?.kind === "video");
+          if (videoSender) {
+            try {
+              await videoSender.replaceTrack(vTrack);
+            } catch {}
+          }
+        }
       } else {
         try {
           const videoStream = await navigator.mediaDevices.getUserMedia({

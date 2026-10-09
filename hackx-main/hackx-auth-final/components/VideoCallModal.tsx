@@ -130,12 +130,30 @@ const PersistentStreamVideo = React.memo(function PersistentStreamVideo({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (videoRef.current && stream) {
-      if (videoRef.current.srcObject !== stream) {
-        videoRef.current.srcObject = stream;
-      }
-      videoRef.current.play().catch(() => {});
+    const video = videoRef.current;
+    if (!video || !stream) return;
+
+    if (video.srcObject !== stream) {
+      video.srcObject = stream;
     }
+    video.play().catch(() => {});
+
+    const handleWake = () => {
+      video.play().catch(() => {});
+    };
+
+    const tracks = stream.getTracks();
+    tracks.forEach((t) => {
+      t.addEventListener("unmute", handleWake);
+    });
+    stream.addEventListener("addtrack", handleWake);
+
+    return () => {
+      tracks.forEach((t) => {
+        t.removeEventListener("unmute", handleWake);
+      });
+      stream.removeEventListener("addtrack", handleWake);
+    };
   }, [stream]);
 
   if (!stream) {
@@ -198,12 +216,30 @@ function VideoView({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (videoRef.current && stream) {
-      if (videoRef.current.srcObject !== stream) {
-        videoRef.current.srcObject = stream;
-      }
-      videoRef.current.play().catch(() => {});
+    const video = videoRef.current;
+    if (!video || !stream) return;
+
+    if (video.srcObject !== stream) {
+      video.srcObject = stream;
     }
+    video.play().catch(() => {});
+
+    const handleWake = () => {
+      video.play().catch(() => {});
+    };
+
+    const tracks = stream.getTracks();
+    tracks.forEach((t) => {
+      t.addEventListener("unmute", handleWake);
+    });
+    stream.addEventListener("addtrack", handleWake);
+
+    return () => {
+      tracks.forEach((t) => {
+        t.removeEventListener("unmute", handleWake);
+      });
+      stream.removeEventListener("addtrack", handleWake);
+    };
   }, [stream]);
 
   return (
