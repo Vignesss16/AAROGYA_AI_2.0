@@ -128,41 +128,22 @@ const PersistentStreamVideo = React.memo(function PersistentStreamVideo({
   style?: React.CSSProperties;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [hasVideoTrack, setHasVideoTrack] = useState(false);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !stream) {
-      setHasVideoTrack(false);
-      return;
+    if (videoRef.current && stream) {
+      if (videoRef.current.srcObject !== stream) {
+        videoRef.current.srcObject = stream;
+      }
+      videoRef.current.play().catch(() => {});
     }
-
-    const checkTracks = () => {
-      const vTracks = stream.getVideoTracks().filter(t => t.readyState === "live");
-      setHasVideoTrack(vTracks.length > 0);
-    };
-
-    checkTracks();
-    stream.addEventListener("addtrack", checkTracks);
-    stream.addEventListener("removetrack", checkTracks);
-
-    if (video.srcObject !== stream) {
-      video.srcObject = stream;
-    }
-    video.play().catch(() => {});
-
-    return () => {
-      stream.removeEventListener("addtrack", checkTracks);
-      stream.removeEventListener("removetrack", checkTracks);
-    };
   }, [stream]);
 
-  if (!stream || !hasVideoTrack) {
+  if (!stream) {
     return (
       <div style={{
         width: "100%", height: "100%", display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center", gap: 6,
-        background: "radial-gradient(ellipse at center, rgba(15, 118, 110, 0.35) 0%, #041D24 80%, #020B10 100%)"
+        background: "#020B10"
       }}>
         <div style={{
           width: isMirrored ? 24 : 44, height: isMirrored ? 24 : 44, borderRadius: "50%",
@@ -172,7 +153,7 @@ const PersistentStreamVideo = React.memo(function PersistentStreamVideo({
         }}>
           <User size={isMirrored ? 12 : 22} />
         </div>
-        {!isMirrored && <span style={{ fontSize: 10, color: "#99F6E4", fontWeight: 700 }}>Connecting Video...</span>}
+        {!isMirrored && <span style={{ fontSize: 10, color: "#99F6E4", fontWeight: 700 }}>Connecting video...</span>}
       </div>
     );
   }
@@ -215,33 +196,14 @@ function VideoView({
   onToggleFit?: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [hasVideoTrack, setHasVideoTrack] = useState(false);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !stream) {
-      setHasVideoTrack(false);
-      return;
+    if (videoRef.current && stream) {
+      if (videoRef.current.srcObject !== stream) {
+        videoRef.current.srcObject = stream;
+      }
+      videoRef.current.play().catch(() => {});
     }
-
-    const checkTracks = () => {
-      const vTracks = stream.getVideoTracks().filter(t => t.readyState === "live");
-      setHasVideoTrack(vTracks.length > 0);
-    };
-
-    checkTracks();
-    stream.addEventListener("addtrack", checkTracks);
-    stream.addEventListener("removetrack", checkTracks);
-
-    if (video.srcObject !== stream) {
-      video.srcObject = stream;
-    }
-    video.play().catch(() => {});
-
-    return () => {
-      stream.removeEventListener("addtrack", checkTracks);
-      stream.removeEventListener("removetrack", checkTracks);
-    };
   }, [stream]);
 
   return (
@@ -258,7 +220,7 @@ function VideoView({
       alignItems: "center",
       justifyContent: "center",
     }}>
-      {stream && hasVideoTrack ? (
+      {stream ? (
         <video
           ref={videoRef}
           autoPlay
@@ -505,11 +467,15 @@ export default function VideoCallModal({
     if ((effectiveCallMode === "video" || effectiveCallMode === "audio") && state.statusMessage === "") {
       setHasConnectedOnce(true);
     }
-    if (effectiveCallMode === "idle" || effectiveCallMode === "ended" || effectiveCallMode === "incoming" || !isOpen) {
+    if (effectiveCallMode === "ended") {
+      setHasConnectedOnce(false);
+      setIsFloating(false);
+      onClose();
+    } else if (effectiveCallMode === "idle" || effectiveCallMode === "incoming" || !isOpen) {
       setHasConnectedOnce(false);
       setIsFloating(false);
     }
-  }, [effectiveCallMode, state.statusMessage, isOpen]);
+  }, [effectiveCallMode, state.statusMessage, isOpen, onClose]);
 
   // Default Position for Floating PiP
   useEffect(() => {
@@ -634,6 +600,11 @@ export default function VideoCallModal({
       facilityName: isLocalReceptionist ? facilityName : undefined,
       department: assignedDept,
     });
+  };
+
+  const handleEndCall = () => {
+    actions.endCall();
+    onClose();
   };
 
   const handleSaveVerificationNotes = async (statusOverride?: string) => {
@@ -1205,7 +1176,7 @@ export default function VideoCallModal({
               <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 6 }}>Establishing encrypted WebRTC connection with {patientName}...</div>
               <button
                 type="button"
-                onClick={actions.endCall}
+                onClick={handleEndCall}
                 style={{ marginTop: 26, padding: "12px 36px", borderRadius: 30, border: "none", background: C.red, color: "white", fontWeight: 800, fontSize: 14, cursor: "pointer", boxShadow: "0 4px 16px rgba(239,68,68,0.4)" }}>
                 Cancel Call
               </button>
@@ -1435,7 +1406,7 @@ export default function VideoCallModal({
 
                     <button
                       type="button"
-                      onClick={actions.endCall}
+                      onClick={handleEndCall}
                       style={{
                         width: 48, height: 48, borderRadius: "50%", border: "none", cursor: "pointer",
                         background: `linear-gradient(135deg, ${C.redLight}, ${C.red})`,
@@ -1753,138 +1724,6 @@ export default function VideoCallModal({
                   </div>
                 )}
 
-              </div>
-            </div>
-          )}
-
-          {/* ── 5. POST-CALL SESSION SUMMARY SCREEN ── */}
-          {effectiveCallMode === "ended" && (
-            <div style={{ textAlign: "center", padding: isLocalPatient ? "24px 16px" : "32px 24px" }}>
-              <div style={{
-                width: 72, height: 72, borderRadius: "50%",
-                background: "linear-gradient(135deg, rgba(15, 118, 110, 0.35), rgba(20, 184, 166, 0.15))",
-                border: "2px solid rgba(20, 184, 166, 0.5)",
-                display: "inline-flex", alignItems: "center", justifyContent: "center",
-                color: "#5EEAD4", marginBottom: 16,
-                boxShadow: "0 4px 24px rgba(20, 184, 166, 0.25)"
-              }}>
-                <CheckCircle2 size={36} />
-              </div>
-
-              <div style={{ fontSize: 20, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
-                Consultation Session Concluded
-              </div>
-
-              <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 4 }}>
-                {state.statusMessage || "Call ended"} • Duration: <strong style={{ color: "#5EEAD4" }}>{formatDuration(state.callDuration)}</strong>
-              </div>
-
-              {/* Consultation Summary Card */}
-              <div style={{
-                background: "rgba(6, 33, 40, 0.75)",
-                backdropFilter: "blur(10px)",
-                borderRadius: 16,
-                padding: "16px 20px",
-                margin: "20px auto 24px",
-                maxWidth: 480,
-                border: "1px solid rgba(20, 184, 166, 0.25)",
-                textAlign: "left"
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid rgba(20, 184, 166, 0.15)" }}>
-                  <div>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase" }}>Patient Record</span>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: "#F8FAFC" }}>{patientName}</div>
-                  </div>
-                  {resolvedTokenNumber && (
-                    <div style={{ background: "rgba(20, 184, 166, 0.15)", border: "1px solid rgba(20, 184, 166, 0.35)", borderRadius: 10, padding: "4px 10px", fontSize: 12, fontWeight: 800, color: "#5EEAD4" }}>
-                      Token: #{resolvedTokenNumber}
-                    </div>
-                  )}
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 12, color: "#CBD5E1" }}>
-                  <div><span style={{ color: "#94A3B8" }}>Phone:</span> <strong style={{ color: "white" }}>{patientId}</strong></div>
-                  <div><span style={{ color: "#94A3B8" }}>Department:</span> <strong style={{ color: "white" }}>{patientDetails?.department || assignedDept || "General Medicine"}</strong></div>
-                  {isLocalReceptionist && (
-                    <div><span style={{ color: "#94A3B8" }}>Assigned Doctor:</span> <strong style={{ color: "#5EEAD4" }}>{assignedDoctor}</strong></div>
-                  )}
-                  <div><span style={{ color: "#94A3B8" }}>Session Mode:</span> <strong style={{ color: "#5EEAD4" }}>Encrypted WebRTC</strong></div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", maxWidth: 480, margin: "0 auto" }}>
-                {isLocalReceptionist && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        await handleSaveVerificationNotes(`Verified & Routed to ${assignedDoctor}`);
-                        onClose();
-                      }}
-                      style={{
-                        flex: 1, minWidth: 180, padding: "12px 18px", borderRadius: 12, border: "none", cursor: "pointer",
-                        background: "linear-gradient(135deg, #0F766E, #0D9488)", color: "white", fontSize: 13, fontWeight: 800,
-                        display: "flex", alignItems: "center", justifyContent: "center", gap: 6, boxShadow: "0 4px 14px rgba(15, 118, 110, 0.4)"
-                      }}
-                    >
-                      <CheckCircle2 size={16} /> Mark Verified & Route
-                    </button>
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      style={{
-                        padding: "12px 20px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.18)", cursor: "pointer",
-                        background: "rgba(255,255,255,0.08)", color: "#F8FAFC", fontSize: 13, fontWeight: 700
-                      }}
-                    >
-                      Close Window
-                    </button>
-                  </>
-                )}
-
-                {isLocalDoctor && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        await handleSaveVerificationNotes("Consultation Completed");
-                        onClose();
-                      }}
-                      style={{
-                        flex: 1, minWidth: 180, padding: "12px 18px", borderRadius: 12, border: "none", cursor: "pointer",
-                        background: "linear-gradient(135deg, #0F766E, #0D9488)", color: "white", fontSize: 13, fontWeight: 800,
-                        display: "flex", alignItems: "center", justifyContent: "center", gap: 6, boxShadow: "0 4px 14px rgba(15, 118, 110, 0.4)"
-                      }}
-                    >
-                      <CheckCircle2 size={16} /> Complete & Save Rx
-                    </button>
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      style={{
-                        padding: "12px 20px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.18)", cursor: "pointer",
-                        background: "rgba(255,255,255,0.08)", color: "#F8FAFC", fontSize: 13, fontWeight: 700
-                      }}
-                    >
-                      Close Window
-                    </button>
-                  </>
-                )}
-
-                {isLocalPatient && (
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    style={{
-                      flex: 1, minWidth: 200, padding: "13px 20px", borderRadius: 12, border: "none", cursor: "pointer",
-                      background: "linear-gradient(135deg, #0F766E, #0D9488)", color: "white", fontSize: 13.5, fontWeight: 800,
-                      boxShadow: "0 4px 14px rgba(15, 118, 110, 0.4)"
-                    }}
-                  >
-                    Return to Home / Dashboard
-                  </button>
-                )}
               </div>
             </div>
           )}
