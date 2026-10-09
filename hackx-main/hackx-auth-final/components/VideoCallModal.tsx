@@ -797,55 +797,57 @@ export default function VideoCallModal({
           width: "100%",
           maxWidth: isLocalPatient
             ? "100vw"
-            : (shouldShowDeskPanel ? "min(1060px, 96vw)" : "min(560px, 94vw)"),
+            : (shouldShowDeskPanel ? "min(1080px, 96vw)" : "min(560px, 94vw)"),
           height: isLocalPatient ? "100vh" : "auto",
-          background: isLocalReceptionist ? "#0A192F" : "#0F172A",
-          borderRadius: isLocalPatient ? 0 : 24,
+          background: "#041D24",
+          backgroundImage: "radial-gradient(ellipse at top left, rgba(15, 118, 110, 0.18), transparent 60%), radial-gradient(ellipse at bottom right, rgba(2, 132, 199, 0.12), transparent 60%)",
+          borderRadius: isLocalPatient ? 0 : 22,
           maxHeight: isLocalPatient ? "100vh" : "96vh",
           overflowY: "auto",
           display: "flex",
           flexDirection: "column",
-          border: isLocalPatient ? "none" : (isLocalReceptionist ? "1px solid rgba(14, 165, 233, 0.3)" : "1px solid rgba(59, 130, 246, 0.3)"),
-          boxShadow: isLocalPatient ? "none" : "0 25px 65px rgba(0,0,0,0.75), 0 0 0 1px rgba(56, 189, 248, 0.15)",
-          animation: "slideUp .25s ease-out",
+          border: isLocalPatient ? "none" : "1px solid rgba(20, 184, 166, 0.28)",
+          boxShadow: isLocalPatient ? "none" : "0 25px 65px rgba(0,0,0,0.85), 0 0 0 1px rgba(20, 184, 166, 0.15)",
+          animation: "slideUp .25s cubic-bezier(0.16, 1, 0.3, 1)",
           transition: "max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       >
         {/* Modal Header */}
         <div style={{
-          background: isLocalReceptionist
-            ? "linear-gradient(135deg, #075985, #0C4A6E)"
-            : "linear-gradient(135deg, #1E293B, #0F172A)",
-          padding: isLocalPatient ? "14px 16px" : "16px 20px",
-          borderRadius: isLocalPatient ? 0 : "24px 24px 0 0",
+          background: "linear-gradient(135deg, #042F2E 0%, #0F766E 55%, #115E59 100%)",
+          padding: isLocalPatient ? "14px 16px" : "16px 22px",
+          borderRadius: isLocalPatient ? 0 : "22px 22px 0 0",
           flexShrink: 0,
-          borderBottom: "1px solid rgba(255,255,255,0.1)",
+          borderBottom: "1px solid rgba(20, 184, 166, 0.3)",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.25)",
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
               <div style={{
-                width: 40, height: 40, borderRadius: "50%",
-                background: (isLocalReceptionist || isRemoteReceptionist) ? "rgba(14, 165, 233, 0.25)" : "rgba(56, 189, 248, 0.15)",
-                border: (isLocalReceptionist || isRemoteReceptionist) ? "1px solid rgba(14, 165, 233, 0.5)" : "1px solid rgba(56, 189, 248, 0.3)",
-                display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0
+                width: 42, height: 42, borderRadius: 12,
+                background: "rgba(255, 255, 255, 0.15)",
+                backdropFilter: "blur(8px)",
+                border: "1px solid rgba(255, 255, 255, 0.3)",
+                display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0,
+                boxShadow: "0 4px 12px rgba(0,0,0,0.2)"
               }}>
                 {modalHeaderIcon}
               </div>
               <div style={{ minWidth: 0 }}>
                 <div style={{
-                  fontSize: isLocalPatient ? 13.5 : 15,
+                  fontSize: isLocalPatient ? 14 : 15.5,
                   fontWeight: 800,
-                  color: "#F8FAFC",
+                  color: "#FFFFFF",
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   letterSpacing: -0.2
                 }}>
-                  {isIncoming ? "Incoming Call" : modalHeaderTitle}
+                  {isIncoming ? "Incoming Consultation Call" : modalHeaderTitle}
                 </div>
-                <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <div style={{ fontSize: 11.5, color: "#CCFBF1", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontWeight: 500 }}>
                   {isIncoming
-                    ? (isRemoteDoctor ? "Doctor Tele-Consultation" : isRemoteReceptionist ? "Reception Desk Verification" : "Tele-Health Call")
+                    ? (isRemoteDoctor ? "Doctor Tele-Consultation" : isRemoteReceptionist ? "Reception Desk Live Verification" : "AarogyaAI Tele-Health")
                     : modalHeaderSubtitle}
                 </div>
               </div>
@@ -854,19 +856,20 @@ export default function VideoCallModal({
             <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
               {isActive && (
                 <>
-                  <div style={{ background: "rgba(34, 197, 94, 0.15)", border: "1px solid rgba(34, 197, 94, 0.3)", borderRadius: 20, padding: "4px 10px", display: "flex", alignItems: "center", gap: 6 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ADE80", animation: "pulse 1.5s infinite" }} />
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#4ADE80" }}>{formatDuration(state.callDuration)}</span>
+                  <div style={{ background: "rgba(16, 185, 129, 0.2)", border: "1px solid rgba(16, 185, 129, 0.4)", borderRadius: 20, padding: "4px 12px", display: "flex", alignItems: "center", gap: 6, backdropFilter: "blur(8px)" }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#34D399", animation: "pulse 1.5s infinite" }} />
+                    <span style={{ fontSize: 12, fontWeight: 800, color: "#A7F3D0", letterSpacing: 0.5 }}>{formatDuration(state.callDuration)}</span>
                   </div>
 
                   {/* Float Button */}
                   <button
                     type="button"
                     onClick={() => setIsFloating(true)}
-                    title="Float Call Screen & Move Freely on Screen"
+                    title="Float Call Screen & Move Freely"
                     style={{
-                      background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 10, padding: "7px 12px",
-                      color: "#F8FAFC", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 5
+                      background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.28)", borderRadius: 10, padding: "7px 12px",
+                      color: "#FFFFFF", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
+                      backdropFilter: "blur(6px)", transition: "all 0.15s ease"
                     }}>
                     <Minimize2 size={13} /> Float PiP
                   </button>
@@ -877,7 +880,7 @@ export default function VideoCallModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "6px 12px", color: "white", fontSize: 12, cursor: "pointer", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
+                  style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 10, padding: "6px 14px", color: "white", fontSize: 12, cursor: "pointer", fontWeight: 700, display: "flex", alignItems: "center", gap: 5, backdropFilter: "blur(6px)" }}>
                   <X size={14} /> Close
                 </button>
               )}
@@ -887,95 +890,161 @@ export default function VideoCallModal({
 
         {/* Video fallback warning */}
         {state.isVideoFallback && (
-          <div style={{ background: "#FEF9E7", padding: "10px 16px", display: "flex", gap: 10, alignItems: "flex-start", borderBottom: "1px solid #F4D03F" }}>
-            <AlertTriangle size={18} color="#D97706" />
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#7D6608" }}>Switched to Audio Call</div>
-              <div style={{ fontSize: 12, color: "#7D6608", marginTop: 2 }}>
-                Poor network detected. Video was disabled to maintain uninterrupted voice connection.
-              </div>
+          <div style={{ background: "rgba(245, 158, 11, 0.15)", padding: "10px 18px", display: "flex", gap: 10, alignItems: "center", borderBottom: "1px solid rgba(245, 158, 11, 0.3)" }}>
+            <AlertTriangle size={18} color="#FBBF24" />
+            <div style={{ fontSize: 12, color: "#FDE68A", fontWeight: 600 }}>
+              Low bandwidth connection. Switched to high-clarity encrypted audio to prevent disruption.
             </div>
           </div>
         )}
 
         {/* Status Banner */}
         {state.statusMessage && !isIncoming && (
-          <div style={{ background: state.networkQuality === "critical" ? "#FDEDED" : "rgba(56, 189, 248, 0.12)", padding: "8px 16px", fontSize: 12, color: state.networkQuality === "critical" ? C.red : "#38BDF8", fontWeight: 600, textAlign: "center" }}>
+          <div style={{ background: state.networkQuality === "critical" ? "rgba(239, 68, 68, 0.15)" : "rgba(20, 184, 166, 0.12)", padding: "8px 16px", fontSize: 12, color: state.networkQuality === "critical" ? "#FCA5A5" : "#5EEAD4", fontWeight: 700, textAlign: "center", borderBottom: "1px solid rgba(20, 184, 166, 0.2)" }}>
             {state.statusMessage}
           </div>
         )}
 
         <div
           className={isLocalPatient ? "patient-content-body" : "staff-content-body"}
-          style={{ padding: isLocalPatient ? (isActive ? "4px 8px 12px" : "12px 14px 20px") : "18px 20px", flex: 1, display: "flex", flexDirection: "column" }}
+          style={{ padding: isLocalPatient ? (isActive ? "4px 8px 12px" : "12px 14px 20px") : "20px 22px", flex: 1, display: "flex", flexDirection: "column" }}
         >
 
           {/* ── 1. IDLE: Choose call type (initiator side) ── */}
           {effectiveCallMode === "idle" && (
             <div>
+              {/* Patient Verification Information Card */}
               <div style={{
-                background: isLocalReceptionist ? "rgba(7, 89, 133, 0.2)" : "rgba(30, 41, 59, 0.7)",
-                borderRadius: 18, padding: 18, marginBottom: 16,
-                border: isLocalReceptionist ? "1px solid rgba(14, 165, 233, 0.3)" : "1px solid rgba(255,255,255,0.1)"
+                background: "rgba(6, 33, 40, 0.75)",
+                backdropFilter: "blur(12px)",
+                borderRadius: 18,
+                padding: "20px",
+                marginBottom: 18,
+                border: "1px solid rgba(20, 184, 166, 0.28)",
+                boxShadow: "0 8px 24px rgba(0, 0, 0, 0.35)"
               }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                  <div style={{ width: 52, height: 52, borderRadius: "50%", background: isLocalReceptionist ? "rgba(14, 165, 233, 0.2)" : "rgba(56, 189, 248, 0.15)", border: "1px solid rgba(56, 189, 248, 0.3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#38BDF8" }}>
-                    {isLocalReceptionist ? <Building2 size={24} /> : <Stethoscope size={24} />}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: "#F8FAFC" }}>{patientName}</div>
-                    <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 2 }}>
-                      Calling role: <strong style={{ color: "#38BDF8" }}>{displayCallerTitle}</strong>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                    <div style={{
+                      width: 52, height: 52, borderRadius: 14,
+                      background: "linear-gradient(135deg, rgba(15, 118, 110, 0.4), rgba(20, 184, 166, 0.2))",
+                      border: "1px solid rgba(20, 184, 166, 0.5)",
+                      display: "flex", alignItems: "center", justifyContent: "center", color: "#5EEAD4",
+                      boxShadow: "0 4px 14px rgba(15, 118, 110, 0.3)"
+                    }}>
+                      {isLocalReceptionist ? <Building2 size={26} /> : <Stethoscope size={26} />}
+                    </div>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 17, fontWeight: 800, color: "#F8FAFC", letterSpacing: -0.2 }}>{patientName}</span>
+                        <span style={{ fontSize: 10, fontWeight: 800, background: "rgba(20, 184, 166, 0.15)", border: "1px solid rgba(20, 184, 166, 0.4)", color: "#5EEAD4", padding: "2px 8px", borderRadius: 12 }}>
+                          TELE-HEALTH
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 12.5, color: "#94A3B8", marginTop: 3 }}>
+                        Calling as: <strong style={{ color: "#2DD4BF" }}>{displayCallerTitle}</strong>
+                      </div>
                     </div>
                   </div>
+
+                  {resolvedTokenNumber && (
+                    <div style={{
+                      background: "rgba(15, 118, 110, 0.2)",
+                      border: "1px solid rgba(20, 184, 166, 0.35)",
+                      borderRadius: 12,
+                      padding: "6px 14px",
+                      textAlign: "right"
+                    }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase" }}>Assigned Token</div>
+                      <div style={{ fontSize: 15, fontWeight: 900, color: "#5EEAD4" }}>{resolvedTokenNumber}</div>
+                    </div>
+                  )}
                 </div>
 
                 {patientDetails && (
-                  <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.1)", display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8, fontSize: 12, color: "#CBD5E1" }}>
-                    <div><span style={{ color: "#94A3B8" }}>Phone:</span> <strong style={{ color: "white" }}>{patientId}</strong></div>
-                    <div><span style={{ color: "#94A3B8" }}>Dept:</span> <strong style={{ color: "white" }}>{patientDetails.department || "General OPD"}</strong></div>
-                    <div><span style={{ color: "#94A3B8" }}>Token:</span> <strong style={{ color: "#38BDF8" }}>{resolvedTokenNumber}</strong></div>
-                    {patientDetails.urgency && <div><span style={{ color: "#94A3B8" }}>Urgency:</span> <strong style={{ color: patientDetails.urgency.includes("RED") ? "#F87171" : "#4ADE80" }}>{patientDetails.urgency}</strong></div>}
+                  <div style={{
+                    marginTop: 16,
+                    paddingTop: 14,
+                    borderTop: "1px solid rgba(20, 184, 166, 0.18)",
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
+                    gap: 10,
+                    fontSize: 12,
+                    color: "#CBD5E1"
+                  }}>
+                    <div style={{ background: "rgba(4, 29, 36, 0.6)", padding: "8px 10px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.06)" }}>
+                      <span style={{ color: "#94A3B8", display: "block", fontSize: 10, fontWeight: 600 }}>PHONE NUMBER</span>
+                      <strong style={{ color: "#F8FAFC", fontSize: 12 }}>{patientId}</strong>
+                    </div>
+                    <div style={{ background: "rgba(4, 29, 36, 0.6)", padding: "8px 10px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.06)" }}>
+                      <span style={{ color: "#94A3B8", display: "block", fontSize: 10, fontWeight: 600 }}>DEPARTMENT</span>
+                      <strong style={{ color: "#F8FAFC", fontSize: 12 }}>{patientDetails.department || "General Medicine"}</strong>
+                    </div>
+                    {patientDetails.urgency && (
+                      <div style={{ background: "rgba(4, 29, 36, 0.6)", padding: "8px 10px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.06)" }}>
+                        <span style={{ color: "#94A3B8", display: "block", fontSize: 10, fontWeight: 600 }}>TRIAGE URGENCY</span>
+                        <strong style={{ color: patientDetails.urgency.includes("RED") ? "#F87171" : patientDetails.urgency.includes("YELLOW") ? "#FDE047" : "#4ADE80", fontSize: 12 }}>
+                          {patientDetails.urgency}
+                        </strong>
+                      </div>
+                    )}
+                    {patientDetails.slotTime && (
+                      <div style={{ background: "rgba(4, 29, 36, 0.6)", padding: "8px 10px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.06)" }}>
+                        <span style={{ color: "#94A3B8", display: "block", fontSize: 10, fontWeight: 600 }}>SLOT TIME</span>
+                        <strong style={{ color: "#F8FAFC", fontSize: 12 }}>{patientDetails.slotTime}</strong>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
 
-              <div style={{ display: "flex", gap: 12, marginBottom: 14 }}>
+              {/* Call Initiation Action Buttons */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 16 }}>
                 <button
                   type="button"
                   onClick={() => handleStartCall("video")}
                   style={{
-                    flex: 1, padding: "16px 12px", borderRadius: 16, border: "none", cursor: "pointer",
-                    background: "linear-gradient(135deg, #0284C7, #0369A1)",
-                    color: "white", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, boxShadow: "0 6px 18px rgba(2, 132, 199, 0.35)"
+                    padding: "18px 16px", borderRadius: 16, border: "1px solid rgba(20, 184, 166, 0.4)", cursor: "pointer",
+                    background: "linear-gradient(135deg, #0F766E 0%, #0D9488 100%)",
+                    color: "white", display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                    boxShadow: "0 8px 24px rgba(15, 118, 110, 0.35)", transition: "transform 0.15s ease, box-shadow 0.15s ease"
                   }}>
-                  <Video size={28} />
-                  <span style={{ fontSize: 15, fontWeight: 800 }}>Start Video Call</span>
-                  <span style={{ fontSize: 11, opacity: .85 }}>High Definition Face-to-Face</span>
+                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Video size={24} />
+                  </div>
+                  <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: -0.2 }}>Start Video Call</span>
+                  <span style={{ fontSize: 11, color: "#CCFBF1", fontWeight: 500 }}>High Definition Face-to-Face</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleStartCall("audio")}
                   style={{
-                    flex: 1, padding: "16px 12px", borderRadius: 16, border: "none", cursor: "pointer",
-                    background: "linear-gradient(135deg,#10B981,#047857)", color: "white", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, boxShadow: "0 6px 18px rgba(16, 185, 129, 0.35)"
+                    padding: "18px 16px", borderRadius: 16, border: "1px solid rgba(16, 185, 129, 0.4)", cursor: "pointer",
+                    background: "linear-gradient(135deg, #059669 0%, #10B981 100%)",
+                    color: "white", display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                    boxShadow: "0 8px 24px rgba(16, 185, 129, 0.35)", transition: "transform 0.15s ease, box-shadow 0.15s ease"
                   }}>
-                  <Mic size={28} />
-                  <span style={{ fontSize: 15, fontWeight: 800 }}>Start Audio Call</span>
-                  <span style={{ fontSize: 11, opacity: .85 }}>Low bandwidth friendly</span>
+                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Mic size={24} />
+                  </div>
+                  <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: -0.2 }}>Start Audio Call</span>
+                  <span style={{ fontSize: 11, color: "#D1FAE5", fontWeight: 500 }}>Low bandwidth friendly</span>
                 </button>
               </div>
 
+              {/* AarogyaAI Workflow Tip Box */}
               <div style={{
-                background: isLocalReceptionist ? "rgba(14, 165, 233, 0.12)" : "rgba(56, 189, 248, 0.1)",
-                borderRadius: 14, padding: "12px 14px", border: "1px solid rgba(56, 189, 248, 0.25)", display: "flex", gap: 10
+                background: "rgba(15, 118, 110, 0.12)",
+                borderRadius: 14, padding: "12px 16px", border: "1px solid rgba(20, 184, 166, 0.25)", display: "flex", alignItems: "center", gap: 12
               }}>
-                <Sparkles size={16} color="#38BDF8" />
-                <span style={{ fontSize: 12, color: "#38BDF8", lineHeight: 1.5 }}>
+                <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(20, 184, 166, 0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Sparkles size={16} color="#2DD4BF" />
+                </div>
+                <span style={{ fontSize: 12, color: "#99F6E4", lineHeight: 1.5 }}>
                   {isLocalReceptionist ? (
-                    <><strong>Receptionist Flow:</strong> Call patient to verify face & ID card, eliminate fake bookings, assign OPD token, and route to doctor.</>
+                    <><strong>Receptionist Workflow:</strong> Connect with patient to visually verify identity & symptoms, eliminate fraudulent registrations, assign OPD consultation token, and route to doctor.</>
                   ) : (
-                    <><strong>Doctor Flow:</strong> Conduct tele-consultation, assess AI triage findings, write live diagnosis notes, and order lab tests or medications.</>
+                    <><strong>Doctor Tele-Consultation:</strong> Conduct clinical video consultation, inspect AI triage recommendations, prescribe medications, or order laboratory diagnostics.</>
                   )}
                 </span>
               </div>
@@ -984,43 +1053,44 @@ export default function VideoCallModal({
 
           {/* ── 2. INCOMING CALL SCREEN ── */}
           {isIncoming && (
-            <div style={{ textAlign: "center", padding: "30px 16px" }}>
+            <div style={{ textAlign: "center", padding: "34px 18px" }}>
               <div style={{
-                width: 90, height: 90, borderRadius: "50%",
-                background: "linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(16, 185, 129, 0.2))",
-                border: "2px solid rgba(56, 189, 248, 0.4)",
+                width: 96, height: 96, borderRadius: "50%",
+                background: "linear-gradient(135deg, rgba(15, 118, 110, 0.3), rgba(20, 184, 166, 0.2))",
+                border: "2px solid rgba(20, 184, 166, 0.6)",
                 display: "inline-flex", alignItems: "center", justifyContent: "center",
-                color: "#38BDF8", animation: "ring 1.2s infinite ease-in-out", marginBottom: 16
+                color: "#5EEAD4", animation: "ring 1.2s infinite ease-in-out", marginBottom: 18,
+                boxShadow: "0 0 35px rgba(20, 184, 166, 0.4)"
               }}>
-                {isRemoteDoctor ? <Stethoscope size={38} /> : isRemoteReceptionist ? <Building2 size={38} /> : isRemoteAsha ? <User size={38} /> : <PhoneCall size={38} />}
+                {isRemoteDoctor ? <Stethoscope size={42} /> : isRemoteReceptionist ? <Building2 size={42} /> : isRemoteAsha ? <User size={42} /> : <PhoneCall size={42} />}
               </div>
 
-              <div style={{ fontSize: 20, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
                 {remoteDisplayName}
               </div>
 
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#38BDF8", marginTop: 4 }}>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: "#2DD4BF", marginTop: 4 }}>
                 {remoteSubTitle}
               </div>
 
               <div style={{
                 display: "inline-flex", alignItems: "center", gap: 6,
-                background: "rgba(255,255,255,0.08)", borderRadius: 20, padding: "4px 12px",
-                fontSize: 12, color: "#E2E8F0", marginTop: 10, marginBottom: 32
+                background: "rgba(20, 184, 166, 0.12)", border: "1px solid rgba(20, 184, 166, 0.3)", borderRadius: 20, padding: "5px 14px",
+                fontSize: 12, color: "#CCFBF1", marginTop: 12, marginBottom: 34
               }}>
-                {effectiveIncomingCallType === "video" ? <Video size={13} color="#38BDF8" /> : <Mic size={13} color="#38BDF8" />}
-                <span>{effectiveIncomingCallType === "video" ? "Live Video Consultation" : "Voice Consultation"}</span>
+                {effectiveIncomingCallType === "video" ? <Video size={14} color="#5EEAD4" /> : <Mic size={14} color="#5EEAD4" />}
+                <span style={{ fontWeight: 600 }}>{effectiveIncomingCallType === "video" ? "Incoming Live Video Consultation" : "Incoming Encrypted Voice Consultation"}</span>
               </div>
 
-              <div style={{ display: "flex", gap: 32, justifyContent: "center", alignItems: "center" }}>
+              <div style={{ display: "flex", gap: 36, justifyContent: "center", alignItems: "center" }}>
                 <button
                   type="button"
                   onClick={() => { actions.rejectCall(); onClose(); }}
                   style={{
-                    width: 76, height: 76, borderRadius: "50%", border: "none", cursor: "pointer",
+                    width: 78, height: 78, borderRadius: "50%", border: "none", cursor: "pointer",
                     background: `linear-gradient(135deg, ${C.redLight}, ${C.red})`,
                     display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
-                    boxShadow: "0 8px 24px rgba(239,68,68,0.6)", transition: "transform 0.15s ease",
+                    boxShadow: "0 8px 26px rgba(239,68,68,0.6)", transition: "transform 0.15s ease",
                   }}>
                   <PhoneOff size={24} color="white" />
                   <span style={{ fontSize: 11, fontWeight: 800, color: "white" }}>Decline</span>
@@ -1030,10 +1100,10 @@ export default function VideoCallModal({
                   type="button"
                   onClick={() => actions.answerCall(effectiveIncomingCallType === "video" ? "video" : "audio")}
                   style={{
-                    width: 76, height: 76, borderRadius: "50%", border: "none", cursor: "pointer",
-                    background: "linear-gradient(135deg, #10B981, #047857)",
+                    width: 78, height: 78, borderRadius: "50%", border: "none", cursor: "pointer",
+                    background: "linear-gradient(135deg, #059669, #10B981)",
                     display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
-                    boxShadow: "0 8px 24px rgba(16, 185, 129, 0.6)", transition: "transform 0.15s ease",
+                    boxShadow: "0 8px 26px rgba(16, 185, 129, 0.6)", transition: "transform 0.15s ease",
                   }}>
                   <Phone size={24} color="white" />
                   <span style={{ fontSize: 11, fontWeight: 800, color: "white" }}>Answer</span>
@@ -1044,16 +1114,16 @@ export default function VideoCallModal({
 
           {/* ── 3. CONNECTING / RINGING ── */}
           {isConnecting && (
-            <div style={{ textAlign: "center", padding: "36px 20px" }}>
-              <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(56, 189, 248, 0.15)", border: "1px solid rgba(56, 189, 248, 0.3)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#38BDF8", animation: "pulse 1s infinite" }}>
-                <PhoneCall size={32} />
+            <div style={{ textAlign: "center", padding: "40px 20px" }}>
+              <div style={{ width: 68, height: 68, borderRadius: "50%", background: "rgba(20, 184, 166, 0.18)", border: "1px solid rgba(20, 184, 166, 0.4)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#5EEAD4", animation: "pulse 1s infinite" }}>
+                <PhoneCall size={34} />
               </div>
-              <div style={{ fontSize: 18, fontWeight: 800, color: "#F8FAFC", marginTop: 14 }}>{state.statusMessage || "Connecting..."}</div>
-              <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 6 }}>Connecting to {patientName}...</div>
+              <div style={{ fontSize: 19, fontWeight: 800, color: "#F8FAFC", marginTop: 16 }}>{state.statusMessage || "Connecting..."}</div>
+              <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 6 }}>Establishing encrypted WebRTC connection with {patientName}...</div>
               <button
                 type="button"
                 onClick={actions.endCall}
-                style={{ marginTop: 24, padding: "12px 34px", borderRadius: 30, border: "none", background: C.red, color: "white", fontWeight: 700, fontSize: 14, cursor: "pointer", boxShadow: "0 4px 14px rgba(239,68,68,0.4)" }}>
+                style={{ marginTop: 26, padding: "12px 36px", borderRadius: 30, border: "none", background: C.red, color: "white", fontWeight: 800, fontSize: 14, cursor: "pointer", boxShadow: "0 4px 16px rgba(239,68,68,0.4)" }}>
                 Cancel Call
               </button>
             </div>
@@ -1061,7 +1131,7 @@ export default function VideoCallModal({
 
           {/* ── 4. ACTIVE CALL VIEW ── */}
           {isActive && (
-            <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 10 }}>
+            <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 12 }}>
               {/* Top Sub-bar with Network Quality and Clean Segmented Switcher */}
               <div style={{
                 display: "flex",
@@ -1076,7 +1146,7 @@ export default function VideoCallModal({
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                   {/* Token Pill for Patient */}
                   {isLocalPatient && (
-                    <div style={{ background: "rgba(14, 165, 233, 0.15)", border: "1px solid rgba(14, 165, 233, 0.3)", borderRadius: 14, padding: "4px 10px", fontSize: 11, fontWeight: 800, color: "#38BDF8" }}>
+                    <div style={{ background: "rgba(20, 184, 166, 0.15)", border: "1px solid rgba(20, 184, 166, 0.35)", borderRadius: 14, padding: "4px 12px", fontSize: 11, fontWeight: 800, color: "#5EEAD4" }}>
                       Token: #{resolvedTokenNumber}
                     </div>
                   )}
@@ -1085,10 +1155,10 @@ export default function VideoCallModal({
                   {(isLocalReceptionist || isLocalDoctor) && (
                     <div style={{
                       display: "flex",
-                      background: "rgba(15, 23, 42, 0.85)",
+                      background: "rgba(4, 29, 36, 0.85)",
                       padding: "3px",
                       borderRadius: 12,
-                      border: "1px solid rgba(255, 255, 255, 0.18)",
+                      border: "1px solid rgba(20, 184, 166, 0.25)",
                       gap: 3,
                     }}>
                       <button
@@ -1104,7 +1174,7 @@ export default function VideoCallModal({
                           borderRadius: 9,
                           border: "none",
                           background: (mobileTab === "video" && (!showDeskPad || (typeof window !== "undefined" && window.innerWidth < 769)))
-                            ? (isLocalReceptionist ? "linear-gradient(135deg, #0284C7, #0369A1)" : "linear-gradient(135deg, #2563EB, #1D4ED8)")
+                            ? "linear-gradient(135deg, #0F766E, #0D9488)"
                             : "transparent",
                           color: (mobileTab === "video") ? "white" : "#94A3B8",
                           fontSize: 11.5,
@@ -1131,7 +1201,7 @@ export default function VideoCallModal({
                           borderRadius: 9,
                           border: "none",
                           background: (mobileTab === "desk" || (showDeskPad && typeof window !== "undefined" && window.innerWidth >= 769))
-                            ? (isLocalReceptionist ? "linear-gradient(135deg, #0284C7, #0369A1)" : "linear-gradient(135deg, #2563EB, #1D4ED8)")
+                            ? "linear-gradient(135deg, #0F766E, #0D9488)"
                             : "transparent",
                           color: (mobileTab === "desk" || showDeskPad) ? "white" : "#94A3B8",
                           fontSize: 11.5,
@@ -1152,9 +1222,9 @@ export default function VideoCallModal({
                     </div>
                   )}
 
-                  <span style={{ fontSize: 11, color: "#94A3B8", display: "flex", alignItems: "center", gap: 4 }}>
-                    {effectiveCallMode === "video" ? <Video size={13} /> : <Mic size={13} />}
-                    {effectiveCallMode === "video" ? "Video" : "Voice"}
+                  <span style={{ fontSize: 11, color: "#94A3B8", display: "flex", alignItems: "center", gap: 4, fontWeight: 600 }}>
+                    {effectiveCallMode === "video" ? <Video size={13} color="#2DD4BF" /> : <Mic size={13} color="#2DD4BF" />}
+                    {effectiveCallMode === "video" ? "Video Channel" : "Voice Channel"}
                   </span>
                 </div>
               </div>
@@ -1184,8 +1254,9 @@ export default function VideoCallModal({
                         minHeight: isLocalPatient ? "62vh" : 300,
                         height: isLocalPatient ? "calc(100dvh - 150px)" : "48vh",
                         maxHeight: isLocalPatient ? "none" : 520,
-                        background: "#050B14",
-                        border: isLocalPatient ? "none" : "1px solid rgba(255,255,255,0.12)",
+                        background: "#020B10",
+                        border: isLocalPatient ? "none" : "1px solid rgba(20, 184, 166, 0.25)",
+                        boxShadow: "0 8px 30px rgba(0, 0, 0, 0.5)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -1215,7 +1286,7 @@ export default function VideoCallModal({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      gap: 10,
+                      gap: 12,
                       marginTop: 14,
                       flexWrap: "nowrap",
                     }}
@@ -1224,8 +1295,8 @@ export default function VideoCallModal({
                       type="button"
                       onClick={actions.toggleMute}
                       style={{
-                        width: 44, height: 44, borderRadius: "50%", border: "none", cursor: "pointer",
-                        background: state.isMuted ? C.red : "rgba(255,255,255,0.15)", boxShadow: "0 4px 12px rgba(0,0,0,.3)",
+                        width: 46, height: 46, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer",
+                        background: state.isMuted ? C.red : "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)", boxShadow: "0 4px 14px rgba(0,0,0,.35)",
                         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "white", flexShrink: 0
                       }}>
                       {state.isMuted ? <MicOff size={16} /> : <Mic size={16} />}
@@ -1237,8 +1308,8 @@ export default function VideoCallModal({
                         type="button"
                         onClick={actions.toggleCamera}
                         style={{
-                          width: 44, height: 44, borderRadius: "50%", border: "none", cursor: "pointer",
-                          background: state.isCameraOff ? C.red : "rgba(255,255,255,0.15)", boxShadow: "0 4px 12px rgba(0,0,0,.3)",
+                          width: 46, height: 46, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer",
+                          background: state.isCameraOff ? C.red : "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)", boxShadow: "0 4px 14px rgba(0,0,0,.35)",
                           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "white", flexShrink: 0
                         }}>
                         {state.isCameraOff ? <VideoOff size={16} /> : <Video size={16} />}
@@ -1251,8 +1322,8 @@ export default function VideoCallModal({
                         type="button"
                         onClick={actions.downgradeToAudio}
                         style={{
-                          width: 44, height: 44, borderRadius: "50%", border: "none", cursor: "pointer",
-                          background: "rgba(255,255,255,0.15)", boxShadow: "0 4px 12px rgba(0,0,0,.3)",
+                          width: 46, height: 46, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer",
+                          background: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)", boxShadow: "0 4px 14px rgba(0,0,0,.35)",
                           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "white", flexShrink: 0
                         }}>
                         <PhoneCall size={16} />
@@ -1264,13 +1335,13 @@ export default function VideoCallModal({
                       type="button"
                       onClick={actions.endCall}
                       style={{
-                        width: 46, height: 46, borderRadius: "50%", border: "none", cursor: "pointer",
-                        background: `linear-gradient(135deg,${C.redLight},${C.red})`,
-                        boxShadow: "0 4px 18px rgba(239,68,68,.6)",
+                        width: 48, height: 48, borderRadius: "50%", border: "none", cursor: "pointer",
+                        background: `linear-gradient(135deg, ${C.redLight}, ${C.red})`,
+                        boxShadow: "0 4px 20px rgba(239,68,68,.65)",
                         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "white", flexShrink: 0
                       }}>
                       <PhoneOff size={20} />
-                      <span style={{ fontSize: 8, fontWeight: 700 }}>End</span>
+                      <span style={{ fontSize: 8, fontWeight: 800 }}>End</span>
                     </button>
                   </div>
                 </div>
@@ -1282,40 +1353,40 @@ export default function VideoCallModal({
                   <div
                     className={`call-desk-column ${mobileTab === "video" ? "mobile-hide-desk" : ""}`}
                     style={{
-                      background: "rgba(10, 30, 52, 0.8)", borderRadius: 18, padding: "16px",
-                      border: "1px solid rgba(14, 165, 233, 0.3)", flexDirection: "column", gap: 12,
-                      minWidth: 0, width: "100%"
+                      background: "rgba(6, 33, 40, 0.85)", borderRadius: 18, padding: "18px",
+                      border: "1px solid rgba(20, 184, 166, 0.3)", flexDirection: "column", gap: 14,
+                      minWidth: 0, width: "100%", boxShadow: "0 8px 30px rgba(0,0,0,0.3)"
                     }}
                   >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: "#38BDF8", display: "flex", alignItems: "center", gap: 6 }}>
-                        <Building2 size={16} /> In-Call Reception Verification Desk
+                      <div style={{ fontSize: 14.5, fontWeight: 800, color: "#5EEAD4", display: "flex", alignItems: "center", gap: 8 }}>
+                        <Building2 size={18} /> In-Call Reception Verification Desk
                       </div>
                       {notesSaveStatus && (
-                        <span style={{ fontSize: 11, fontWeight: 700, color: "#4ADE80", background: "rgba(34,197,94,0.15)", padding: "2px 8px", borderRadius: 10 }}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: "#4ADE80", background: "rgba(34,197,94,0.18)", padding: "3px 10px", borderRadius: 12, border: "1px solid rgba(34,197,94,0.3)" }}>
                           {notesSaveStatus}
                         </span>
                       )}
                     </div>
 
                     {/* Patient Card */}
-                    <div style={{ background: "rgba(15, 23, 42, 0.6)", borderRadius: 12, padding: "10px 12px", fontSize: 11, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, color: "#CBD5E1" }}>
-                      <div>Phone: <strong style={{ color: "white" }}>{patientId}</strong></div>
-                      <div>Assigned Token: <strong style={{ color: "#38BDF8" }}>{resolvedTokenNumber}</strong></div>
-                      <div>Urgency: <strong style={{ color: patientDetails?.urgency?.includes("RED") ? "#F87171" : "#4ADE80" }}>{patientDetails?.urgency || "STANDARD"}</strong></div>
-                      <div>Slot: <strong style={{ color: "white" }}>{patientDetails?.slotTime || "Walk-In / Immediate"}</strong></div>
+                    <div style={{ background: "rgba(4, 29, 36, 0.75)", borderRadius: 12, padding: "12px 14px", fontSize: 11.5, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, color: "#CBD5E1", border: "1px solid rgba(20, 184, 166, 0.15)" }}>
+                      <div><span style={{ color: "#94A3B8" }}>Phone:</span> <strong style={{ color: "white" }}>{patientId}</strong></div>
+                      <div><span style={{ color: "#94A3B8" }}>Assigned Token:</span> <strong style={{ color: "#5EEAD4" }}>{resolvedTokenNumber}</strong></div>
+                      <div><span style={{ color: "#94A3B8" }}>Urgency:</span> <strong style={{ color: patientDetails?.urgency?.includes("RED") ? "#F87171" : "#4ADE80" }}>{patientDetails?.urgency || "STANDARD"}</strong></div>
+                      <div><span style={{ color: "#94A3B8" }}>Slot:</span> <strong style={{ color: "white" }}>{patientDetails?.slotTime || "Walk-In / Immediate"}</strong></div>
                     </div>
 
                     {/* Doctor Routing & OPD Assignment */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                       <div>
-                        <label style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", display: "block", marginBottom: 3 }}>Assign Doctor</label>
+                        <label style={{ fontSize: 10.5, fontWeight: 700, color: "#99F6E4", display: "block", marginBottom: 4 }}>Assign Doctor</label>
                         <select
                           value={assignedDoctor}
                           onChange={(e) => setAssignedDoctor(e.target.value)}
                           style={{
-                            width: "100%", background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255,255,255,0.15)",
-                            borderRadius: 8, color: "white", padding: "6px 8px", fontSize: 11, outline: "none"
+                            width: "100%", background: "#041D24", border: "1px solid rgba(20, 184, 166, 0.3)",
+                            borderRadius: 10, color: "white", padding: "8px 10px", fontSize: 11.5, outline: "none"
                           }}>
                           <option value="Dr. Vasanth">Dr. Vasanth (General Medicine)</option>
                           <option value="Dr. S. Kulkarni">Dr. S. Kulkarni (Emergency & Trauma)</option>
@@ -1325,13 +1396,13 @@ export default function VideoCallModal({
                         </select>
                       </div>
                       <div>
-                        <label style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", display: "block", marginBottom: 3 }}>OPD Room</label>
+                        <label style={{ fontSize: 10.5, fontWeight: 700, color: "#99F6E4", display: "block", marginBottom: 4 }}>OPD Room</label>
                         <select
                           value={assignedDept}
                           onChange={(e) => setAssignedDept(e.target.value)}
                           style={{
-                            width: "100%", background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255,255,255,0.15)",
-                            borderRadius: 8, color: "white", padding: "6px 8px", fontSize: 11, outline: "none"
+                            width: "100%", background: "#041D24", border: "1px solid rgba(20, 184, 166, 0.3)",
+                            borderRadius: 10, color: "white", padding: "8px 10px", fontSize: 11.5, outline: "none"
                           }}>
                           <option value="Room 101 - General OPD">Room 101 - General OPD</option>
                           <option value="Room 102 - Emergency Triage">Room 102 - Emergency Triage</option>
@@ -1343,7 +1414,7 @@ export default function VideoCallModal({
 
                     {/* Quick Verification Chips */}
                     <div>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 4 }}>Live Verification Badges</div>
+                      <div style={{ fontSize: 10.5, fontWeight: 700, color: "#99F6E4", marginBottom: 6 }}>Live Verification Badges</div>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                         {[
                           "Face & Photo ID Matched",
@@ -1356,10 +1427,11 @@ export default function VideoCallModal({
                             type="button"
                             onClick={() => setDeskNotes((prev) => prev ? `${prev}\n• ${tag}` : `• ${tag}`)}
                             style={{
-                              padding: "4px 8px", borderRadius: 8, border: "1px solid rgba(14, 165, 233, 0.3)",
-                              background: "rgba(14, 165, 233, 0.1)", color: "#BAE6FD", fontSize: 10, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4
+                              padding: "5px 10px", borderRadius: 8, border: "1px solid rgba(20, 184, 166, 0.35)",
+                              background: "rgba(15, 118, 110, 0.18)", color: "#99F6E4", fontSize: 10.5, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
+                              transition: "all 0.15s ease"
                             }}>
-                            <Check size={10} /> {tag}
+                            <Check size={11} color="#5EEAD4" /> {tag}
                           </button>
                         ))}
                       </div>
@@ -1371,33 +1443,35 @@ export default function VideoCallModal({
                       placeholder="Write reception verification notes or anti-scam remarks..."
                       rows={3}
                       style={{
-                        width: "100%", background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255,255,255,0.15)",
-                        borderRadius: 10, color: "white", padding: 8, fontSize: 11, resize: "none", outline: "none"
+                        width: "100%", background: "#041D24", border: "1px solid rgba(20, 184, 166, 0.25)",
+                        borderRadius: 10, color: "white", padding: "10px", fontSize: 11.5, resize: "none", outline: "none"
                       }}
                     />
 
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                       <button
                         type="button"
                         disabled={isSavingNotes}
                         onClick={() => handleSaveVerificationNotes(`Verified & Routed to ${assignedDoctor}`)}
                         style={{
-                          padding: "10px 12px", borderRadius: 10, border: "none",
-                          background: "linear-gradient(135deg, #10B981, #047857)", color: "white",
-                          fontSize: 11, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4
+                          padding: "11px 14px", borderRadius: 12, border: "none",
+                          background: "linear-gradient(135deg, #0F766E, #0D9488)", color: "white",
+                          fontSize: 12, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                          boxShadow: "0 4px 14px rgba(15, 118, 110, 0.4)"
                         }}>
-                        <CheckCircle2 size={13} /> {isSavingNotes ? "Saving..." : "Verify & Route to Doctor"}
+                        <CheckCircle2 size={15} /> {isSavingNotes ? "Saving..." : "Verify & Route to Doctor"}
                       </button>
                       <button
                         type="button"
                         disabled={isSavingNotes}
                         onClick={() => handleSaveVerificationNotes("Flagged Suspicious / Canceled")}
                         style={{
-                          padding: "10px 12px", borderRadius: 10, border: "none",
+                          padding: "11px 14px", borderRadius: 12, border: "none",
                           background: "linear-gradient(135deg, #EF4444, #B91C1C)", color: "white",
-                          fontSize: 11, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4
+                          fontSize: 12, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                          boxShadow: "0 4px 14px rgba(239, 68, 68, 0.4)"
                         }}>
-                        <ShieldAlert size={13} /> Flag Suspicious
+                        <ShieldAlert size={15} /> Flag Suspicious
                       </button>
                     </div>
                   </div>
@@ -1408,13 +1482,13 @@ export default function VideoCallModal({
                   <div
                     className={`call-desk-column ${mobileTab === "video" ? "mobile-hide-desk" : ""}`}
                     style={{
-                      background: "rgba(30, 41, 59, 0.75)", borderRadius: 18, padding: "16px",
-                      border: "1px solid rgba(59, 130, 246, 0.3)", flexDirection: "column", gap: 12,
-                      minWidth: 0, width: "100%"
+                      background: "rgba(6, 33, 40, 0.85)", borderRadius: 18, padding: "18px",
+                      border: "1px solid rgba(20, 184, 166, 0.3)", flexDirection: "column", gap: 14,
+                      minWidth: 0, width: "100%", boxShadow: "0 8px 30px rgba(0,0,0,0.3)"
                     }}
                   >
                     {/* Mobile Quick Return Banner */}
-                    <div className="mobile-desk-header" style={{ display: "none", alignItems: "center", justifyContent: "space-between", background: "rgba(15, 23, 42, 0.9)", padding: "8px 12px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)" }}>
+                    <div className="mobile-desk-header" style={{ display: "none", alignItems: "center", justifyContent: "space-between", background: "rgba(4, 29, 36, 0.9)", padding: "8px 12px", borderRadius: 12, border: "1px solid rgba(20, 184, 166, 0.25)" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#4ADE80", animation: "pulse 1.5s infinite" }} />
                         <span style={{ fontSize: 11, fontWeight: 700, color: "white" }}>In Call with {patientName}</span>
@@ -1423,11 +1497,11 @@ export default function VideoCallModal({
                         type="button"
                         onClick={() => setMobileTab("video")}
                         style={{
-                          background: "rgba(56, 189, 248, 0.2)",
-                          border: "1px solid rgba(56, 189, 248, 0.4)",
+                          background: "rgba(20, 184, 166, 0.2)",
+                          border: "1px solid rgba(20, 184, 166, 0.4)",
                           borderRadius: 8,
                           padding: "4px 10px",
-                          color: "#38BDF8",
+                          color: "#5EEAD4",
                           fontSize: 11,
                           fontWeight: 700,
                           cursor: "pointer",
@@ -1441,18 +1515,18 @@ export default function VideoCallModal({
                     </div>
 
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: "#60A5FA", display: "flex", alignItems: "center", gap: 6 }}>
-                        <Stethoscope size={16} /> Clinical Diagnosis & Tele-Consultation
+                      <div style={{ fontSize: 14.5, fontWeight: 800, color: "#5EEAD4", display: "flex", alignItems: "center", gap: 8 }}>
+                        <Stethoscope size={18} /> Clinical Diagnosis & Tele-Consultation
                       </div>
                       {notesSaveStatus && (
-                        <span style={{ fontSize: 11, fontWeight: 700, color: "#4ADE80", background: "rgba(34,197,94,0.15)", padding: "2px 8px", borderRadius: 10 }}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: "#4ADE80", background: "rgba(34,197,94,0.18)", padding: "3px 10px", borderRadius: 12, border: "1px solid rgba(34,197,94,0.3)" }}>
                           {notesSaveStatus}
                         </span>
                       )}
                     </div>
 
                     {/* Symptoms & AI Reasoning Card */}
-                    <div style={{ background: "rgba(15, 23, 42, 0.7)", borderRadius: 12, padding: "10px 12px", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <div style={{ background: "rgba(4, 29, 36, 0.75)", borderRadius: 12, padding: "12px 14px", border: "1px solid rgba(20, 184, 166, 0.15)" }}>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
                         <span style={{ fontSize: 11, fontWeight: 700, color: "#94A3B8" }}>AI Triage Summary:</span>
                         <span style={{
@@ -1467,7 +1541,7 @@ export default function VideoCallModal({
                       {symptomsArray.length > 0 && (
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 6 }}>
                           {symptomsArray.map((s, idx) => (
-                            <span key={idx} style={{ background: "rgba(59, 130, 246, 0.15)", border: "1px solid rgba(59, 130, 246, 0.3)", borderRadius: 6, padding: "2px 6px", fontSize: 10, color: "#93C5FD", fontWeight: 600 }}>
+                            <span key={idx} style={{ background: "rgba(15, 118, 110, 0.2)", border: "1px solid rgba(20, 184, 166, 0.35)", borderRadius: 6, padding: "2px 6px", fontSize: 10, color: "#99F6E4", fontWeight: 600 }}>
                               {s}
                             </span>
                           ))}
@@ -1483,7 +1557,7 @@ export default function VideoCallModal({
 
                     {/* Clinical Diagnosis & Notes */}
                     <div>
-                      <label style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", display: "block", marginBottom: 3 }}>
+                      <label style={{ fontSize: 10.5, fontWeight: 700, color: "#99F6E4", display: "block", marginBottom: 4 }}>
                         Presumptive Diagnosis / Clinical Findings
                       </label>
                       <input
@@ -1492,8 +1566,8 @@ export default function VideoCallModal({
                         onChange={(e) => setClinicalDiagnosis(e.target.value)}
                         placeholder="e.g. Acute Viral Upper Respiratory Infection, Mild Dehydration"
                         style={{
-                          width: "100%", background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255,255,255,0.15)",
-                          borderRadius: 8, color: "white", padding: "7px 10px", fontSize: 11, outline: "none", marginBottom: 6
+                          width: "100%", background: "#041D24", border: "1px solid rgba(20, 184, 166, 0.3)",
+                          borderRadius: 10, color: "white", padding: "8px 10px", fontSize: 11.5, outline: "none", marginBottom: 8
                         }}
                       />
 
@@ -1503,16 +1577,16 @@ export default function VideoCallModal({
                         placeholder="Clinical examination notes, advice, follow-up..."
                         rows={2}
                         style={{
-                          width: "100%", background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255,255,255,0.15)",
-                          borderRadius: 8, color: "white", padding: 8, fontSize: 11, resize: "none", outline: "none"
+                          width: "100%", background: "#041D24", border: "1px solid rgba(20, 184, 166, 0.25)",
+                          borderRadius: 10, color: "white", padding: "10px", fontSize: 11.5, resize: "none", outline: "none"
                         }}
                       />
                     </div>
 
                     {/* Quick In-Call Order Triggers */}
                     <div>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 4 }}>1-Click Rx & Lab Prescriptions</div>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                      <div style={{ fontSize: 10.5, fontWeight: 700, color: "#99F6E4", marginBottom: 6 }}>1-Click Rx & Lab Prescriptions</div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                         {[
                           { label: "Paracetamol 500mg", type: "rx" },
                           { label: "ORS Solution", type: "rx" },
@@ -1534,10 +1608,10 @@ export default function VideoCallModal({
                                 }
                               }}
                               style={{
-                                padding: "4px 8px", borderRadius: 8,
-                                border: isSelected ? "1px solid #10B981" : "1px solid rgba(255,255,255,0.15)",
-                                background: isSelected ? "rgba(16, 185, 129, 0.25)" : "rgba(255,255,255,0.06)",
-                                color: isSelected ? "#4ADE80" : "#CBD5E1", fontSize: 10, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4
+                                padding: "5px 10px", borderRadius: 8,
+                                border: isSelected ? "1px solid #10B981" : "1px solid rgba(20, 184, 166, 0.25)",
+                                background: isSelected ? "rgba(16, 185, 129, 0.25)" : "rgba(4, 29, 36, 0.6)",
+                                color: isSelected ? "#4ADE80" : "#CBD5E1", fontSize: 10.5, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4
                               }}>
                               {item.type === "rx" ? <Pill size={11} /> : <FlaskConical size={11} />}
                               {item.label}
@@ -1548,28 +1622,30 @@ export default function VideoCallModal({
                     </div>
 
                     {/* Save & Conclude Consultation */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 4 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 4 }}>
                       <button
                         type="button"
                         disabled={isSavingNotes}
                         onClick={() => handleSaveVerificationNotes("Consultation Completed")}
                         style={{
-                          padding: "10px 12px", borderRadius: 10, border: "none",
-                          background: "linear-gradient(135deg, #10B981, #047857)", color: "white",
-                          fontSize: 11, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4
+                          padding: "11px 14px", borderRadius: 12, border: "none",
+                          background: "linear-gradient(135deg, #0F766E, #0D9488)", color: "white",
+                          fontSize: 12, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                          boxShadow: "0 4px 14px rgba(15, 118, 110, 0.4)"
                         }}>
-                        <CheckCircle2 size={13} /> {isSavingNotes ? "Submitting..." : "Save Rx & Complete"}
+                        <CheckCircle2 size={15} /> {isSavingNotes ? "Submitting..." : "Save Rx & Complete"}
                       </button>
                       <button
                         type="button"
                         disabled={isSavingNotes}
                         onClick={() => handleSaveVerificationNotes("Referral Recommended")}
                         style={{
-                          padding: "10px 12px", borderRadius: 10, border: "none",
+                          padding: "11px 14px", borderRadius: 12, border: "none",
                           background: "linear-gradient(135deg, #0284C7, #0369A1)", color: "white",
-                          fontSize: 11, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4
+                          fontSize: 12, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                          boxShadow: "0 4px 14px rgba(2, 132, 199, 0.4)"
                         }}>
-                        <FileText size={13} /> Specialist Referral
+                        <FileText size={15} /> Specialist Referral
                       </button>
                     </div>
                   </div>

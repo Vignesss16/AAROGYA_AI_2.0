@@ -1606,86 +1606,21 @@ export default function HospitalDesktopDashboard() {
             </div>
 
             {/* Isolated Tenant Security & Session Card */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              {/* 1-Click Interactive Facility Switcher Dropdown */}
-              <select
-                value={selectedFacilityId}
-                onChange={(e) => {
-                  const newFid = e.target.value;
-                  setSelectedFacilityId(newFid);
-                  if (typeof window !== "undefined") {
-                    localStorage.setItem("hospitalSelectedFacility", newFid);
-                    localStorage.setItem("hospitalAuth", "true");
-                    const stored = localStorage.getItem("hospital_command_user");
-                    if (stored) {
-                      try {
-                        const u = JSON.parse(stored);
-                        u.facilityId = newFid;
-                        localStorage.setItem("hospital_command_user", JSON.stringify(u));
-                      } catch {}
-                    }
-                  }
-                }}
-                style={{
-                  padding: "7px 12px",
-                  borderRadius: 9,
-                  border: "1.5px solid #0D9488",
-                  background: "#F0FDFA",
-                  color: "#0F766E",
-                  fontWeight: 800,
-                  fontSize: 12,
-                  cursor: "pointer",
-                  outline: "none",
-                  boxShadow: "0 1px 3px rgba(15, 118, 110, 0.1)",
-                }}
-                title="Select active hospital command desk"
-              >
-                {facilities.map((fac) => (
-                  <option key={fac.facilityId} value={fac.facilityId}>
-                    🏥 {fac.shortName || fac.name} ({fac.facilityId})
-                  </option>
-                ))}
-              </select>
-
-              <div style={{ background: "#F0FDFA", border: "1.5px solid #99F6E4", borderRadius: 10, padding: "5px 10px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#0F766E" }}>
-                  <Lock size={12} />
-                  <span>{activeFacility?.facilityId || selectedFacilityId}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <div style={{ background: "#F0FDFA", border: "1.5px solid #99F6E4", borderRadius: 12, padding: "7px 14px", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 2px 6px rgba(15, 118, 110, 0.05)" }}>
+                <div style={{ width: 26, height: 26, borderRadius: 8, background: "rgba(15, 118, 110, 0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "#0F766E" }}>
+                  <ShieldCheck size={16} />
                 </div>
-                <div style={{ fontSize: 9, color: "#0D9488", fontWeight: 700 }}>
-                  Isolated Facility Tenant
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, fontWeight: 800, color: "#0F766E" }}>
+                    <span>{activeFacility?.facilityId || selectedFacilityId}</span>
+                    <span style={{ fontSize: 9.5, background: "#CCFBF1", color: "#0F766E", padding: "1px 6px", borderRadius: 4, fontWeight: 700 }}>NABH Verified</span>
+                  </div>
+                  <div style={{ fontSize: 9.5, color: "#0D9488", fontWeight: 700 }}>
+                    Live OPD & Casualty Triage Synchronized
+                  </div>
                 </div>
               </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  if (typeof window !== "undefined") {
-                    localStorage.removeItem("hospitalAuth");
-                    localStorage.removeItem("hospital_command_user");
-                    localStorage.removeItem("hospital_authorized");
-                    localStorage.removeItem("hospital_authorized_facility");
-                  }
-                  router.push("/hospital/login");
-                }}
-                style={{
-                  padding: "7px 11px",
-                  borderRadius: 9,
-                  border: "1px solid #CBD5E1",
-                  background: "#F8FAFC",
-                  color: "#475569",
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-                }}
-                title="Sign out and switch to another hospital portal"
-              >
-                <RefreshCw size={12} /> {T("लॉगिन बदलें", "Switch Login")}
-              </button>
             </div>
           </div>
         </div>
@@ -3261,152 +3196,226 @@ export default function HospitalDesktopDashboard() {
       {isRegisterModalOpen && (
         <div style={{
           position: "fixed", inset: 0, zIndex: 99999,
-          background: "rgba(15, 23, 42, 0.75)", backdropFilter: "blur(6px)",
+          background: "rgba(15, 23, 42, 0.75)", backdropFilter: "blur(8px)",
           display: "flex", alignItems: "center", justifyContent: "center", padding: 16
         }}>
           <div style={{
-            background: "white", borderRadius: 20, width: "100%", maxWidth: 540,
-            overflow: "hidden", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.35)",
-            border: `1px solid ${C.border}`
+            background: "#FFFFFF", borderRadius: 20, width: "100%", maxWidth: 560,
+            overflow: "hidden", boxShadow: "0 25px 60px -15px rgba(15, 118, 110, 0.25)",
+            border: `1px solid ${C.border}`,
+            animation: "slideUp 0.2s ease-out",
           }}>
-            <div style={{ padding: "18px 24px", background: "#0F766E", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <UserPlus size={22} />
+            {/* Modal Header */}
+            <div style={{ padding: "18px 24px", background: "linear-gradient(135deg, #0F766E 0%, #0D5E58 100%)", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255, 255, 255, 0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}>
+                  <UserPlus size={22} />
+                </div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>New Walk-In Patient Registration</h3>
-                  <div style={{ fontSize: 11, opacity: 0.85 }}>Issue instant OPD token and assign consultation room</div>
+                  <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, letterSpacing: "-0.3px" }}>Quick Walk-In Patient Registration</h3>
+                  <div style={{ fontSize: 11.5, opacity: 0.9, marginTop: 1 }}>Issue Instant OPD Token & Assign Consultation Room</div>
                 </div>
               </div>
-              <button onClick={() => setIsRegisterModalOpen(false)} style={{ background: "transparent", border: "none", color: "white", cursor: "pointer" }}>
-                <X size={20} />
+              <button
+                onClick={() => setIsRegisterModalOpen(false)}
+                style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "white", borderRadius: 8, width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+              >
+                <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleCreateWalkin} style={{ padding: "20px 24px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+            <form onSubmit={handleCreateWalkin} style={{ padding: "22px 24px", maxHeight: "80vh", overflowY: "auto" }}>
+              {/* Section 1: Patient Information */}
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 11.5, fontWeight: 800, color: C.primary, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                  <User size={13} /> Patient Details
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 10 }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>
+                      Patient Full Name <span style={{ color: C.red }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Ramesh Patil"
+                      value={walkinForm.patientName}
+                      onChange={(e) => setWalkinForm({ ...walkinForm, patientName: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box", transition: "border 0.2s" }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>
+                      Mobile Number <span style={{ color: C.red }}>*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="e.g. 9876543210"
+                      value={walkinForm.patientPhone}
+                      onChange={(e) => setWalkinForm({ ...walkinForm, patientPhone: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Age</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 36"
+                      value={walkinForm.age}
+                      onChange={(e) => setWalkinForm({ ...walkinForm, age: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Gender</label>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {["M", "F", "Other"].map((g) => (
+                        <button
+                          key={g}
+                          type="button"
+                          onClick={() => setWalkinForm({ ...walkinForm, gender: g })}
+                          style={{
+                            flex: 1,
+                            padding: "8px 4px",
+                            borderRadius: 8,
+                            border: walkinForm.gender === g ? "1.5px solid #0F766E" : `1px solid ${C.border}`,
+                            background: walkinForm.gender === g ? "#F0FDFA" : "#F8FAFC",
+                            color: walkinForm.gender === g ? "#0F766E" : C.muted,
+                            fontWeight: 800,
+                            fontSize: 12,
+                            cursor: "pointer",
+                          }}
+                        >
+                          {g === "M" ? "Male" : g === "F" ? "Female" : "Other"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2: Triage Urgency */}
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 11.5, fontWeight: 800, color: C.primary, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                  <Activity size={13} /> Triage Priority & Severity
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                  {[
+                    { id: "GREEN", label: "Routine OPD", sub: "Standard Queue", bg: "#F0FDF4", border: "#86EFAC", color: "#166534", dot: "#22C55E" },
+                    { id: "YELLOW", label: "Urgent", sub: "Fast-Track", bg: "#FEFCE8", border: "#FDE047", color: "#854D0E", dot: "#EAB308" },
+                    { id: "RED", label: "Emergency", sub: "Immediate Casualty", bg: "#FEF2F2", border: "#FCA5A5", color: "#991B1B", dot: "#EF4444" },
+                  ].map((p) => {
+                    const isSelected = walkinForm.urgency === p.id;
+                    return (
+                      <div
+                        key={p.id}
+                        onClick={() => setWalkinForm({ ...walkinForm, urgency: p.id })}
+                        style={{
+                          padding: "9px 10px",
+                          borderRadius: 10,
+                          border: isSelected ? `2px solid ${p.color}` : `1px solid ${C.border}`,
+                          background: isSelected ? p.bg : "#FFFFFF",
+                          cursor: "pointer",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 2,
+                          boxShadow: isSelected ? "0 2px 8px rgba(0,0,0,0.06)" : "none",
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: p.dot }} />
+                          <span style={{ fontSize: 12, fontWeight: 800, color: p.color }}>{p.label}</span>
+                        </div>
+                        <span style={{ fontSize: 10, color: C.muted, fontWeight: 600 }}>{p.sub}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Section 3: Department & Doctor Room Assignment */}
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 11.5, fontWeight: 800, color: C.primary, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                  <Stethoscope size={13} /> Department & Room Allocation
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 10 }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Department</label>
+                    <select
+                      value={walkinForm.department}
+                      onChange={(e) => setWalkinForm({ ...walkinForm, department: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${C.border}`, fontSize: 12.5, outline: "none", boxSizing: "border-box", background: "#F8FAFC", fontWeight: 700, color: C.text }}
+                    >
+                      <option value="General Medicine">General Medicine (OPD)</option>
+                      <option value="Cardiology">Cardiology</option>
+                      <option value="Pediatrics">Pediatrics & Child Care</option>
+                      <option value="Orthopedics">Orthopedics</option>
+                      <option value="Emergency & Trauma 24/7">Emergency & Trauma</option>
+                      <option value="Gynecology & Maternal">Gynecology & Maternity</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Assign Doctor (On Duty)</label>
+                    <select
+                      value={walkinForm.doctorName}
+                      onChange={(e) => setWalkinForm({ ...walkinForm, doctorName: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${C.border}`, fontSize: 12.5, outline: "none", boxSizing: "border-box", background: "#F8FAFC", fontWeight: 700, color: C.text }}
+                    >
+                      <option value="">-- Auto-Assign Available Room --</option>
+                      {activeFacilityStaff.doctors.map((doc: any) => (
+                        <option key={doc.id || doc._id} value={doc.name}>
+                          {doc.name} ({doc.room || doc.dept}) {doc.onDuty ? "• On Duty" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
                 <div>
-                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>
-                    Patient Full Name *
-                  </label>
+                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Chief Complaints / Symptoms</label>
                   <input
                     type="text"
-                    required
-                    placeholder="e.g. Ramesh Patil"
-                    value={walkinForm.patientName}
-                    onChange={(e) => setWalkinForm({ ...walkinForm, patientName: e.target.value })}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>
-                    Mobile Number *
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="e.g. +91 98765 43210"
-                    value={walkinForm.patientPhone}
-                    onChange={(e) => setWalkinForm({ ...walkinForm, patientPhone: e.target.value })}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                    placeholder="e.g. Fever for 3 days, cough, headache"
+                    value={walkinForm.symptoms}
+                    onChange={(e) => setWalkinForm({ ...walkinForm, symptoms: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
                   />
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 14 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Age</label>
-                  <input
-                    type="number"
-                    placeholder="e.g. 42"
-                    value={walkinForm.age}
-                    onChange={(e) => setWalkinForm({ ...walkinForm, age: e.target.value })}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Gender</label>
-                  <select
-                    value={walkinForm.gender}
-                    onChange={(e) => setWalkinForm({ ...walkinForm, gender: e.target.value })}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box", background: "white" }}
-                  >
-                    <option value="M">Male (M)</option>
-                    <option value="F">Female (F)</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Triage Priority</label>
-                  <select
-                    value={walkinForm.urgency}
-                    onChange={(e) => setWalkinForm({ ...walkinForm, urgency: e.target.value })}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box", background: "white", fontWeight: 700, color: walkinForm.urgency === "RED" ? C.red : walkinForm.urgency === "YELLOW" ? C.yellow : C.green }}
-                  >
-                    <option value="GREEN">GREEN (Routine OPD)</option>
-                    <option value="YELLOW">YELLOW (Urgent / Fast-track)</option>
-                    <option value="RED">RED (Casualty Emergency)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Department</label>
-                  <select
-                    value={walkinForm.department}
-                    onChange={(e) => setWalkinForm({ ...walkinForm, department: e.target.value })}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box", background: "white" }}
-                  >
-                    <option value="General Medicine">General Medicine (OPD)</option>
-                    <option value="Cardiology">Cardiology</option>
-                    <option value="Pediatrics">Pediatrics & Child Care</option>
-                    <option value="Orthopedics">Orthopedics</option>
-                    <option value="Emergency & Trauma 24/7">Emergency & Trauma</option>
-                    <option value="Gynecology & Maternal">Gynecology</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Assign Doctor (On Duty)</label>
-                  <select
-                    value={walkinForm.doctorName}
-                    onChange={(e) => setWalkinForm({ ...walkinForm, doctorName: e.target.value })}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box", background: "white" }}
-                  >
-                    <option value="">-- Auto-Assign Available Room --</option>
-                    {activeFacilityStaff.doctors.map((doc: any) => (
-                      <option key={doc.id} value={doc.name}>
-                        {doc.name} ({doc.room || doc.dept}) {doc.onDuty ? "• On Duty" : ""}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 18 }}>
-                <label style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Chief Complaints / Symptoms</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Chest pain, fever for 3 days, headache"
-                  value={walkinForm.symptoms}
-                  onChange={(e) => setWalkinForm({ ...walkinForm, symptoms: e.target.value })}
-                  style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: "none", boxSizing: "border-box" }}
-                />
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+              {/* Modal Actions */}
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
                 <button
                   type="button"
                   onClick={() => setIsRegisterModalOpen(false)}
-                  style={{ padding: "9px 16px", borderRadius: 8, border: `1px solid ${C.border}`, background: "#F1F5F9", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+                  style={{ padding: "9px 18px", borderRadius: 8, border: `1px solid ${C.border}`, background: "#F1F5F9", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer" }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={walkinSubmitting}
-                  style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: C.primary, color: "white", fontSize: 13, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                  style={{
+                    padding: "9px 24px",
+                    borderRadius: 8,
+                    border: "none",
+                    background: "linear-gradient(135deg, #0F766E 0%, #0D5E58 100%)",
+                    color: "white",
+                    fontSize: 13,
+                    fontWeight: 800,
+                    cursor: walkinSubmitting ? "not-allowed" : "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    boxShadow: "0 4px 12px rgba(15, 118, 110, 0.35)",
+                  }}
                 >
-                  <Printer size={15} /> {walkinSubmitting ? "Generating..." : "Generate Token & Check-in"}
+                  <Printer size={15} /> {walkinSubmitting ? "Generating..." : "Generate Token & Check-In"}
                 </button>
               </div>
             </form>
