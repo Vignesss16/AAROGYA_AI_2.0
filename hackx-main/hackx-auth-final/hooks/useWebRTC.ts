@@ -227,14 +227,14 @@ export function useWebRTC(
   const handleDowngradeToAudio = useCallback((fromRemote: boolean) => {
     const stream = localStreamRef.current;
     if (stream) {
-      stream.getVideoTracks().forEach((t) => { t.stop(); stream.removeTrack(t); });
+      const vTrack = stream.getVideoTracks()[0];
+      if (vTrack) vTrack.enabled = false;
     }
-    const pc = pcRef.current;
-    if (pc) pc.getSenders().forEach((s) => { if (s.track?.kind === "video") pc.removeTrack(s); });
     if (!fromRemote) sendSignal(roomId, clientIdRef.current, "downgrade-to-audio");
     setState((s) => ({
       ...s,
       callMode: "audio",
+      isCameraOff: true,
       isVideoFallback: true,
       statusMessage: "",
     }));
@@ -242,50 +242,36 @@ export function useWebRTC(
 
   const handleUpgradeToVideo = useCallback(async (fromRemote: boolean) => {
     try {
-      let newVideoTrack: MediaStreamTrack | null = null;
-      try {
-        const videoStream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            width: { ideal: 1280, max: 1920 },
-            height: { ideal: 720, max: 1080 },
-            frameRate: { ideal: 30, max: 30 },
-            facingMode: "user",
-          },
-        });
-        newVideoTrack = videoStream.getVideoTracks()[0];
-      } catch (mediaErr) {
-        console.warn("[WebRTC] Could not capture camera for video upgrade:", mediaErr);
-      }
+      const stream = localStreamRef.current;
+      let vTrack = stream?.getVideoTracks()[0];
 
-      if (newVideoTrack) {
-        if (!localStreamRef.current) {
-          localStreamRef.current = new MediaStream([newVideoTrack]);
-        } else {
-          localStreamRef.current.getVideoTracks().forEach((t) => { t.stop(); localStreamRef.current?.removeTrack(t); });
-          localStreamRef.current.addTrack(newVideoTrack);
-        }
-
-        const pc = pcRef.current;
-        if (pc) {
-          const videoSender = pc.getSenders().find((s) => s.track?.kind === "video");
-          if (videoSender) {
-            await videoSender.replaceTrack(newVideoTrack);
-          } else {
-            pc.addTrack(newVideoTrack, localStreamRef.current);
+      if (vTrack) {
+        vTrack.enabled = true;
+      } else {
+        try {
+          const videoStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              width: { ideal: 1280, max: 1920 },
+              height: { ideal: 720, max: 1080 },
+              frameRate: { ideal: 30, max: 30 },
+              facingMode: "user",
+            },
+          });
+          vTrack = videoStream.getVideoTracks()[0];
+          if (vTrack && stream) {
+            stream.addTrack(vTrack);
+            const pc = pcRef.current;
+            if (pc) {
+              const videoSender = pc.getSenders().find((s) => s.track?.kind === "video");
+              if (videoSender) {
+                await videoSender.replaceTrack(vTrack);
+              } else {
+                pc.addTrack(vTrack, stream);
+              }
+            }
           }
-        }
-      }
-
-      const pc = pcRef.current;
-      if (pc) {
-        if (isInitiator) {
-          // Initiator triggers offer renegotiation
-          const offer = await pc.createOffer();
-          await pc.setLocalDescription(offer);
-          await sendSignal(roomId, clientIdRef.current, "offer", offer);
-        } else if (!fromRemote) {
-          // Non-initiator asks initiator to renegotiate
-          await sendSignal(roomId, clientIdRef.current, "renegotiate-request");
+        } catch (mediaErr) {
+          console.warn("[WebRTC] Could not capture camera for video upgrade:", mediaErr);
         }
       }
 
@@ -302,14 +288,13 @@ export function useWebRTC(
         callMode: "video",
         isVideoFallback: false,
         isCameraOff: false,
-        localStream: localStreamRef.current ? new MediaStream(localStreamRef.current.getTracks()) : null,
         statusMessage: "",
       }));
     } catch (err) {
       console.warn("[WebRTC] Failed to upgrade to video:", err);
       setState((s) => ({ ...s, statusMessage: "Could not switch to video" }));
     }
-  }, [roomId, isInitiator, applyAdaptiveEncoding]);
+  }, [roomId, applyAdaptiveEncoding]);
 
   const createPeerConnection = useCallback(() => {
     const pc = new RTCPeerConnection({
@@ -587,22 +572,45 @@ export function useWebRTC(
 
     const pc = createPeerConnection();
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-        },
-        video: mode === "video" ? {
-          width: { ideal: 1280, max: 1920 },
-          height: { ideal: 720, max: 1080 },
-          frameRate: { ideal: 30, max: 30 },
-          facingMode: "user",
-        } : false,
-      });
+      let stream: MediaStream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+          video: {
+            width: { ideal: 1280, max: 1920 },
+            height: { ideal: 720, max: 1080 },
+            frameRate: { ideal: 30, max: 30 },
+            facingMode: "user",
+          },
+        });
+      } catch {
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+          video: false,
+        });
+      }
+
+      const vTrack = stream.getVideoTracks()[0];
+      if (vTrack && mode === "audio") {
+        vTrack.enabled = false;
+      }
+
       localStreamRef.current = stream;
       stream.getTracks().forEach((t) => pc.addTrack(t, stream));
-      setState((s) => ({ ...s, localStream: stream }));
+      setState((s) => ({
+        ...s,
+        localStream: stream,
+        callMode: mode,
+        isCameraOff: mode === "audio" || !vTrack,
+      }));
 
       // Set audio bitrate and initialize with High Quality mode
       pc.getSenders().forEach((sender) => {
@@ -627,7 +635,7 @@ export function useWebRTC(
     } catch {
       setState((s) => ({ ...s, callMode: "idle", statusMessage: "Could not access camera/microphone" }));
     }
-  }, [isInitiator, roomId, createPeerConnection]);
+  }, [isInitiator, roomId, createPeerConnection, applyAdaptiveEncoding]);
 
   const answerCall = useCallback(async (mode: "video" | "audio") => {
     const cid = clientIdRef.current;
@@ -639,22 +647,45 @@ export function useWebRTC(
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-        },
-        video: mode === "video" ? {
-          width: { ideal: 1280, max: 1920 },
-          height: { ideal: 720, max: 1080 },
-          frameRate: { ideal: 30, max: 30 },
-          facingMode: "user",
-        } : false,
-      });
+      let stream: MediaStream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+          video: {
+            width: { ideal: 1280, max: 1920 },
+            height: { ideal: 720, max: 1080 },
+            frameRate: { ideal: 30, max: 30 },
+            facingMode: "user",
+          },
+        });
+      } catch {
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+          video: false,
+        });
+      }
+
+      const vTrack = stream.getVideoTracks()[0];
+      if (vTrack && mode === "audio") {
+        vTrack.enabled = false;
+      }
+
       localStreamRef.current = stream;
       stream.getTracks().forEach((t) => pc!.addTrack(t, stream));
-      setState((s) => ({ ...s, localStream: stream, callMode: mode }));
+      setState((s) => ({
+        ...s,
+        localStream: stream,
+        callMode: mode,
+        isCameraOff: mode === "audio" || !vTrack,
+      }));
 
       // Set audio bitrate and initialize with High Quality mode
       pc.getSenders().forEach((sender) => {
@@ -686,7 +717,7 @@ export function useWebRTC(
     } catch {
       setState((s) => ({ ...s, callMode: "idle", statusMessage: "Could not access camera/microphone" }));
     }
-  }, [roomId, createPeerConnection]);
+  }, [roomId, createPeerConnection, applyAdaptiveEncoding]);
 
   const rejectCall = useCallback(() => {
     sendSignal(roomId, clientIdRef.current, "call-rejected");
