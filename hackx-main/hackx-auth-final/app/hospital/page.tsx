@@ -2099,6 +2099,7 @@ export default function HospitalDesktopDashboard() {
                                     facilityName: activeFacility?.name || "Hospital Medical Center",
                                     department: p.department || "General OPD",
                                     patientDetails: {
+                                      tokenNumber: p.tokenNumber || p.queueNo || undefined,
                                       department: p.department || "General OPD",
                                       urgency: p.urgency || p.priority || (p.triageCategory === "RED" ? "RED CRITICAL" : "STANDARD"),
                                       slotTime: p.slotTime || "Immediate Token",
